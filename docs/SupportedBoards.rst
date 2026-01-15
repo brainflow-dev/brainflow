@@ -1481,3 +1481,37 @@ Available :ref:`presets-label`:
 
 - :code:`BrainFlowPresets.DEFAULT_PRESET`, it contains EEG (EMG, ECG, EOG) data
 - :code:`BrainFlowPresets.AUXILIARY_PRESET`, it contains Gyro, Accel, battery and ESP32 chip temperature data
+
+IronBCI
+--------
+
+IronBCI32
+~~~~~~~~~~
+
+.. image:: https://live.staticflickr.com/65535/55036534734_d467ed741e.jpg
+    :width: 500px
+    :height: 389px
+
+`Github <https://github.com/pieeg-club/ironbci-32>`_
+
+To create such board you need to specify the following board ID and fields of BrainFlowInputParams object:
+
+- :code:`BoardIds.IRONBCI_32_BOARD`
+- :code:`serial_port`, e.g. COM3
+
+Initialization Example:
+
+.. code-block:: python
+
+    params = BrainFlowInputParams()
+    params.serial_port = "COM3"
+    board = BoardShim(BoardIds.IRONBCI_32_BOARD, params)
+
+**On Unix-like systems you may need to configure permissions for serial port or run with sudo.**
+
+Supported platforms:
+
+- Windows
+- Linux
+- MacOS
+- Devices like Raspberry Pi

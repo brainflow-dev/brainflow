@@ -32,7 +32,7 @@ impl BoardIds {
     pub const FIRST: BoardIds = BoardIds::PlaybackFileBoard;
 }
 impl BoardIds {
-    pub const LAST: BoardIds = BoardIds::BiolistenerBoard;
+    pub const LAST: BoardIds = BoardIds::Ironbbci32Board;
 }
 #[repr(i32)]
 #[derive(FromPrimitive, ToPrimitive, Debug, Copy, Clone, Hash, PartialEq, Eq)]
@@ -59,7 +59,6 @@ pub enum BoardIds {
     Freeeeg32Board = 17,
     BrainbitBledBoard = 18,
     GforceDualBoard = 19,
-    GaleaSerialBoard = 20,
     MuseSBledBoard = 21,
     Muse2BledBoard = 22,
     CrownBoard = 23,
@@ -86,8 +85,6 @@ pub enum BoardIds {
     Explore8ChanBoard = 45,
     GanglionNativeBoard = 46,
     EmotibitBoard = 47,
-    GaleaBoardV4 = 48,
-    GaleaSerialBoardV4 = 49,
     NtlWifiBoard = 50,
     AntNeuroEe511Board = 51,
     Freeeeg128Board = 52,
@@ -98,11 +95,12 @@ pub enum BoardIds {
     NeuropawnKnightBoard = 57,
     SynchroniTrio3ChannelsBoard = 58,
     SynchroniOcto8ChannelsBoard = 59,
-    OB50008CHannelsBoard= 60 ,
-    SynchroniPento8ChannelsBoard = 61,
+    Ob50008ChannelsBoard = 60,
+    SynchroniNeo8ChannelsBoard = 61,
     SynchroniUno1ChannelsBoard = 62,
-    OB300024ChannelsBoard = 63,
-    BiolistenerBoard = 64
+    Ob300024ChannelsBoard = 63,
+    BiolistenerBoard = 64,
+    Ironbbci32Board = 65,
 }
 #[repr(i32)]
 #[derive(FromPrimitive, ToPrimitive, Debug, Copy, Clone, Hash, PartialEq, Eq)]

@@ -82,7 +82,8 @@ BrainFlowBoards::BrainFlowBoards()
             {"61", json::object()},
             {"62", json::object()},
             {"63", json::object()},
-            {"64", json::object()}
+            {"64", json::object()},
+            {"65", json::object()},
         }
     }};
 
@@ -1133,6 +1134,18 @@ BrainFlowBoards::BrainFlowBoards()
         {"temperature_channels", {7}},
         {"battery_channel", 8},
         {"other_channels", {9, 10}}
+    };
+    brainflow_boards_json["boards"]["65"]["default"] =
+    {
+        {"name", "IronBCI32"},
+        {"sampling_rate", 512},
+        {"timestamp_channel", 33},
+        {"marker_channel", 34},
+        {"package_num_channel", 0},
+        {"num_rows", 35},
+        {"eeg_channels", {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32}},
+        {"emg_channels", {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32}},
+        {"ecg_channels", {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32}}
     };
 }
 
