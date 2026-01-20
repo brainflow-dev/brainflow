@@ -21,7 +21,7 @@ FreeEEG::FreeEEG (int board_id, struct BrainFlowInputParams params) : Board (boa
     keep_alive = false;
     initialized = false;
     if ((board_id == (int)BoardIds::FREEEEG32_BOARD) ||
-        (board_id == (int)BoardIds::IRONBBCI_32_BOARD))
+        (board_id == (int)BoardIds::IRONBCI_32_BOARD))
     {
         min_package_size = 1 + 32 * 3;
     }
