@@ -45,6 +45,10 @@ SET (BOARD_CONTROLLER_SRC
     ${CMAKE_CURRENT_SOURCE_DIR}/src/board_controller/openbci/cyton_daisy_wifi.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/board_controller/openbci/ganglion.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/board_controller/openbci/ganglion_native.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/board_controller/openbci/ganglion_v2.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/board_controller/openbci/ganglion_native_v2.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/board_controller/openbci/ganglion_v3.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/board_controller/openbci/ganglion_native_v3.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/board_controller/openbci/cyton.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/board_controller/openbci/cyton_daisy.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/board_controller/board_controller.cpp
