@@ -301,7 +301,7 @@ int GanglionNative::release_session ()
     return (int)BrainFlowExitCodes::STATUS_OK;
 }
 
-int GanglionNative::config_board (std::string config)
+int GanglionNative::config_board (std::string config, std::string &response)
 {
     if (!initialized)
     {
