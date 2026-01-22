@@ -38,8 +38,10 @@
 #include "explore.h"
 #include "freeeeg.h"
 #include "galea.h"
-#include "ganglion.h"
-#include "ganglion_native.h"
+#include "ganglion_native_v2.h"
+#include "ganglion_native_v3.h"
+#include "ganglion_v2.h"
+#include "ganglion_v3.h"
 #include "ganglion_wifi.h"
 #include "gforce_dual.h"
 #include "gforce_pro.h"
@@ -106,7 +108,7 @@ int prepare_session (int board_id, const char *json_brainflow_input_params)
             board = std::shared_ptr<Board> (new Cyton (params));
             break;
         case BoardIds::GANGLION_BOARD:
-            board = std::shared_ptr<Board> (new Ganglion (params));
+            board = std::shared_ptr<Board> (new GanglionV3 (params));
             break;
         case BoardIds::CYTON_DAISY_BOARD:
             board = std::shared_ptr<Board> (new CytonDaisy (params));
@@ -250,7 +252,7 @@ int prepare_session (int board_id, const char *json_brainflow_input_params)
             board = std::shared_ptr<Board> (new Explore (board_id, params));
             break;
         case BoardIds::GANGLION_NATIVE_BOARD:
-            board = std::shared_ptr<Board> (new GanglionNative (params));
+            board = std::shared_ptr<Board> (new GanglionNativeV3 (params));
             break;
         case BoardIds::EMOTIBIT_BOARD:
             board = std::shared_ptr<Board> (new Emotibit (params));
@@ -298,6 +300,12 @@ int prepare_session (int board_id, const char *json_brainflow_input_params)
             break;
         case BoardIds::BIOLISTENER_BOARD:
             board = std::shared_ptr<Board> (new BioListener<8> (board_id, params));
+            break;
+        case BoardIds::GANGLION_V2_BOARD:
+            board = std::shared_ptr<Board> (new GanglionV2 (params));
+            break;
+        case BoardIds::GANGLION_V2_NATIVE_BOARD:
+            board = std::shared_ptr<Board> (new GanglionNativeV2 (params));
             break;
         default:
             return (int)BrainFlowExitCodes::UNSUPPORTED_BOARD_ERROR;

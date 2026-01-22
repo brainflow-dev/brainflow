@@ -1,3 +1,5 @@
+#pragma once
+
 #include <condition_variable>
 #include <mutex>
 #include <thread>
@@ -81,8 +83,8 @@ struct GanglionTempData
 class GanglionNative : public BLELibBoard
 {
 public:
-    GanglionNative (struct BrainFlowInputParams params);
-    ~GanglionNative ();
+    GanglionNative (BoardIds board_id, struct BrainFlowInputParams params);
+    virtual ~GanglionNative ();
 
     int prepare_session ();
     int start_stream (int buffer_size, const char *streamer_params);
@@ -103,7 +105,6 @@ protected:
     volatile simpleble_peripheral_t ganglion_peripheral;
     bool initialized;
     bool is_streaming;
-    uint8_t firmware;
     std::mutex m;
     std::condition_variable cv;
     std::pair<simpleble_uuid_t, simpleble_uuid_t> notified_characteristics;
@@ -115,6 +116,5 @@ protected:
     double const accel_scale = 0.016f;
     double const eeg_scale = (1.2f * 1000000) / (8388607.0f * 1.5f * 51.0f);
 
-    void decompress_firmware_3 (const uint8_t *data, double *package);
-    void decompress_firmware_2 (const uint8_t *data, double *package);
+    virtual void decompress (const uint8_t *data, double *package) = 0;
 };

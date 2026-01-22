@@ -24,7 +24,6 @@ namespace GanglionLib
     std::deque<struct GanglionLib::GanglionData> data_queue;
     SpinLock lock;
     volatile bd_addr connect_addr;
-    volatile uint8 firmware = 0;
     volatile uint8 connection = -1;
     volatile uint16 ganglion_handle_start = 0;
     volatile uint16 ganglion_handle_end = 0;
@@ -64,7 +63,7 @@ namespace GanglionLib
         return (int)CustomExitCodes::STATUS_OK;
     }
 
-    int open_ganglion (void *param)
+    int open_ganglion ()
     {
         if (uart_open (uart_port))
         {
@@ -87,9 +86,6 @@ namespace GanglionLib
         ble_cmd_gap_end_procedure ();
 
         int result = open_ble_dev ();
-
-        uint8_t *firmware_ptr = (uint8_t *)param;
-        *firmware_ptr = firmware;
 
         return result;
     }
@@ -140,7 +136,6 @@ namespace GanglionLib
         ble_cmd_gap_end_procedure ();
 
         int result = open_ble_dev ();
-        connection_parameters->firmware = firmware;
         return result;
     }
 

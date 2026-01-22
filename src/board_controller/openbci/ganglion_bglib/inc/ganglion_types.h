@@ -91,6 +91,5 @@ namespace GanglionLib
     struct ConnectionParameters
     {
         char *mac_address;
-        uint8_t firmware;
     };
 }
