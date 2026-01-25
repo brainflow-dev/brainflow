@@ -4,7 +4,7 @@ import subprocess
 import sys
 import time
 
-import pkg_resources
+from importlib.resources import files
 from brainflow_emulator.emulate_common import TestFailureError, log_multilines
 from brainflow_emulator.freeeeg32_emulator import Listener
 from serial import Serial
@@ -19,7 +19,12 @@ def read(port, num_bytes):
 
 
 def get_isntaller():
-    return pkg_resources.resource_filename(__name__, os.path.join('com0com', 'setup_com0com_W7_x64_signed.exe'))
+    try:
+        resource = files(__name__).joinpath('com0com').joinpath('setup_com0com_W7_x64_signed.exe')
+        return str(resource)
+    except (TypeError, AttributeError):
+        import pkg_resources
+        return pkg_resources.resource_filename(__name__, os.path.join('com0com', 'setup_com0com_W7_x64_signed.exe'))
 
 
 def install_com0com():

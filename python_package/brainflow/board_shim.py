@@ -7,7 +7,7 @@ import struct
 from typing import List
 
 import numpy
-import pkg_resources
+from importlib.resources import files
 from brainflow.exit_codes import BrainFlowExitCodes, BrainFlowError
 from brainflow.utils import LogLevels
 from numpy.ctypeslib import ndpointer
@@ -173,7 +173,12 @@ class BoardControllerDLL(object):
             dll_path = 'lib/libBoardController.dylib'
         else:
             dll_path = 'lib/libBoardController.so'
-        full_path = pkg_resources.resource_filename(__name__, dll_path)
+        try:
+            resource = files(__name__).joinpath(dll_path)
+            full_path = str(resource)
+        except (TypeError, AttributeError):
+            import pkg_resources
+            full_path = pkg_resources.resource_filename(__name__, dll_path)
         if os.path.isfile(full_path):
             dir_path = os.path.abspath(os.path.dirname(full_path))
             # for python we load dll by direct path but this dll may depend on other dlls and they will not be found!
