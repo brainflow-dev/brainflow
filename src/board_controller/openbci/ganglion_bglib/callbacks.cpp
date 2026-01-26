@@ -75,13 +75,11 @@ void ble_evt_gap_scan_response (const struct ble_msg_gap_scan_response_evt_t *ms
         if (memcmp (msg->sender.addr, (uint8 *)GanglionLib::connect_addr.addr, sizeof (bd_addr)) ==
             0)
         {
-            GanglionLib::firmware = msg->data.data[0] == 20 && msg->data.data[13] == '3' ? 3 : 2;
             GanglionLib::exit_code = (int)GanglionLib::STATUS_OK;
         }
         else if (strstr (name, "anglion") != NULL) // strcasestr is unavailable for windows
         {
             memcpy ((void *)GanglionLib::connect_addr.addr, msg->sender.addr, sizeof (bd_addr));
-            GanglionLib::firmware = msg->data.data[0] == 20 && msg->data.data[13] == '3' ? 3 : 2;
             GanglionLib::exit_code = (int)GanglionLib::STATUS_OK;
         }
     }

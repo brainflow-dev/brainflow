@@ -20,9 +20,6 @@ private:
 
     bool is_valid;
 
-    double const accel_scale = 0.016f;
-    double const eeg_scale = (1.2f * 1000000) / (8388607.0f * 1.5f * 51.0f);
-
     std::string start_command;
     std::string stop_command;
 
@@ -33,7 +30,6 @@ private:
 
     bool use_mac_addr;
     int num_channels;
-    uint8_t firmware;
 
     // legacy from shared library, now we can do the same wo these helpers but lets keep it
     int call_init ();
@@ -53,9 +49,13 @@ private:
 
     DLLLoader *dll_loader;
 
+protected:
+    double const eeg_scale = (1.2f * 1000000) / (8388607.0f * 1.5f * 51.0f);
+    double const accel_scale = 0.016f;
+
 public:
-    Ganglion (struct BrainFlowInputParams params);
-    ~Ganglion ();
+    Ganglion (BoardIds board_id, struct BrainFlowInputParams params);
+    virtual ~Ganglion ();
 
     int prepare_session ();
     int start_stream (int buffer_size, const char *streamer_params);
@@ -63,8 +63,6 @@ public:
     int release_session ();
     int config_board (std::string config, std::string &response);
 
-    void decompress_firmware_3 (struct GanglionLib::GanglionData *data, float *last_data,
-        double *acceleration, double *package);
-    void decompress_firmware_2 (struct GanglionLib::GanglionData *data, float *last_data,
-        double *acceleration, double *package);
+    virtual void decompress (struct GanglionLib::GanglionData *data, float *last_data,
+        double *acceleration, double *package) = 0;
 };
