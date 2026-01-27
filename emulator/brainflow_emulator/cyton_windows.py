@@ -22,6 +22,9 @@ def get_isntaller():
         resource = files(__name__).joinpath('com0com').joinpath('setup_com0com_W7_x64_signed.exe')
         return str(resource)
     except (TypeError, AttributeError):
+        # Fallback for:
+        # 1. Python < 3.9 (importlib.resources.files not available)
+        # 2. NixOS/packaging edge cases where importlib.resources may not work
         import pkg_resources
         return pkg_resources.resource_filename(__name__, os.path.join('com0com', 'setup_com0com_W7_x64_signed.exe'))
 
