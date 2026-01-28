@@ -4,7 +4,7 @@ import subprocess
 import sys
 import time
 
-import pkg_resources
+from importlib.resources import files
 from brainflow_emulator.emulate_common import TestFailureError, Listener, log_multilines
 from serial import Serial
 
@@ -18,7 +18,15 @@ def read(port, num_bytes):
 
 
 def get_isntaller():
-    return pkg_resources.resource_filename(__name__, os.path.join('com0com', 'setup_com0com_W7_x64_signed.exe'))
+    try:
+        resource = files(__name__).joinpath('com0com').joinpath('setup_com0com_W7_x64_signed.exe')
+        return str(resource)
+    except (TypeError, AttributeError):
+        # Fallback for:
+        # 1. Python < 3.9 (importlib.resources.files not available)
+        # 2. NixOS/packaging edge cases where importlib.resources may not work
+        import pkg_resources
+        return pkg_resources.resource_filename(__name__, os.path.join('com0com', 'setup_com0com_W7_x64_signed.exe'))
 
 
 def install_com0com():
