@@ -67,4 +67,7 @@ public:
         double *acceleration, double *package);
     void decompress_firmware_2 (struct GanglionLib::GanglionData *data, float *last_data,
         double *acceleration, double *package);
+
+private:
+    int get_firmware_from_params (BrainFlowInputParams &params);
 };

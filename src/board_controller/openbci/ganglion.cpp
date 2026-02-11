@@ -30,7 +30,7 @@ Ganglion::Ganglion (struct BrainFlowInputParams params)
         is_valid = true;
     }
     use_mac_addr = (params.mac_address.empty ()) ? false : true;
-    firmware = 0;
+    firmware = get_firmware_from_params (params);
     is_streaming = false;
     keep_alive = false;
     initialized = false;
@@ -77,6 +77,25 @@ Ganglion::~Ganglion ()
     skip_logs = true;
     Ganglion::num_objects--;
     release_session ();
+}
+
+int Ganglion::get_firmware_from_params (BrainFlowInputParams &params)
+{
+    if (params.other_info.compare ("fw:auto") == 0)
+    {
+        safe_logger (spdlog::level::info, "Autodetecting firmware version...");
+        return 0;
+    }
+    if (params.other_info.compare ("fw:2") == 0)
+    {
+        safe_logger (spdlog::level::info, "Setting firmware version to 2");
+        return 2;
+    }
+    else
+    {
+        safe_logger (spdlog::level::info, "Setting firmware version to 3");
+        return 3;
+    }
 }
 
 int Ganglion::prepare_session ()
@@ -678,9 +697,12 @@ int Ganglion::call_open ()
 
         res = func ((void *)&connection_params);
 
-        safe_logger (
-            spdlog::level::info, "detected firmware version {}", connection_params.firmware);
-        firmware = connection_params.firmware;
+        if (firmware == 0)
+        {
+            safe_logger (
+                spdlog::level::info, "detected firmware version {}", connection_params.firmware);
+            firmware = connection_params.firmware;
+        }
     }
     else
     {
@@ -694,9 +716,12 @@ int Ganglion::call_open ()
         safe_logger (
             spdlog::level::info, "mac address is not specified, try to find ganglion without it");
 
-        res = func ((void *)&firmware);
 
-        safe_logger (spdlog::level::info, "detected firmware version {}", firmware);
+        if (firmware == 0)
+        {
+            res = func ((void *)&firmware);
+            safe_logger (spdlog::level::info, "detected firmware version {}", firmware);
+        }
     }
     if (res != GanglionLib::CustomExitCodes::STATUS_OK)
     {

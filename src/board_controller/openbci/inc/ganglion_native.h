@@ -117,4 +117,7 @@ protected:
 
     void decompress_firmware_3 (const uint8_t *data, double *package);
     void decompress_firmware_2 (const uint8_t *data, double *package);
+
+private:
+    int get_firmware_from_params (BrainFlowInputParams &params);
 };
