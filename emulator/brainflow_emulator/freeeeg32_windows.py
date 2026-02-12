@@ -4,7 +4,7 @@ import subprocess
 import sys
 import time
 
-from importlib.resources import files
+from pathlib import Path
 from brainflow_emulator.emulate_common import TestFailureError, log_multilines
 from brainflow_emulator.freeeeg32_emulator import Listener
 from serial import Serial
@@ -18,16 +18,12 @@ def read(port, num_bytes):
     return port.read(num_bytes)
 
 
-def get_isntaller():
-    try:
-        resource = files(__name__).joinpath('com0com').joinpath('setup_com0com_W7_x64_signed.exe')
-        return str(resource)
-    except (TypeError, AttributeError):
-        # Fallback for:
-        # 1. Python < 3.9 (importlib.resources.files not available)
-        # 2. NixOS/packaging edge cases where importlib.resources may not work
-        import pkg_resources
-        return pkg_resources.resource_filename(__name__, os.path.join('com0com', 'setup_com0com_W7_x64_signed.exe'))
+def get_installer():
+    return str(
+        Path(__file__).resolve().parent
+        / "com0com"
+        / "setup_com0com_W7_x64_signed.exe"
+    )
 
 
 def install_com0com():
@@ -35,7 +31,7 @@ def install_com0com():
     directory = os.path.join(this_directory, 'com0com')
     if not os.path.exists(directory):
         os.makedirs(directory)
-    cmds = [get_isntaller(), '/NCRC', '/S', '/D=%s' % directory]
+    cmds = [get_installer(), '/NCRC', '/S', '/D=%s' % directory]
     logging.info('running %s' % ' '.join(cmds))
     p = subprocess.Popen(cmds, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     out, err = p.communicate()

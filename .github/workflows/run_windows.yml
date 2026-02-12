@@ -71,6 +71,7 @@ jobs:
       shell: cmd
     - name: Install Emulator
       run: |
+        pip install setuptools
         pip install %GITHUB_WORKSPACE%\emulator\
         cd %GITHUB_WORKSPACE%
         .\emulator\brainflow_emulator\com0com\certmgr.exe  /add %GITHUB_WORKSPACE%\emulator\brainflow_emulator\com0com\com0com.cer /s /r localMachine root
