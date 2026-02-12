@@ -21,6 +21,10 @@ jobs:
       uses: actions/setup-dotnet@v3
       with:
         dotnet-version: '7.0.x'
+    - name: Setup Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.11'
     - name: Set Version
       id: version
       run: if ("tag" -eq $Env:GITHUB_REF_TYPE) { echo "::set-output name=version::$Env:GITHUB_REF_NAME" } else { echo "::set-output name=version::$Env:GITHUB_SHA" }
@@ -67,6 +71,7 @@ jobs:
       shell: cmd
     - name: Install Emulator
       run: |
+        pip install setuptools
         pip install %GITHUB_WORKSPACE%\emulator\
         cd %GITHUB_WORKSPACE%
         .\emulator\brainflow_emulator\com0com\certmgr.exe  /add %GITHUB_WORKSPACE%\emulator\brainflow_emulator\com0com\com0com.cer /s /r localMachine root
