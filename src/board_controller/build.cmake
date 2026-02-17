@@ -84,6 +84,7 @@ SET (BOARD_CONTROLLER_SRC
     ${CMAKE_CURRENT_SOURCE_DIR}/src/board_controller/pieeg/pieeg_board.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/board_controller/synchroni/synchroni_board.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/board_controller/neuropawn/knight.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/board_controller/neuropawn/knightimu.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/board_controller/biolistener/biolistener.cpp
 )
 

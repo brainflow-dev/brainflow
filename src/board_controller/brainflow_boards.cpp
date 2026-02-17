@@ -84,6 +84,7 @@ BrainFlowBoards::BrainFlowBoards()
             {"63", json::object()},
             {"64", json::object()},
             {"65", json::object()},
+            {"66", json::object()}
         }
     }};
 
@@ -1146,6 +1147,17 @@ BrainFlowBoards::BrainFlowBoards()
         {"eeg_channels", {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32}},
         {"emg_channels", {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32}},
         {"ecg_channels", {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32}}
+    };
+    brainflow_boards_json["boards"]["66"]["default"] =
+    {
+        {"name", "KnightIMU"},
+        {"sampling_rate", 125},
+        {"timestamp_channel", 20},
+        {"marker_channel", 21},
+        {"package_num_channel", 0},
+        {"num_rows", 22},
+        {"eeg_channels", {1, 2, 3, 4, 5, 6, 7, 8}},
+        {"other_channels", {9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19}}
     };
 }
 

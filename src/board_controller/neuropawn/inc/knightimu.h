@@ -7,7 +7,7 @@
 #include "board_controller.h"
 #include "serial.h"
 
-class Knight : public Board
+class KnightIMU : public Board
 {
 
 protected:
@@ -31,8 +31,8 @@ private:
     static const std::set<int> allowed_gains;
 
 public:
-    Knight (int board_id, struct BrainFlowInputParams params);
-    ~Knight ();
+    KnightIMU (int board_id, struct BrainFlowInputParams params);
+    ~KnightIMU ();
 
     int prepare_session ();
     int start_stream (int buffer_size, const char *streamer_params);

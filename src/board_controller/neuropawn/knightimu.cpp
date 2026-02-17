@@ -1,20 +1,22 @@
+#include <cstdint>
+#include <limits>
 #include <math.h>
 #include <string.h>
 #include <vector>
 
 #include "custom_cast.h"
 #include "json.hpp"
-#include "knight.h"
+#include "knightimu.h"
 #include "serial.h"
 #include "timestamp.h"
 
 using json = nlohmann::json;
 
-constexpr int Knight::start_byte;
-constexpr int Knight::end_byte;
-const std::set<int> Knight::allowed_gains = {1, 2, 3, 4, 6, 8, 12};
+constexpr int KnightIMU::start_byte;
+constexpr int KnightIMU::end_byte;
+const std::set<int> KnightIMU::allowed_gains = {1, 2, 3, 4, 6, 8, 12};
 
-Knight::Knight (int board_id, struct BrainFlowInputParams params) : Board (board_id, params)
+KnightIMU::KnightIMU (int board_id, struct BrainFlowInputParams params) : Board (board_id, params)
 {
     serial = NULL;
     is_streaming = false;
@@ -35,7 +37,7 @@ Knight::Knight (int board_id, struct BrainFlowInputParams params) : Board (board
                 if (allowed_gains.count (parsed_gain))
                 {
                     gain = parsed_gain;
-                    safe_logger (spdlog::level::info, "Knight board gain set to {}", gain);
+                    safe_logger (spdlog::level::info, "KnightIMU board gain set to {}", gain);
                 }
                 else
                 {
@@ -61,13 +63,13 @@ Knight::Knight (int board_id, struct BrainFlowInputParams params) : Board (board
     }
 }
 
-Knight::~Knight ()
+KnightIMU::~KnightIMU ()
 {
     skip_logs = true;
     release_session ();
 }
 
-int Knight::prepare_session ()
+int KnightIMU::prepare_session ()
 {
     if (initialized)
     {
@@ -100,7 +102,7 @@ int Knight::prepare_session ()
     return (int)BrainFlowExitCodes::STATUS_OK;
 }
 
-int Knight::start_stream (int buffer_size, const char *streamer_params)
+int KnightIMU::start_stream (int buffer_size, const char *streamer_params)
 {
     if (is_streaming)
     {
@@ -121,7 +123,7 @@ int Knight::start_stream (int buffer_size, const char *streamer_params)
     return (int)BrainFlowExitCodes::STATUS_OK;
 }
 
-int Knight::stop_stream ()
+int KnightIMU::stop_stream ()
 {
     if (is_streaming)
     {
@@ -139,7 +141,7 @@ int Knight::stop_stream ()
     }
 }
 
-int Knight::release_session ()
+int KnightIMU::release_session ()
 {
     if (initialized)
     {
@@ -159,26 +161,28 @@ int Knight::release_session ()
     return (int)BrainFlowExitCodes::STATUS_OK;
 }
 
-void Knight::read_thread ()
+void KnightIMU::read_thread ()
 {
     /*
-    [0] 1 Byte: Start byte
-    [1] 2 Byte: Sample Number
-    [2-3] 3-4 Bytes: EXG channel 1
-    [4-5] 5-6 Bytes: Data value for EXG channel 2
-    [6-7] 7-8 Bytes: Data value for EXG channel 3
-    [8-9] 9-10 Bytes: Data value for EXG channel 4
-    [10-11] 11-12 Bytes: Data value for EXG channel 5
-    [12-13] 13-14 Bytes: Data value for EXG channel 6
-    [14-15] 15-16 Bytes: Data value for EXG channel 7
-    [16-17] 17-18 Bytes: Data value for EXG channel 8
-    [18] 19 Byte: Data LOFF STATP
-    [19] 20 Byte: Data LOFF STATN
-    [20] 21 Byte: End byte
+    Frame format (Arduino):
+    [0]    1 Byte : START (0xA0)
+    [1]    1 Byte : counter
+    [2..17]16 Bytes: 8x EXG int16 (little-endian)
+    [18]   1 Byte : LOFF STATP
+    [19]   1 Byte : LOFF STATN
+    [20..55]36 Bytes: 9x float32 IMU, little-endian: ax,ay,az,gx,gy,gz,mx,my,mz
+    [56]   1 Byte : END (0xC0)
     */
 
     int res;
-    unsigned char b[20] = {0};
+    constexpr int exg_channels_count = 8;
+    constexpr int imu_channels_count = 9;
+    constexpr int loff_bytes = 2;
+    constexpr int frame_payload_size = 1 /*counter*/ + (exg_channels_count * 2) + loff_bytes +
+        (imu_channels_count * 4) + 1 /*end*/;
+
+    unsigned char b[frame_payload_size] = {0};
+
     float eeg_scale = 4 / float ((pow (2, 15) - 1)) / gain * 1000000.;
     int num_rows = board_descr["default"]["num_rows"];
     double *package = new double[num_rows];
@@ -186,7 +190,6 @@ void Knight::read_thread ()
     {
         package[i] = 0.0;
     }
-    bool first_package_received = false;
 
     std::vector<int> eeg_channels = board_descr["default"]["eeg_channels"];
     std::vector<int> other_channels = board_descr["default"]["other_channels"];
@@ -194,24 +197,28 @@ void Knight::read_thread ()
     while (keep_alive)
     {
         // checking the start byte
-        res = serial->read_from_serial_port (b, 1);
+        unsigned char start = 0;
+        res = serial->read_from_serial_port (&start, 1);
         if (res != 1)
         {
             safe_logger (spdlog::level::debug, "unable to read 1 byte, {}");
             continue;
         }
-        if (b[0] != Knight::start_byte)
+        if (start != KnightIMU::start_byte)
         {
             continue;
         }
 
-        int remaining_bytes = 20;
+        int remaining_bytes = frame_payload_size;
         int pos = 0;
         while ((remaining_bytes > 0) && (keep_alive))
         {
             res = serial->read_from_serial_port (b + pos, remaining_bytes);
-            remaining_bytes -= res;
-            pos += res;
+            if (res > 0)
+            {
+                remaining_bytes -= res;
+                pos += res;
+            }
         }
 
         if (!keep_alive)
@@ -219,25 +226,40 @@ void Knight::read_thread ()
             break;
         }
 
-        if (b[19] != Knight::end_byte)
+        if (b[frame_payload_size - 1] != KnightIMU::end_byte)
         {
-            safe_logger (spdlog::level::warn, "Wrong end byte {}", b[19]);
+            safe_logger (spdlog::level::warn, "Wrong end byte {}", b[frame_payload_size - 1]);
             continue;
         }
 
-        // package number CHANGE TO 1 if not working
+        // package number / counter
         package[board_descr["default"]["package_num_channel"].get<int> ()] = (double)b[0];
 
         // exg data retrieval
-        for (unsigned int i = 0; i < eeg_channels.size (); i++)
+        const int exg_offset = 1;
+        for (unsigned int i = 0; i < eeg_channels.size () && i < exg_channels_count; i++)
         {
-            package[eeg_channels[i]] =
-                eeg_scale * cast_16bit_to_int32 (b + 1 + 2 * i); // CHANGE TO 2+2*i if not working
+            package[eeg_channels[i]] = eeg_scale * cast_16bit_to_int32 (b + exg_offset + 2 * i);
         }
 
-        // other channel data retrieval
-        package[other_channels[0]] = (double)b[17]; // LOFF STATP
-        package[other_channels[1]] = (double)b[18]; // LOFF STATN
+        // other channel data retrieval (keep old behavior)
+        const int loff_offset = exg_offset + (exg_channels_count * 2);
+        package[other_channels[0]] = (double)b[loff_offset];     // LOFF STATP
+        package[other_channels[1]] = (double)b[loff_offset + 1]; // LOFF STATN
+
+        // IMU float32, little-endian
+        const int imu_offset = loff_offset + loff_bytes;
+        for (int i = 0; i < imu_channels_count && (2 + i) < (int)other_channels.size (); i++)
+        {
+            uint32_t u = (uint32_t)b[imu_offset + 4 * i] |
+                ((uint32_t)b[imu_offset + 4 * i + 1] << 8) |
+                ((uint32_t)b[imu_offset + 4 * i + 2] << 16) |
+                ((uint32_t)b[imu_offset + 4 * i + 3] << 24);
+            float f = 0.0f;
+            static_assert (sizeof (float) == 4, "float must be 4 bytes");
+            std::memcpy (&f, &u, sizeof (f));
+            package[other_channels[2 + i]] = (double)f;
+        }
 
         // time stamp channel
         package[board_descr["default"]["timestamp_channel"].get<int> ()] = get_timestamp ();
@@ -247,7 +269,7 @@ void Knight::read_thread ()
     delete[] package;
 }
 
-int Knight::open_port ()
+int KnightIMU::open_port ()
 {
     if (serial->is_port_open ())
     {
@@ -265,7 +287,7 @@ int Knight::open_port ()
     return (int)BrainFlowExitCodes::STATUS_OK;
 }
 
-int Knight::set_port_settings ()
+int KnightIMU::set_port_settings ()
 {
     int res = serial->set_serial_port_settings (1000, false);
     if (res < 0)
@@ -283,7 +305,7 @@ int Knight::set_port_settings ()
     return (int)BrainFlowExitCodes::STATUS_OK;
 }
 
-int Knight::config_board (std::string config, std::string &response)
+int KnightIMU::config_board (std::string config, std::string &response)
 {
     if (!initialized)
     {
@@ -306,7 +328,7 @@ int Knight::config_board (std::string config, std::string &response)
     return res;
 }
 
-int Knight::send_to_board (const char *msg)
+int KnightIMU::send_to_board (const char *msg)
 {
     int length = (int)strlen (msg);
     safe_logger (spdlog::level::debug, "sending {} to the board", msg);
@@ -319,7 +341,7 @@ int Knight::send_to_board (const char *msg)
     return (int)BrainFlowExitCodes::STATUS_OK;
 }
 
-int Knight::send_to_board (const char *msg, std::string &response)
+int KnightIMU::send_to_board (const char *msg, std::string &response)
 {
     int length = (int)strlen (msg);
     safe_logger (spdlog::level::debug, "sending {} to the board", msg);
@@ -334,7 +356,7 @@ int Knight::send_to_board (const char *msg, std::string &response)
     return (int)BrainFlowExitCodes::STATUS_OK;
 }
 
-std::string Knight::read_serial_response ()
+std::string KnightIMU::read_serial_response ()
 {
     constexpr int max_tmp_size = 4096;
     unsigned char tmp_array[max_tmp_size];

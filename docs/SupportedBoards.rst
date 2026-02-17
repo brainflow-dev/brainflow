@@ -1425,7 +1425,7 @@ Knight Board
 
 To create such board you need to specify the following board ID and fields of BrainFlowInputParams object:
 
-- :code:`BoardIds.NEUROPAWN_KNIGHT_BOARD`
+- :code:`BoardIds.NEUROPAWN_KNIGHT_BOARD` or :code:`BoardIds.NEUROPAWN_KNIGHT_BOARD_IMU`
 - :code:`serial_port`, e.g. COM3, /dev/tty.*
 
 Initialization Example:
@@ -1434,7 +1434,10 @@ Initialization Example:
 
     params = BrainFlowInputParams()
     params.serial_port = "COM3"
-    board = BoardShim(BoardIds.NEUROPAWN_KNIGHT_BOARD, params)
+    params.other_info = '{"gain": 6}' # optional: set gain to allowed values: 1, 2, 3, 4, 6, 8, 12 (default)
+    
+    board = BoardShim(BoardIds.NEUROPAWN_KNIGHT_BOARD, params) # standard Knight Board
+    board = BoardShim(BoardIds.NEUROPAWN_KNIGHT_BOARD_IMU, params) # Knight Board IMU
 
 **On Unix-like systems you may need to configure permissions for serial port or run with sudo.**
 
