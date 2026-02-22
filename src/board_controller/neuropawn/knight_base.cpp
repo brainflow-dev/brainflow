@@ -12,7 +12,6 @@ using json = nlohmann::json;
 
 constexpr int KnightBase::start_byte;
 constexpr int KnightBase::end_byte;
-const std::set<int> KnightBase::allowed_gains = {1, 2, 3, 4, 6, 8, 12};
 
 KnightBase::KnightBase (int board_id, struct BrainFlowInputParams params) : Board (board_id, params)
 {
@@ -20,7 +19,6 @@ KnightBase::KnightBase (int board_id, struct BrainFlowInputParams params) : Boar
     is_streaming = false;
     keep_alive = false;
     initialized = false;
-    gain = 12; // default gain value
 }
 
 KnightBase::~KnightBase ()
@@ -40,46 +38,6 @@ int KnightBase::prepare_session ()
     {
         safe_logger (spdlog::level::err, "serial port is empty");
         return (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR;
-    }
-
-    // Parse gain from other_info if provided
-    if (!params.other_info.empty ())
-    {
-        try
-        {
-            json j = json::parse (params.other_info);
-            if (j.contains ("gain"))
-            {
-                int parsed_gain = j["gain"];
-                // Validate gain is one of allowed values
-                if (allowed_gains.count (parsed_gain))
-                {
-                    gain = parsed_gain;
-                    safe_logger (spdlog::level::info, "Knight board gain set to {}", gain);
-                }
-                else
-                {
-                    safe_logger (
-                        spdlog::level::err, "Invalid gain value {} in other_info", parsed_gain);
-                    return (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR;
-                }
-            }
-            else
-            {
-                safe_logger (spdlog::level::info, "No gain field in other_info, using default 12");
-            }
-        }
-        catch (json::parse_error &e)
-        {
-            safe_logger (spdlog::level::err, "Failed to parse JSON from other_info: {}", e.what ());
-            return (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR;
-        }
-        catch (json::exception &e)
-        {
-            safe_logger (
-                spdlog::level::err, "JSON exception while parsing other_info: {}", e.what ());
-            return (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR;
-        }
     }
 
     serial = Serial::create (params.serial_port.c_str (), this);

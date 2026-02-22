@@ -35,7 +35,7 @@ void KnightIMU::read_thread ()
 
     unsigned char b[frame_payload_size] = {0};
 
-    float eeg_scale = 4 / float ((pow (2, 15) - 1)) / gain * 1000000.;
+    float eeg_scale = 4 / float ((pow (2, 15) - 1)) / 12 * 1000000.;
     int num_rows = board_descr["default"]["num_rows"];
     double *package = new double[num_rows];
     for (int i = 0; i < num_rows; i++)

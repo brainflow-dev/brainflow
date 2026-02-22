@@ -18,7 +18,6 @@ protected:
     Serial *serial;
 
     int min_package_size;
-    int gain;
 
     virtual int send_to_board (const char *msg);
     virtual int send_to_board (const char *msg, std::string &response);
@@ -28,8 +27,6 @@ protected:
     virtual void read_thread () = 0;
 
 private:
-    static const std::set<int> allowed_gains;
-
 public:
     KnightBase (int board_id, struct BrainFlowInputParams params);
     virtual ~KnightBase ();
