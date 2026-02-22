@@ -45,7 +45,7 @@
 #include "gforce_pro.h"
 #include "json.hpp"
 #include "knight.h"
-#include "knightimu.h"
+#include "knight_imu.h"
 #include "muse.h"
 #include "muse_bled.h"
 #include "notion_osc.h"

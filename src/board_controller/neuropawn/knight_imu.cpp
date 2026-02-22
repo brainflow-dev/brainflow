@@ -5,7 +5,7 @@
 #include <vector>
 
 #include "custom_cast.h"
-#include "knightimu.h"
+#include "knight_imu.h"
 #include "timestamp.h"
 
 KnightIMU::KnightIMU (int board_id, struct BrainFlowInputParams params)
