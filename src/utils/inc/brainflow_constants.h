@@ -94,6 +94,7 @@ enum class BoardIds : int
     OB3000_24_CHANNELS_BOARD = 63,
     BIOLISTENER_BOARD = 64,
     IRONBCI_32_BOARD = 65,
+    NEUROPAWN_KNIGHT_BOARD_IMU = 66,
     // use it to iterate
     FIRST = PLAYBACK_FILE_BOARD,
     LAST = IRONBCI_32_BOARD

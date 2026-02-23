@@ -1434,7 +1434,44 @@ Initialization Example:
 
     params = BrainFlowInputParams()
     params.serial_port = "COM3"
+    params.other_info = '{"gain": 6}' # optional: set gain to allowed values: 1, 2, 3, 4, 6, 8, 12 (default)
+    
     board = BoardShim(BoardIds.NEUROPAWN_KNIGHT_BOARD, params)
+
+**On Unix-like systems you may need to configure permissions for serial port or run with sudo.**
+
+**On MacOS there are two serial ports for each device: /dev/tty..... and /dev/cu..... You HAVE to specify /dev/cu.....**
+
+Supported platforms:
+
+- Windows
+- Linux
+- MacOS
+- Devices like Raspberry Pi
+
+Knight IMU Board
+~~~~~~~~~~~~~~~~~
+
+.. image:: https://live.staticflickr.com/65535/54061606098_e223ab04a6_w.jpg
+    :width: 400px
+    :height: 274px
+
+`NeuroPawn website <https://www.neuropawn.tech/>`_
+
+To create such board you need to specify the following board ID and fields of BrainFlowInputParams object:
+
+- :code:`BoardIds.NEUROPAWN_KNIGHT_BOARD_IMU`
+- :code:`serial_port`, e.g. COM3, /dev/tty.*
+
+Initialization Example:
+
+.. code-block:: python
+
+    params = BrainFlowInputParams()
+    params.serial_port = "COM3"
+    params.other_info = '{"gain": 6}' # optional: set gain to allowed values: 1, 2, 3, 4, 6, 8, 12 (default)
+    
+    board = BoardShim(BoardIds.NEUROPAWN_KNIGHT_BOARD_IMU, params)
 
 **On Unix-like systems you may need to configure permissions for serial port or run with sudo.**
 
