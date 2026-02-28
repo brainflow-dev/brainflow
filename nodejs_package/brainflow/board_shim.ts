@@ -12,6 +12,7 @@ import {
     LogLevels,
 } from './brainflow.types';
 import {BoardControllerCLikeFunctions as CLike, BoardControllerFunctions} from './functions.types';
+import {resolveLibPath} from './lib_path';
 
 export class BrainFlowInputParams
 {
@@ -60,7 +61,7 @@ class BoardControllerDLL extends BoardControllerFunctions
     private constructor()
     {
         super ();
-        this.libPath = `${__dirname}/../brainflow/lib`;
+        this.libPath = resolveLibPath();
         this.dllPath = this.getDLLPath();
         this.lib = this.getLib();
 
