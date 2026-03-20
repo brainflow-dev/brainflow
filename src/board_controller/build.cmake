@@ -89,6 +89,44 @@ SET (BOARD_CONTROLLER_SRC
     ${CMAKE_CURRENT_SOURCE_DIR}/src/board_controller/biolistener/biolistener.cpp
 )
 
+if (BUILD_ANT_EDX)
+    # Prefer package-config mode (vcpkg/Conan), but fall back to CMake's
+    # built-in FindProtobuf module for distro system packages.
+    find_package (Protobuf CONFIG QUIET)
+    if (NOT Protobuf_FOUND)
+        find_package (Protobuf REQUIRED)
+    endif ()
+    find_package (gRPC CONFIG REQUIRED)
+
+    set (ANT_EDX_PROTO_FILE ${CMAKE_CURRENT_SOURCE_DIR}/src/board_controller/ant_neuro_edx/proto/EdigRPC.proto)
+    set (ANT_EDX_GENERATED_DIR ${CMAKE_CURRENT_BINARY_DIR}/generated/ant_neuro_edx)
+    file (MAKE_DIRECTORY ${ANT_EDX_GENERATED_DIR})
+
+    set (ANT_EDX_PROTO_SRCS ${ANT_EDX_GENERATED_DIR}/EdigRPC.pb.cc)
+    set (ANT_EDX_PROTO_HDRS ${ANT_EDX_GENERATED_DIR}/EdigRPC.pb.h)
+    set (ANT_EDX_GRPC_SRCS ${ANT_EDX_GENERATED_DIR}/EdigRPC.grpc.pb.cc)
+    set (ANT_EDX_GRPC_HDRS ${ANT_EDX_GENERATED_DIR}/EdigRPC.grpc.pb.h)
+
+    add_custom_command (
+        OUTPUT ${ANT_EDX_PROTO_SRCS} ${ANT_EDX_PROTO_HDRS} ${ANT_EDX_GRPC_SRCS} ${ANT_EDX_GRPC_HDRS}
+        COMMAND protobuf::protoc
+        ARGS
+            --proto_path=${CMAKE_CURRENT_SOURCE_DIR}/src/board_controller/ant_neuro_edx/proto
+            --cpp_out=${ANT_EDX_GENERATED_DIR}
+            --grpc_out=${ANT_EDX_GENERATED_DIR}
+            --plugin=protoc-gen-grpc=$<TARGET_FILE:gRPC::grpc_cpp_plugin>
+            ${ANT_EDX_PROTO_FILE}
+        DEPENDS ${ANT_EDX_PROTO_FILE}
+        VERBATIM
+    )
+
+    set (BOARD_CONTROLLER_SRC ${BOARD_CONTROLLER_SRC}
+        ${CMAKE_CURRENT_SOURCE_DIR}/src/board_controller/ant_neuro_edx/ant_neuro_edx.cpp
+        ${ANT_EDX_PROTO_SRCS}
+        ${ANT_EDX_GRPC_SRCS}
+    )
+endif (BUILD_ANT_EDX)
+
 include (${CMAKE_CURRENT_SOURCE_DIR}/src/board_controller/ant_neuro/build.cmake)
 include (${CMAKE_CURRENT_SOURCE_DIR}/src/board_controller/openbci/ganglion_bglib/build.cmake)
 include (${CMAKE_CURRENT_SOURCE_DIR}/src/board_controller/gtec/build.cmake)
@@ -144,6 +182,7 @@ target_include_directories (
     ${CMAKE_CURRENT_SOURCE_DIR}/src/board_controller/freeeeg/inc
     ${CMAKE_CURRENT_SOURCE_DIR}/third_party/ant_neuro
     ${CMAKE_CURRENT_SOURCE_DIR}/src/board_controller/ant_neuro/inc
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/board_controller/ant_neuro_edx/inc
     ${CMAKE_CURRENT_SOURCE_DIR}/src/board_controller/enophone/inc
     ${CMAKE_CURRENT_SOURCE_DIR}/third_party/SimpleBLE/simpleble/include
     ${CMAKE_CURRENT_SOURCE_DIR}/src/board_controller/brainalive/inc
@@ -156,6 +195,16 @@ target_include_directories (
     ${CMAKE_CURRENT_SOURCE_DIR}/src/board_controller/neuropawn/inc
     ${CMAKE_CURRENT_SOURCE_DIR}/src/board_controller/biolistener/inc
 )
+
+if (BUILD_ANT_EDX)
+    target_include_directories (
+        ${BOARD_CONTROLLER_NAME} PRIVATE
+        ${CMAKE_CURRENT_SOURCE_DIR}/src/board_controller/ant_neuro_edx/inc
+        ${ANT_EDX_GENERATED_DIR}
+    )
+    target_link_libraries (${BOARD_CONTROLLER_NAME} PRIVATE gRPC::grpc++ protobuf::libprotobuf)
+    target_compile_definitions (${BOARD_CONTROLLER_NAME} PRIVATE BUILD_ANT_EDX)
+endif (BUILD_ANT_EDX)
 
 target_compile_definitions(${BOARD_CONTROLLER_NAME} PRIVATE NOMINMAX BRAINFLOW_VERSION=${BRAINFLOW_VERSION})
 

@@ -81,6 +81,20 @@ class BoardIds(enum.IntEnum):
     BIOLISTENER_BOARD = 64  #:
     IRONBCI_32_BOARD = 65  #:
     NEUROPAWN_KNIGHT_BOARD_IMU = 66  #:
+    ANT_NEURO_EE_410_EDX_BOARD = 68  #:
+    ANT_NEURO_EE_411_EDX_BOARD = 69  #:
+    ANT_NEURO_EE_430_EDX_BOARD = 70  #:
+    ANT_NEURO_EE_211_EDX_BOARD = 71  #:
+    ANT_NEURO_EE_212_EDX_BOARD = 72  #:
+    ANT_NEURO_EE_213_EDX_BOARD = 73  #:
+    ANT_NEURO_EE_214_EDX_BOARD = 74  #:
+    ANT_NEURO_EE_215_EDX_BOARD = 75  #:
+    ANT_NEURO_EE_221_EDX_BOARD = 76  #:
+    ANT_NEURO_EE_222_EDX_BOARD = 77  #:
+    ANT_NEURO_EE_223_EDX_BOARD = 78  #:
+    ANT_NEURO_EE_224_EDX_BOARD = 79  #:
+    ANT_NEURO_EE_225_EDX_BOARD = 80  #:
+    ANT_NEURO_EE_511_EDX_BOARD = 81  #:
 
 
 class IpProtocolTypes(enum.IntEnum):
@@ -89,6 +103,7 @@ class IpProtocolTypes(enum.IntEnum):
     NO_IP_PROTOCOL = 0  #:
     UDP = 1  #:
     TCP = 2  #:
+    EDX = 3  #:
 
 
 class BrainFlowPresets(enum.IntEnum):
@@ -581,12 +596,12 @@ class BoardShim(object):
         except BaseException:
             self.input_json = input_params.to_json()
         self.board_id = board_id
-        # we need it for streaming board
         if board_id == BoardIds.STREAMING_BOARD.value or board_id == BoardIds.PLAYBACK_FILE_BOARD.value:
             if input_params.master_board != BoardIds.NO_BOARD:
                 self._master_board_id = input_params.master_board
             else:
-                raise BrainFlowError('you need set master board id in BrainFlowInputParams',
+                raise BrainFlowError(
+                    'you need set master board id in BrainFlowInputParams',
                                      BrainFlowExitCodes.INVALID_ARGUMENTS_ERROR.value)
         else:
             self._master_board_id = self.board_id
@@ -1420,3 +1435,5 @@ class BoardShim(object):
         res = BoardControllerDLL.get_instance().config_board_with_bytes(bytes_to_send, len(bytes_to_send), self.board_id, self.input_json)
         if res != BrainFlowExitCodes.STATUS_OK.value:
             raise BrainFlowError('unable to config board', res)
+
+

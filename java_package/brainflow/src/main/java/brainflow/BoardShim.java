@@ -8,6 +8,7 @@ import java.util.Collections;
 import org.apache.commons.lang3.SystemUtils;
 
 import com.google.gson.Gson;
+import com.google.gson.JsonObject;
 import com.sun.jna.JNIEnv;
 import com.sun.jna.Library;
 import com.sun.jna.Native;
@@ -18,7 +19,6 @@ import com.sun.jna.Native;
 @SuppressWarnings ("deprecation")
 public class BoardShim
 {
-
     private interface DllInterface extends Library
     {
         int prepare_session (int board_id, String params);
@@ -1303,7 +1303,8 @@ public class BoardShim
         {
             if (params.get_master_board () == BoardIds.NO_BOARD.get_code ())
             {
-                throw new BrainFlowError ("need to set master board attribute in BrainFlowInputParams",
+                throw new BrainFlowError (
+                        "need to set master board attribute in BrainFlowInputParams",
                         BrainFlowExitCode.INVALID_ARGUMENTS_ERROR.get_code ());
             } else
             {
@@ -1328,7 +1329,8 @@ public class BoardShim
         {
             if (params.get_master_board () == BoardIds.NO_BOARD.get_code ())
             {
-                throw new BrainFlowError ("need to set master board attribute in BrainFlowInputParams",
+                throw new BrainFlowError (
+                        "need to set master board attribute in BrainFlowInputParams",
                         BrainFlowExitCode.INVALID_ARGUMENTS_ERROR.get_code ());
             } else
             {
@@ -1640,3 +1642,4 @@ public class BoardShim
         return get_board_data (num_datapoints, BrainFlowPresets.DEFAULT_PRESET);
     }
 }
+

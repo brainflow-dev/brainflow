@@ -72,7 +72,21 @@ public enum BoardIds
     OB3000_24_CHANNELS_BOARD(63),
     BIOLISTENER_BOARD(64),
     IRONBCI_32_BOARD(65),
-    NEUROPAWN_KNIGHT_BOARD_IMU(66);
+    NEUROPAWN_KNIGHT_BOARD_IMU(66),
+    ANT_NEURO_EE_410_EDX_BOARD(68),
+    ANT_NEURO_EE_411_EDX_BOARD(69),
+    ANT_NEURO_EE_430_EDX_BOARD(70),
+    ANT_NEURO_EE_211_EDX_BOARD(71),
+    ANT_NEURO_EE_212_EDX_BOARD(72),
+    ANT_NEURO_EE_213_EDX_BOARD(73),
+    ANT_NEURO_EE_214_EDX_BOARD(74),
+    ANT_NEURO_EE_215_EDX_BOARD(75),
+    ANT_NEURO_EE_221_EDX_BOARD(76),
+    ANT_NEURO_EE_222_EDX_BOARD(77),
+    ANT_NEURO_EE_223_EDX_BOARD(78),
+    ANT_NEURO_EE_224_EDX_BOARD(79),
+    ANT_NEURO_EE_225_EDX_BOARD(80),
+    ANT_NEURO_EE_511_EDX_BOARD(81);
 
     private final int board_id;
     private static final Map<Integer, BoardIds> bi_map = new HashMap<Integer, BoardIds> ();
@@ -106,3 +120,4 @@ public enum BoardIds
         }
     }
 }
+

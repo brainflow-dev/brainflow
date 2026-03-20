@@ -16,6 +16,9 @@
 
 #include "aavaa_v3.h"
 #include "ant_neuro.h"
+#ifdef BUILD_ANT_EDX
+#include "ant_neuro_edx.h"
+#endif
 #include "biolistener.h"
 #include "board.h"
 #include "board_controller.h"
@@ -260,6 +263,24 @@ int prepare_session (int board_id, const char *json_brainflow_input_params)
             board = std::shared_ptr<Board> (
                 new AntNeuroBoard ((int)BoardIds::ANT_NEURO_EE_511_BOARD, params));
             break;
+#ifdef BUILD_ANT_EDX
+        case BoardIds::ANT_NEURO_EE_410_EDX_BOARD:
+        case BoardIds::ANT_NEURO_EE_411_EDX_BOARD:
+        case BoardIds::ANT_NEURO_EE_430_EDX_BOARD:
+        case BoardIds::ANT_NEURO_EE_211_EDX_BOARD:
+        case BoardIds::ANT_NEURO_EE_212_EDX_BOARD:
+        case BoardIds::ANT_NEURO_EE_213_EDX_BOARD:
+        case BoardIds::ANT_NEURO_EE_214_EDX_BOARD:
+        case BoardIds::ANT_NEURO_EE_215_EDX_BOARD:
+        case BoardIds::ANT_NEURO_EE_221_EDX_BOARD:
+        case BoardIds::ANT_NEURO_EE_222_EDX_BOARD:
+        case BoardIds::ANT_NEURO_EE_223_EDX_BOARD:
+        case BoardIds::ANT_NEURO_EE_224_EDX_BOARD:
+        case BoardIds::ANT_NEURO_EE_225_EDX_BOARD:
+        case BoardIds::ANT_NEURO_EE_511_EDX_BOARD:
+            board = std::shared_ptr<Board> (new AntNeuroEdxBoard (board_id, params));
+            break;
+#endif
         case BoardIds::NTL_WIFI_BOARD:
             board = std::shared_ptr<Board> (new NtlWifi (params));
             break;

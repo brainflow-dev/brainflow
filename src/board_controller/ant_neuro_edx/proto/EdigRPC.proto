@@ -1,0 +1,309 @@
+syntax = "proto3";
+
+import "google/protobuf/timestamp.proto";
+
+package EdigRPC.gen;
+///////////////////////////////////////////////////////////////////////////////
+message DoubleList {
+  repeated double Values = 1;
+}
+///////////////////////////////////////////////////////////////////////////////
+enum DeviceConnection {
+  Usb = 0;
+  RIO = 1;
+  File = 2;
+  gRPC = 3;
+}
+enum EegDeviceType {
+  UNKNOWN = 0;
+}
+enum UnitType {
+  Volt = 0;
+  MicroVolt = 1;
+}
+enum AmplifierMode {
+  AmplifierMode_Disconnect = 0;
+  AmplifierMode_PowerOff = 1;
+  AmplifierMode_Eeg = 2;
+  AmplifierMode_Impedance = 3;
+  AmplifierMode_OpenLine = 4;
+  AmplifierMode_Idle = 5;
+}
+enum AmplifierFrameType {
+  AmplifierFrameType_EEG = 0;
+  AmplifierFrameType_ImpedanceVoltages = 1;
+  AmplifierFrameType_OpenLine = 2;
+  AmplifierFrameType_Stimulation = 3;
+}
+enum OutputChannelType {
+  OutputChannelType_TriggerOutput = 0;
+  OutputChannelType_Stimulation = 1;
+}
+enum AmplifierNotifyType {
+  None = 0;
+  ModeChange = 1;
+  PowerChange = 2;
+}
+enum ChannelConnectionState
+{  
+	Connected = 0;
+	Undefined = 1;
+	Disconnected = 2;
+}
+enum ChannelPolarity {
+  Referential = 0;
+  Bipolar = 1;
+  Auxiliary = 2;
+  Receiver = 3;
+  Transmitter = 4;
+  Disabled = 5;
+}
+
+message DeviceInfo {
+  EegDeviceType AmplifierType = 1;
+  string Key = 2;
+  string Serial = 3;
+}
+message DeviceParameters {
+  bool HasBattery = 1;
+}
+message PowerInfo {
+  int32 BatteryLevel = 1;
+  bool isBatteryCharging = 2;
+  bool isPowerOn = 3;
+}
+message ChannelType {
+  int32 ChannelIndex = 1;
+  ChannelPolarity ChannelPolarity = 2;
+  UnitType UnitType = 3;
+  string Name = 4;
+  string Reference = 5;
+}
+message StreamParams {
+  repeated int32 ActiveChannels = 1;
+  map<int32, double> Ranges = 2;
+  double SamplingRate = 3;
+  int32 BufferSize = 4;
+  int32 DataReadyPercentage = 5;
+}
+message DoubleMatrix {
+  int32 Cols = 1; // channels
+  int32 Rows = 2; // samples
+  repeated double Data = 3;
+}
+message Impedances {
+  repeated TupleImpledanceChannel Channels = 1;
+  repeated TupleImpledanceChannel Reference = 2;
+  repeated TupleImpledanceChannel Ground = 3;
+}
+message TupleImpledanceChannel{
+	uint32 Value = 1;
+	ChannelConnectionState ChannelState = 2;
+}
+message TimeMarker {
+  google.protobuf.Timestamp Start = 1;
+  int32 TimeMarkerCode = 2;
+}
+message AmplifierFrame {
+  int32 BufferLoadCapacity = 1;
+  AmplifierFrameType FrameType = 2;
+  Impedances Impedance = 3;
+  google.protobuf.Timestamp Start = 4;
+  google.protobuf.Timestamp StartPcTime = 5;
+  DoubleMatrix Matrix = 6;
+  repeated TimeMarker TimeMarkers = 7;
+}
+message OutputTriggerChannelInfo {
+  int32 ChannelIndex = 1;
+  OutputChannelType ChannelType = 2;
+  map<string, double> Parameters = 3;
+}
+///////////////////////////////////////////////////////////////////////////////
+//
+message Controller_CreateDeviceRequest {
+  repeated DeviceInfo DeviceInfoList = 1;
+}
+message Controller_CreateDeviceResponse {
+  int32 AmplifierHandle = 1;
+}
+//
+message DeviceManager_GetDevicesRequest {
+}
+message DeviceManager_GetDevicesResponse {
+  repeated DeviceInfo DeviceInfoList = 1;
+}
+//
+message DeviceManager_DeviceAttachRequest {
+}
+message DeviceManager_DeviceAttachResponse {
+  DeviceInfo DeviceInfo = 1;
+}
+//
+message DeviceManager_DeviceDetachRequest {
+}
+message DeviceManager_DeviceDetachResponse {
+  DeviceInfo DeviceInfo = 1;
+}
+//
+message Amplifier_DisposeRequest {
+  int32 AmplifierHandle = 1;
+}
+message Amplifier_DisposeResponse {
+}
+//
+message Amplifier_GetDeviceInformationRequest {
+  int32 AmplifierHandle = 1;
+}
+message Amplifier_GetDeviceInformationResponse {
+  repeated DeviceInfo DeviceInformation = 1;
+}
+//
+message Amplifier_GetDeviceParametersRequest {
+  int32 AmplifierHandle = 1;
+}
+message Amplifier_GetDeviceParametersResponse {
+  repeated DeviceParameters DeviceParameters = 1;
+}
+//
+message Amplifier_GetChannelsAvailableRequest {
+  int32 AmplifierHandle = 1;
+}
+message Amplifier_GetChannelsAvailableResponse {
+  repeated ChannelType ChannelList = 1;
+}
+//
+message Amplifier_GetSamplingRatesAvailableRequest {
+  int32 AmplifierHandle = 1;
+}
+message Amplifier_GetSamplingRatesAvailableResponse {
+  repeated double RateList = 1;
+}
+//
+message Amplifier_GetModesAvailableRequest {
+  int32 AmplifierHandle = 1;
+}
+message Amplifier_GetModesAvailableResponse {
+  repeated AmplifierMode ModeList = 1;
+}
+//
+message Amplifier_GetRangesAvailableRequest {
+  int32 AmplifierHandle = 1;
+}
+message Amplifier_GetRangesAvailableResponse {
+  map<int32, DoubleList> RangeMap = 1;
+}
+//
+message Amplifier_GetModeRequest {
+  int32 AmplifierHandle = 1;
+}
+message Amplifier_GetModeResponse {
+  repeated AmplifierMode ModeList = 1;
+}
+//
+message Amplifier_SetModeRequest {
+  int32 AmplifierHandle = 1;
+  AmplifierMode Mode = 2;
+  StreamParams StreamParams = 3;
+  string StimParams = 4;
+}
+message Amplifier_SetModeResponse {
+}
+//
+message Amplifier_GetFrameRequest {
+  int32 AmplifierHandle = 1;
+}
+message Amplifier_GetFrameResponse {
+  repeated AmplifierFrame FrameList = 1;
+}
+//
+message Amplifier_GetPowerRequest {
+  int32 AmplifierHandle = 1;
+}
+message Amplifier_GetPowerResponse {
+  repeated PowerInfo PowerList = 1;
+}
+//
+message Amplifier_NotifyEventRequest {
+  int32 AmplifierHandle = 1;
+}
+message Amplifier_NotifyEventResponse {
+  AmplifierNotifyType NotifyType = 1;
+}
+//
+message Amplifier_SetOutputTriggerChannelsRequest {
+  int32 AmplifierHandle = 1;
+  repeated OutputTriggerChannelInfo infos = 2;
+}
+message Amplifier_SetOutputTriggerChannelsResponse {
+}
+//
+message Amplifier_SetStimulationParametersRequest {
+  int32 AmplifierHandle = 1;
+  string StimlationParams = 2;
+}
+message Amplifier_SetStimulationParametersResponse {
+}
+//
+message Amplifier_StartOutputTriggerRequest {
+  int32 AmplifierHandle = 1;
+  repeated int32 Channels = 2;
+}
+message Amplifier_StartOutputTriggerResponse {
+}
+//
+message Amplifier_StopOutputTriggerRequest {
+  int32 AmplifierHandle = 1;
+  repeated int32 Channels = 2;
+}
+message Amplifier_StopOutputTriggerResponse {
+}
+//
+message Amplifier_StartStimulationRequest {
+  int32 AmplifierHandle = 1;
+  repeated int32 Channels = 2;
+}
+message Amplifier_StartStimulationResponse {
+}
+//
+message Amplifier_StopStimulationRequest {
+  int32 AmplifierHandle = 1;
+  repeated int32 Channels = 2;
+}
+message Amplifier_StopStimulationResponse {
+}
+//
+message GetStateRequest {
+}
+message GetStateResponse {
+  string Id = 1;
+}
+///////////////////////////////////////////////////////////////////////////////
+service EdigRPC {
+  rpc Controller_CreateDevice(Controller_CreateDeviceRequest) returns (Controller_CreateDeviceResponse);
+
+  rpc DeviceManager_GetDevices(DeviceManager_GetDevicesRequest) returns (DeviceManager_GetDevicesResponse);
+  rpc DeviceManager_DeviceAttach(DeviceManager_DeviceAttachRequest) returns (stream DeviceManager_DeviceAttachResponse);
+  rpc DeviceManager_DeviceDetach(DeviceManager_DeviceDetachRequest) returns (stream DeviceManager_DeviceDetachResponse);
+
+  rpc Amplifier_Dispose(Amplifier_DisposeRequest) returns (Amplifier_DisposeResponse);
+  rpc Amplifier_GetDeviceInformation(Amplifier_GetDeviceInformationRequest) returns (Amplifier_GetDeviceInformationResponse);
+  rpc Amplifier_GetDeviceParameters(Amplifier_GetDeviceParametersRequest) returns (Amplifier_GetDeviceParametersResponse);
+  rpc Amplifier_GetChannelsAvailable(Amplifier_GetChannelsAvailableRequest) returns (Amplifier_GetChannelsAvailableResponse);
+  rpc Amplifier_GetSamplingRatesAvailable(Amplifier_GetSamplingRatesAvailableRequest) returns (Amplifier_GetSamplingRatesAvailableResponse);
+  rpc Amplifier_GetModesAvailable(Amplifier_GetModesAvailableRequest) returns (Amplifier_GetModesAvailableResponse);
+  rpc Amplifier_GetRangesAvailable(Amplifier_GetRangesAvailableRequest) returns (Amplifier_GetRangesAvailableResponse);
+  rpc Amplifier_GetMode(Amplifier_GetModeRequest) returns (Amplifier_GetModeResponse);
+  rpc Amplifier_SetMode(Amplifier_SetModeRequest) returns (Amplifier_SetModeResponse);
+  rpc Amplifier_GetFrame(Amplifier_GetFrameRequest) returns (Amplifier_GetFrameResponse);
+  rpc Amplifier_GetPower(Amplifier_GetPowerRequest) returns (Amplifier_GetPowerResponse);
+  rpc Amplifier_SetOutputTriggerChannels(Amplifier_SetOutputTriggerChannelsRequest) returns (Amplifier_SetOutputTriggerChannelsResponse);
+  rpc Amplifier_SetStimulationParameters(Amplifier_SetStimulationParametersRequest) returns (Amplifier_SetStimulationParametersResponse);
+  rpc Amplifier_StartOutputTrigger(Amplifier_StartOutputTriggerRequest) returns (Amplifier_StartOutputTriggerResponse);
+  rpc Amplifier_StopOutputTrigger(Amplifier_StopOutputTriggerRequest) returns (Amplifier_StopOutputTriggerResponse);
+  rpc Amplifier_StartStimulation(Amplifier_StartStimulationRequest) returns (Amplifier_StartStimulationResponse);
+  rpc Amplifier_StopStimulation(Amplifier_StopStimulationRequest) returns (Amplifier_StopStimulationResponse);
+
+  rpc Amplifier_NotifyEvent(Amplifier_NotifyEventRequest) returns (stream Amplifier_NotifyEventResponse);
+
+  rpc GetState(GetStateRequest) returns (GetStateResponse);
+}

@@ -8,7 +8,8 @@ public enum IpProtocolTypes
 
     NO_IP_PROTOCOL (0),
     UDP (1),
-    TCP (2);
+    TCP (2),
+    EDX (3);
 
     private final int protocol;
     private static final Map<Integer, IpProtocolTypes> ip_map = new HashMap<Integer, IpProtocolTypes> ();
