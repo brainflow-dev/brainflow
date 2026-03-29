@@ -1148,6 +1148,93 @@ Available commands:
 
 For more information about Ant Neuro boards please refer to their User Manual.
 
+Ant Neuro EDX
+~~~~~~~~~~~~~~
+
+EDX is a transport board that exposes ANT Neuro amplifiers through an external gRPC service.
+
+Use board id:
+
+- explicit self-describing EDX ids for known amplifiers:
+
+  - :code:`BoardIds.ANT_NEURO_EE_410_EDX_BOARD`
+  - :code:`BoardIds.ANT_NEURO_EE_411_EDX_BOARD`
+  - :code:`BoardIds.ANT_NEURO_EE_430_EDX_BOARD`
+  - :code:`BoardIds.ANT_NEURO_EE_211_EDX_BOARD`
+  - :code:`BoardIds.ANT_NEURO_EE_212_EDX_BOARD`
+  - :code:`BoardIds.ANT_NEURO_EE_213_EDX_BOARD`
+  - :code:`BoardIds.ANT_NEURO_EE_214_EDX_BOARD`
+  - :code:`BoardIds.ANT_NEURO_EE_215_EDX_BOARD`
+  - :code:`BoardIds.ANT_NEURO_EE_221_EDX_BOARD`
+  - :code:`BoardIds.ANT_NEURO_EE_222_EDX_BOARD`
+  - :code:`BoardIds.ANT_NEURO_EE_223_EDX_BOARD`
+  - :code:`BoardIds.ANT_NEURO_EE_224_EDX_BOARD`
+  - :code:`BoardIds.ANT_NEURO_EE_225_EDX_BOARD`
+  - :code:`BoardIds.ANT_NEURO_EE_511_EDX_BOARD`
+
+Use one of the explicit EDX ids when you know the amplifier model.
+
+Required BrainFlowInputParams fields:
+
+- :code:`ip_address`, EDX service host (for example :code:`localhost`)
+- :code:`ip_port`, EDX service port (for example :code:`3390`)
+
+Optional fields:
+
+- :code:`timeout`, timeout for discovery and session operations, default is 15 sec
+
+Important notes:
+
+- Available sampling rates and signal ranges are discovered from the amplifier at runtime via :code:`board.config_board("edx:get_capabilities")`.
+
+Available commands:
+
+- Get runtime capabilities: :code:`board.config_board("edx:get_capabilities")`
+- Set sampling rate: :code:`board.config_board("sampling_rate:500")`
+- Set reference range: :code:`board.config_board("reference_range:0.15")`
+- Set bipolar range: :code:`board.config_board("bipolar_range:2.5")`
+- Set impedance mode: :code:`board.config_board("impedance_mode:1")`, mode 0 or 1
+
+Example (Python):
+
+.. code-block:: python
+
+    params = BrainFlowInputParams()
+    params.ip_address = "localhost"
+    params.ip_port = 3390
+    board = BoardShim(BoardIds.ANT_NEURO_EE_511_EDX_BOARD, params)
+    board.prepare_session()
+    print(board.config_board("edx:get_capabilities"))
+    board.config_board("sampling_rate:500")
+    board.config_board("reference_range:0.15")
+    board.config_board("bipolar_range:2.5")
+    board.start_stream()
+
+Example (C++):
+
+.. code-block:: cpp
+
+    BrainFlowInputParams params;
+    params.ip_address = "localhost";
+    params.ip_port = 3390;
+    BoardShim board ((int)BoardIds::ANT_NEURO_EE_511_EDX_BOARD, params);
+    board.prepare_session ();
+    std::string caps = board.config_board ("edx:get_capabilities");
+    board.config_board ("sampling_rate:500");
+    board.config_board ("reference_range:0.15");
+    board.config_board ("bipolar_range:2.5");
+    board.start_stream ();
+
+Example (Rust):
+
+.. code-block:: rust
+
+    let params = BrainFlowInputParamsBuilder::default()
+        .ip_address("localhost")
+        .ip_port(3390)
+        .build();
+    let board = BoardShim::new(BoardIds::AntNeuroEe511EdxBoard, params)?;
+
 Enophone
 ---------
 
