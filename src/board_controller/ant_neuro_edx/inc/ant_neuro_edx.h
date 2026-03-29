@@ -59,7 +59,6 @@ private:
     std::condition_variable mode_cv;
 
     int amplifier_handle;
-    int requested_master_board;
     int package_num;
     int sampling_rate;
     double reference_range;
@@ -89,7 +88,6 @@ private:
     std::string selected_device_serial;
 #endif
 
-    int validate_master_board ();
     int ensure_connected ();
     int set_mode ();
     int configure_stream_params (void *request_ptr);

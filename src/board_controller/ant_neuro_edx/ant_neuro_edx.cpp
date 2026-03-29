@@ -18,70 +18,11 @@ using json = nlohmann::json;
 
 namespace
 {
-bool is_ant_master_board (int board_id)
-{
-    return ((board_id >= (int)BoardIds::ANT_NEURO_EE_410_BOARD &&
-               board_id <= (int)BoardIds::ANT_NEURO_EE_225_BOARD) ||
-        (board_id == (int)BoardIds::ANT_NEURO_EE_511_BOARD));
-}
-
-int explicit_edx_to_master_board (int board_id)
-{
-    switch ((BoardIds)board_id)
-    {
-        case BoardIds::ANT_NEURO_EE_410_EDX_BOARD:
-            return (int)BoardIds::ANT_NEURO_EE_410_BOARD;
-        case BoardIds::ANT_NEURO_EE_411_EDX_BOARD:
-            return (int)BoardIds::ANT_NEURO_EE_411_BOARD;
-        case BoardIds::ANT_NEURO_EE_430_EDX_BOARD:
-            return (int)BoardIds::ANT_NEURO_EE_430_BOARD;
-        case BoardIds::ANT_NEURO_EE_211_EDX_BOARD:
-            return (int)BoardIds::ANT_NEURO_EE_211_BOARD;
-        case BoardIds::ANT_NEURO_EE_212_EDX_BOARD:
-            return (int)BoardIds::ANT_NEURO_EE_212_BOARD;
-        case BoardIds::ANT_NEURO_EE_213_EDX_BOARD:
-            return (int)BoardIds::ANT_NEURO_EE_213_BOARD;
-        case BoardIds::ANT_NEURO_EE_214_EDX_BOARD:
-            return (int)BoardIds::ANT_NEURO_EE_214_BOARD;
-        case BoardIds::ANT_NEURO_EE_215_EDX_BOARD:
-            return (int)BoardIds::ANT_NEURO_EE_215_BOARD;
-        case BoardIds::ANT_NEURO_EE_221_EDX_BOARD:
-            return (int)BoardIds::ANT_NEURO_EE_221_BOARD;
-        case BoardIds::ANT_NEURO_EE_222_EDX_BOARD:
-            return (int)BoardIds::ANT_NEURO_EE_222_BOARD;
-        case BoardIds::ANT_NEURO_EE_223_EDX_BOARD:
-            return (int)BoardIds::ANT_NEURO_EE_223_BOARD;
-        case BoardIds::ANT_NEURO_EE_224_EDX_BOARD:
-            return (int)BoardIds::ANT_NEURO_EE_224_BOARD;
-        case BoardIds::ANT_NEURO_EE_225_EDX_BOARD:
-            return (int)BoardIds::ANT_NEURO_EE_225_BOARD;
-        case BoardIds::ANT_NEURO_EE_511_EDX_BOARD:
-            return (int)BoardIds::ANT_NEURO_EE_511_BOARD;
-        default:
-            return (int)BoardIds::NO_BOARD;
-    }
-}
-
 std::string to_upper (std::string s)
 {
     std::transform (s.begin (), s.end (), s.begin (),
         [] (unsigned char c) { return (char)std::toupper (c); });
     return s;
-}
-
-std::vector<std::string> expected_tokens (int master_board)
-{
-    switch ((BoardIds)master_board)
-    {
-        case BoardIds::ANT_NEURO_EE_511_BOARD:
-            return {"EE-511", "EE-5XX"};
-        case BoardIds::ANT_NEURO_EE_410_BOARD:
-        case BoardIds::ANT_NEURO_EE_411_BOARD:
-        case BoardIds::ANT_NEURO_EE_430_BOARD:
-            return {"EE-4XX"};
-        default:
-            return {"EE-2XX"};
-    }
 }
 
 std::set<std::string> extract_tokens (const std::string &value)
@@ -102,18 +43,6 @@ std::set<std::string> extract_tokens (const std::string &value)
         }
     }
     return result;
-}
-
-bool has_match (const std::set<std::string> &tokens, const std::vector<std::string> &need)
-{
-    for (const auto &token : need)
-    {
-        if (tokens.find (token) != tokens.end ())
-        {
-            return true;
-        }
-    }
-    return false;
 }
 
 double ts_to_unix (const google::protobuf::Timestamp &ts)
@@ -175,7 +104,6 @@ AntNeuroEdxBoard::AntNeuroEdxBoard (int board_id, struct BrainFlowInputParams pa
     is_streaming = false;
     state = (int)BrainFlowExitCodes::SYNC_TIMEOUT_ERROR;
     amplifier_handle = -1;
-    requested_master_board = explicit_edx_to_master_board (board_id);
     package_num = 0;
     impedance_mode = false;
     sampling_rate = -1;
@@ -199,22 +127,6 @@ AntNeuroEdxBoard::~AntNeuroEdxBoard ()
 {
     skip_logs = true;
     release_session ();
-}
-
-int AntNeuroEdxBoard::validate_master_board ()
-{
-    if (requested_master_board == (int)BoardIds::NO_BOARD)
-    {
-        safe_logger (spdlog::level::err,
-            "failed to map explicit EDX board {} to ANT master board", board_id);
-        return (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR;
-    }
-    if (!is_ant_master_board (requested_master_board))
-    {
-        safe_logger (spdlog::level::err, "invalid master_board for EDX: {}", requested_master_board);
-        return (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR;
-    }
-    return (int)BrainFlowExitCodes::STATUS_OK;
 }
 
 int AntNeuroEdxBoard::ensure_connected ()
@@ -273,21 +185,15 @@ int AntNeuroEdxBoard::connect_and_create_device ()
         return map_status (status);
     }
 
-    std::vector<std::string> need = expected_tokens (requested_master_board);
-    std::vector<EdigRPC::gen::DeviceInfo> matched;
+    std::vector<EdigRPC::gen::DeviceInfo> all_devices (
+        resp.deviceinfolist ().begin (), resp.deviceinfolist ().end ());
     std::vector<EdigRPC::gen::DeviceInfo> serial_matched;
 
-    for (const auto &info : resp.deviceinfolist ())
+    if (!params.serial_number.empty ())
     {
-        std::set<std::string> tokens = extract_tokens (info.key () + " " + info.serial ());
-        if (!has_match (tokens, need))
+        std::string serial_u = to_upper (params.serial_number);
+        for (const auto &info : all_devices)
         {
-            continue;
-        }
-        matched.push_back (info);
-        if (!params.serial_number.empty ())
-        {
-            std::string serial_u = to_upper (params.serial_number);
             if (to_upper (info.key ()).find (serial_u) != std::string::npos ||
                 to_upper (info.serial ()).find (serial_u) != std::string::npos)
             {
@@ -296,13 +202,13 @@ int AntNeuroEdxBoard::connect_and_create_device ()
         }
     }
 
-    if (matched.empty () || (!params.serial_number.empty () && serial_matched.empty ()))
+    if (all_devices.empty () || (!params.serial_number.empty () && serial_matched.empty ()))
     {
         return (int)BrainFlowExitCodes::BOARD_NOT_READY_ERROR;
     }
 
     EdigRPC::gen::DeviceInfo selected =
-        (!params.serial_number.empty ()) ? serial_matched.front () : matched.front ();
+        (!params.serial_number.empty ()) ? serial_matched.front () : all_devices.front ();
     selected_device_key = selected.key ();
     selected_device_serial = selected.serial ();
     std::set<std::string> tokens = extract_tokens (selected_device_key);
@@ -453,12 +359,7 @@ int AntNeuroEdxBoard::prepare_session ()
         return (int)BrainFlowExitCodes::STATUS_OK;
     }
 
-    int res = validate_master_board ();
-    if (res != (int)BrainFlowExitCodes::STATUS_OK)
-    {
-        return res;
-    }
-    res = ensure_connected ();
+    int res = ensure_connected ();
     if (res != (int)BrainFlowExitCodes::STATUS_OK)
     {
         return res;
@@ -1422,7 +1323,6 @@ int AntNeuroEdxBoard::config_board (std::string config, std::string &response)
     {
         json info;
         info["endpoint"] = endpoint;
-        info["master_board"] = requested_master_board;
         info["sampling_rate"] = sampling_rate;
         info["selected_model"] = selected_model;
         info["selected_key"] = selected_device_key;
@@ -1475,11 +1375,6 @@ int AntNeuroEdxBoard::release_session ()
 }
 
 int AntNeuroEdxBoard::config_board (std::string, std::string &)
-{
-    return (int)BrainFlowExitCodes::UNSUPPORTED_BOARD_ERROR;
-}
-
-int AntNeuroEdxBoard::validate_master_board ()
 {
     return (int)BrainFlowExitCodes::UNSUPPORTED_BOARD_ERROR;
 }
