@@ -8,7 +8,6 @@ import java.util.Collections;
 import org.apache.commons.lang3.SystemUtils;
 
 import com.google.gson.Gson;
-import com.google.gson.JsonObject;
 import com.sun.jna.JNIEnv;
 import com.sun.jna.Library;
 import com.sun.jna.Native;
