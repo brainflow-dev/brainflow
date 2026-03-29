@@ -1191,6 +1191,7 @@ BrainFlowBoards::BrainFlowBoards()
         res_preset["name"] = name;
         res_preset["num_rows"] = src["num_rows"];
         res_preset["timestamp_channel"] = src["timestamp_channel"];
+        res_preset["marker_channel"] = src["marker_channel"];
         res_preset["package_num_channel"] = src["package_num_channel"];
         if (src.contains ("resistance_channels"))
             res_preset["resistance_channels"] = src["resistance_channels"];

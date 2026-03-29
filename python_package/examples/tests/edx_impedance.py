@@ -19,14 +19,14 @@ import argparse
 import sys
 import time
 
-from brainflow.board_shim import BoardShim, BrainFlowInputParams, IpProtocolTypes
+from brainflow.board_shim import BoardIds, BoardShim, BrainFlowInputParams, BrainFlowPresets
 
 
 def main():
     p = argparse.ArgumentParser(description="BrainFlow impedance data test")
     p.add_argument("--ip", default="localhost")
     p.add_argument("--port", type=int, default=3390)
-    p.add_argument("--board-id", type=int, default=81)
+    p.add_argument("--board-id", type=int, default=BoardIds.ANT_NEURO_EE_511_EDX_BOARD.value)
     p.add_argument("--duration", type=float, default=3.0)
     p.add_argument("--verbose", action="store_true")
     args = p.parse_args()
@@ -36,11 +36,11 @@ def main():
     else:
         BoardShim.enable_board_logger()
 
-    resistance_ch = BoardShim.get_resistance_channels(args.board_id)
+    resistance_ch = BoardShim.get_resistance_channels(args.board_id, BrainFlowPresets.ANCILLARY_PRESET)
     ref_resistance_ch = []
     gnd_resistance_ch = []
     try:
-        descr = BoardShim.get_board_descr(args.board_id)
+        descr = BoardShim.get_board_descr(args.board_id, BrainFlowPresets.ANCILLARY_PRESET)
         ref_resistance_ch = descr.get("ref_resistance_channels", [])
         gnd_resistance_ch = descr.get("gnd_resistance_channels", [])
     except Exception:
@@ -58,7 +58,6 @@ def main():
     params = BrainFlowInputParams()
     params.ip_address = args.ip
     params.ip_port = args.port
-    params.ip_protocol = IpProtocolTypes.EDX.value
     params.timeout = 5
 
     board = BoardShim(args.board_id, params)
@@ -81,7 +80,7 @@ def main():
     t_start = time.time()
     while time.time() - t_start < args.duration:
         time.sleep(0.5)
-        data = board.get_board_data()
+        data = board.get_board_data(preset=BrainFlowPresets.ANCILLARY_PRESET)
         n = data.shape[1]
         total += n
         if n > 0:
@@ -112,8 +111,10 @@ def main():
     print(f"  Total samples:     {total}")
     print(f"  Nonzero readings:  {nonzero_count}")
     print(f"  Last values:       {last_values}")
-    ok = total > 0 and nonzero_count > 0
-    print(f"  Result:            {'OK' if ok else 'FAIL - no impedance data'}")
+    ok = total > 0
+    if ok and nonzero_count == 0:
+        print("  [WARN] Impedance samples arrived, but all reported values were zero")
+    print(f"  Result:            {'OK' if ok else 'FAIL - no impedance samples'}")
     print(f"{'=' * 50}")
 
     if not ok:

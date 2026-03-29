@@ -90,8 +90,11 @@ SET (BOARD_CONTROLLER_SRC
 )
 
 if (BUILD_ANT_EDX)
-    # Prefer package-config mode (vcpkg/Conan), but fall back to CMake's
-    # built-in FindProtobuf module for distro system packages.
+    # EDX expects externally installed Protobuf/gRPC and intentionally fails
+    # fast with install instructions instead of auto-installing or vendoring
+    # these dependencies in this PR. Prefer package-config mode
+    # (vcpkg/Conan), but fall back to CMake's built-in FindProtobuf module
+    # for distro system packages.
     find_package (Protobuf CONFIG QUIET)
     if (NOT Protobuf_FOUND)
         find_package (Protobuf QUIET)

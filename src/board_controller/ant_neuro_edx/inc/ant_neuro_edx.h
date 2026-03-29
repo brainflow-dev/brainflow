@@ -88,7 +88,7 @@ private:
     std::string selected_device_serial;
 #endif
 
-    int ensure_connected ();
+    int create_grpc_stub ();
     int set_mode ();
     int configure_stream_params (void *request_ptr);
     int process_frames ();
@@ -99,7 +99,7 @@ private:
     void process_mode_request ();
     bool parse_bool_flag (const std::string &value, bool &flag);
 #ifdef BUILD_ANT_EDX
-    int connect_and_create_device ();
+    int discover_and_create_amplifier ();
     int load_capabilities ();
     int set_idle_mode ();
     int validate_sampling_rate (int value);

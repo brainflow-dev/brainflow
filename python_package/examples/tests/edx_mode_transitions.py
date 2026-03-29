@@ -7,20 +7,19 @@ start_stream(), stop_stream(), release_session().
 
 Usage:
     python python_package/examples/tests/test_mode_transitions.py
-    python python_package/examples/tests/test_mode_transitions.py --board-id 81 --verbose
+    python python_package/examples/tests/test_mode_transitions.py --board-id 80 --verbose
 """
 
 import argparse
 import time
 
-from brainflow.board_shim import BoardShim, BrainFlowInputParams, IpProtocolTypes
+from brainflow.board_shim import BoardIds, BoardShim, BrainFlowInputParams, BrainFlowPresets
 
 
 def make_board(args):
     params = BrainFlowInputParams()
     params.ip_address = args.ip
     params.ip_port = args.port
-    params.ip_protocol = IpProtocolTypes.EDX.value
     params.timeout = args.timeout
     return BoardShim(args.board_id, params)
 
@@ -33,7 +32,7 @@ def main():
     p = argparse.ArgumentParser(description="BrainFlow standard mode transition test")
     p.add_argument("--ip", default="localhost")
     p.add_argument("--port", type=int, default=3390)
-    p.add_argument("--board-id", type=int, default=81)
+    p.add_argument("--board-id", type=int, default=BoardIds.ANT_NEURO_EE_511_EDX_BOARD.value)
     p.add_argument("--timeout", type=int, default=15)
     p.add_argument("--verbose", action="store_true")
     args = p.parse_args()
@@ -63,9 +62,9 @@ def main():
     print(f"  Response: {resp}")
     print(f"  Took: {dt:.3f}s")
     time.sleep(2.0)
-    board.get_board_data()
+    board.get_board_data(preset=BrainFlowPresets.ANCILLARY_PRESET)
     time.sleep(1.0)
-    data = board.get_board_data()
+    data = board.get_board_data(preset=BrainFlowPresets.ANCILLARY_PRESET)
     print(f"  Impedance samples: {data.shape[1]}")
 
     step("4. config_board('impedance_mode:0') while streaming")

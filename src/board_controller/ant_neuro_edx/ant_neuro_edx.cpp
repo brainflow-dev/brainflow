@@ -129,7 +129,7 @@ AntNeuroEdxBoard::~AntNeuroEdxBoard ()
     release_session ();
 }
 
-int AntNeuroEdxBoard::ensure_connected ()
+int AntNeuroEdxBoard::create_grpc_stub ()
 {
     if (!params.other_info.empty () && params.ip_address.empty () && (params.ip_port <= 0))
     {
@@ -172,7 +172,7 @@ int AntNeuroEdxBoard::ensure_connected ()
     return stub ? (int)BrainFlowExitCodes::STATUS_OK : (int)BrainFlowExitCodes::BOARD_NOT_READY_ERROR;
 }
 
-int AntNeuroEdxBoard::connect_and_create_device ()
+int AntNeuroEdxBoard::discover_and_create_amplifier ()
 {
     EdigRPC::gen::DeviceManager_GetDevicesRequest req;
     EdigRPC::gen::DeviceManager_GetDevicesResponse resp;
@@ -359,7 +359,7 @@ int AntNeuroEdxBoard::prepare_session ()
         return (int)BrainFlowExitCodes::STATUS_OK;
     }
 
-    int res = ensure_connected ();
+    int res = create_grpc_stub ();
     if (res != (int)BrainFlowExitCodes::STATUS_OK)
     {
         return res;
@@ -377,7 +377,7 @@ int AntNeuroEdxBoard::prepare_session ()
         return (int)BrainFlowExitCodes::GENERAL_ERROR;
     }
 
-    res = connect_and_create_device ();
+    res = discover_and_create_amplifier ();
     if (res != (int)BrainFlowExitCodes::STATUS_OK)
     {
         return res;
@@ -745,7 +745,7 @@ int AntNeuroEdxBoard::process_frames ()
             }
             last_emitted_timestamp = package[(size_t)timestamp_channel];
             impedance_sample_count++;
-            push_package (package.data ());
+            push_package (package.data (), (int)BrainFlowPresets::ANCILLARY_PRESET);
             continue;
         }
 
@@ -1018,14 +1018,14 @@ int AntNeuroEdxBoard::release_session ()
     {
         // Both idle and dispose failed on the old connection.
         // Open a fresh gRPC channel and try dispose with the OLD handle number.
-        // Do NOT call connect_and_create_device — the server still holds the
+        // Do NOT call discover_and_create_amplifier — the server still holds the
         // old handle and would reject "Amplifier in use".
         safe_logger (spdlog::level::warn,
             "EDX direct dispose failed, trying fresh gRPC connection with old handle {}", old_handle);
         stub.reset ();
         grpc_channel.reset ();
 
-        int conn_res = ensure_connected ();
+        int conn_res = create_grpc_stub ();
         if (conn_res == (int)BrainFlowExitCodes::STATUS_OK)
         {
             // Try dispose with old handle on fresh connection
@@ -1042,7 +1042,7 @@ int AntNeuroEdxBoard::release_session ()
         }
         else
         {
-            safe_logger (spdlog::level::warn, "EDX recovery: ensure_connected failed = {}", conn_res);
+            safe_logger (spdlog::level::warn, "EDX recovery: create_grpc_stub failed = {}", conn_res);
         }
     }
 
@@ -1379,7 +1379,7 @@ int AntNeuroEdxBoard::config_board (std::string, std::string &)
     return (int)BrainFlowExitCodes::UNSUPPORTED_BOARD_ERROR;
 }
 
-int AntNeuroEdxBoard::ensure_connected ()
+int AntNeuroEdxBoard::create_grpc_stub ()
 {
     return (int)BrainFlowExitCodes::UNSUPPORTED_BOARD_ERROR;
 }
