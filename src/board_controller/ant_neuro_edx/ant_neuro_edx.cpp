@@ -672,18 +672,19 @@ int AntNeuroEdxBoard::process_frames ()
         return (int)BrainFlowExitCodes::BOARD_NOT_READY_ERROR;
     }
 
-    int num_rows = board_descr["default"]["num_rows"];
-    int package_num_channel = board_descr["default"]["package_num_channel"];
-    int timestamp_channel = board_descr["default"]["timestamp_channel"];
-    int marker_channel = board_descr["default"]["marker_channel"];
-    std::vector<int> eeg_channels = try_get_vec (board_descr["default"], "eeg_channels");
-    std::vector<int> emg_channels = try_get_vec (board_descr["default"], "emg_channels");
-    std::vector<int> resistance_channels = try_get_vec (board_descr["default"], "resistance_channels");
+    json &frame_descr = board_descr["default"];
+    int num_rows = frame_descr["num_rows"];
+    int package_num_channel = frame_descr["package_num_channel"];
+    int timestamp_channel = frame_descr["timestamp_channel"];
+    int marker_channel = frame_descr["marker_channel"];
+    std::vector<int> eeg_channels = try_get_vec (frame_descr, "eeg_channels");
+    std::vector<int> emg_channels = try_get_vec (frame_descr, "emg_channels");
+    std::vector<int> resistance_channels = try_get_vec (frame_descr, "resistance_channels");
     std::vector<int> ref_resistance_channels =
-        try_get_vec (board_descr["default"], "ref_resistance_channels");
+        try_get_vec (frame_descr, "ref_resistance_channels");
     std::vector<int> gnd_resistance_channels =
-        try_get_vec (board_descr["default"], "gnd_resistance_channels");
-    std::vector<int> other_channels = try_get_vec (board_descr["default"], "other_channels");
+        try_get_vec (frame_descr, "gnd_resistance_channels");
+    std::vector<int> other_channels = try_get_vec (frame_descr, "other_channels");
     std::vector<double> package ((size_t)num_rows, 0.0);
     const double sample_dt = (sampling_rate > 0) ? (1.0 / (double)sampling_rate) : 0.0;
     const double large_gap_threshold = 1.0;
@@ -745,6 +746,7 @@ int AntNeuroEdxBoard::process_frames ()
             }
             last_emitted_timestamp = package[(size_t)timestamp_channel];
             impedance_sample_count++;
+            push_package (package.data ());
             push_package (package.data (), (int)BrainFlowPresets::ANCILLARY_PRESET);
             continue;
         }

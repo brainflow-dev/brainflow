@@ -1179,27 +1179,16 @@ BrainFlowBoards::BrainFlowBoards()
     {
         json src =
             brainflow_boards_json["boards"][std::to_string (master_board_id)]["default"];
-        // default preset: EEG streaming mode — no resistance channels
-        json eeg_preset = src;
-        eeg_preset["name"] = name;
-        eeg_preset.erase ("resistance_channels");
-        eeg_preset.erase ("ref_resistance_channels");
-        eeg_preset.erase ("gnd_resistance_channels");
-        brainflow_boards_json["boards"][std::to_string (edx_board_id)]["default"] = eeg_preset;
-        // ancillary preset: impedance measurement mode
-        json res_preset;
-        res_preset["name"] = name;
-        res_preset["num_rows"] = src["num_rows"];
-        res_preset["timestamp_channel"] = src["timestamp_channel"];
-        res_preset["marker_channel"] = src["marker_channel"];
-        res_preset["package_num_channel"] = src["package_num_channel"];
-        if (src.contains ("resistance_channels"))
-            res_preset["resistance_channels"] = src["resistance_channels"];
-        if (src.contains ("ref_resistance_channels"))
-            res_preset["ref_resistance_channels"] = src["ref_resistance_channels"];
-        if (src.contains ("gnd_resistance_channels"))
-            res_preset["gnd_resistance_channels"] = src["gnd_resistance_channels"];
-        brainflow_boards_json["boards"][std::to_string (edx_board_id)]["ancillary"] = res_preset;
+        // Keep the legacy ANT layout on default for compatibility, and mirror
+        // it on ancillary as an optional EDX-specific access path.
+        json default_preset = src;
+        default_preset["name"] = name;
+        brainflow_boards_json["boards"][std::to_string (edx_board_id)]["default"] =
+            default_preset;
+        json ancillary_preset = src;
+        ancillary_preset["name"] = name;
+        brainflow_boards_json["boards"][std::to_string (edx_board_id)]["ancillary"] =
+            ancillary_preset;
     };
     clone_ant_edx_board (67, 24, "AntNeuroEE410EDX");
     clone_ant_edx_board (68, 25, "AntNeuroEE411EDX");
