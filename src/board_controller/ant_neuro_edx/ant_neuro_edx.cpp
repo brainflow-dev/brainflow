@@ -209,14 +209,6 @@ int AntNeuroEdxBoard::validate_master_board ()
             "failed to map explicit EDX board {} to ANT master board", board_id);
         return (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR;
     }
-    if ((params.master_board != (int)BoardIds::NO_BOARD) &&
-        (params.master_board != requested_master_board))
-    {
-        safe_logger (spdlog::level::err,
-            "explicit EDX board {} conflicts with master_board {} (expected {})",
-            board_id, params.master_board, requested_master_board);
-        return (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR;
-    }
     if (!is_ant_master_board (requested_master_board))
     {
         safe_logger (spdlog::level::err, "invalid master_board for EDX: {}", requested_master_board);

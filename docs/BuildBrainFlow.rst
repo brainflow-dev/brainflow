@@ -208,18 +208,8 @@ Windows
         # to get info about args and configure your build you can run
         python build.py --help
 
-.. compound::
-
-    EDX profile on Windows (gRPC transport) example: ::
-
-        # make sure gRPC and protobuf are available in your CMake toolchain,
-        # for example via vcpkg or another preinstalled toolchain package
-
-        mkdir build-edx
-        cd build-edx
-        cmake -G "Visual Studio 17 2022" -A x64 -DBUILD_ANT_EDX=ON -DMSVC_RUNTIME=dynamic -DCMAKE_INSTALL_PREFIX=../installed-edx ..
-        cmake --build . --target install --config Release -j 2 --parallel 2
-
+To build with ANT Neuro EDX support, pass ``-DBUILD_ANT_EDX=ON`` to CMake.
+gRPC and protobuf development libraries must be available (e.g. via vcpkg or system packages).
 
 Linux
 ~~~~~~
@@ -238,23 +228,6 @@ Linux
         python3 build.py
         # to get info about args and configure your build you can run
         python3 build.py --help
-
-.. compound::
-
-    EDX profile on Linux example: ::
-
-        # install grpc/protobuf development dependencies first
-        # protobuf-compiler-grpc provides grpc_cpp_plugin used by CMake
-        sudo apt-get update
-        sudo apt-get install -y libprotobuf-dev protobuf-compiler libgrpc++-dev protobuf-compiler-grpc
-
-        mkdir build-edx
-        cd build-edx
-        cmake -DBUILD_ANT_EDX=ON -DBUILD_SYNCHRONI_SDK=OFF -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=../installed-edx ..
-        make
-        make install
-
-For EDX board configuration details, see :ref:`ant-neuro-edx-label`.
 
 MacOS
 ~~~~~~~

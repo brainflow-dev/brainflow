@@ -4,6 +4,5 @@ classdef IpProtocolTypes < int32
         NO_IP_PROTOCOL(0)
         UDP(1)
         TCP(2)
-        EDX(3)
     end
 end

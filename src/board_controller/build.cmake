@@ -94,9 +94,21 @@ if (BUILD_ANT_EDX)
     # built-in FindProtobuf module for distro system packages.
     find_package (Protobuf CONFIG QUIET)
     if (NOT Protobuf_FOUND)
-        find_package (Protobuf REQUIRED)
+        find_package (Protobuf QUIET)
     endif ()
-    find_package (gRPC CONFIG REQUIRED)
+    if (NOT Protobuf_FOUND)
+        message (FATAL_ERROR
+            "BUILD_ANT_EDX=ON requires protobuf development libraries.\n"
+            "  Windows: vcpkg install grpc\n"
+            "  Debian/Ubuntu: sudo apt-get install libprotobuf-dev protobuf-compiler libgrpc++-dev protobuf-compiler-grpc")
+    endif ()
+    find_package (gRPC CONFIG QUIET)
+    if (NOT gRPC_FOUND)
+        message (FATAL_ERROR
+            "BUILD_ANT_EDX=ON requires gRPC development libraries.\n"
+            "  Windows: vcpkg install grpc\n"
+            "  Debian/Ubuntu: sudo apt-get install libgrpc++-dev protobuf-compiler-grpc")
+    endif ()
 
     set (ANT_EDX_PROTO_FILE ${CMAKE_CURRENT_SOURCE_DIR}/src/board_controller/ant_neuro_edx/proto/EdigRPC.proto)
     set (ANT_EDX_GENERATED_DIR ${CMAKE_CURRENT_BINARY_DIR}/generated/ant_neuro_edx)

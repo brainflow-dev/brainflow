@@ -1181,12 +1181,10 @@ Required BrainFlowInputParams fields:
 
 Optional fields:
 
-- :code:`ip_protocol`, optional; :code:`IpProtocolTypes.EDX` is accepted for clarity
 - :code:`timeout`, timeout for discovery and session operations, default is 15 sec
 
 Important notes:
 
-- Explicit EDX ids are self-describing and do not require :code:`master_board`.
 - Available sampling rates and signal ranges are discovered from the amplifier at runtime via :code:`board.config_board("edx:get_capabilities")`.
 
 Available commands:
@@ -1197,24 +1195,13 @@ Available commands:
 - Set bipolar range: :code:`board.config_board("bipolar_range:2.5")`
 - Set impedance mode: :code:`board.config_board("impedance_mode:1")`, mode 0 or 1
 
-Initialization example (Python):
+Example (Python):
 
 .. code-block:: python
 
     params = BrainFlowInputParams()
     params.ip_address = "localhost"
     params.ip_port = 3390
-    params.ip_protocol = IpProtocolTypes.EDX
-    board = BoardShim(BoardIds.ANT_NEURO_EE_511_EDX_BOARD, params)
-
-Configuration example (Python):
-
-.. code-block:: python
-
-    params = BrainFlowInputParams()
-    params.ip_address = "localhost"
-    params.ip_port = 3390
-    params.ip_protocol = IpProtocolTypes.EDX
     board = BoardShim(BoardIds.ANT_NEURO_EE_511_EDX_BOARD, params)
     board.prepare_session()
     print(board.config_board("edx:get_capabilities"))
@@ -1223,25 +1210,13 @@ Configuration example (Python):
     board.config_board("bipolar_range:2.5")
     board.start_stream()
 
-Initialization example (C++):
+Example (C++):
 
 .. code-block:: cpp
 
     BrainFlowInputParams params;
     params.ip_address = "localhost";
     params.ip_port = 3390;
-    params.ip_protocol = (int)IpProtocolTypes::EDX;
-    BoardShim board ((int)BoardIds::ANT_NEURO_EE_511_EDX_BOARD, params);
-
-Configuration example (C++):
-
-.. code-block:: cpp
-
-    BrainFlowInputParams params;
-    params.ip_address = "localhost";
-    params.ip_port = 3390;
-    params.ip_protocol = (int)IpProtocolTypes::EDX;
-
     BoardShim board ((int)BoardIds::ANT_NEURO_EE_511_EDX_BOARD, params);
     board.prepare_session ();
     std::string caps = board.config_board ("edx:get_capabilities");
@@ -1250,33 +1225,15 @@ Configuration example (C++):
     board.config_board ("bipolar_range:2.5");
     board.start_stream ();
 
-Initialization example (Rust):
+Example (Rust):
 
 .. code-block:: rust
 
     let params = BrainFlowInputParamsBuilder::default()
         .ip_address("localhost")
         .ip_port(3390)
-        .ip_protocol(IpProtocolTypes::Edx)
         .build();
     let board = BoardShim::new(BoardIds::AntNeuroEe511EdxBoard, params)?;
-
-Configuration example (Rust):
-
-.. code-block:: rust
-
-    let params = BrainFlowInputParamsBuilder::default()
-        .ip_address("localhost")
-        .ip_port(3390)
-        .ip_protocol(IpProtocolTypes::Edx)
-        .build();
-    let board = BoardShim::new(BoardIds::AntNeuroEe511EdxBoard, params)?;
-    board.prepare_session()?;
-    let caps = board.config_board("edx:get_capabilities")?;
-    board.config_board("sampling_rate:500")?;
-    board.config_board("reference_range:0.15")?;
-    board.config_board("bipolar_range:2.5")?;
-    board.start_stream(45000, "")?;
 
 Enophone
 ---------
