@@ -379,4 +379,4 @@ Makefile
 *.cmd
 CMakeSettings.json
 ._.gitignore
-
+.DS_Store

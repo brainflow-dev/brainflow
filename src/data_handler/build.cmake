@@ -32,7 +32,7 @@ SET (DATA_HANDLER_SRC
 )
 
 add_library (
-    ${DATA_HANDLER_NAME} SHARED
+    ${DATA_HANDLER_NAME} ${BRAINFLOW_CORE_LIBRARY_TYPE}
     ${DATA_HANDLER_SRC}
 )
 
@@ -65,17 +65,17 @@ if (USE_OPENMP)
     endif (OpenMP_CXX_FOUND)
 endif (USE_OPENMP)
 
-if (UNIX AND NOT ANDROID)
+if (UNIX AND NOT ANDROID AND NOT BRAINFLOW_IOS)
     target_link_libraries (${DATA_HANDLER_NAME} PRIVATE ${DSPFILTERS} ${WAVELIB} kissfft pthread dl)
-else (UNIX AND NOT ANDROID)
+else (UNIX AND NOT ANDROID AND NOT BRAINFLOW_IOS)
     target_link_libraries (${DATA_HANDLER_NAME} PRIVATE ${DSPFILTERS} ${WAVELIB} kissfft)
-endif (UNIX AND NOT ANDROID)
+endif (UNIX AND NOT ANDROID AND NOT BRAINFLOW_IOS)
 if (ANDROID)
     find_library (log-lib log)
     target_link_libraries (${DATA_HANDLER_NAME} PRIVATE  log)
 endif (ANDROID)
 
-if (MSVC)
+if (BRAINFLOW_COPY_TO_PACKAGE_DIRS AND MSVC)
     add_custom_command (TARGET ${DATA_HANDLER_NAME} POST_BUILD
         COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/compiled/$<CONFIG>/${DATA_HANDLER_COMPILED_NAME}" "${CMAKE_CURRENT_SOURCE_DIR}/nodejs_package/brainflow/lib/${DATA_HANDLER_COMPILED_NAME}"
         COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/compiled/$<CONFIG>/${DATA_HANDLER_COMPILED_NAME}" "${CMAKE_CURRENT_SOURCE_DIR}/python_package/brainflow/lib/${DATA_HANDLER_COMPILED_NAME}"
@@ -89,8 +89,8 @@ if (MSVC)
         COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/compiled/$<CONFIG>/${DATA_HANDLER_COMPILED_NAME_DOT_LIB}" "${CMAKE_CURRENT_SOURCE_DIR}/rust_package/brainflow/lib/${DATA_HANDLER_COMPILED_NAME_DOT_LIB}"
         COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/src/data_handler/inc/data_handler.h" "${CMAKE_CURRENT_SOURCE_DIR}/rust_package/brainflow/inc/data_handler.h"
     )
-endif (MSVC)
-if (UNIX AND NOT ANDROID)
+endif (BRAINFLOW_COPY_TO_PACKAGE_DIRS AND MSVC)
+if (BRAINFLOW_COPY_TO_PACKAGE_DIRS AND UNIX AND NOT ANDROID)
     add_custom_command (TARGET ${DATA_HANDLER_NAME} POST_BUILD
         COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/compiled/${DATA_HANDLER_COMPILED_NAME}" "${CMAKE_CURRENT_SOURCE_DIR}/nodejs_package/brainflow/lib/${DATA_HANDLER_COMPILED_NAME}"
         COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/compiled/${DATA_HANDLER_COMPILED_NAME}" "${CMAKE_CURRENT_SOURCE_DIR}/python_package/brainflow/lib/${DATA_HANDLER_COMPILED_NAME}"
@@ -103,7 +103,7 @@ if (UNIX AND NOT ANDROID)
         COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/compiled/${DATA_HANDLER_COMPILED_NAME}" "${CMAKE_CURRENT_SOURCE_DIR}/rust_package/brainflow/lib/${DATA_HANDLER_COMPILED_NAME}"
         COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/src/data_handler/inc/data_handler.h" "${CMAKE_CURRENT_SOURCE_DIR}/rust_package/brainflow/inc/data_handler.h"
     )
-endif (UNIX AND NOT ANDROID)
+endif (BRAINFLOW_COPY_TO_PACKAGE_DIRS AND UNIX AND NOT ANDROID)
 if (ANDROID)
     add_custom_command (TARGET ${DATA_HANDLER_NAME} POST_BUILD
         COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/compiled/${DATA_HANDLER_COMPILED_NAME}" "${CMAKE_CURRENT_SOURCE_DIR}/tools/jniLibs/${ANDROID_ABI}/${DATA_HANDLER_COMPILED_NAME}"

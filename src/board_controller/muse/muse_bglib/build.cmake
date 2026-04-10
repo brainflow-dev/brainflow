@@ -33,7 +33,7 @@ SET (MUSE_BLED_SOURCE_LIB
     ${CMAKE_CURRENT_SOURCE_DIR}/src/utils/data_buffer.cpp
 )
 
-add_library (${MUSE_BLED_LIB} SHARED ${MUSE_BLED_SOURCE_LIB})
+add_library (${MUSE_BLED_LIB} ${BRAINFLOW_CORE_LIBRARY_TYPE} ${MUSE_BLED_SOURCE_LIB})
 target_include_directories (${MUSE_BLED_LIB} PUBLIC
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src/utils/inc>
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src/board_controller/muse/muse_bglib/inc>
@@ -50,7 +50,7 @@ set_target_properties (${MUSE_BLED_LIB}
     RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/compiled
 )
 
-if (MSVC)
+if (BRAINFLOW_COPY_TO_PACKAGE_DIRS AND MSVC)
     add_custom_command (TARGET ${MUSE_BLED_LIB} POST_BUILD
         COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/compiled/$<CONFIG>/${MUSE_BLED_LIB_NAME}" "${CMAKE_CURRENT_SOURCE_DIR}/nodejs_package/brainflow/lib/${MUSE_BLED_LIB_NAME}"
         COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/compiled/$<CONFIG>/${MUSE_BLED_LIB_NAME}" "${CMAKE_CURRENT_SOURCE_DIR}/python_package/brainflow/lib/${MUSE_BLED_LIB_NAME}"
@@ -59,8 +59,8 @@ if (MSVC)
         COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/compiled/$<CONFIG>/${MUSE_BLED_LIB_NAME}" "${CMAKE_CURRENT_SOURCE_DIR}/matlab_package/brainflow/lib/${MUSE_BLED_LIB_NAME}"
         COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/compiled/$<CONFIG>/${MUSE_BLED_LIB_NAME}" "${CMAKE_CURRENT_SOURCE_DIR}/julia_package/brainflow/lib/${MUSE_BLED_LIB_NAME}"
     )
-endif (MSVC)
-if (UNIX AND NOT ANDROID)
+endif (BRAINFLOW_COPY_TO_PACKAGE_DIRS AND MSVC)
+if (BRAINFLOW_COPY_TO_PACKAGE_DIRS AND UNIX AND NOT ANDROID)
     add_custom_command (TARGET ${MUSE_BLED_LIB} POST_BUILD
         COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/compiled/${MUSE_BLED_LIB_NAME}" "${CMAKE_CURRENT_SOURCE_DIR}/nodejs_package/brainflow/lib/${MUSE_BLED_LIB_NAME}"
         COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/compiled/${MUSE_BLED_LIB_NAME}" "${CMAKE_CURRENT_SOURCE_DIR}/python_package/brainflow/lib/${MUSE_BLED_LIB_NAME}"
@@ -69,7 +69,7 @@ if (UNIX AND NOT ANDROID)
         COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/compiled/${MUSE_BLED_LIB_NAME}" "${CMAKE_CURRENT_SOURCE_DIR}/csharp_package/brainflow/brainflow/${MUSE_BLED_LIB_NAME}"
         COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/compiled/${MUSE_BLED_LIB_NAME}" "${CMAKE_CURRENT_SOURCE_DIR}/matlab_package/brainflow/lib/${MUSE_BLED_LIB_NAME}"
     )
-endif (UNIX AND NOT ANDROID)
+endif (BRAINFLOW_COPY_TO_PACKAGE_DIRS AND UNIX AND NOT ANDROID)
 
 install (
     TARGETS ${MUSE_BLED_LIB}
