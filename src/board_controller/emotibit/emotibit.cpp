@@ -345,27 +345,36 @@ void Emotibit::read_thread ()
                     }
                 }
                 // ancillary package
-                if ((type_tag == TEMPERATURE_1) || (type_tag == THERMOPILE))
+                if ((type_tag == TEMPERATURE_1) || (type_tag == THERMOPILE) ||
+                    (type_tag == BATTERY_VOLTAGE) || (type_tag == BATTERY_PERCENT))
                 {
-                    int temperature_channel = 0;
+                    int ancillary_channel = 0;
                     if (type_tag == TEMPERATURE_1)
                     {
-                        temperature_channel = board_descr["ancillary"]["temperature_channels"][0];
+                        ancillary_channel = board_descr["ancillary"]["temperature_channels"][0];
                     }
                     if (type_tag == THERMOPILE)
                     {
-                        temperature_channel = board_descr["ancillary"]["other_channels"][0];
+                        ancillary_channel = board_descr["ancillary"]["other_channels"][0];
                     }
-                    // upsample temperature data 2x to match eda
+                    if (type_tag == BATTERY_VOLTAGE)
+                    {
+                        ancillary_channel = board_descr["ancillary"]["other_channels"][1];
+                    }
+                    if (type_tag == BATTERY_PERCENT)
+                    {
+                        ancillary_channel = board_descr["ancillary"]["battery_channel"];
+                    }
+                    // upsample lower-rate ancillary values 2x to better align with EDA samples
                     if (payload.size () < max_datapoints_in_package / 2)
                     {
                         for (int i = 0; i < (int)payload.size (); i++)
                         {
                             try
                             {
-                                anc_packages[i * 2][temperature_channel] = std::stod (payload[i]);
-                                anc_packages[i + 1][temperature_channel] =
-                                    anc_packages[i][temperature_channel];
+                                anc_packages[i * 2][ancillary_channel] = std::stod (payload[i]);
+                                anc_packages[i + 1][ancillary_channel] =
+                                    anc_packages[i][ancillary_channel];
                             }
                             catch (...)
                             {
@@ -382,7 +391,7 @@ void Emotibit::read_thread ()
                         {
                             try
                             {
-                                anc_packages[i][temperature_channel] = std::stod (payload[i]);
+                                anc_packages[i][ancillary_channel] = std::stod (payload[i]);
                             }
                             catch (...)
                             {
