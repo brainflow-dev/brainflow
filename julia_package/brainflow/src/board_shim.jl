@@ -68,6 +68,20 @@ export BrainFlowInputParams
     BIOLISTENER_BOARD = 64
     IRONBCI_32_BOARD = 65
     NEUROPAWN_KNIGHT_BOARD_IMU = 66
+    ANT_NEURO_EE_410_EDX_BOARD = 67
+    ANT_NEURO_EE_411_EDX_BOARD = 68
+    ANT_NEURO_EE_430_EDX_BOARD = 69
+    ANT_NEURO_EE_211_EDX_BOARD = 70
+    ANT_NEURO_EE_212_EDX_BOARD = 71
+    ANT_NEURO_EE_213_EDX_BOARD = 72
+    ANT_NEURO_EE_214_EDX_BOARD = 73
+    ANT_NEURO_EE_215_EDX_BOARD = 74
+    ANT_NEURO_EE_221_EDX_BOARD = 75
+    ANT_NEURO_EE_222_EDX_BOARD = 76
+    ANT_NEURO_EE_223_EDX_BOARD = 77
+    ANT_NEURO_EE_224_EDX_BOARD = 78
+    ANT_NEURO_EE_225_EDX_BOARD = 79
+    ANT_NEURO_EE_511_EDX_BOARD = 80
 
 end
 
@@ -229,7 +243,11 @@ struct BoardShim
 
     function BoardShim(id::Integer, params::BrainFlowInputParams)
         master_id = id
-        if id == Integer(STREAMING_BOARD) || id == Integer(PLAYBACK_FILE_BOARD)
+        if (id == Integer(STREAMING_BOARD) || id == Integer(PLAYBACK_FILE_BOARD))
+            if Integer(params.master_board) == Integer(NO_BOARD)
+                throw(BrainFlowError("master board id is required for streaming or playback boards",
+                                     Integer(INVALID_ARGUMENTS_ERROR)))
+            end
             master_id = Integer(params.master_board)
         end
         new(master_id, id, JSON.json(params))
@@ -336,3 +354,4 @@ end
     value = transpose(reshape(val[1:data_size[1] * num_rows], (data_size[1], num_rows)))
     return value
 end
+

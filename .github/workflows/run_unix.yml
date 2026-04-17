@@ -33,9 +33,14 @@ jobs:
       if: (matrix.os == 'ubuntu-latest')
       run: |
         sudo -H apt-get update -y
-        sudo -H apt-get install -y python3-setuptools python3-pygments libbluetooth-dev
+        sudo -H apt-get install -y python3-setuptools python3-pygments libbluetooth-dev libprotobuf-dev protobuf-compiler libgrpc++-dev protobuf-compiler-grpc
       env:
         DEBIAN_FRONTEND: noninteractive
+    - name: Install ANT EDX Dependencies MacOS
+      if: (matrix.os == 'macos-14')
+      run: |
+        brew update
+        brew install protobuf grpc
     - name: Install Node
       uses: actions/setup-node@v3
       with:
@@ -75,7 +80,7 @@ jobs:
       run: |
         mkdir $GITHUB_WORKSPACE/build
         cd $GITHUB_WORKSPACE/build
-        cmake -G Ninja -DBRAINFLOW_VERSION=$BRAINFLOW_VERSION -DBUILD_ONNX=ON -DBUILD_BLUETOOTH=ON -DBUILD_TESTS=ON -DWARNINGS_AS_ERRORS=ON -DCMAKE_OSX_ARCHITECTURES="arm64;x86_64" -DCMAKE_OSX_DEPLOYMENT_TARGET=10.13 -DCMAKE_INSTALL_PREFIX=$GITHUB_WORKSPACE/installed -DCMAKE_BUILD_TYPE=Release ..
+        cmake -G Ninja -DBRAINFLOW_VERSION=$BRAINFLOW_VERSION -DBUILD_ONNX=ON -DBUILD_BLUETOOTH=ON -DBUILD_ANT_EDX=ON -DBUILD_TESTS=ON -DWARNINGS_AS_ERRORS=ON -DCMAKE_OSX_ARCHITECTURES="arm64;x86_64" -DCMAKE_OSX_DEPLOYMENT_TARGET=10.13 -DCMAKE_INSTALL_PREFIX=$GITHUB_WORKSPACE/installed -DCMAKE_BUILD_TYPE=Release ..
         ninja
         ninja install
       env:
@@ -85,7 +90,7 @@ jobs:
       run: |
         mkdir $GITHUB_WORKSPACE/build
         cd $GITHUB_WORKSPACE/build
-        cmake -DBRAINFLOW_VERSION=$BRAINFLOW_VERSION -DBUILD_BLUETOOTH=ON -DBUILD_ONNX=ON -DBUILD_TESTS=ON -DWARNINGS_AS_ERRORS=ON -DCMAKE_INSTALL_PREFIX=$GITHUB_WORKSPACE/installed -DCMAKE_BUILD_TYPE=Release ..
+        cmake -DBRAINFLOW_VERSION=$BRAINFLOW_VERSION -DBUILD_BLUETOOTH=ON -DBUILD_ONNX=ON -DBUILD_ANT_EDX=ON -DBUILD_TESTS=ON -DWARNINGS_AS_ERRORS=ON -DCMAKE_INSTALL_PREFIX=$GITHUB_WORKSPACE/installed -DCMAKE_BUILD_TYPE=Release ..
         make
         make install
       env:
