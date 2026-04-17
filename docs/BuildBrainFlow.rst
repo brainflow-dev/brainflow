@@ -193,8 +193,8 @@ Windows
 ~~~~~~~~
 
 - Install CMake>=3.16 you can install it from PYPI via pip or from `CMake website <https://cmake.org/>`_
-- Install Visual Studio 2019(preferred) or Visual Studio 2017. Other versions may work but not tested
-- In VS installer make sure you selected "Visual C++ ATL support"
+- Install Visual Studio with C++ build tools
+- In Visual Studio installer make sure you selected "Visual C++ ATL support"
 - Build it as a standard CMake project, you don't need to set any options
 
 .. compound::
@@ -208,6 +208,8 @@ Windows
         # to get info about args and configure your build you can run
         python build.py --help
 
+To build with ANT Neuro EDX support, pass ``-DBUILD_ANT_EDX=ON`` to CMake.
+gRPC and protobuf development libraries must be available (e.g. via vcpkg or system packages).
 
 Linux
 ~~~~~~

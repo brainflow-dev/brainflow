@@ -74,6 +74,7 @@ SET (BOARD_CONTROLLER_SRC
     ${CMAKE_CURRENT_SOURCE_DIR}/src/board_controller/neuromd/brainbit_bled.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/board_controller/muse/muse_bled.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/board_controller/ant_neuro/ant_neuro.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/board_controller/ant_neuro_edx/ant_neuro_edx.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/board_controller/enophone/enophone.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/board_controller/ble_lib_board.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/board_controller/muse/muse.cpp
@@ -88,6 +89,54 @@ SET (BOARD_CONTROLLER_SRC
     ${CMAKE_CURRENT_SOURCE_DIR}/src/board_controller/neuropawn/knight_imu.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/board_controller/biolistener/biolistener.cpp
 )
+
+if (BUILD_ANT_EDX)
+    # EDX expects externally installed Protobuf/gRPC and intentionally fails
+    # fast with install instructions instead of auto-installing or vendoring
+    # these dependencies in this PR. Prefer package-config mode
+    # (vcpkg/Conan), but fall back to CMake's built-in FindProtobuf module
+    # for distro system packages.
+    find_package (Protobuf CONFIG QUIET)
+    if (NOT Protobuf_FOUND)
+        find_package (Protobuf QUIET)
+    endif ()
+    if (NOT Protobuf_FOUND)
+        message (FATAL_ERROR
+            "BUILD_ANT_EDX=ON requires protobuf development libraries.\n"
+            "  Windows: vcpkg install grpc\n"
+            "  Debian/Ubuntu: sudo apt-get install libprotobuf-dev protobuf-compiler libgrpc++-dev protobuf-compiler-grpc")
+    endif ()
+    find_package (gRPC CONFIG QUIET)
+    if (NOT gRPC_FOUND)
+        message (FATAL_ERROR
+            "BUILD_ANT_EDX=ON requires gRPC development libraries.\n"
+            "  Windows: vcpkg install grpc\n"
+            "  Debian/Ubuntu: sudo apt-get install libgrpc++-dev protobuf-compiler-grpc")
+    endif ()
+
+    set (ANT_EDX_PROTO_FILE ${CMAKE_CURRENT_SOURCE_DIR}/src/board_controller/ant_neuro_edx/proto/EdigRPC.proto)
+    set (ANT_EDX_GENERATED_DIR ${CMAKE_CURRENT_BINARY_DIR}/generated/ant_neuro_edx)
+    file (MAKE_DIRECTORY ${ANT_EDX_GENERATED_DIR})
+
+    set (ANT_EDX_PROTO_SRCS ${ANT_EDX_GENERATED_DIR}/EdigRPC.pb.cc)
+    set (ANT_EDX_PROTO_HDRS ${ANT_EDX_GENERATED_DIR}/EdigRPC.pb.h)
+    set (ANT_EDX_GRPC_SRCS ${ANT_EDX_GENERATED_DIR}/EdigRPC.grpc.pb.cc)
+    set (ANT_EDX_GRPC_HDRS ${ANT_EDX_GENERATED_DIR}/EdigRPC.grpc.pb.h)
+
+    add_custom_command (
+        OUTPUT ${ANT_EDX_PROTO_SRCS} ${ANT_EDX_PROTO_HDRS} ${ANT_EDX_GRPC_SRCS} ${ANT_EDX_GRPC_HDRS}
+        COMMAND protobuf::protoc
+        ARGS
+            --proto_path=${CMAKE_CURRENT_SOURCE_DIR}/src/board_controller/ant_neuro_edx/proto
+            --cpp_out=${ANT_EDX_GENERATED_DIR}
+            --grpc_out=${ANT_EDX_GENERATED_DIR}
+            --plugin=protoc-gen-grpc=$<TARGET_FILE:gRPC::grpc_cpp_plugin>
+            ${ANT_EDX_PROTO_FILE}
+        DEPENDS ${ANT_EDX_PROTO_FILE}
+        VERBATIM
+    )
+
+endif (BUILD_ANT_EDX)
 
 include (${CMAKE_CURRENT_SOURCE_DIR}/src/board_controller/ant_neuro/build.cmake)
 include (${CMAKE_CURRENT_SOURCE_DIR}/src/board_controller/openbci/ganglion_bglib/build.cmake)
@@ -144,6 +193,7 @@ target_include_directories (
     ${CMAKE_CURRENT_SOURCE_DIR}/src/board_controller/freeeeg/inc
     ${CMAKE_CURRENT_SOURCE_DIR}/third_party/ant_neuro
     ${CMAKE_CURRENT_SOURCE_DIR}/src/board_controller/ant_neuro/inc
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/board_controller/ant_neuro_edx/inc
     ${CMAKE_CURRENT_SOURCE_DIR}/src/board_controller/enophone/inc
     ${CMAKE_CURRENT_SOURCE_DIR}/third_party/SimpleBLE/simpleble/include
     ${CMAKE_CURRENT_SOURCE_DIR}/src/board_controller/brainalive/inc
@@ -156,6 +206,48 @@ target_include_directories (
     ${CMAKE_CURRENT_SOURCE_DIR}/src/board_controller/neuropawn/inc
     ${CMAKE_CURRENT_SOURCE_DIR}/src/board_controller/biolistener/inc
 )
+
+if (BUILD_ANT_EDX)
+    target_compile_definitions (${BOARD_CONTROLLER_NAME} PRIVATE BUILD_ANT_EDX)
+
+    if (APPLE)
+        set (ANT_EDX_DYNLIB_NAME "libAntNeuroEdxLib.dylib")
+    elseif (UNIX)
+        set (ANT_EDX_DYNLIB_NAME "libAntNeuroEdxLib.so")
+    else ()
+        if (CMAKE_SIZEOF_VOID_P EQUAL 8)
+            set (ANT_EDX_DYNLIB_NAME "AntNeuroEdxLib.dll")
+        else ()
+            set (ANT_EDX_DYNLIB_NAME "AntNeuroEdxLib32.dll")
+        endif ()
+    endif ()
+
+    add_library (AntNeuroEdxLib SHARED
+        ${CMAKE_CURRENT_SOURCE_DIR}/src/board_controller/ant_neuro_edx/ant_neuro_edx_impl.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/src/board_controller/ant_neuro_edx/ant_neuro_edx_main.cpp
+        ${ANT_EDX_PROTO_SRCS}
+        ${ANT_EDX_GRPC_SRCS}
+    )
+
+    target_compile_definitions (AntNeuroEdxLib PRIVATE BUILD_ANT_EDX)
+    target_include_directories (AntNeuroEdxLib PRIVATE
+        ${CMAKE_CURRENT_SOURCE_DIR}/third_party/
+        ${CMAKE_CURRENT_SOURCE_DIR}/third_party/json
+        ${CMAKE_CURRENT_SOURCE_DIR}/src/utils/inc
+        ${CMAKE_CURRENT_SOURCE_DIR}/src/board_controller/inc
+        ${CMAKE_CURRENT_SOURCE_DIR}/src/board_controller/ant_neuro_edx/inc
+        ${ANT_EDX_GENERATED_DIR}
+    )
+    target_link_libraries (AntNeuroEdxLib PRIVATE ${BOARD_CONTROLLER_NAME} gRPC::grpc++ protobuf::libprotobuf)
+
+    set_target_properties (AntNeuroEdxLib
+        PROPERTIES
+        OUTPUT_NAME AntNeuroEdxLib
+        ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/compiled
+        LIBRARY_OUTPUT_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/compiled
+        RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/compiled
+    )
+endif (BUILD_ANT_EDX)
 
 target_compile_definitions(${BOARD_CONTROLLER_NAME} PRIVATE NOMINMAX BRAINFLOW_VERSION=${BRAINFLOW_VERSION})
 
@@ -208,6 +300,19 @@ if (MSVC)
         COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/src/utils/inc/brainflow_constants.h" "${CMAKE_CURRENT_SOURCE_DIR}/rust_package/brainflow/inc/brainflow_constants.h"
     )
 endif (MSVC)
+
+if (MSVC AND BUILD_ANT_EDX)
+    add_custom_command (TARGET AntNeuroEdxLib POST_BUILD
+        COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/compiled/$<CONFIG>/${ANT_EDX_DYNLIB_NAME}" "${CMAKE_CURRENT_SOURCE_DIR}/nodejs_package/brainflow/lib/${ANT_EDX_DYNLIB_NAME}"
+        COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/compiled/$<CONFIG>/${ANT_EDX_DYNLIB_NAME}" "${CMAKE_CURRENT_SOURCE_DIR}/python_package/brainflow/lib/${ANT_EDX_DYNLIB_NAME}"
+        COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/compiled/$<CONFIG>/${ANT_EDX_DYNLIB_NAME}" "${CMAKE_CURRENT_SOURCE_DIR}/julia_package/brainflow/lib/${ANT_EDX_DYNLIB_NAME}"
+        COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/compiled/$<CONFIG>/${ANT_EDX_DYNLIB_NAME}" "${CMAKE_CURRENT_SOURCE_DIR}/java_package/brainflow/src/main/resources/${ANT_EDX_DYNLIB_NAME}"
+        COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/compiled/$<CONFIG>/${ANT_EDX_DYNLIB_NAME}" "${CMAKE_CURRENT_SOURCE_DIR}/csharp_package/brainflow/brainflow/lib/${ANT_EDX_DYNLIB_NAME}"
+        COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/compiled/$<CONFIG>/${ANT_EDX_DYNLIB_NAME}" "${CMAKE_CURRENT_SOURCE_DIR}/matlab_package/brainflow/lib/${ANT_EDX_DYNLIB_NAME}"
+        COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/compiled/$<CONFIG>/${ANT_EDX_DYNLIB_NAME}" "${CMAKE_CURRENT_SOURCE_DIR}/rust_package/brainflow/lib/${ANT_EDX_DYNLIB_NAME}"
+    )
+endif (MSVC AND BUILD_ANT_EDX)
+
 if (UNIX AND NOT ANDROID)
     add_custom_command (TARGET ${BOARD_CONTROLLER_NAME} POST_BUILD
         COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/compiled/${BOARD_CONTROLLER_COMPILED_NAME}" "${CMAKE_CURRENT_SOURCE_DIR}/nodejs_package/brainflow/lib/${BOARD_CONTROLLER_COMPILED_NAME}"
@@ -226,6 +331,18 @@ if (UNIX AND NOT ANDROID)
         COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/src/utils/inc/brainflow_constants.h" "${CMAKE_CURRENT_SOURCE_DIR}/rust_package/brainflow/inc/brainflow_constants.h"
     )
 endif (UNIX AND NOT ANDROID)
+
+if (UNIX AND NOT ANDROID AND BUILD_ANT_EDX)
+    add_custom_command (TARGET AntNeuroEdxLib POST_BUILD
+        COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/compiled/${ANT_EDX_DYNLIB_NAME}" "${CMAKE_CURRENT_SOURCE_DIR}/nodejs_package/brainflow/lib/${ANT_EDX_DYNLIB_NAME}"
+        COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/compiled/${ANT_EDX_DYNLIB_NAME}" "${CMAKE_CURRENT_SOURCE_DIR}/python_package/brainflow/lib/${ANT_EDX_DYNLIB_NAME}"
+        COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/compiled/${ANT_EDX_DYNLIB_NAME}" "${CMAKE_CURRENT_SOURCE_DIR}/julia_package/brainflow/lib/${ANT_EDX_DYNLIB_NAME}"
+        COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/compiled/${ANT_EDX_DYNLIB_NAME}" "${CMAKE_CURRENT_SOURCE_DIR}/java_package/brainflow/src/main/resources/${ANT_EDX_DYNLIB_NAME}"
+        COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/compiled/${ANT_EDX_DYNLIB_NAME}" "${CMAKE_CURRENT_SOURCE_DIR}/csharp_package/brainflow/brainflow/lib/${ANT_EDX_DYNLIB_NAME}"
+        COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/compiled/${ANT_EDX_DYNLIB_NAME}" "${CMAKE_CURRENT_SOURCE_DIR}/matlab_package/brainflow/lib/${ANT_EDX_DYNLIB_NAME}"
+        COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/compiled/${ANT_EDX_DYNLIB_NAME}" "${CMAKE_CURRENT_SOURCE_DIR}/rust_package/brainflow/lib/${ANT_EDX_DYNLIB_NAME}"
+    )
+endif (UNIX AND NOT ANDROID AND BUILD_ANT_EDX)
 
 if (ANDROID)
     add_custom_command (TARGET ${BOARD_CONTROLLER_NAME} POST_BUILD
@@ -279,3 +396,13 @@ install (
     INCLUDES DESTINATION inc
     ARCHIVE DESTINATION lib
 )
+
+if (BUILD_ANT_EDX)
+    install (
+        TARGETS AntNeuroEdxLib
+        EXPORT ${TARGETS_EXPORT_NAME}
+        RUNTIME DESTINATION lib
+        LIBRARY DESTINATION lib
+        ARCHIVE DESTINATION lib
+    )
+endif (BUILD_ANT_EDX)
