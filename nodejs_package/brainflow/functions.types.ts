@@ -32,7 +32,7 @@ export enum BoardControllerCLikeFunctions {
     add_streamer =
         'int add_streamer (const char *streamer, int preset, int board_id, const char *json_brainflow_input_params)',
     config_board =
-        'int config_board (const char *config, _Inout_ char *response, _Inout_ int *resp_len, int board_id, const char *json_brainflow_input_params)',
+        'int config_board (const char *config, _Inout_ char *response, _Inout_ int *resp_len, int response_max_len, int board_id, const char *json_brainflow_input_params)',
     config_board_with_bytes =
         'int config_board_with_bytes (const char *bytes, int len, int board_id, const char *json_brainflow_input_params)',
     delete_streamer =
@@ -51,6 +51,8 @@ export enum BoardControllerCLikeFunctions {
     get_num_rows = 'int get_num_rows (int board_id, int preset, _Inout_ int *num_rows)',
     get_sampling_rate =
         'int get_sampling_rate (int board_id, int preset, _Inout_ int *sampling_rate)',
+    get_board_sampling_rate =
+        'int get_board_sampling_rate (int preset, _Inout_ int *sampling_rate, int board_id, const char *json_brainflow_input_params)',
     get_battery_channel = 'int get_battery_channel (int board_id, int preset, _Inout_ int *value)',
     get_package_num_channel =
         'int get_package_num_channel (int board_id, int preset, _Inout_ int *value)',
@@ -88,11 +90,11 @@ export enum BoardControllerCLikeFunctions {
     get_rotation_channels =
         'int get_rotation_channels (int board_id, int preset, _Inout_ int *channels, _Inout_ int *len)',
     get_eeg_names =
-        'int get_eeg_names (int board_id, int preset, _Inout_ char *eeg_names, _Inout_ int *len)',
+        'int get_eeg_names (int board_id, int preset, _Inout_ char *eeg_names, _Inout_ int *len, int max_len)',
     get_device_name =
-        'int get_device_name (int board_id, int preset, _Inout_ char *device_name, _Inout_ int *len)',
+        'int get_device_name (int board_id, int preset, _Inout_ char *device_name, _Inout_ int *len, int max_len)',
     get_board_descr =
-        'int get_board_descr (int board_id, int preset, _Inout_ char *descr, _Inout_ int *len)',
+        'int get_board_descr (int board_id, int preset, _Inout_ char *descr, _Inout_ int *len, int max_len)',
     get_board_presets =
         'int get_board_presets (int board_id, _Inout_ int *presets, _Inout_ int *len)',
 }
@@ -138,6 +140,7 @@ export class BoardControllerFunctions
         config: string,
         response: string[],
         responseLen: number[],
+        responseMaxLen: number,
         boardId: BoardIds,
         inputJson: string,
         ) => BrainFlowExitCodes;
@@ -181,6 +184,12 @@ export class BoardControllerFunctions
         boardId: BoardIds, preset: BrainFlowPresets, numRows: number[]) => BrainFlowExitCodes;
     getSamplingRate!: (
         boardId: BoardIds, preset: BrainFlowPresets, samplingRate: number[]) => BrainFlowExitCodes;
+    getBoardSamplingRate!: (
+        preset: BrainFlowPresets,
+        samplingRate: number[],
+        boardId: BoardIds,
+        inputJson: string,
+        ) => BrainFlowExitCodes;
     getEegChannels!: (
         boardId: BoardIds,
         preset: BrainFlowPresets,
@@ -276,12 +285,14 @@ export class BoardControllerFunctions
         preset: BrainFlowPresets,
         names: string[],
         len: number[],
+        maxLen: number,
         ) => BrainFlowExitCodes;
     getDeviceName!: (
         boardId: BoardIds,
         preset: BrainFlowPresets,
         name: string[],
         len: number[],
+        maxLen: number,
         ) => BrainFlowExitCodes;
     getBoardPresets!: (
         boardId: BoardIds,
@@ -293,6 +304,7 @@ export class BoardControllerFunctions
         preset: BrainFlowPresets,
         descr: string[],
         len: number[],
+        maxLen: number,
         ) => BrainFlowExitCodes;
 }
 

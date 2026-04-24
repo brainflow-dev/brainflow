@@ -29,13 +29,13 @@ protected:
 private:
 public:
     KnightBase (int board_id, struct BrainFlowInputParams params);
-    virtual ~KnightBase ();
+    ~KnightBase () override;
 
-    virtual int prepare_session ();
-    virtual int start_stream (int buffer_size, const char *streamer_params);
-    virtual int stop_stream ();
-    virtual int release_session ();
-    virtual int config_board (std::string config, std::string &response);
+    int prepare_session () override;
+    int start_stream (int buffer_size, const char *streamer_params) override;
+    int stop_stream () override;
+    int release_session () override;
+    int config_board (std::string config, std::string &response) override;
 
     static constexpr int start_byte = 0xA0;
     static constexpr int end_byte = 0xC0;

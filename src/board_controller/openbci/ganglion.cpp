@@ -37,6 +37,7 @@ Ganglion::Ganglion (struct BrainFlowInputParams params)
     state = (int)BrainFlowExitCodes::SYNC_TIMEOUT_ERROR;
     start_command = "b";
     stop_command = "s";
+    current_sampling_rate = Board::get_board_sampling_rate ((int)BrainFlowPresets::DEFAULT_PRESET);
 
     std::string ganglionlib_path = "";
     std::string ganglionlib_name = "";
@@ -642,11 +643,25 @@ int Ganglion::config_board (std::string config, std::string &response)
             }
             else
             {
-                return call_config (const_cast<char *> (conf));
+                int res = call_config (const_cast<char *> (conf));
+                if (res == (int)BrainFlowExitCodes::STATUS_OK)
+                {
+                    track_openbci_sampling_rate (board_id, config, current_sampling_rate);
+                }
+                return res;
             }
         }
     }
     return (int)BrainFlowExitCodes::STATUS_OK;
+}
+
+int Ganglion::get_board_sampling_rate (int preset)
+{
+    if (preset != (int)BrainFlowPresets::DEFAULT_PRESET)
+    {
+        return Board::get_board_sampling_rate (preset);
+    }
+    return current_sampling_rate;
 }
 
 int Ganglion::call_init ()

@@ -147,10 +147,12 @@ classdef BoardShim
             % get board descr for provided board id
             task_name = 'get_board_descr';
             lib_name = BoardShim.load_lib();
+            str_len = libpointer('int32Ptr', 0);
             % no way to understand how it works in matlab, used this link
             % https://nl.mathworks.com/matlabcentral/answers/131446-what-data-type-do-i-need-to-calllib-with-pointer-argument-char%
-            [exit_code, board_descr] = calllib(lib_name, task_name, board_id, preset, blanks(16000), 16000);
+            [exit_code, board_descr] = calllib(lib_name, task_name, board_id, preset, blanks(16000), str_len, 16000);
             BoardShim.check_ec(exit_code, task_name);
+            board_descr = extractBefore(board_descr, str_len.Value + 1);
             board_descr = jsondecode(board_descr);
         end
 
@@ -158,10 +160,12 @@ classdef BoardShim
             % get eeg names for provided board id
             task_name = 'get_eeg_names';
             lib_name = BoardShim.load_lib();
+            str_len = libpointer('int32Ptr', 0);
             % no way to understand how it works in matlab, used this link
             % https://nl.mathworks.com/matlabcentral/answers/131446-what-data-type-do-i-need-to-calllib-with-pointer-argument-char%
-            [exit_code, eeg_names] = calllib(lib_name, task_name, board_id, preset, blanks(4096), 4096);
+            [exit_code, eeg_names] = calllib(lib_name, task_name, board_id, preset, blanks(4096), str_len, 4096);
             BoardShim.check_ec(exit_code, task_name);
+            eeg_names = extractBefore(eeg_names, str_len.Value + 1);
             eeg_names = split(eeg_names, ',');
         end
 
@@ -191,10 +195,12 @@ classdef BoardShim
             % get device name for provided board id
             task_name = 'get_device_name';
             lib_name = BoardShim.load_lib();
+            str_len = libpointer('int32Ptr', 0);
             % no way to understand how it works in matlab used this link
             % https://nl.mathworks.com/matlabcentral/answers/131446-what-data-type-do-i-need-to-calllib-with-pointer-argument-char%
-            [exit_code, device_name] = calllib(lib_name, task_name, board_id, preset, blanks(4096), 4096);
+            [exit_code, device_name] = calllib(lib_name, task_name, board_id, preset, blanks(4096), str_len, 4096);
             BoardShim.check_ec(exit_code, task_name);
+            device_name = extractBefore(device_name, str_len.Value + 1);
         end
 
         function eeg_channels = get_eeg_channels(board_id, preset)
@@ -380,10 +386,12 @@ classdef BoardShim
             % send string to the board
             task_name = 'config_board';
             lib_name = BoardShim.load_lib();
+            str_len = libpointer('int32Ptr', 0);
             % no way to understand how it works in matlab used this link
             % https://nl.mathworks.com/matlabcentral/answers/131446-what-data-type-do-i-need-to-calllib-with-pointer-argument-char%
-            [exit_code, tmp, response] = calllib(lib_name, task_name, config, blanks(4096), 4096, obj.board_id, obj.input_params_json);
+            [exit_code, tmp, response] = calllib(lib_name, task_name, config, blanks(4096), str_len, 4096, obj.board_id, obj.input_params_json);
             BoardShim.check_ec(exit_code, task_name);
+            response = extractBefore(response, str_len.Value + 1);
         end
         
         function config_board_with_bytes(obj, bytes)
@@ -495,6 +503,16 @@ classdef BoardShim
            exit_code = calllib(lib_name, task_name, res, obj.board_id, obj.input_params_json);
            BoardShim.check_ec(exit_code, task_name);
            prepared = boolean(res.value);
+        end
+
+        function sampling_rate = get_board_sampling_rate(obj, preset)
+            % get actual sampling rate for prepared board session
+            task_name = 'get_board_sampling_rate';
+            lib_name = BoardShim.load_lib();
+            res = libpointer('int32Ptr', 0);
+            exit_code = calllib(lib_name, task_name, preset, res, obj.board_id, obj.input_params_json);
+            BoardShim.check_ec(exit_code, task_name);
+            sampling_rate = res.value;
         end
 
     end

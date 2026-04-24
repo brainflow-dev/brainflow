@@ -327,6 +327,7 @@ class BoardControllerDLL(object):
             ndpointer(ctypes.c_ubyte),
             ndpointer(ctypes.c_int32),
             ctypes.c_int,
+            ctypes.c_int,
             ctypes.c_char_p
         ]
 
@@ -345,6 +346,15 @@ class BoardControllerDLL(object):
             ctypes.c_int,
             ctypes.c_int,
             ndpointer(ctypes.c_int32)
+        ]
+
+        self.get_board_sampling_rate = self.lib.get_board_sampling_rate
+        self.get_board_sampling_rate.restype = ctypes.c_int
+        self.get_board_sampling_rate.argtypes = [
+            ctypes.c_int,
+            ndpointer(ctypes.c_int32),
+            ctypes.c_int,
+            ctypes.c_char_p
         ]
 
         self.get_battery_channel = self.lib.get_battery_channel
@@ -393,7 +403,8 @@ class BoardControllerDLL(object):
             ctypes.c_int,
             ctypes.c_int,
             ndpointer(ctypes.c_ubyte),
-            ndpointer(ctypes.c_int32)
+            ndpointer(ctypes.c_int32),
+            ctypes.c_int
         ]
 
         self.get_board_presets = self.lib.get_board_presets
@@ -418,7 +429,8 @@ class BoardControllerDLL(object):
             ctypes.c_int,
             ctypes.c_int,
             ndpointer(ctypes.c_ubyte),
-            ndpointer(ctypes.c_int32)
+            ndpointer(ctypes.c_int32),
+            ctypes.c_int
         ]
 
         self.get_device_name = self.lib.get_device_name
@@ -427,7 +439,8 @@ class BoardControllerDLL(object):
             ctypes.c_int,
             ctypes.c_int,
             ndpointer(ctypes.c_ubyte),
-            ndpointer(ctypes.c_int32)
+            ndpointer(ctypes.c_int32),
+            ctypes.c_int
         ]
 
         self.get_eeg_channels = self.lib.get_eeg_channels
@@ -783,7 +796,8 @@ class BoardShim(object):
 
         string = numpy.zeros(4096).astype(numpy.ubyte)
         string_len = numpy.zeros(1).astype(numpy.int32)
-        res = BoardControllerDLL.get_instance().get_eeg_names(board_id, preset, string, string_len)
+        res = BoardControllerDLL.get_instance().get_eeg_names(
+            board_id, preset, string, string_len, string.size)
         if res != BrainFlowExitCodes.STATUS_OK.value:
             raise BrainFlowError('unable to request info about this board', res)
         return string.tobytes().decode('utf-8')[0:string_len[0]].split(',')
@@ -838,7 +852,8 @@ class BoardShim(object):
 
         string = numpy.zeros(16000).astype(numpy.ubyte)
         string_len = numpy.zeros(1).astype(numpy.int32)
-        res = BoardControllerDLL.get_instance().get_board_descr(board_id, preset, string, string_len)
+        res = BoardControllerDLL.get_instance().get_board_descr(
+            board_id, preset, string, string_len, string.size)
         if res != BrainFlowExitCodes.STATUS_OK.value:
             raise BrainFlowError('unable to request info about this board', res)
         return json.loads(string.tobytes().decode('utf-8')[0:string_len[0]])
@@ -858,7 +873,8 @@ class BoardShim(object):
 
         string = numpy.zeros(4096).astype(numpy.ubyte)
         string_len = numpy.zeros(1).astype(numpy.int32)
-        res = BoardControllerDLL.get_instance().get_device_name(board_id, preset, string, string_len)
+        res = BoardControllerDLL.get_instance().get_device_name(
+            board_id, preset, string, string_len, string.size)
         if res != BrainFlowExitCodes.STATUS_OK.value:
             raise BrainFlowError('unable to request info about this board', res)
         return string.tobytes().decode('utf-8')[0:string_len[0]]
@@ -1336,6 +1352,22 @@ class BoardShim(object):
 
         return self._master_board_id
 
+    def get_board_sampling_rate(self, preset: int = BrainFlowPresets.DEFAULT_PRESET) -> int:
+        """Get actual sampling rate for this prepared board session.
+
+        :param preset: preset
+        :type preset: int
+        :return: sampling rate
+        :rtype: int
+        """
+
+        sampling_rate = numpy.zeros(1).astype(numpy.int32)
+        res = BoardControllerDLL.get_instance().get_board_sampling_rate(
+            preset, sampling_rate, self.board_id, self.input_json)
+        if res != BrainFlowExitCodes.STATUS_OK.value:
+            raise BrainFlowError('unable to get sampling rate for this board session', res)
+        return sampling_rate[0]
+
     def insert_marker(self, value: float, preset: int = BrainFlowPresets.DEFAULT_PRESET) -> None:
         """Insert Marker to Data Stream
 
@@ -1405,8 +1437,8 @@ class BoardShim(object):
         string = numpy.zeros(4096).astype(numpy.ubyte)
         string_len = numpy.zeros(1).astype(numpy.int32)
 
-        res = BoardControllerDLL.get_instance().config_board(config_string, string, string_len, self.board_id,
-                                                             self.input_json)
+        res = BoardControllerDLL.get_instance().config_board(
+            config_string, string, string_len, string.size, self.board_id, self.input_json)
         if res != BrainFlowExitCodes.STATUS_OK.value:
             raise BrainFlowError('unable to config board', res)
         return string.tobytes().decode('utf-8')[0:string_len[0]]

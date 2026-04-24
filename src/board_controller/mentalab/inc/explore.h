@@ -36,9 +36,10 @@ protected:
     std::mutex m;
     std::condition_variable cv;
     double last_eeg_timestamp;
+    int eeg_sampling_rate;
 
     void read_thread ();
-    std::string get_name_selector ();
+    std::string get_name_selector () override;
     void parse_eeg_data (const ExploreHeader *header, double *package, unsigned char *payload,
         double vref, int n_packages);
     void parse_orientation_data (
@@ -48,11 +49,12 @@ protected:
 
 public:
     Explore (int board_id, struct BrainFlowInputParams params);
-    ~Explore ();
+    ~Explore () override;
 
-    int prepare_session ();
-    int config_board (std::string config, std::string &response);
-    int start_stream (int buffer_size, const char *streamer_params);
-    int stop_stream ();
-    int release_session ();
+    int prepare_session () override;
+    int config_board (std::string config, std::string &response) override;
+    int get_board_sampling_rate (int preset) override;
+    int start_stream (int buffer_size, const char *streamer_params) override;
+    int stop_stream () override;
+    int release_session () override;
 };

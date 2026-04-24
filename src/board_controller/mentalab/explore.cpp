@@ -12,6 +12,7 @@ Explore::Explore (int board_id, struct BrainFlowInputParams params) : BTLibBoard
     keep_alive = false;
     last_eeg_timestamp = -1;
     state = (int)BrainFlowExitCodes::SYNC_TIMEOUT_ERROR;
+    eeg_sampling_rate = Board::get_board_sampling_rate ((int)BrainFlowPresets::DEFAULT_PRESET);
 }
 
 Explore::~Explore ()
@@ -32,6 +33,8 @@ int Explore::prepare_session ()
 int Explore::config_board (std::string config, std::string &response)
 {
     bool prefix_found = false;
+    bool sampling_rate_updated = false;
+    int new_sampling_rate = 0;
     constexpr int command_len = 14;
     unsigned char command[command_len];
     memset (command, 0, command_len);
@@ -56,7 +59,6 @@ int Explore::config_board (std::string config, std::string &response)
     if (config.find (sps_prefix) != std::string::npos)
     {
         prefix_found = true;
-        int new_sampling_rate = 0;
         std::string value = config.substr (sps_prefix.size ());
         try
         {
@@ -80,6 +82,7 @@ int Explore::config_board (std::string config, std::string &response)
             command[9] = 0x02;
         if (new_sampling_rate == 1000)
             command[9] = 0x03;
+        sampling_rate_updated = true;
     }
     std::string test_sig_prefix = "test_signal:";
     if (config.find (test_sig_prefix) != std::string::npos)
@@ -151,7 +154,20 @@ int Explore::config_board (std::string config, std::string &response)
         safe_logger (spdlog::level::err, "failed to config device, res: {}", res);
         return (int)BrainFlowExitCodes::BOARD_WRITE_ERROR;
     }
+    if (sampling_rate_updated)
+    {
+        eeg_sampling_rate = new_sampling_rate;
+    }
     return (int)BrainFlowExitCodes::STATUS_OK;
+}
+
+int Explore::get_board_sampling_rate (int preset)
+{
+    if (preset == (int)BrainFlowPresets::DEFAULT_PRESET)
+    {
+        return eeg_sampling_rate;
+    }
+    return Board::get_board_sampling_rate (preset);
 }
 
 int Explore::start_stream (int buffer_size, const char *streamer_params)

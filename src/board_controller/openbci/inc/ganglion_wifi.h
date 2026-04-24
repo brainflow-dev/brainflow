@@ -15,7 +15,7 @@ class GanglionWifi : public OpenBCIWifiShieldBoard
     volatile bool is_cheking_impedance;
 
 protected:
-    void read_thread ();
+    void read_thread () override;
     void read_thread_impedance ();
 
 public:
@@ -27,7 +27,7 @@ public:
     }
 
     // hacks for ganglion and impedance
-    int start_stream (int buffer_size, const char *streamer_params);
-    int stop_stream ();
-    int config_board (std::string config, std::string &response);
+    int start_stream (int buffer_size, const char *streamer_params) override;
+    int stop_stream () override;
+    int config_board (std::string config, std::string &response) override;
 };

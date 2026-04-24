@@ -61,8 +61,8 @@ int SyntheticBoard::start_stream (int buffer_size, const char *streamer_params)
     }
 
     keep_alive = true;
-    streaming_thread = std::thread ([this] { this->read_thread (); });
     is_streaming = true;
+    streaming_thread = std::thread ([this] { this->read_thread (); });
     return (int)BrainFlowExitCodes::STATUS_OK;
 }
 

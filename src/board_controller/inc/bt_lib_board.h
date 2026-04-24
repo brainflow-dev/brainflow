@@ -24,9 +24,9 @@ protected:
 
 public:
     BTLibBoard (int board_id, struct BrainFlowInputParams params);
-    virtual ~BTLibBoard ();
+    ~BTLibBoard () override;
 
-    virtual int prepare_session ();
-    virtual int release_session ();
-    virtual int config_board (std::string config, std::string &response);
+    int prepare_session () override;
+    int release_session () override;
+    int config_board (std::string config, std::string &response) override;
 };

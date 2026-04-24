@@ -43,6 +43,7 @@ GanglionNative::GanglionNative (struct BrainFlowInputParams params)
     start_command = "b";
     stop_command = "s";
     firmware = get_firmware_from_params (params);
+    current_sampling_rate = Board::get_board_sampling_rate ((int)BrainFlowPresets::DEFAULT_PRESET);
 }
 
 GanglionNative::~GanglionNative ()
@@ -402,7 +403,20 @@ int GanglionNative::config_board (std::string config)
     {
         res = send_command (config);
     }
+    if (res == (int)BrainFlowExitCodes::STATUS_OK)
+    {
+        track_openbci_sampling_rate (board_id, config, current_sampling_rate);
+    }
     return res;
+}
+
+int GanglionNative::get_board_sampling_rate (int preset)
+{
+    if (preset != (int)BrainFlowPresets::DEFAULT_PRESET)
+    {
+        return Board::get_board_sampling_rate (preset);
+    }
+    return current_sampling_rate;
 }
 
 int GanglionNative::send_command (std::string config)

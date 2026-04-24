@@ -9,6 +9,7 @@ extern "C" {
         preset: ::std::os::raw::c_int,
         board_descr: *mut ::std::os::raw::c_char,
         len: *mut ::std::os::raw::c_int,
+        max_len: ::std::os::raw::c_int,
     ) -> ::std::os::raw::c_int;
 }
 extern "C" {
@@ -59,6 +60,7 @@ extern "C" {
         preset: ::std::os::raw::c_int,
         eeg_names: *mut ::std::os::raw::c_char,
         len: *mut ::std::os::raw::c_int,
+        max_len: ::std::os::raw::c_int,
     ) -> ::std::os::raw::c_int;
 }
 extern "C" {
@@ -187,6 +189,7 @@ extern "C" {
         preset: ::std::os::raw::c_int,
         name: *mut ::std::os::raw::c_char,
         len: *mut ::std::os::raw::c_int,
+        max_len: ::std::os::raw::c_int,
     ) -> ::std::os::raw::c_int;
 }
 extern "C" {
@@ -250,10 +253,19 @@ extern "C" {
     ) -> ::std::os::raw::c_int;
 }
 extern "C" {
+    pub fn get_board_sampling_rate(
+        preset: ::std::os::raw::c_int,
+        sampling_rate: *mut ::std::os::raw::c_int,
+        board_id: ::std::os::raw::c_int,
+        json_brainflow_input_params: *const ::std::os::raw::c_char,
+    ) -> ::std::os::raw::c_int;
+}
+extern "C" {
     pub fn config_board(
         config: *const ::std::os::raw::c_char,
         response: *mut ::std::os::raw::c_char,
         response_len: *mut ::std::os::raw::c_int,
+        response_max_len: ::std::os::raw::c_int,
         board_id: ::std::os::raw::c_int,
         json_brainflow_input_params: *const ::std::os::raw::c_char,
     ) -> ::std::os::raw::c_int;

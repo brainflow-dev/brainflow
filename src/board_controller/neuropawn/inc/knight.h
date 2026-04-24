@@ -6,7 +6,7 @@ class Knight : public KnightBase
 {
 
 protected:
-    void read_thread ();
+    void read_thread () override;
 
 public:
     Knight (int board_id, struct BrainFlowInputParams params);
