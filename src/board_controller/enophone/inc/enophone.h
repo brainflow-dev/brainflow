@@ -19,7 +19,7 @@ protected:
     volatile int state;
 
     void read_thread ();
-    std::string get_name_selector ();
+    std::string get_name_selector () override;
 
 public:
     Enophone (struct BrainFlowInputParams params);

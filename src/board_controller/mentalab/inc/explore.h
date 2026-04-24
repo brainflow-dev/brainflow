@@ -39,7 +39,7 @@ protected:
     int eeg_sampling_rate;
 
     void read_thread ();
-    std::string get_name_selector ();
+    std::string get_name_selector () override;
     void parse_eeg_data (const ExploreHeader *header, double *package, unsigned char *payload,
         double vref, int n_packages);
     void parse_orientation_data (
