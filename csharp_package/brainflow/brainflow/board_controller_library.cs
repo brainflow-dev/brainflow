@@ -151,7 +151,7 @@ namespace brainflow
         [DllImport ("BoardController", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int log_message_board_controller (int log_level, string message);
         [DllImport ("BoardController", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
-        public static extern int config_board (string config, byte[] response, int[] len, int board_id, string input_json);
+        public static extern int config_board (string config, byte[] response, int[] len, int max_len, int board_id, string input_json);
         [DllImport ("BoardController", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int config_board_with_bytes (byte[] bytes, int len, int board_id, string input_json);
         [DllImport ("BoardController", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
@@ -195,7 +195,7 @@ namespace brainflow
         [DllImport ("BoardController", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int is_prepared (int[] prepared, int board_id, string input_json);
         [DllImport ("BoardController", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
-        public static extern int get_eeg_names (int board_id, int preset, byte[] eeg_names, int[] len);
+        public static extern int get_eeg_names (int board_id, int preset, byte[] eeg_names, int[] len, int max_len);
         [DllImport ("BoardController", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int get_resistance_channels (int board_id, int preset, int[] channels, int[] len);
         [DllImport ("BoardController", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
@@ -203,11 +203,11 @@ namespace brainflow
         [DllImport ("BoardController", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int get_exg_channels (int board_id, int preset, int[] channels, int[] len);
         [DllImport ("BoardController", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
-        public static extern int get_device_name (int board_id, int preset, byte[] name, int[] len);
+        public static extern int get_device_name (int board_id, int preset, byte[] name, int[] len, int max_len);
         [DllImport ("BoardController", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int insert_marker (double value, int preset, int board_id, string input_json);
         [DllImport ("BoardController", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
-        public static extern int get_board_descr (int board_id, int preset, byte[] board_descr, int[] len);
+        public static extern int get_board_descr (int board_id, int preset, byte[] board_descr, int[] len, int max_len);
         [DllImport ("BoardController", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int release_all_sessions ();
         [DllImport ("BoardController", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
@@ -241,7 +241,7 @@ namespace brainflow
         [DllImport ("BoardController32", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int log_message_board_controller (int log_level, string message);
         [DllImport ("BoardController32", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
-        public static extern int config_board (string config, byte[] response, int[] len, int board_id, string input_json);
+        public static extern int config_board (string config, byte[] response, int[] len, int max_len, int board_id, string input_json);
         [DllImport ("BoardController32", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int config_board_with_bytes (byte[] bytes, int len, int board_id, string input_json);
         [DllImport ("BoardController32", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
@@ -285,17 +285,17 @@ namespace brainflow
         [DllImport ("BoardController32", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int is_prepared (int[] prepared, int board_id, string input_json);
         [DllImport ("BoardController32", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
-        public static extern int get_eeg_names (int board_id, int preset, byte[] eeg_names, int[] len);
+        public static extern int get_eeg_names (int board_id, int preset, byte[] eeg_names, int[] len, int max_len);
         [DllImport ("BoardController32", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int get_resistance_channels (int board_id, int preset, int[] channels, int[] len);
         [DllImport ("BoardController32", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int get_exg_channels (int board_id, int preset, int[] channels, int[] len);
         [DllImport ("BoardController32", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
-        public static extern int get_device_name (int board_id, int preset, byte[] name, int[] len);
+        public static extern int get_device_name (int board_id, int preset, byte[] name, int[] len, int max_len);
         [DllImport ("BoardController32", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int insert_marker (double value, int preset, int board_id, string input_json);
         [DllImport ("BoardController32", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
-        public static extern int get_board_descr (int board_id, int preset, byte[] board_descr, int[] len);
+        public static extern int get_board_descr (int board_id, int preset, byte[] board_descr, int[] len, int max_len);
         [DllImport ("BoardController32", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int release_all_sessions ();
         [DllImport ("BoardController32", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
@@ -457,14 +457,14 @@ namespace brainflow
         }
 
 
-        public static int config_board (string config, byte[] str, int[] len, int board_id, string input_json)
+        public static int config_board (string config, byte[] str, int[] len, int max_len, int board_id, string input_json)
         {
             switch (PlatformHelper.get_library_environment ())
             {
                 case LibraryEnvironment.x64:
-                    return BoardControllerLibrary64.config_board (config, str, len, board_id, input_json);
+                    return BoardControllerLibrary64.config_board (config, str, len, max_len, board_id, input_json);
                 case LibraryEnvironment.x86:
-                    return BoardControllerLibrary32.config_board (config, str, len, board_id, input_json);
+                    return BoardControllerLibrary32.config_board (config, str, len, max_len, board_id, input_json);
             }
 
             return (int)BrainFlowExitCodes.GENERAL_ERROR;
@@ -600,14 +600,14 @@ namespace brainflow
             return (int)BrainFlowExitCodes.GENERAL_ERROR;
         }
 
-        public static int get_eeg_names (int board_id, int preset, byte[] names, int[] len)
+        public static int get_eeg_names (int board_id, int preset, byte[] names, int[] len, int max_len)
         {
             switch (PlatformHelper.get_library_environment ())
             {
                 case LibraryEnvironment.x64:
-                    return BoardControllerLibrary64.get_eeg_names (board_id, preset, names, len);
+                    return BoardControllerLibrary64.get_eeg_names (board_id, preset, names, len, max_len);
                 case LibraryEnvironment.x86:
-                    return BoardControllerLibrary32.get_eeg_names (board_id, preset, names, len);
+                    return BoardControllerLibrary32.get_eeg_names (board_id, preset, names, len, max_len);
             }
 
             return (int)BrainFlowExitCodes.GENERAL_ERROR;
@@ -626,27 +626,27 @@ namespace brainflow
             return (int)BrainFlowExitCodes.GENERAL_ERROR;
         }
 
-        public static int get_board_descr (int board_id, int preset, byte[] descr, int[] len)
+        public static int get_board_descr (int board_id, int preset, byte[] descr, int[] len, int max_len)
         {
             switch (PlatformHelper.get_library_environment ())
             {
                 case LibraryEnvironment.x64:
-                    return BoardControllerLibrary64.get_board_descr (board_id, preset, descr, len);
+                    return BoardControllerLibrary64.get_board_descr (board_id, preset, descr, len, max_len);
                 case LibraryEnvironment.x86:
-                    return BoardControllerLibrary32.get_board_descr (board_id, preset, descr, len);
+                    return BoardControllerLibrary32.get_board_descr (board_id, preset, descr, len, max_len);
             }
 
             return (int)BrainFlowExitCodes.GENERAL_ERROR;
         }
 
-        public static int get_device_name (int board_id, int preset, byte[] name, int[] len)
+        public static int get_device_name (int board_id, int preset, byte[] name, int[] len, int max_len)
         {
             switch (PlatformHelper.get_library_environment ())
             {
                 case LibraryEnvironment.x64:
-                    return BoardControllerLibrary64.get_device_name (board_id, preset, name, len);
+                    return BoardControllerLibrary64.get_device_name (board_id, preset, name, len, max_len);
                 case LibraryEnvironment.x86:
-                    return BoardControllerLibrary32.get_device_name (board_id, preset, name, len);
+                    return BoardControllerLibrary32.get_device_name (board_id, preset, name, len, max_len);
             }
 
             return (int)BrainFlowExitCodes.GENERAL_ERROR;

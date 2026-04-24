@@ -21,6 +21,7 @@ private:
     bool initialized;
     std::vector<std::vector<long int>> file_offsets;
 
+    int validate_file_access (const std::string &filename);
     void read_thread (int preset, std::string filename);
     int get_file_offsets (std::string filename, std::vector<long int> &offsets);
 

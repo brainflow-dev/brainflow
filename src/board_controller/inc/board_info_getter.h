@@ -8,7 +8,7 @@ extern "C"
 #endif
     // data and board desc methods
     SHARED_EXPORT int CALLING_CONVENTION get_board_descr (
-        int board_id, int preset, char *board_descr, int *len);
+        int board_id, int preset, char *board_descr, int *len, int max_len);
     SHARED_EXPORT int CALLING_CONVENTION get_sampling_rate (
         int board_id, int preset, int *sampling_rate);
     SHARED_EXPORT int CALLING_CONVENTION get_package_num_channel (
@@ -21,7 +21,7 @@ extern "C"
         int board_id, int preset, int *battery_channel);
     SHARED_EXPORT int CALLING_CONVENTION get_num_rows (int board_id, int preset, int *num_rows);
     SHARED_EXPORT int CALLING_CONVENTION get_eeg_names (
-        int board_id, int preset, char *eeg_names, int *len);
+        int board_id, int preset, char *eeg_names, int *len, int max_len);
     SHARED_EXPORT int CALLING_CONVENTION get_exg_channels (
         int board_id, int preset, int *exg_channels, int *len);
     SHARED_EXPORT int CALLING_CONVENTION get_eeg_channels (
@@ -53,7 +53,7 @@ extern "C"
     SHARED_EXPORT int CALLING_CONVENTION get_magnetometer_channels (
         int board_id, int preset, int *magnetometer_channels, int *len);
     SHARED_EXPORT int CALLING_CONVENTION get_device_name (
-        int board_id, int preset, char *name, int *len);
+        int board_id, int preset, char *name, int *len, int max_len);
     SHARED_EXPORT int CALLING_CONVENTION get_board_presets (int board_id, int *presets, int *len);
 
 #ifdef __cplusplus

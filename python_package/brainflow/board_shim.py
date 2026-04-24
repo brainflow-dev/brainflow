@@ -327,6 +327,7 @@ class BoardControllerDLL(object):
             ndpointer(ctypes.c_ubyte),
             ndpointer(ctypes.c_int32),
             ctypes.c_int,
+            ctypes.c_int,
             ctypes.c_char_p
         ]
 
@@ -393,7 +394,8 @@ class BoardControllerDLL(object):
             ctypes.c_int,
             ctypes.c_int,
             ndpointer(ctypes.c_ubyte),
-            ndpointer(ctypes.c_int32)
+            ndpointer(ctypes.c_int32),
+            ctypes.c_int
         ]
 
         self.get_board_presets = self.lib.get_board_presets
@@ -418,7 +420,8 @@ class BoardControllerDLL(object):
             ctypes.c_int,
             ctypes.c_int,
             ndpointer(ctypes.c_ubyte),
-            ndpointer(ctypes.c_int32)
+            ndpointer(ctypes.c_int32),
+            ctypes.c_int
         ]
 
         self.get_device_name = self.lib.get_device_name
@@ -427,7 +430,8 @@ class BoardControllerDLL(object):
             ctypes.c_int,
             ctypes.c_int,
             ndpointer(ctypes.c_ubyte),
-            ndpointer(ctypes.c_int32)
+            ndpointer(ctypes.c_int32),
+            ctypes.c_int
         ]
 
         self.get_eeg_channels = self.lib.get_eeg_channels
@@ -783,7 +787,8 @@ class BoardShim(object):
 
         string = numpy.zeros(4096).astype(numpy.ubyte)
         string_len = numpy.zeros(1).astype(numpy.int32)
-        res = BoardControllerDLL.get_instance().get_eeg_names(board_id, preset, string, string_len)
+        res = BoardControllerDLL.get_instance().get_eeg_names(
+            board_id, preset, string, string_len, string.size)
         if res != BrainFlowExitCodes.STATUS_OK.value:
             raise BrainFlowError('unable to request info about this board', res)
         return string.tobytes().decode('utf-8')[0:string_len[0]].split(',')
@@ -838,7 +843,8 @@ class BoardShim(object):
 
         string = numpy.zeros(16000).astype(numpy.ubyte)
         string_len = numpy.zeros(1).astype(numpy.int32)
-        res = BoardControllerDLL.get_instance().get_board_descr(board_id, preset, string, string_len)
+        res = BoardControllerDLL.get_instance().get_board_descr(
+            board_id, preset, string, string_len, string.size)
         if res != BrainFlowExitCodes.STATUS_OK.value:
             raise BrainFlowError('unable to request info about this board', res)
         return json.loads(string.tobytes().decode('utf-8')[0:string_len[0]])
@@ -858,7 +864,8 @@ class BoardShim(object):
 
         string = numpy.zeros(4096).astype(numpy.ubyte)
         string_len = numpy.zeros(1).astype(numpy.int32)
-        res = BoardControllerDLL.get_instance().get_device_name(board_id, preset, string, string_len)
+        res = BoardControllerDLL.get_instance().get_device_name(
+            board_id, preset, string, string_len, string.size)
         if res != BrainFlowExitCodes.STATUS_OK.value:
             raise BrainFlowError('unable to request info about this board', res)
         return string.tobytes().decode('utf-8')[0:string_len[0]]
@@ -1405,8 +1412,8 @@ class BoardShim(object):
         string = numpy.zeros(4096).astype(numpy.ubyte)
         string_len = numpy.zeros(1).astype(numpy.int32)
 
-        res = BoardControllerDLL.get_instance().config_board(config_string, string, string_len, self.board_id,
-                                                             self.input_json)
+        res = BoardControllerDLL.get_instance().config_board(
+            config_string, string, string_len, string.size, self.board_id, self.input_json)
         if res != BrainFlowExitCodes.STATUS_OK.value:
             raise BrainFlowError('unable to config board', res)
         return string.tobytes().decode('utf-8')[0:string_len[0]]

@@ -179,7 +179,7 @@ namespace brainflow
         {
             int[] len = new int[1];
             byte[] str = new byte[4096];
-            int res = BoardControllerLibrary.get_eeg_names (board_id, preset, str, len);
+            int res = BoardControllerLibrary.get_eeg_names (board_id, preset, str, len, str.Length);
             if (res != (int)BrainFlowExitCodes.STATUS_OK)
             {
                 throw new BrainFlowError (res);
@@ -222,7 +222,7 @@ namespace brainflow
         {
             int[] len = new int[1];
             byte[] str = new byte[16000];
-            int res = BoardControllerLibrary.get_board_descr (board_id, preset, str, len);
+            int res = BoardControllerLibrary.get_board_descr (board_id, preset, str, len, str.Length);
             if (res != (int)BrainFlowExitCodes.STATUS_OK)
             {
                 throw new BrainFlowError (res);
@@ -246,7 +246,7 @@ namespace brainflow
         {
             int[] len = new int[1];
             byte[] str = new byte[4096];
-            int res = BoardControllerLibrary.get_device_name (board_id, preset, str, len);
+            int res = BoardControllerLibrary.get_device_name (board_id, preset, str, len, str.Length);
             if (res != (int)BrainFlowExitCodes.STATUS_OK)
             {
                 throw new BrainFlowError (res);
@@ -717,7 +717,7 @@ namespace brainflow
         {
             int[] len = new int[1];
             byte[] str = new byte[4096];
-            int res = BoardControllerLibrary.config_board (config, str, len, board_id, input_json);
+            int res = BoardControllerLibrary.config_board (config, str, len, str.Length, board_id, input_json);
             if (res != (int)BrainFlowExitCodes.STATUS_OK)
             {
                 throw new BrainFlowError (res);

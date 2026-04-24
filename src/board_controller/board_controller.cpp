@@ -69,6 +69,8 @@ static int check_board_session (int board_id, const char *json_brainflow_input_p
     std::pair<int, struct BrainFlowInputParams> &key, bool log_error = true);
 static int string_to_brainflow_input_params (
     const char *json_brainflow_input_params, struct BrainFlowInputParams *params);
+static int copy_string_to_buffer (
+    const std::string &source, char *destination, int *destination_len, int max_len);
 
 
 int prepare_session (int board_id, const char *json_brainflow_input_params)
@@ -482,11 +484,12 @@ int java_set_jnienv (JNIEnv *java_jnienv)
     return (int)BrainFlowExitCodes::STATUS_OK;
 }
 
-int config_board (const char *config, char *response, int *response_len, int board_id,
+int config_board (const char *config, char *response, int *response_len, int response_max_len,
+    int board_id,
     const char *json_brainflow_input_params)
 {
     std::lock_guard<std::mutex> lock (mutex);
-    if ((config == NULL) || (response == NULL) || (response_len == NULL))
+    if ((config == NULL) || (response == NULL) || (response_len == NULL) || (response_max_len < 1))
     {
         return (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR;
     }
@@ -503,8 +506,7 @@ int config_board (const char *config, char *response, int *response_len, int boa
     res = board_it->second->config_board (conf, resp);
     if (res == (int)BrainFlowExitCodes::STATUS_OK)
     {
-        *response_len = (int)resp.length ();
-        strcpy (response, resp.c_str ());
+        res = copy_string_to_buffer (resp, response, response_len, response_max_len);
     }
     return res;
 }
@@ -545,6 +547,28 @@ int add_streamer (
     }
     auto board_it = boards.find (key);
     return board_it->second->add_streamer (streamer, preset);
+}
+
+static int copy_string_to_buffer (
+    const std::string &source, char *destination, int *destination_len, int max_len)
+{
+    if ((destination == NULL) || (destination_len == NULL) || (max_len < 1))
+    {
+        return (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR;
+    }
+
+    *destination_len = (int)source.size ();
+    if (((int)source.size () + 1) > max_len)
+    {
+        destination[0] = '\0';
+        Board::board_logger->error (
+            "provided output buffer is too small, required {}, got {}", source.size () + 1,
+            max_len);
+        return (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR;
+    }
+
+    memcpy (destination, source.c_str (), source.size () + 1);
+    return (int)BrainFlowExitCodes::STATUS_OK;
 }
 
 int delete_streamer (

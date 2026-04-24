@@ -279,7 +279,7 @@ export class BoardShim
         const len = [0];
         let out = ['\0'.repeat(4096)];
         const res = BoardControllerDLL.getInstance().configBoard(
-            config, out, len, this.boardId, this.inputJson);
+            config, out, len, out[0].length, this.boardId, this.inputJson);
         if (res !== BrainFlowExitCodes.STATUS_OK)
         {
             throw new BrainFlowError (res, 'Could not config board');
@@ -674,8 +674,9 @@ export class BoardShim
     public static getDeviceName(boardId: BoardIds, preset = BrainFlowPresets.DEFAULT_PRESET): string
     {
         const len = [0];
-        let out = ['\0'.repeat(512)];
-        const res = BoardControllerDLL.getInstance().getDeviceName(boardId, preset, out, len);
+        let out = ['\0'.repeat(4096)];
+        const res =
+            BoardControllerDLL.getInstance().getDeviceName(boardId, preset, out, len, out[0].length);
         if (res !== BrainFlowExitCodes.STATUS_OK)
         {
             throw new BrainFlowError (res, 'Could not get device info');
@@ -687,7 +688,8 @@ export class BoardShim
     {
         const len = [0];
         let out = ['\0'.repeat(4096)];
-        const res = BoardControllerDLL.getInstance().getEegNames(boardId, preset, out, len);
+        const res =
+            BoardControllerDLL.getInstance().getEegNames(boardId, preset, out, len, out[0].length);
         if (res !== BrainFlowExitCodes.STATUS_OK)
         {
             throw new BrainFlowError (res, 'Could not get device info');
@@ -698,8 +700,9 @@ export class BoardShim
     public static getBoardDescr(boardId: BoardIds, preset = BrainFlowPresets.DEFAULT_PRESET): Object
     {
         const len = [0];
-        let out = ['\0'.repeat(4096)];
-        const res = BoardControllerDLL.getInstance().getBoardDescr(boardId, preset, out, len);
+        let out = ['\0'.repeat(16000)];
+        const res =
+            BoardControllerDLL.getInstance().getBoardDescr(boardId, preset, out, len, out[0].length);
         if (res !== BrainFlowExitCodes.STATUS_OK)
         {
             throw new BrainFlowError (res, 'Could not get device info');

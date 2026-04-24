@@ -235,7 +235,8 @@ std::string BoardShim::config_board (std::string config)
     int response_len = 0;
     char response[8192];
     int res = ::config_board (
-        config.c_str (), response, &response_len, board_id, serialized_params.c_str ());
+        config.c_str (), response, &response_len, sizeof (response), board_id,
+        serialized_params.c_str ());
     if (res != (int)BrainFlowExitCodes::STATUS_OK)
     {
         throw BrainFlowException ("failed to config board", res);
@@ -289,7 +290,8 @@ json BoardShim::get_board_descr (int board_id, int preset)
 {
     char board_descr_str[16000];
     int string_len = 0;
-    int res = ::get_board_descr (board_id, preset, board_descr_str, &string_len);
+    int res =
+        ::get_board_descr (board_id, preset, board_descr_str, &string_len, sizeof (board_descr_str));
     if (res != (int)BrainFlowExitCodes::STATUS_OK)
     {
         throw BrainFlowException ("failed to get board info", res);
@@ -368,7 +370,7 @@ std::vector<std::string> BoardShim::get_eeg_names (int board_id, int preset)
 {
     char eeg_names[4096];
     int string_len = 0;
-    int res = ::get_eeg_names (board_id, preset, eeg_names, &string_len);
+    int res = ::get_eeg_names (board_id, preset, eeg_names, &string_len, sizeof (eeg_names));
     if (res != (int)BrainFlowExitCodes::STATUS_OK)
     {
         throw BrainFlowException ("failed to get board info", res);
@@ -401,7 +403,7 @@ std::string BoardShim::get_device_name (int board_id, int preset)
 {
     char name[4096];
     int string_len = 0;
-    int res = ::get_device_name (board_id, preset, name, &string_len);
+    int res = ::get_device_name (board_id, preset, name, &string_len, sizeof (name));
     if (res != (int)BrainFlowExitCodes::STATUS_OK)
     {
         throw BrainFlowException ("failed to get board info", res);

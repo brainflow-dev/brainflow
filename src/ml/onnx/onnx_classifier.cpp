@@ -364,7 +364,7 @@ int OnnxClassifier::predict (double *data, int data_len, double *output, int *ou
                 default:
                 {
                     safe_logger (spdlog::level::err, "unknown output type");
-                    res = (int)BrainFlowExitCodes::STATUS_OK;
+                    res = (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR;
                 }
             }
         }
@@ -387,7 +387,7 @@ int OnnxClassifier::predict (double *data, int data_len, double *output, int *ou
         delete[] float_data;
     }
 
-    return (int)BrainFlowExitCodes::STATUS_OK;
+    return res;
 }
 
 int OnnxClassifier::release ()
