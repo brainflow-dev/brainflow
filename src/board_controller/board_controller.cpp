@@ -485,8 +485,7 @@ int java_set_jnienv (JNIEnv *java_jnienv)
 }
 
 int config_board (const char *config, char *response, int *response_len, int response_max_len,
-    int board_id,
-    const char *json_brainflow_input_params)
+    int board_id, const char *json_brainflow_input_params)
 {
     std::lock_guard<std::mutex> lock (mutex);
     if ((config == NULL) || (response == NULL) || (response_len == NULL) || (response_max_len < 1))
@@ -561,9 +560,8 @@ static int copy_string_to_buffer (
     if (((int)source.size () + 1) > max_len)
     {
         destination[0] = '\0';
-        Board::board_logger->error (
-            "provided output buffer is too small, required {}, got {}", source.size () + 1,
-            max_len);
+        Board::board_logger->error ("provided output buffer is too small, required {}, got {}",
+            source.size () + 1, max_len);
         return (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR;
     }
 
