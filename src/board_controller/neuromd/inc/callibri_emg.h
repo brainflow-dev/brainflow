@@ -8,7 +8,7 @@ class CallibriEMG : public Callibri
 #if defined _WIN32 || defined __APPLE__
 
 protected:
-    int apply_initial_settings ();
+    int apply_initial_settings () override;
 #endif
 
 public:
@@ -16,7 +16,7 @@ public:
         : Callibri ((int)BoardIds::CALLIBRI_EMG_BOARD, params)
     {
     }
-    ~CallibriEMG ()
+    ~CallibriEMG () override
     {
     }
 };

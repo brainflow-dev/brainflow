@@ -6,7 +6,7 @@ class KnightIMU : public KnightBase
 {
 
 protected:
-    void read_thread ();
+    void read_thread () override;
 
 public:
     KnightIMU (int board_id, struct BrainFlowInputParams params);
