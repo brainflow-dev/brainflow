@@ -159,6 +159,8 @@ namespace brainflow
         [DllImport ("BoardController", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int get_sampling_rate (int board_id, int preset, int[] sampling_rate);
         [DllImport ("BoardController", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        public static extern int get_board_sampling_rate (int preset, int[] sampling_rate, int board_id, string input_json);
+        [DllImport ("BoardController", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int get_timestamp_channel (int board_id, int preset, int[] timestamp_channel);
         [DllImport ("BoardController", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int get_marker_channel (int board_id, int preset, int[] marker_channel);
@@ -248,6 +250,8 @@ namespace brainflow
         public static extern int set_log_file_board_controller (string log_file);
         [DllImport ("BoardController32", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int get_sampling_rate (int board_id, int preset, int[] sampling_rate);
+        [DllImport ("BoardController32", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        public static extern int get_board_sampling_rate (int preset, int[] sampling_rate, int board_id, string input_json);
         [DllImport ("BoardController32", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int get_timestamp_channel (int board_id, int preset, int[] timestamp_channel);
         [DllImport ("BoardController32", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
@@ -530,6 +534,19 @@ namespace brainflow
                     return BoardControllerLibrary64.get_sampling_rate (board_id, preset, sampling_rate);
                 case LibraryEnvironment.x86:
                     return BoardControllerLibrary32.get_sampling_rate (board_id, preset, sampling_rate);
+            }
+
+            return (int)BrainFlowExitCodes.GENERAL_ERROR;
+        }
+
+        public static int get_board_sampling_rate (int preset, int[] sampling_rate, int board_id, string input_json)
+        {
+            switch (PlatformHelper.get_library_environment ())
+            {
+                case LibraryEnvironment.x64:
+                    return BoardControllerLibrary64.get_board_sampling_rate (preset, sampling_rate, board_id, input_json);
+                case LibraryEnvironment.x86:
+                    return BoardControllerLibrary32.get_board_sampling_rate (preset, sampling_rate, board_id, input_json);
             }
 
             return (int)BrainFlowExitCodes.GENERAL_ERROR;

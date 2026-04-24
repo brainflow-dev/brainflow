@@ -282,6 +282,18 @@ int BoardShim::get_board_id ()
     return master_board_id;
 }
 
+int BoardShim::get_board_sampling_rate (int preset)
+{
+    int sampling_rate = -1;
+    int res =
+        ::get_board_sampling_rate (preset, &sampling_rate, board_id, serialized_params.c_str ());
+    if (res != (int)BrainFlowExitCodes::STATUS_OK)
+    {
+        throw BrainFlowException ("failed to get board sampling rate", res);
+    }
+    return sampling_rate;
+}
+
 //////////////////////////////////////////
 ///////////// data desc methods //////////
 //////////////////////////////////////////

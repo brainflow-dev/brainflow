@@ -1,5 +1,6 @@
 #include <string.h>
 
+#include "openbci_sampling_tracker.h"
 #include "openbci_serial_board.h"
 #include "serial.h"
 #ifdef _WIN32
@@ -13,6 +14,7 @@ OpenBCISerialBoard::OpenBCISerialBoard (struct BrainFlowInputParams params, int 
     is_streaming = false;
     keep_alive = false;
     initialized = false;
+    current_sampling_rate = Board::get_board_sampling_rate ((int)BrainFlowPresets::DEFAULT_PRESET);
 }
 
 OpenBCISerialBoard::~OpenBCISerialBoard ()
@@ -62,6 +64,10 @@ int OpenBCISerialBoard::config_board (std::string config, std::string &response)
         res = send_to_board (config.c_str (), response);
     }
 
+    if (res == (int)BrainFlowExitCodes::STATUS_OK)
+    {
+        track_openbci_sampling_rate (board_id, config, current_sampling_rate);
+    }
     return res;
 }
 
@@ -307,4 +313,13 @@ int OpenBCISerialBoard::release_session ()
         serial = NULL;
     }
     return (int)BrainFlowExitCodes::STATUS_OK;
+}
+
+int OpenBCISerialBoard::get_board_sampling_rate (int preset)
+{
+    if (preset != (int)BrainFlowPresets::DEFAULT_PRESET)
+    {
+        return Board::get_board_sampling_rate (preset);
+    }
+    return current_sampling_rate;
 }

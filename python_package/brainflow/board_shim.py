@@ -348,6 +348,15 @@ class BoardControllerDLL(object):
             ndpointer(ctypes.c_int32)
         ]
 
+        self.get_board_sampling_rate = self.lib.get_board_sampling_rate
+        self.get_board_sampling_rate.restype = ctypes.c_int
+        self.get_board_sampling_rate.argtypes = [
+            ctypes.c_int,
+            ndpointer(ctypes.c_int32),
+            ctypes.c_int,
+            ctypes.c_char_p
+        ]
+
         self.get_battery_channel = self.lib.get_battery_channel
         self.get_battery_channel.restype = ctypes.c_int
         self.get_battery_channel.argtypes = [
@@ -1342,6 +1351,22 @@ class BoardShim(object):
         """
 
         return self._master_board_id
+
+    def get_board_sampling_rate(self, preset: int = BrainFlowPresets.DEFAULT_PRESET) -> int:
+        """Get actual sampling rate for this prepared board session.
+
+        :param preset: preset
+        :type preset: int
+        :return: sampling rate
+        :rtype: int
+        """
+
+        sampling_rate = numpy.zeros(1).astype(numpy.int32)
+        res = BoardControllerDLL.get_instance().get_board_sampling_rate(
+            preset, sampling_rate, self.board_id, self.input_json)
+        if res != BrainFlowExitCodes.STATUS_OK.value:
+            raise BrainFlowError('unable to get sampling rate for this board session', res)
+        return sampling_rate[0]
 
     def insert_marker(self, value: float, preset: int = BrainFlowPresets.DEFAULT_PRESET) -> None:
         """Insert Marker to Data Stream

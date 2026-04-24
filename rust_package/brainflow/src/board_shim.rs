@@ -271,6 +271,21 @@ impl BoardShim {
     pub fn get_board_id(&self) -> BoardIds {
         return self.master_board_id;
     }
+
+    /// Get actual sampling rate for this prepared board session.
+    pub fn get_board_sampling_rate(&self, preset: BrainFlowPresets) -> Result<usize> {
+        let mut sampling_rate = 0;
+        let res = unsafe {
+            board_controller::get_board_sampling_rate(
+                preset as c_int,
+                &mut sampling_rate,
+                self.board_id as c_int,
+                self.json_brainflow_input_params.as_ptr(),
+            )
+        };
+        check_brainflow_exit_code(res)?;
+        Ok(sampling_rate as usize)
+    }
 }
 
 /// Set BrainFlow log level, use it only if you want to write your own messages to BrainFlow logger,

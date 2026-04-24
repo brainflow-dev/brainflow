@@ -9,6 +9,7 @@
 #include "board_controller.h"
 #include "data_buffer.h"
 #include "ganglion_types.h"
+#include "openbci_sampling_tracker.h"
 #include "runtime_dll_loader.h"
 
 
@@ -25,6 +26,7 @@ private:
 
     std::string start_command;
     std::string stop_command;
+    int current_sampling_rate;
 
     volatile bool keep_alive;
     bool initialized;
@@ -62,6 +64,7 @@ public:
     int stop_stream ();
     int release_session ();
     int config_board (std::string config, std::string &response);
+    int get_board_sampling_rate (int preset) override;
 
     void decompress_firmware_3 (struct GanglionLib::GanglionData *data, float *last_data,
         double *acceleration, double *package);

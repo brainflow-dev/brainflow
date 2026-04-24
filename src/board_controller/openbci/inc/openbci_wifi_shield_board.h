@@ -19,6 +19,7 @@ protected:
 
     volatile bool keep_alive;
     bool initialized;
+    int current_sampling_rate;
     std::thread streaming_thread;
 
     SocketServerTCP *server_socket;
@@ -37,6 +38,7 @@ public:
     virtual int stop_stream ();
     virtual int release_session ();
     virtual int config_board (std::string config, std::string &response);
+    int get_board_sampling_rate (int preset) override;
 
     static constexpr int package_size = 33;
 };

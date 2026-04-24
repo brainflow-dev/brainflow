@@ -839,6 +839,22 @@ namespace brainflow
             return master_board;
         }
 
+        /// <summary>
+        /// get actual sampling rate for this prepared board session
+        /// </summary>
+        /// <param name="preset">preset for device</param>
+        /// <returns>sampling rate</returns>
+        public int get_board_sampling_rate (int preset = (int)BrainFlowPresets.DEFAULT_PRESET)
+        {
+            int[] val = new int[1];
+            int res = BoardControllerLibrary.get_board_sampling_rate (preset, val, board_id, input_json);
+            if (res != (int)BrainFlowExitCodes.STATUS_OK)
+            {
+                throw new BrainFlowError (res);
+            }
+            return val[0];
+        }
+
         ///<summary>
         /// Get input params
         ///</summary>

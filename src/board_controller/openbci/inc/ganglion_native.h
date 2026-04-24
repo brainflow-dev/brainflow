@@ -5,6 +5,7 @@
 #include "ble_lib_board.h"
 #include "board.h"
 #include "board_controller.h"
+#include "openbci_sampling_tracker.h"
 
 struct GanglionTempData
 {
@@ -90,6 +91,7 @@ public:
     int release_session ();
     int config_board (std::string config, std::string &response);
     int config_board (std::string config);
+    int get_board_sampling_rate (int preset) override;
     int send_command (std::string config);
 
     void adapter_1_on_scan_start (simpleble_adapter_t adapter);
@@ -110,6 +112,7 @@ protected:
     std::pair<simpleble_uuid_t, simpleble_uuid_t> write_characteristics;
     std::string start_command;
     std::string stop_command;
+    int current_sampling_rate;
     struct GanglionTempData temp_data;
 
     double const accel_scale = 0.016f;

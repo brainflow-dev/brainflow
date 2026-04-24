@@ -255,6 +255,8 @@ public:
         int num_samples, int preset = (int)BrainFlowPresets::DEFAULT_PRESET);
     /// Get board id, for some boards can be different than provided (playback, streaming)
     int get_board_id ();
+    /// get actual sampling rate for prepared board session
+    int get_board_sampling_rate (int preset = (int)BrainFlowPresets::DEFAULT_PRESET);
     /// get number of packages in ringbuffer
     int get_board_data_count (int preset = (int)BrainFlowPresets::DEFAULT_PRESET);
     /// get all collected data and flush it from internal buffer

@@ -505,6 +505,16 @@ classdef BoardShim
            prepared = boolean(res.value);
         end
 
+        function sampling_rate = get_board_sampling_rate(obj, preset)
+            % get actual sampling rate for prepared board session
+            task_name = 'get_board_sampling_rate';
+            lib_name = BoardShim.load_lib();
+            res = libpointer('int32Ptr', 0);
+            exit_code = calllib(lib_name, task_name, preset, res, obj.board_id, obj.input_params_json);
+            BoardShim.check_ec(exit_code, task_name);
+            sampling_rate = res.value;
+        end
+
     end
 
 end

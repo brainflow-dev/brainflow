@@ -9,6 +9,7 @@
 #include "board.h"
 #include "board_controller.h"
 #include "openbci_gain_tracker.h"
+#include "openbci_sampling_tracker.h"
 #include "socket_client_udp.h"
 
 
@@ -26,6 +27,7 @@ private:
     std::mutex m;
     std::condition_variable cv;
     GaleaGainTracker gain_tracker;
+    int current_sampling_rate;
 
     std::string find_device ();
     void read_thread ();
@@ -41,6 +43,7 @@ public:
     int stop_stream ();
     int release_session ();
     int config_board (std::string config, std::string &response);
+    int get_board_sampling_rate (int preset) override;
 
     static constexpr int package_size = 114;
     static constexpr int max_num_packages = 25;

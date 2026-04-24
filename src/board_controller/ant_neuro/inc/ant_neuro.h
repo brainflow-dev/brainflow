@@ -44,4 +44,5 @@ public:
     int stop_stream ();
     int release_session ();
     int config_board (std::string config, std::string &response);
+    int get_board_sampling_rate (int preset) override;
 };

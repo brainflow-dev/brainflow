@@ -445,6 +445,31 @@ int get_board_data (int data_count, int preset, double *data_buf, int board_id,
     return board_it->second->get_board_data (data_count, preset, data_buf);
 }
 
+int get_board_sampling_rate (
+    int preset, int *sampling_rate, int board_id, const char *json_brainflow_input_params)
+{
+    std::lock_guard<std::mutex> lock (mutex);
+    if (sampling_rate == NULL)
+    {
+        return (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR;
+    }
+
+    std::pair<int, struct BrainFlowInputParams> key;
+    int res = check_board_session (board_id, json_brainflow_input_params, key, false);
+    if (res != (int)BrainFlowExitCodes::STATUS_OK)
+    {
+        return res;
+    }
+    auto board_it = boards.find (key);
+    int value = board_it->second->get_board_sampling_rate (preset);
+    if (value <= 0)
+    {
+        return (int)BrainFlowExitCodes::UNSUPPORTED_BOARD_ERROR;
+    }
+    *sampling_rate = value;
+    return (int)BrainFlowExitCodes::STATUS_OK;
+}
+
 int set_log_level_board_controller (int log_level)
 {
     std::lock_guard<std::mutex> lock (mutex);

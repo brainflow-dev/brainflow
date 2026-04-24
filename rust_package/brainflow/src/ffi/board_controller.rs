@@ -253,6 +253,14 @@ extern "C" {
     ) -> ::std::os::raw::c_int;
 }
 extern "C" {
+    pub fn get_board_sampling_rate(
+        preset: ::std::os::raw::c_int,
+        sampling_rate: *mut ::std::os::raw::c_int,
+        board_id: ::std::os::raw::c_int,
+        json_brainflow_input_params: *const ::std::os::raw::c_char,
+    ) -> ::std::os::raw::c_int;
+}
+extern "C" {
     pub fn config_board(
         config: *const ::std::os::raw::c_char,
         response: *mut ::std::os::raw::c_char,

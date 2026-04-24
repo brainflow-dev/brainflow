@@ -36,6 +36,7 @@ protected:
     std::mutex m;
     std::condition_variable cv;
     double last_eeg_timestamp;
+    int eeg_sampling_rate;
 
     void read_thread ();
     std::string get_name_selector ();
@@ -52,6 +53,7 @@ public:
 
     int prepare_session ();
     int config_board (std::string config, std::string &response);
+    int get_board_sampling_rate (int preset) override;
     int start_stream (int buffer_size, const char *streamer_params);
     int stop_stream ();
     int release_session ();

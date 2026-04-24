@@ -53,6 +53,18 @@ public:
     virtual int stop_stream () = 0;
     virtual int release_session () = 0;
     virtual int config_board (std::string config, std::string &response) = 0;
+    virtual int get_board_sampling_rate (int preset)
+    {
+        try
+        {
+            return board_descr.at (preset_to_string (preset)).at ("sampling_rate").get<int> ();
+        }
+        catch (json::exception &e)
+        {
+            safe_logger (spdlog::level::err, e.what ());
+        }
+        return -1;
+    }
 
     // some devices may implement it but there is no requirement to have this method and we do not
     // recommend anybody to use it

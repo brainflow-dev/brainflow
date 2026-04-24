@@ -78,6 +78,7 @@ class BoardControllerDLL extends BoardControllerFunctions
         this.releaseSession = this.lib.func(CLike.release_session);
         this.stopStream = this.lib.func(CLike.stop_stream);
         this.getSamplingRate = this.lib.func(CLike.get_sampling_rate);
+        this.getBoardSamplingRate = this.lib.func(CLike.get_board_sampling_rate);
         this.getPackageNumChannel = this.lib.func(CLike.get_package_num_channel);
         this.getTimestampChannel = this.lib.func(CLike.get_timestamp_channel);
         this.getMarkerChannel = this.lib.func(CLike.get_marker_channel);
@@ -307,6 +308,18 @@ export class BoardShim
             throw new BrainFlowError (res, 'Could not get board data count');
         }
         return dataSize[0];
+    }
+
+    public getBoardSamplingRate(preset = BrainFlowPresets.DEFAULT_PRESET): number
+    {
+        const samplingRate = [0];
+        const res = BoardControllerDLL.getInstance().getBoardSamplingRate(
+            preset, samplingRate, this.boardId, this.inputJson);
+        if (res !== BrainFlowExitCodes.STATUS_OK)
+        {
+            throw new BrainFlowError (res, 'Could not get board sampling rate');
+        }
+        return samplingRate[0];
     }
 
     public getBoardData(numSamples?: number, preset = BrainFlowPresets.DEFAULT_PRESET): number[][]

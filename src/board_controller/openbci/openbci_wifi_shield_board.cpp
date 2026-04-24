@@ -3,6 +3,7 @@
 #include <string.h>
 #include <string>
 
+#include "openbci_sampling_tracker.h"
 #include "openbci_wifi_shield_board.h"
 #include "socket_client_udp.h"
 
@@ -19,6 +20,7 @@ OpenBCIWifiShieldBoard::OpenBCIWifiShieldBoard (struct BrainFlowInputParams para
     keep_alive = false;
     initialized = false;
     http_timeout = 10;
+    current_sampling_rate = Board::get_board_sampling_rate ((int)BrainFlowPresets::DEFAULT_PRESET);
 }
 
 OpenBCIWifiShieldBoard::~OpenBCIWifiShieldBoard ()
@@ -204,11 +206,12 @@ int OpenBCIWifiShieldBoard::send_config (const char *config)
 
     if (keep_alive)
     {
-        safe_logger (spdlog::level::warn,
-            "You are changing board params during streaming, it may lead to sync mismatch between "
-            "data acquisition thread and device");
+    safe_logger (spdlog::level::warn,
+        "You are changing board params during streaming, it may lead to sync mismatch between "
+        "data acquisition thread and device");
     }
     safe_logger (spdlog::level::warn, "If you change gain you may need to rescale EXG data");
+    track_openbci_sampling_rate (board_id, std::string (config), current_sampling_rate);
 
     return (int)BrainFlowExitCodes::STATUS_OK;
 }
@@ -405,4 +408,13 @@ int OpenBCIWifiShieldBoard::wait_for_http_resp (http_t *request)
         return (int)BrainFlowExitCodes::BOARD_WRITE_ERROR;
     }
     return (int)BrainFlowExitCodes::STATUS_OK;
+}
+
+int OpenBCIWifiShieldBoard::get_board_sampling_rate (int preset)
+{
+    if (preset != (int)BrainFlowPresets::DEFAULT_PRESET)
+    {
+        return Board::get_board_sampling_rate (preset);
+    }
+    return current_sampling_rate;
 }

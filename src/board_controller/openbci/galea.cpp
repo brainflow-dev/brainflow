@@ -31,6 +31,7 @@ Galea::Galea (struct BrainFlowInputParams params) : Board ((int)BoardIds::GALEA_
     initialized = false;
     state = (int)BrainFlowExitCodes::SYNC_TIMEOUT_ERROR;
     half_rtt = 0.0;
+    current_sampling_rate = Board::get_board_sampling_rate ((int)BrainFlowPresets::DEFAULT_PRESET);
 }
 
 Galea::~Galea ()
@@ -182,6 +183,7 @@ int Galea::config_board (std::string conf, std::string &response)
         switch (b[0])
         {
             case 'A':
+                track_openbci_sampling_rate (board_id, conf, current_sampling_rate);
                 return (int)BrainFlowExitCodes::STATUS_OK;
             case 'I':
                 safe_logger (spdlog::level::err, "invalid command");
@@ -193,12 +195,22 @@ int Galea::config_board (std::string conf, std::string &response)
     }
     else
     {
+        track_openbci_sampling_rate (board_id, conf, current_sampling_rate);
         safe_logger (spdlog::level::warn,
             "reconfiguring device during the streaming may lead to inconsistent data, it's "
             "recommended to call stop_stream before config_board");
     }
 
     return (int)BrainFlowExitCodes::STATUS_OK;
+}
+
+int Galea::get_board_sampling_rate (int preset)
+{
+    if (preset != (int)BrainFlowPresets::DEFAULT_PRESET)
+    {
+        return Board::get_board_sampling_rate (preset);
+    }
+    return current_sampling_rate;
 }
 
 int Galea::start_stream (int buffer_size, const char *streamer_params)
