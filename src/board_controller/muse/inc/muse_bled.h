@@ -12,11 +12,11 @@ private:
 
 public:
     MuseBLED (int board_id, struct BrainFlowInputParams params);
-    ~MuseBLED ();
+    ~MuseBLED () override;
 
-    int prepare_session ();
+    int prepare_session () override;
 
 protected:
-    std::string get_lib_name ();
-    void read_thread ();
+    std::string get_lib_name () override;
+    void read_thread () override;
 };

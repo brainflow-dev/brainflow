@@ -61,7 +61,8 @@ inline int get_openbci_sampling_rate_for_command (int board_id, char command)
     }
 }
 
-inline bool track_openbci_sampling_rate (int board_id, const std::string &config, int &sampling_rate)
+inline bool track_openbci_sampling_rate (
+    int board_id, const std::string &config, int &sampling_rate)
 {
     for (size_t i = 0; i + 1 < config.size (); i++)
     {

@@ -76,9 +76,9 @@ protected:
 #endif
 
 public:
-    virtual int prepare_session ();
-    virtual int release_session ();
+    int prepare_session () override;
+    int release_session () override;
 
     NeuromdBoard (int board_id, struct BrainFlowInputParams params);
-    virtual ~NeuromdBoard ();
+    ~NeuromdBoard () override;
 };

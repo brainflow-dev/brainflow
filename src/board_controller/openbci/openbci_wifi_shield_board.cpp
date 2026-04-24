@@ -206,9 +206,9 @@ int OpenBCIWifiShieldBoard::send_config (const char *config)
 
     if (keep_alive)
     {
-    safe_logger (spdlog::level::warn,
-        "You are changing board params during streaming, it may lead to sync mismatch between "
-        "data acquisition thread and device");
+        safe_logger (spdlog::level::warn,
+            "You are changing board params during streaming, it may lead to sync mismatch between "
+            "data acquisition thread and device");
     }
     safe_logger (spdlog::level::warn, "If you change gain you may need to rescale EXG data");
     track_openbci_sampling_rate (board_id, std::string (config), current_sampling_rate);

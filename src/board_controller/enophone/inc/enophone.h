@@ -23,11 +23,11 @@ protected:
 
 public:
     Enophone (struct BrainFlowInputParams params);
-    ~Enophone ();
+    ~Enophone () override;
 
-    int prepare_session ();
-    int start_stream (int buffer_size, const char *streamer_params);
-    int stop_stream ();
-    int release_session ();
-    int config_board (std::string config, std::string &response);
+    int prepare_session () override;
+    int start_stream (int buffer_size, const char *streamer_params) override;
+    int stop_stream () override;
+    int release_session () override;
+    int config_board (std::string config, std::string &response) override;
 };

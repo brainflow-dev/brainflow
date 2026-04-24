@@ -83,13 +83,13 @@ class GanglionNative : public BLELibBoard
 {
 public:
     GanglionNative (struct BrainFlowInputParams params);
-    ~GanglionNative ();
+    ~GanglionNative () override;
 
-    int prepare_session ();
-    int start_stream (int buffer_size, const char *streamer_params);
-    int stop_stream ();
-    int release_session ();
-    int config_board (std::string config, std::string &response);
+    int prepare_session () override;
+    int start_stream (int buffer_size, const char *streamer_params) override;
+    int stop_stream () override;
+    int release_session () override;
+    int config_board (std::string config, std::string &response) override;
     int config_board (std::string config);
     int get_board_sampling_rate (int preset) override;
     int send_command (std::string config);
