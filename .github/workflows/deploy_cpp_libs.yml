@@ -70,9 +70,11 @@ jobs:
         cmake-version: '3.21.x'
     - name: Install Ninja
       if: (matrix.os == 'macos-14')
-      uses: seanmiddleditch/gha-setup-ninja@master
-      with:
-        version: 1.10.2
+      run: |
+        if ! command -v ninja; then
+          brew install ninja
+        fi
+        ninja --version
     # build simpleble outside from brainflow because of different deployment targets
     - name: Compile SimpleBLE MacOS
       if: (matrix.os == 'macos-14')

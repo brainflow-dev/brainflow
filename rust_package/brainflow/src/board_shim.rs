@@ -537,6 +537,10 @@ gen_vec_fn!(
     "Get list of ppg channels in resulting data table for a board."
 );
 gen_vec_fn!(
+    optical_channels,
+    "Get list of optical channels in resulting data table for a board."
+);
+gen_vec_fn!(
     accel_channels,
     "Get list of accel channels in resulting data table for a board."
 );

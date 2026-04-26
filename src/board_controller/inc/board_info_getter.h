@@ -34,6 +34,8 @@ extern "C"
         int board_id, int preset, int *eog_channels, int *len);
     SHARED_EXPORT int CALLING_CONVENTION get_ppg_channels (
         int board_id, int preset, int *ppg_channels, int *len);
+    SHARED_EXPORT int CALLING_CONVENTION get_optical_channels (
+        int board_id, int preset, int *optical_channels, int *len);
     SHARED_EXPORT int CALLING_CONVENTION get_eda_channels (
         int board_id, int preset, int *eda_channels, int *len);
     SHARED_EXPORT int CALLING_CONVENTION get_accel_channels (

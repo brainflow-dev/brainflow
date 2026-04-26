@@ -71,6 +71,8 @@ export enum BoardControllerCLikeFunctions {
         'int get_eog_channels (int board_id, int preset, _Inout_ int *channels, _Inout_ int *len)',
     get_ppg_channels =
         'int get_ppg_channels (int board_id, int preset, _Inout_ int *channels, _Inout_ int *len)',
+    get_optical_channels =
+        'int get_optical_channels (int board_id, int preset, _Inout_ int *channels, _Inout_ int *len)',
     get_eda_channels =
         'int get_eda_channels (int board_id, int preset, _Inout_ int *channels, _Inout_ int *len)',
     get_accel_channels =
@@ -224,6 +226,12 @@ export class BoardControllerFunctions
         boardId: BoardIds,
         preset: BrainFlowPresets,
         ppgChannels: number[],
+        len: number[],
+        ) => BrainFlowExitCodes;
+    getOpticalChannels!: (
+        boardId: BoardIds,
+        preset: BrainFlowPresets,
+        opticalChannels: number[],
         len: number[],
         ) => BrainFlowExitCodes;
     getEdaChannels!: (

@@ -112,6 +112,14 @@ extern "C" {
     ) -> ::std::os::raw::c_int;
 }
 extern "C" {
+    pub fn get_optical_channels(
+        board_id: ::std::os::raw::c_int,
+        preset: ::std::os::raw::c_int,
+        optical_channels: *mut ::std::os::raw::c_int,
+        len: *mut ::std::os::raw::c_int,
+    ) -> ::std::os::raw::c_int;
+}
+extern "C" {
     pub fn get_eda_channels(
         board_id: ::std::os::raw::c_int,
         preset: ::std::os::raw::c_int,

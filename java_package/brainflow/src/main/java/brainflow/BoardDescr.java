@@ -10,6 +10,7 @@ public class BoardDescr
     public List<Integer> exg_channels;
     public List<Integer> emg_channels;
     public List<Integer> ppg_channels;
+    public List<Integer> optical_channels;
     public List<Integer> eda_channels;
     public List<Integer> accel_channels;
     public List<Integer> rotation_channels;
@@ -33,6 +34,7 @@ public class BoardDescr
         exg_channels = null;
         emg_channels = null;
         ppg_channels = null;
+        optical_channels = null;
         eda_channels = null;
         accel_channels = null;
         rotation_channels = null;

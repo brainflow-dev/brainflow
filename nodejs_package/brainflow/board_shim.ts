@@ -89,6 +89,7 @@ class BoardControllerDLL extends BoardControllerFunctions
         this.getEogChannels = this.lib.func(CLike.get_eog_channels);
         this.getEcgChannels = this.lib.func(CLike.get_ecg_channels);
         this.getPpgChannels = this.lib.func(CLike.get_ppg_channels);
+        this.getOpticalChannels = this.lib.func(CLike.get_optical_channels);
         this.getEdaChannels = this.lib.func(CLike.get_eda_channels);
         this.getAccelChannels = this.lib.func(CLike.get_accel_channels);
         this.getRotationChannels = this.lib.func(CLike.get_rotation_channels);
@@ -539,6 +540,21 @@ export class BoardShim
         const сhannels = [...new Array (512).fill(0)];
         const res =
             BoardControllerDLL.getInstance().getPpgChannels(boardId, preset, сhannels, numChannels);
+        if (res !== BrainFlowExitCodes.STATUS_OK)
+        {
+            throw new BrainFlowError (res, 'Could not get board info');
+        }
+        return сhannels.slice(0, numChannels[0]);
+    }
+
+    public static getOpticalChannels(
+        boardId: BoardIds, preset = BrainFlowPresets.DEFAULT_PRESET): number[]
+    {
+        const numChannels = [0];
+        const сhannels = [...new Array (512).fill(0)];
+        const res =
+            BoardControllerDLL.getInstance().getOpticalChannels(
+                boardId, preset, сhannels, numChannels);
         if (res !== BrainFlowExitCodes.STATUS_OK)
         {
             throw new BrainFlowError (res, 'Could not get board info');

@@ -161,6 +161,11 @@ int get_ppg_channels (int board_id, int preset, int *ppg_channels, int *len)
     return get_array_value (board_id, preset, "ppg_channels", ppg_channels, len);
 }
 
+int get_optical_channels (int board_id, int preset, int *optical_channels, int *len)
+{
+    return get_array_value (board_id, preset, "optical_channels", optical_channels, len);
+}
+
 int get_accel_channels (int board_id, int preset, int *accel_channels, int *len)
 {
     return get_array_value (board_id, preset, "accel_channels", accel_channels, len);

@@ -2,6 +2,7 @@
 
 #include <bitset>
 #include <sstream>
+#include <stddef.h>
 #include <stdint.h>
 #include <string.h>
 #include <string>
@@ -46,6 +47,22 @@ inline int32_t cast_16bit_to_int32_swap_order (const unsigned char *byte_array)
     return cast_16bit_to_int32 (swapped);
 }
 
+inline uint16_t cast_16bit_to_uint16_little_endian (const unsigned char *byte_array)
+{
+    return (uint16_t)byte_array[0] | ((uint16_t)byte_array[1] << 8);
+}
+
+inline int16_t cast_16bit_to_int16_little_endian (const unsigned char *byte_array)
+{
+    return (int16_t)cast_16bit_to_int32_swap_order (byte_array);
+}
+
+inline uint32_t cast_32bit_to_uint32_little_endian (const unsigned char *byte_array)
+{
+    return (uint32_t)byte_array[0] | ((uint32_t)byte_array[1] << 8) |
+        ((uint32_t)byte_array[2] << 16) | ((uint32_t)byte_array[3] << 24);
+}
+
 inline int32_t cast_13bit_to_int32 (const unsigned char *byte_array)
 {
     int prefix = 0;
@@ -88,6 +105,20 @@ inline void uchar_to_bits (unsigned char c, unsigned char *bits)
     {
         bits[--i] = c & 1;
     }
+}
+
+inline uint32_t extract_lsb_bits (const unsigned char *data, size_t bit_start, int bit_width)
+{
+    uint32_t value = 0;
+    for (int bit = 0; bit < bit_width; bit++)
+    {
+        size_t absolute_bit = bit_start + (size_t)bit;
+        if (((data[absolute_bit / 8] >> (absolute_bit % 8)) & 0x01) != 0)
+        {
+            value |= (uint32_t)1 << bit;
+        }
+    }
+    return value;
 }
 
 // this function is specific to the ganglion board, as it deals with its quirks

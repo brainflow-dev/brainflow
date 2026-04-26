@@ -72,7 +72,8 @@ public enum BoardIds
     OB3000_24_CHANNELS_BOARD(63),
     BIOLISTENER_BOARD(64),
     IRONBCI_32_BOARD(65),
-    NEUROPAWN_KNIGHT_BOARD_IMU(66);
+    NEUROPAWN_KNIGHT_BOARD_IMU(66),
+    MUSE_S_ANTHENA_BOARD(67);
 
     private final int board_id;
     private static final Map<Integer, BoardIds> bi_map = new HashMap<Integer, BoardIds> ();
