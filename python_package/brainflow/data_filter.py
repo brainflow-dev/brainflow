@@ -167,7 +167,8 @@ class DataHandlerDLL(object):
             # for python 3.8 PATH env var doesnt work anymore
             try:
                 os.add_dll_directory(dir_path)
-            except:
+            except (AttributeError, OSError):
+                # Best-effort: continue and rely on PATH fallback below.
                 pass
             if platform.system() == 'Windows':
                 os.environ['PATH'] = dir_path + os.pathsep + os.environ.get('PATH', '')
