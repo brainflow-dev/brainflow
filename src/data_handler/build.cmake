@@ -77,30 +77,30 @@ endif (ANDROID)
 
 if (MSVC)
     add_custom_command (TARGET ${DATA_HANDLER_NAME} POST_BUILD
-        COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/compiled/$<CONFIG>/${DATA_HANDLER_COMPILED_NAME}" "${CMAKE_CURRENT_SOURCE_DIR}/nodejs_package/brainflow/lib/${DATA_HANDLER_COMPILED_NAME}"
-        COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/compiled/$<CONFIG>/${DATA_HANDLER_COMPILED_NAME}" "${CMAKE_CURRENT_SOURCE_DIR}/python_package/brainflow/lib/${DATA_HANDLER_COMPILED_NAME}"
-        COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/compiled/$<CONFIG>/${DATA_HANDLER_COMPILED_NAME}" "${CMAKE_CURRENT_SOURCE_DIR}/julia_package/brainflow/lib/${DATA_HANDLER_COMPILED_NAME}"
-        COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/compiled/$<CONFIG>/${DATA_HANDLER_COMPILED_NAME}" "${CMAKE_CURRENT_SOURCE_DIR}/java_package/brainflow/src/main/resources/${DATA_HANDLER_COMPILED_NAME}"
-        COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/compiled/$<CONFIG>/${DATA_HANDLER_COMPILED_NAME}" "${CMAKE_CURRENT_SOURCE_DIR}/csharp_package/brainflow/brainflow/lib/${DATA_HANDLER_COMPILED_NAME}"
-        COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/compiled/$<CONFIG>/${DATA_HANDLER_COMPILED_NAME}" "${CMAKE_CURRENT_SOURCE_DIR}/matlab_package/brainflow/lib/${DATA_HANDLER_COMPILED_NAME}"
+        COMMAND "${CMAKE_COMMAND}" -E copy_if_different "$<TARGET_FILE:${DATA_HANDLER_NAME}>" "${CMAKE_CURRENT_SOURCE_DIR}/nodejs_package/brainflow/lib/${DATA_HANDLER_COMPILED_NAME}"
+        COMMAND "${CMAKE_COMMAND}" -E copy_if_different "$<TARGET_FILE:${DATA_HANDLER_NAME}>" "${CMAKE_CURRENT_SOURCE_DIR}/python_package/brainflow/lib/${DATA_HANDLER_COMPILED_NAME}"
+        COMMAND "${CMAKE_COMMAND}" -E copy_if_different "$<TARGET_FILE:${DATA_HANDLER_NAME}>" "${CMAKE_CURRENT_SOURCE_DIR}/julia_package/brainflow/lib/${DATA_HANDLER_COMPILED_NAME}"
+        COMMAND "${CMAKE_COMMAND}" -E copy_if_different "$<TARGET_FILE:${DATA_HANDLER_NAME}>" "${CMAKE_CURRENT_SOURCE_DIR}/java_package/brainflow/src/main/resources/${DATA_HANDLER_COMPILED_NAME}"
+        COMMAND "${CMAKE_COMMAND}" -E copy_if_different "$<TARGET_FILE:${DATA_HANDLER_NAME}>" "${CMAKE_CURRENT_SOURCE_DIR}/csharp_package/brainflow/brainflow/lib/${DATA_HANDLER_COMPILED_NAME}"
+        COMMAND "${CMAKE_COMMAND}" -E copy_if_different "$<TARGET_FILE:${DATA_HANDLER_NAME}>" "${CMAKE_CURRENT_SOURCE_DIR}/matlab_package/brainflow/lib/${DATA_HANDLER_COMPILED_NAME}"
         COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/src/data_handler/inc/data_handler.h" "${CMAKE_CURRENT_SOURCE_DIR}/matlab_package/brainflow/inc/data_handler.h"
         COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/src/utils/inc/shared_export_matlab.h" "${CMAKE_CURRENT_SOURCE_DIR}/matlab_package/brainflow/inc/shared_export.h"
-        COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/compiled/$<CONFIG>/${DATA_HANDLER_COMPILED_NAME}" "${CMAKE_CURRENT_SOURCE_DIR}/rust_package/brainflow/lib/${DATA_HANDLER_COMPILED_NAME}"
-        COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/compiled/$<CONFIG>/${DATA_HANDLER_COMPILED_NAME_DOT_LIB}" "${CMAKE_CURRENT_SOURCE_DIR}/rust_package/brainflow/lib/${DATA_HANDLER_COMPILED_NAME_DOT_LIB}"
+        COMMAND "${CMAKE_COMMAND}" -E copy_if_different "$<TARGET_FILE:${DATA_HANDLER_NAME}>" "${CMAKE_CURRENT_SOURCE_DIR}/rust_package/brainflow/lib/${DATA_HANDLER_COMPILED_NAME}"
+        COMMAND "${CMAKE_COMMAND}" -E copy_if_different "$<TARGET_LINKER_FILE:${DATA_HANDLER_NAME}>" "${CMAKE_CURRENT_SOURCE_DIR}/rust_package/brainflow/lib/${DATA_HANDLER_COMPILED_NAME_DOT_LIB}"
         COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/src/data_handler/inc/data_handler.h" "${CMAKE_CURRENT_SOURCE_DIR}/rust_package/brainflow/inc/data_handler.h"
     )
 endif (MSVC)
 if (UNIX AND NOT ANDROID)
     add_custom_command (TARGET ${DATA_HANDLER_NAME} POST_BUILD
-        COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/compiled/${DATA_HANDLER_COMPILED_NAME}" "${CMAKE_CURRENT_SOURCE_DIR}/nodejs_package/brainflow/lib/${DATA_HANDLER_COMPILED_NAME}"
-        COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/compiled/${DATA_HANDLER_COMPILED_NAME}" "${CMAKE_CURRENT_SOURCE_DIR}/python_package/brainflow/lib/${DATA_HANDLER_COMPILED_NAME}"
-        COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/compiled/${DATA_HANDLER_COMPILED_NAME}" "${CMAKE_CURRENT_SOURCE_DIR}/julia_package/brainflow/lib/${DATA_HANDLER_COMPILED_NAME}"
-        COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/compiled/${DATA_HANDLER_COMPILED_NAME}" "${CMAKE_CURRENT_SOURCE_DIR}/java_package/brainflow/src/main/resources/${DATA_HANDLER_COMPILED_NAME}"
-        COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/compiled/${DATA_HANDLER_COMPILED_NAME}" "${CMAKE_CURRENT_SOURCE_DIR}/csharp_package/brainflow/brainflow/lib/${DATA_HANDLER_COMPILED_NAME}"
+        COMMAND "${CMAKE_COMMAND}" -E copy_if_different "$<TARGET_FILE:${DATA_HANDLER_NAME}>" "${CMAKE_CURRENT_SOURCE_DIR}/nodejs_package/brainflow/lib/${DATA_HANDLER_COMPILED_NAME}"
+        COMMAND "${CMAKE_COMMAND}" -E copy_if_different "$<TARGET_FILE:${DATA_HANDLER_NAME}>" "${CMAKE_CURRENT_SOURCE_DIR}/python_package/brainflow/lib/${DATA_HANDLER_COMPILED_NAME}"
+        COMMAND "${CMAKE_COMMAND}" -E copy_if_different "$<TARGET_FILE:${DATA_HANDLER_NAME}>" "${CMAKE_CURRENT_SOURCE_DIR}/julia_package/brainflow/lib/${DATA_HANDLER_COMPILED_NAME}"
+        COMMAND "${CMAKE_COMMAND}" -E copy_if_different "$<TARGET_FILE:${DATA_HANDLER_NAME}>" "${CMAKE_CURRENT_SOURCE_DIR}/java_package/brainflow/src/main/resources/${DATA_HANDLER_COMPILED_NAME}"
+        COMMAND "${CMAKE_COMMAND}" -E copy_if_different "$<TARGET_FILE:${DATA_HANDLER_NAME}>" "${CMAKE_CURRENT_SOURCE_DIR}/csharp_package/brainflow/brainflow/lib/${DATA_HANDLER_COMPILED_NAME}"
         COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/src/data_handler/inc/data_handler.h" "${CMAKE_CURRENT_SOURCE_DIR}/matlab_package/brainflow/inc/data_handler.h"
         COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/src/utils/inc/shared_export_matlab.h" "${CMAKE_CURRENT_SOURCE_DIR}/matlab_package/brainflow/inc/shared_export.h"
-        COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/compiled/${DATA_HANDLER_COMPILED_NAME}" "${CMAKE_CURRENT_SOURCE_DIR}/matlab_package/brainflow/lib/${DATA_HANDLER_COMPILED_NAME}"
-        COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/compiled/${DATA_HANDLER_COMPILED_NAME}" "${CMAKE_CURRENT_SOURCE_DIR}/rust_package/brainflow/lib/${DATA_HANDLER_COMPILED_NAME}"
+        COMMAND "${CMAKE_COMMAND}" -E copy_if_different "$<TARGET_FILE:${DATA_HANDLER_NAME}>" "${CMAKE_CURRENT_SOURCE_DIR}/matlab_package/brainflow/lib/${DATA_HANDLER_COMPILED_NAME}"
+        COMMAND "${CMAKE_COMMAND}" -E copy_if_different "$<TARGET_FILE:${DATA_HANDLER_NAME}>" "${CMAKE_CURRENT_SOURCE_DIR}/rust_package/brainflow/lib/${DATA_HANDLER_COMPILED_NAME}"
         COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/src/data_handler/inc/data_handler.h" "${CMAKE_CURRENT_SOURCE_DIR}/rust_package/brainflow/inc/data_handler.h"
     )
 endif (UNIX AND NOT ANDROID)
