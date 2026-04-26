@@ -49,41 +49,52 @@ public class EEGMetrics
         int board_id = -1;
         for (int i = 0; i < args.length; i++)
         {
-            if (args[i].equals ("--ip-address"))
+            String arg = args[i];
+            if (arg.equals ("--ip-address") || arg.equals ("--serial-port") || arg.equals ("--ip-port")
+                    || arg.equals ("--ip-protocol") || arg.equals ("--other-info") || arg.equals ("--board-id")
+                    || arg.equals ("--timeout") || arg.equals ("--serial-number") || arg.equals ("--file"))
             {
-                params.ip_address = args[i + 1];
-            }
-            if (args[i].equals ("--serial-port"))
-            {
-                params.serial_port = args[i + 1];
-            }
-            if (args[i].equals ("--ip-port"))
-            {
-                params.ip_port = Integer.parseInt (args[i + 1]);
-            }
-            if (args[i].equals ("--ip-protocol"))
-            {
-                params.ip_protocol = Integer.parseInt (args[i + 1]);
-            }
-            if (args[i].equals ("--other-info"))
-            {
-                params.other_info = args[i + 1];
-            }
-            if (args[i].equals ("--board-id"))
-            {
-                board_id = Integer.parseInt (args[i + 1]);
-            }
-            if (args[i].equals ("--timeout"))
-            {
-                params.timeout = Integer.parseInt (args[i + 1]);
-            }
-            if (args[i].equals ("--serial-number"))
-            {
-                params.serial_number = args[i + 1];
-            }
-            if (args[i].equals ("--file"))
-            {
-                params.file = args[i + 1];
+                if (i + 1 >= args.length)
+                {
+                    throw new IllegalArgumentException ("Missing value for argument: " + arg);
+                }
+                String value = args[++i];
+                if (arg.equals ("--ip-address"))
+                {
+                    params.ip_address = value;
+                }
+                else if (arg.equals ("--serial-port"))
+                {
+                    params.serial_port = value;
+                }
+                else if (arg.equals ("--ip-port"))
+                {
+                    params.ip_port = Integer.parseInt (value);
+                }
+                else if (arg.equals ("--ip-protocol"))
+                {
+                    params.ip_protocol = Integer.parseInt (value);
+                }
+                else if (arg.equals ("--other-info"))
+                {
+                    params.other_info = value;
+                }
+                else if (arg.equals ("--board-id"))
+                {
+                    board_id = Integer.parseInt (value);
+                }
+                else if (arg.equals ("--timeout"))
+                {
+                    params.timeout = Integer.parseInt (value);
+                }
+                else if (arg.equals ("--serial-number"))
+                {
+                    params.serial_number = value;
+                }
+                else if (arg.equals ("--file"))
+                {
+                    params.file = value;
+                }
             }
         }
         return board_id;
