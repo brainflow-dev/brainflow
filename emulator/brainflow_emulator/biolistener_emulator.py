@@ -166,8 +166,10 @@ class BioListenerEmulator(threading.Thread):
                         else:
                             logging.warning(f"Unknown command: {json_str['command']}")
             except TimeoutError:
+                # Expected when no command arrives before socket timeout; continue polling.
                 pass
             except socket.timeout:
+                # Expected polling timeout; ignore and keep loop alive.
                 pass
             except Exception as err:
                 logging.error(f"Error in recv thread: {err}")
