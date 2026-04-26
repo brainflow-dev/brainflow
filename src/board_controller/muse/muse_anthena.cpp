@@ -1,8 +1,8 @@
 #include "muse_anthena.h"
 
 #include <algorithm>
-#include <chrono>
 #include <cctype>
+#include <chrono>
 #include <cstdint>
 #include <cstring>
 #include <sstream>
@@ -159,8 +159,8 @@ int MuseAnthena::parse_muse_options ()
         std::string preset = to_lower (other_info);
         if (!is_valid_muse_preset (preset))
         {
-            safe_logger (spdlog::level::err, "Invalid MuseAnthena preset in other_info: {}",
-                other_info);
+            safe_logger (
+                spdlog::level::err, "Invalid MuseAnthena preset in other_info: {}", other_info);
             return (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR;
         }
         muse_preset = preset;
@@ -289,8 +289,8 @@ int MuseAnthena::prepare_session ()
     {
         return res;
     }
-    safe_logger (spdlog::level::info, "Use MuseAnthena preset {} and low_latency {}",
-        muse_preset, enable_low_latency);
+    safe_logger (spdlog::level::info, "Use MuseAnthena preset {} and low_latency {}", muse_preset,
+        enable_low_latency);
     if (params.timeout < 1)
     {
         params.timeout = 6;
@@ -407,7 +407,8 @@ int MuseAnthena::prepare_session ()
                     }
                 }
 
-                if ((strcmp (service.characteristics[j].uuid.value, MUSE_ANTHENA_GATT_DATA_1) == 0) ||
+                if ((strcmp (service.characteristics[j].uuid.value, MUSE_ANTHENA_GATT_DATA_1) ==
+                        0) ||
                     (strcmp (service.characteristics[j].uuid.value, MUSE_ANTHENA_GATT_DATA_2) == 0))
                 {
                     // Athena multiplexes EEG, IMU, optics, and battery packets across data
@@ -902,8 +903,8 @@ void MuseAnthena::parse_sensor_payload (
             }
             for (int channel = 0; channel < 3; channel++)
             {
-                int16_t raw = cast_16bit_to_int16_little_endian ((const unsigned char *)(data +
-                    (sample * config.n_channels + channel + 3) * 2));
+                int16_t raw = cast_16bit_to_int16_little_endian (
+                    (const unsigned char *)(data + (sample * config.n_channels + channel + 3) * 2));
                 if ((size_t)channel < gyro_channels.size ())
                 {
                     package[(size_t)gyro_channels[(size_t)channel]] =
