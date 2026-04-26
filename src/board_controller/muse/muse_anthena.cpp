@@ -1,7 +1,6 @@
 #include "muse_anthena.h"
 
 #include <algorithm>
-#include <array>
 #include <chrono>
 #include <cctype>
 #include <cstdint>
@@ -92,24 +91,6 @@ int MuseAnthena::get_optics_canonical_index (uint8_t tag, int channel)
     }
     return -1;
 }
-
-double MuseAnthena::average_present (const std::array<double, 16> &values,
-    const std::array<bool, 16> &present, const int *indexes, int len)
-{
-    double sum = 0.0;
-    int count = 0;
-    for (int i = 0; i < len; i++)
-    {
-        int index = indexes[i];
-        if ((index >= 0) && (index < 16) && present[(size_t)index])
-        {
-            sum += values[(size_t)index];
-            count++;
-        }
-    }
-    return count > 0 ? sum / count : 0.0;
-}
-
 
 std::string MuseAnthena::trim_string (const std::string &value)
 {
@@ -863,6 +844,7 @@ void MuseAnthena::parse_sensor_payload (
     {
         int num_rows = board_descr["default"]["num_rows"].get<int> ();
         std::vector<int> eeg_channels = board_descr["default"]["eeg_channels"];
+        std::vector<int> other_channels = board_descr["default"]["other_channels"];
         int package_num_channel = board_descr["default"]["package_num_channel"].get<int> ();
         int timestamp_channel = board_descr["default"]["timestamp_channel"].get<int> ();
 
@@ -878,6 +860,15 @@ void MuseAnthena::parse_sensor_payload (
                 {
                     package[(size_t)eeg_channels[(size_t)channel]] =
                         (double)raw * MUSE_ANTHENA_EEG_SCALE_FACTOR;
+                }
+                else
+                {
+                    size_t other_channel = (size_t)channel - eeg_channels.size ();
+                    if (other_channel < other_channels.size ())
+                    {
+                        package[(size_t)other_channels[other_channel]] =
+                            (double)raw * MUSE_ANTHENA_EEG_SCALE_FACTOR;
+                    }
                 }
             }
             package[(size_t)timestamp_channel] =
@@ -928,12 +919,7 @@ void MuseAnthena::parse_sensor_payload (
 
     if (config.type == SensorType::OPTICS)
     {
-        static const int nir_indexes[] = {0, 1, 4, 5};
-        static const int red_indexes[] = {8, 9, 12, 13};
-        static const int ir_indexes[] = {2, 3, 6, 7};
-
         int num_rows = board_descr["ancillary"]["num_rows"].get<int> ();
-        std::vector<int> ppg_channels = board_descr["ancillary"]["ppg_channels"];
         std::vector<int> optical_channels = board_descr["ancillary"]["optical_channels"];
         int package_num_channel = board_descr["ancillary"]["package_num_channel"].get<int> ();
         int timestamp_channel = board_descr["ancillary"]["timestamp_channel"].get<int> ();
@@ -941,11 +927,6 @@ void MuseAnthena::parse_sensor_payload (
 
         for (int sample = 0; sample < config.n_samples; sample++)
         {
-            std::array<double, 16> optical_values;
-            std::array<bool, 16> optical_present;
-            optical_values.fill (0.0);
-            optical_present.fill (false);
-
             std::vector<double> package ((size_t)num_rows, 0.0);
             package[(size_t)package_num_channel] = (double)sequence_num;
             package[(size_t)battery_channel] = last_battery;
@@ -958,8 +939,6 @@ void MuseAnthena::parse_sensor_payload (
                 if ((canonical_index >= 0) && (canonical_index < 16))
                 {
                     double value = (double)raw * MUSE_ANTHENA_OPTICS_SCALE_FACTOR;
-                    optical_values[(size_t)canonical_index] = value;
-                    optical_present[(size_t)canonical_index] = true;
                     if ((size_t)canonical_index < optical_channels.size ())
                     {
                         package[(size_t)optical_channels[(size_t)canonical_index]] = value;
@@ -967,15 +946,6 @@ void MuseAnthena::parse_sensor_payload (
                 }
             }
 
-            if (ppg_channels.size () >= 3)
-            {
-                package[(size_t)ppg_channels[0]] =
-                    average_present (optical_values, optical_present, nir_indexes, 4);
-                package[(size_t)ppg_channels[1]] =
-                    average_present (optical_values, optical_present, red_indexes, 4);
-                package[(size_t)ppg_channels[2]] =
-                    average_present (optical_values, optical_present, ir_indexes, 4);
-            }
             package[(size_t)timestamp_channel] =
                 get_sample_timestamp (device_tick, sample, config.sampling_rate);
             push_package (package.data (), (int)BrainFlowPresets::ANCILLARY_PRESET);

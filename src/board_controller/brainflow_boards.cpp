@@ -1168,8 +1168,9 @@ BrainFlowBoards::BrainFlowBoards()
         {"marker_channel", 10},
         {"package_num_channel", 0},
         {"num_rows", 11},
-        {"eeg_channels", {1, 2, 3, 4, 5, 6, 7, 8}},
-        {"eeg_names", "TP9,AF7,AF8,TP10,AUX1,AUX2,AUX3,AUX4"}
+        {"eeg_channels", {1, 2, 3, 4}},
+        {"eeg_names", "TP9,AF7,AF8,TP10"},
+        {"other_channels", {5, 6, 7, 8}}
     };
     brainflow_boards_json["boards"]["67"]["auxiliary"] =
     {
@@ -1186,13 +1187,12 @@ BrainFlowBoards::BrainFlowBoards()
     {
         {"name", "MuseAnthenaAnc"},
         {"sampling_rate", 64},
-        {"timestamp_channel", 21},
-        {"marker_channel", 22},
+        {"timestamp_channel", 18},
+        {"marker_channel", 19},
         {"package_num_channel", 0},
-        {"num_rows", 23},
-        {"ppg_channels", {1, 2, 3}},
-        {"optical_channels", {4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19}},
-        {"battery_channel", 20}
+        {"num_rows", 20},
+        {"optical_channels", {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16}},
+        {"battery_channel", 17}
     };
 }
 

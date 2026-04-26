@@ -82,6 +82,8 @@ public class BoardShim
 
         int get_ppg_channels (int board_id, int preset, int[] ppg_channels, int[] len);
 
+        int get_optical_channels (int board_id, int preset, int[] optical_channels, int[] len);
+
         int get_accel_channels (int board_id, int preset, int[] accel_channels, int[] len);
 
         int get_rotation_channels (int board_id, int preset, int[] rotation_channels, int[] len);
@@ -1106,6 +1108,50 @@ public class BoardShim
     public static int[] get_ppg_channels (BoardIds board_id) throws BrainFlowError
     {
         return get_ppg_channels (board_id.get_code ());
+    }
+
+    /**
+     * get row indices in returned by get_board_data() 2d array which contain
+     * optical data
+     */
+    public static int[] get_optical_channels (int board_id, BrainFlowPresets preset) throws BrainFlowError
+    {
+        int[] len = new int[1];
+        int[] channels = new int[512];
+        int ec = instance.get_optical_channels (board_id, preset.get_code (), channels, len);
+        if (ec != BrainFlowExitCode.STATUS_OK.get_code ())
+        {
+            throw new BrainFlowError ("Error in board info getter", ec);
+        }
+
+        return Arrays.copyOfRange (channels, 0, len[0]);
+    }
+
+    /**
+     * get row indices in returned by get_board_data() 2d array which contain
+     * optical data
+     */
+    public static int[] get_optical_channels (int board_id) throws BrainFlowError
+    {
+        return get_optical_channels (board_id, BrainFlowPresets.DEFAULT_PRESET);
+    }
+
+    /**
+     * get row indices in returned by get_board_data() 2d array which contain
+     * optical data
+     */
+    public static int[] get_optical_channels (BoardIds board_id, BrainFlowPresets preset) throws BrainFlowError
+    {
+        return get_optical_channels (board_id.get_code (), preset);
+    }
+
+    /**
+     * get row indices in returned by get_board_data() 2d array which contain
+     * optical data
+     */
+    public static int[] get_optical_channels (BoardIds board_id) throws BrainFlowError
+    {
+        return get_optical_channels (board_id.get_code ());
     }
 
     /**

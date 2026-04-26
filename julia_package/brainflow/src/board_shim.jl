@@ -202,6 +202,7 @@ channel_function_names = (
     :get_eog_channels,
     :get_eda_channels,
     :get_ppg_channels,
+    :get_optical_channels,
     :get_accel_channels,
     :get_rotation_channels,
     :get_analog_channels,

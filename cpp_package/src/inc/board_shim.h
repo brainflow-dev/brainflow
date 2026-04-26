@@ -139,6 +139,13 @@ public:
     static std::vector<int> get_ppg_channels (
         int board_id, int preset = (int)BrainFlowPresets::DEFAULT_PRESET);
     /**
+     * get row indices which hold optical data
+     * @param board_id board id of your device
+     * @throw BrainFlowException If this board has no such data exit code is UNSUPPORTED_BOARD_ERROR
+     */
+    static std::vector<int> get_optical_channels (
+        int board_id, int preset = (int)BrainFlowPresets::DEFAULT_PRESET);
+    /**
      * get row indices which hold EDA data
      * @param board_id board id of your device
      * @throw BrainFlowException If this board has no such data exit code is UNSUPPORTED_BOARD_ERROR

@@ -1,6 +1,5 @@
 #pragma once
 
-#include <array>
 #include <cstddef>
 #include <cstdint>
 #include <condition_variable>
@@ -61,8 +60,6 @@ protected:
         uint8_t tag, uint8_t sequence_num, uint32_t device_tick, const uint8_t *data, size_t size);
     bool get_sensor_config (uint8_t tag, SensorConfig &config);
     int get_optics_canonical_index (uint8_t tag, int channel);
-    double average_present (const std::array<double, 16> &values,
-        const std::array<bool, 16> &present, const int *indexes, int len);
     double get_sample_timestamp (uint32_t device_tick, int sample_index, double sampling_rate);
 
 public:
