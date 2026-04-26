@@ -24,7 +24,7 @@ public class JarHelper
         }
         try
         {
-            System.err.println ("Unpacking to: " + file.getAbsolutePath ().toString ());
+            System.err.println ("Unpacking to: " + file.getAbsolutePath ());
             if (file.exists ())
                 file.delete ();
             InputStream link = (JarHelper.class.getResourceAsStream (lib_name));
