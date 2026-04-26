@@ -38,6 +38,18 @@ public class BrainFlowGetData
         int board_id = -1;
         for (int i = 0; i < args.length; i++)
         {
+            if ((args[i].equals ("--ip-address") || args[i].equals ("--ip-address-aux")
+                    || args[i].equals ("--ip-address-anc") || args[i].equals ("--serial-port")
+                    || args[i].equals ("--ip-port") || args[i].equals ("--ip-port-aux")
+                    || args[i].equals ("--ip-port-anc") || args[i].equals ("--ip-protocol")
+                    || args[i].equals ("--other-info") || args[i].equals ("--board-id")
+                    || args[i].equals ("--timeout") || args[i].equals ("--serial-number")
+                    || args[i].equals ("--file") || args[i].equals ("--file-aux")
+                    || args[i].equals ("--file-anc") || args[i].equals ("--master-board"))
+                    && (i + 1 >= args.length))
+            {
+                throw new IllegalArgumentException ("Missing value for argument: " + args[i]);
+            }
             if (args[i].equals ("--ip-address"))
             {
                 params.ip_address = args[i + 1];
