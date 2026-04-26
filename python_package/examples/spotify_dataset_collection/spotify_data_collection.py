@@ -50,8 +50,11 @@ class DataThread(threading.Thread):
                             counter_for_duration = counter_for_duration + 1
                             is_end = False
                             is_playing = True
-                        except BaseException:
-                            pass
+                        except (AttributeError, TypeError) as e:
+                            BoardShim.log_message(
+                                LogLevels.LEVEL_WARN.value,
+                                'Failed to read current track info, skipping this poll iteration: %s' % str(e)
+                            )
                     elif not track.get('is_playing', True):
                         is_end = True
                 except AttributeError as e:
