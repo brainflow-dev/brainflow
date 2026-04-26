@@ -17,7 +17,7 @@ if __name__ == '__main__':
     # Get impedance data
     board.config_board('impedance_mode:1')
     board.start_stream()
-    for i in range(5):
+    for _ in range(5):
         time.sleep(1)
         data = board.get_board_data()  # get all data and remove it from internal buffer
         print(f'{data.shape[0]} channels x {data.shape[1]} samples')
@@ -26,7 +26,7 @@ if __name__ == '__main__':
     # Get EEG data
     board.config_board('impedance_mode:0')
     board.start_stream()
-    for i in range(3):
+    for _ in range(3):
         time.sleep(1)
         data = board.get_board_data()  # get all data and remove it from internal buffer
         print(f'{data.shape[0]} channels x {data.shape[1]} samples')
