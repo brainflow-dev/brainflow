@@ -1,3 +1,4 @@
+setuptools<81
 sphinx==4.0.2
 breathe==4.33.1
 brainflow
