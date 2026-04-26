@@ -30,41 +30,60 @@ public class Markers
         int board_id = -1;
         for (int i = 0; i < args.length; i++)
         {
-            if (args[i].equals ("--ip-address"))
+            String arg = args[i];
+            boolean requires_value = arg.equals ("--ip-address") || arg.equals ("--serial-port")
+                    || arg.equals ("--ip-port") || arg.equals ("--ip-protocol")
+                    || arg.equals ("--other-info") || arg.equals ("--board-id")
+                    || arg.equals ("--timeout") || arg.equals ("--serial-number")
+                    || arg.equals ("--file");
+            if (requires_value && i + 1 >= args.length)
+            {
+                throw new IllegalArgumentException ("Missing value for argument: " + arg);
+            }
+            if (arg.equals ("--ip-address"))
             {
                 params.ip_address = args[i + 1];
+                i++;
             }
-            if (args[i].equals ("--serial-port"))
+            if (arg.equals ("--serial-port"))
             {
                 params.serial_port = args[i + 1];
+                i++;
             }
-            if (args[i].equals ("--ip-port"))
+            if (arg.equals ("--ip-port"))
             {
                 params.ip_port = Integer.parseInt (args[i + 1]);
+                i++;
             }
-            if (args[i].equals ("--ip-protocol"))
+            if (arg.equals ("--ip-protocol"))
             {
                 params.ip_protocol = Integer.parseInt (args[i + 1]);
+                i++;
             }
-            if (args[i].equals ("--other-info"))
+            if (arg.equals ("--other-info"))
             {
                 params.other_info = args[i + 1];
+                i++;
             }
-            if (args[i].equals ("--board-id"))
+            if (arg.equals ("--board-id"))
             {
                 board_id = Integer.parseInt (args[i + 1]);
+                i++;
             }
-            if (args[i].equals ("--timeout"))
+            if (arg.equals ("--timeout"))
             {
                 params.timeout = Integer.parseInt (args[i + 1]);
+                i++;
             }
-            if (args[i].equals ("--serial-number"))
+            if (arg.equals ("--serial-number"))
             {
                 params.serial_number = args[i + 1];
+                i++;
             }
-            if (args[i].equals ("--file"))
+            if (arg.equals ("--file"))
             {
                 params.file = args[i + 1];
+                i++;
             }
         }
         return board_id;
