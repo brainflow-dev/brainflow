@@ -380,7 +380,7 @@ void MuseAnthena::adapter_on_scan_found (
         }
         else
         {
-            if (strncmp (peripheral_identified, "MuseS", 4) == 0)
+            if (strncmp (peripheral_identified, "MuseS", 5) == 0)
             {
                 found = true;
             }
