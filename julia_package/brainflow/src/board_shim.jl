@@ -25,7 +25,6 @@ export BrainFlowInputParams
     FREEEEG32_BOARD = 17
     BRAINBIT_BLED_BOARD = 18
     GFORCE_DUAL_BOARD = 19
-    GALEA_SERIAL_BOARD = 20
     MUSE_S_BLED_BOARD = 21
     MUSE_2_BLED_BOARD = 22
     CROWN_BOARD = 23
@@ -52,8 +51,6 @@ export BrainFlowInputParams
     EXPLORE_8_CHAN_BOARD = 45
     GANGLION_NATIVE_BOARD = 46
     EMOTIBIT_BOARD = 47
-    GALEA_BOARD_V4 = 48
-    GALEA_SERIAL_BOARD_V4 = 49
     NTL_WIFI_BOARD = 50
     ANT_NEURO_EE_511_BOARD = 51
     FREEEEG128_BOARD = 52
@@ -69,7 +66,9 @@ export BrainFlowInputParams
     SYNCHRONI_UNO_1_CHANNELS_BOARD = 62
     OB3000_24_CHANNELS_BOARD = 63
     BIOLISTENER_BOARD = 64
-    MUSE_S_ANTHENA_BOARD = 65
+    IRONBCI_32_BOARD = 65
+    NEUROPAWN_KNIGHT_BOARD_IMU = 66
+    MUSE_S_ANTHENA_BOARD = 67
 
 end
 
@@ -138,7 +137,8 @@ end
 @brainflow_rethrow function get_eeg_names(board_id::BoardIdType, preset::PresetType=Integer(DEFAULT_PRESET))
     names_string = Vector{Cuchar}(undef, 4096)
     len = Vector{Cint}(undef, 1)
-    ccall((:get_eeg_names, BOARD_CONTROLLER_INTERFACE), Cint, (Cint, Cint, Ptr{UInt8}, Ptr{Cint}), Int32(board_id), Int32(preset), names_string, len)
+    ccall((:get_eeg_names, BOARD_CONTROLLER_INTERFACE), Cint, (Cint, Cint, Ptr{UInt8}, Ptr{Cint}, Cint),
+            Int32(board_id), Int32(preset), names_string, len, length(names_string))
     sub_string = String(names_string)[1:len[1]]
     value = split(sub_string, ',')
     return value
@@ -147,7 +147,8 @@ end
 @brainflow_rethrow function get_board_descr(board_id::BoardIdType, preset::PresetType=Integer(DEFAULT_PRESET))
     names_string = Vector{Cuchar}(undef, 16000)
     len = Vector{Cint}(undef, 1)
-    ccall((:get_board_descr, BOARD_CONTROLLER_INTERFACE), Cint, (Cint, Cint, Ptr{UInt8}, Ptr{Cint}), Int32(board_id), Int32(preset), names_string, len)
+    ccall((:get_board_descr, BOARD_CONTROLLER_INTERFACE), Cint, (Cint, Cint, Ptr{UInt8}, Ptr{Cint}, Cint),
+            Int32(board_id), Int32(preset), names_string, len, length(names_string))
     sub_string = String(names_string)[1:len[1]]
     value = JSON.parse(sub_string)
     return value
@@ -156,7 +157,8 @@ end
 @brainflow_rethrow function get_device_name(board_id::BoardIdType, preset::PresetType=Integer(DEFAULT_PRESET))
     names_string = Vector{Cuchar}(undef, 4096)
     len = Vector{Cint}(undef, 1)
-    ccall((:get_device_name, BOARD_CONTROLLER_INTERFACE), Cint, (Cint, Cint, Ptr{UInt8}, Ptr{Cint}), Int32(board_id), Int32(preset), names_string, len)
+    ccall((:get_device_name, BOARD_CONTROLLER_INTERFACE), Cint, (Cint, Cint, Ptr{UInt8}, Ptr{Cint}, Cint),
+            Int32(board_id), Int32(preset), names_string, len, length(names_string))
     sub_string = String(names_string)[1:len[1]]
     return sub_string
 end
@@ -241,6 +243,15 @@ end
 BoardShim(id::BoardIds, params::BrainFlowInputParams) = BoardShim(Integer(id), params)
 BoardShim(id) = BoardShim(id, BrainFlowInputParams())
 
+@brainflow_rethrow function get_board_sampling_rate(board_shim::BoardShim, preset::PresetType=Integer(DEFAULT_PRESET))
+    val = Vector{Cint}(undef, 1)
+    ccall((:get_board_sampling_rate, BOARD_CONTROLLER_INTERFACE), Cint,
+        (Cint, Ptr{Cint}, Cint, Ptr{UInt8}), Int32(preset), val, board_shim.board_id,
+        board_shim.input_json)
+    value = val[1]
+    return value
+end
+
 @brainflow_rethrow function prepare_session(board_shim::BoardShim)
     ccall((:prepare_session, BOARD_CONTROLLER_INTERFACE), Cint, (Cint, Ptr{UInt8}), board_shim.board_id, board_shim.input_json)
 end
@@ -293,8 +304,8 @@ end
 @brainflow_rethrow function config_board(config::String, board_shim::BoardShim)
     resp_string = Vector{Cuchar}(undef, 4096)
     len = Vector{Cint}(undef, 1)
-    ccall((:config_board, BOARD_CONTROLLER_INTERFACE), Cint, (Ptr{UInt8}, Ptr{UInt8}, Ptr{Cint}, Cint, Ptr{UInt8}),
-            config, resp_string, len, board_shim.board_id, board_shim.input_json)
+    ccall((:config_board, BOARD_CONTROLLER_INTERFACE), Cint, (Ptr{UInt8}, Ptr{UInt8}, Ptr{Cint}, Cint, Cint, Ptr{UInt8}),
+            config, resp_string, len, length(resp_string), board_shim.board_id, board_shim.input_json)
     sub_string = String(resp_string)[1:len[1]]
     return sub_string
 end

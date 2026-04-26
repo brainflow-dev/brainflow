@@ -226,6 +226,7 @@ impl BoardShim {
                 config,
                 result_char_buffer.as_mut_ptr(),
                 &mut response_len,
+                result_char_buffer.len() as c_int,
                 self.board_id as c_int,
                 self.json_brainflow_input_params.as_ptr(),
             );
@@ -269,6 +270,21 @@ impl BoardShim {
     /// Get's the actual board id, can be different than provided.
     pub fn get_board_id(&self) -> BoardIds {
         return self.master_board_id;
+    }
+
+    /// Get actual sampling rate for this prepared board session.
+    pub fn get_board_sampling_rate(&self, preset: BrainFlowPresets) -> Result<usize> {
+        let mut sampling_rate = 0;
+        let res = unsafe {
+            board_controller::get_board_sampling_rate(
+                preset as c_int,
+                &mut sampling_rate,
+                self.board_id as c_int,
+                self.json_brainflow_input_params.as_ptr(),
+            )
+        };
+        check_brainflow_exit_code(res)?;
+        Ok(sampling_rate as usize)
     }
 }
 
@@ -374,7 +390,13 @@ pub fn get_board_descr(board_id: BoardIds, preset: BrainFlowPresets) -> Result<S
     let mut response_len = 0;
     let mut result_char_buffer: [c_char; MAX_CHARS] = [0; MAX_CHARS];
     let (res, response) = unsafe {
-        let res = board_controller::get_board_descr(board_id as c_int, preset as c_int, result_char_buffer.as_mut_ptr(), &mut response_len);
+        let res = board_controller::get_board_descr(
+            board_id as c_int,
+            preset as c_int,
+            result_char_buffer.as_mut_ptr(),
+            &mut response_len,
+            MAX_CHARS as c_int,
+        );
         let response = CStr::from_ptr(result_char_buffer.as_ptr());
         (res, response)
     };
@@ -388,7 +410,13 @@ pub fn get_eeg_names(board_id: BoardIds, preset: BrainFlowPresets) -> Result<Vec
     let mut response_len = 0;
     let mut result_char_buffer: [c_char; MAX_CHARS] = [0; MAX_CHARS];
     let (res, response) = unsafe {
-        let res = board_controller::get_eeg_names(board_id as c_int, preset as c_int, result_char_buffer.as_mut_ptr(), &mut response_len);
+        let res = board_controller::get_eeg_names(
+            board_id as c_int,
+            preset as c_int,
+            result_char_buffer.as_mut_ptr(),
+            &mut response_len,
+            MAX_CHARS as c_int,
+        );
         let response = CStr::from_ptr(result_char_buffer.as_ptr());
         (res, response)
     };
@@ -442,7 +470,13 @@ pub fn get_device_name(board_id: BoardIds, preset: BrainFlowPresets) -> Result<S
     let mut result_char_buffer: [c_char; MAX_CHARS] = [0; MAX_CHARS];
 
     let (res, response) = unsafe {
-        let res = board_controller::get_device_name(board_id as c_int, preset as c_int, result_char_buffer.as_mut_ptr(), &mut response_len);
+        let res = board_controller::get_device_name(
+            board_id as c_int,
+            preset as c_int,
+            result_char_buffer.as_mut_ptr(),
+            &mut response_len,
+            MAX_CHARS as c_int,
+        );
         let response = CStr::from_ptr(result_char_buffer.as_ptr());
         (res, response)
     };

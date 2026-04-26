@@ -9,6 +9,7 @@
 #include "board_controller.h"
 #include "data_buffer.h"
 #include "ganglion_types.h"
+#include "openbci_sampling_tracker.h"
 #include "runtime_dll_loader.h"
 
 
@@ -25,6 +26,7 @@ private:
 
     std::string start_command;
     std::string stop_command;
+    int current_sampling_rate;
 
     volatile bool keep_alive;
     bool initialized;
@@ -55,16 +57,20 @@ private:
 
 public:
     Ganglion (struct BrainFlowInputParams params);
-    ~Ganglion ();
+    ~Ganglion () override;
 
-    int prepare_session ();
-    int start_stream (int buffer_size, const char *streamer_params);
-    int stop_stream ();
-    int release_session ();
-    int config_board (std::string config, std::string &response);
+    int prepare_session () override;
+    int start_stream (int buffer_size, const char *streamer_params) override;
+    int stop_stream () override;
+    int release_session () override;
+    int config_board (std::string config, std::string &response) override;
+    int get_board_sampling_rate (int preset) override;
 
     void decompress_firmware_3 (struct GanglionLib::GanglionData *data, float *last_data,
         double *acceleration, double *package);
     void decompress_firmware_2 (struct GanglionLib::GanglionData *data, float *last_data,
         double *acceleration, double *package);
+
+private:
+    int get_firmware_from_params (BrainFlowInputParams &params);
 };

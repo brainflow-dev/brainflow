@@ -7,7 +7,7 @@ import struct
 from typing import List
 
 import numpy
-import pkg_resources
+from importlib.resources import files
 from brainflow.exit_codes import BrainFlowExitCodes, BrainFlowError
 from brainflow.utils import LogLevels
 from numpy.ctypeslib import ndpointer
@@ -38,7 +38,6 @@ class BoardIds(enum.IntEnum):
     FREEEEG32_BOARD = 17  #:
     BRAINBIT_BLED_BOARD = 18  #:
     GFORCE_DUAL_BOARD = 19  #:
-    GALEA_SERIAL_BOARD = 20  #:
     MUSE_S_BLED_BOARD = 21  #:
     MUSE_2_BLED_BOARD = 22  #:
     CROWN_BOARD = 23  #:
@@ -65,8 +64,6 @@ class BoardIds(enum.IntEnum):
     EXPLORE_8_CHAN_BOARD = 45  #:
     GANGLION_NATIVE_BOARD = 46  #:
     EMOTIBIT_BOARD = 47  #:
-    GALEA_BOARD_V4 = 48  #:
-    GALEA_SERIAL_BOARD_V4 = 49  #:
     NTL_WIFI_BOARD = 50  #:
     ANT_NEURO_EE_511_BOARD = 51  #:
     FREEEEG128_BOARD = 52  #:
@@ -82,7 +79,9 @@ class BoardIds(enum.IntEnum):
     SYNCHRONI_UNO_1_CHANNELS_BOARD = 62 #:
     OB3000_24_CHANNELS_BOARD = 63  #:
     BIOLISTENER_BOARD = 64  #:
-    MUSE_S_ANTHENA_BOARD = 65  #:
+    IRONBCI_32_BOARD = 65  #:
+    NEUROPAWN_KNIGHT_BOARD_IMU = 66  #:
+    MUSE_S_ANTHENA_BOARD = 67  #:
 
 
 class IpProtocolTypes(enum.IntEnum):
@@ -176,7 +175,15 @@ class BoardControllerDLL(object):
             dll_path = 'lib/libBoardController.dylib'
         else:
             dll_path = 'lib/libBoardController.so'
-        full_path = pkg_resources.resource_filename(__name__, dll_path)
+        try:
+            resource = files(__name__).joinpath(dll_path)
+            full_path = str(resource)
+        except (TypeError, AttributeError):
+            # Fallback for:
+            # 1. Python < 3.9 (importlib.resources.files not available)
+            # 2. NixOS/packaging edge cases where importlib.resources may not work
+            import pkg_resources
+            full_path = pkg_resources.resource_filename(__name__, dll_path)
         if os.path.isfile(full_path):
             dir_path = os.path.abspath(os.path.dirname(full_path))
             # for python we load dll by direct path but this dll may depend on other dlls and they will not be found!
@@ -321,6 +328,7 @@ class BoardControllerDLL(object):
             ndpointer(ctypes.c_ubyte),
             ndpointer(ctypes.c_int32),
             ctypes.c_int,
+            ctypes.c_int,
             ctypes.c_char_p
         ]
 
@@ -339,6 +347,15 @@ class BoardControllerDLL(object):
             ctypes.c_int,
             ctypes.c_int,
             ndpointer(ctypes.c_int32)
+        ]
+
+        self.get_board_sampling_rate = self.lib.get_board_sampling_rate
+        self.get_board_sampling_rate.restype = ctypes.c_int
+        self.get_board_sampling_rate.argtypes = [
+            ctypes.c_int,
+            ndpointer(ctypes.c_int32),
+            ctypes.c_int,
+            ctypes.c_char_p
         ]
 
         self.get_battery_channel = self.lib.get_battery_channel
@@ -387,7 +404,8 @@ class BoardControllerDLL(object):
             ctypes.c_int,
             ctypes.c_int,
             ndpointer(ctypes.c_ubyte),
-            ndpointer(ctypes.c_int32)
+            ndpointer(ctypes.c_int32),
+            ctypes.c_int
         ]
 
         self.get_board_presets = self.lib.get_board_presets
@@ -412,7 +430,8 @@ class BoardControllerDLL(object):
             ctypes.c_int,
             ctypes.c_int,
             ndpointer(ctypes.c_ubyte),
-            ndpointer(ctypes.c_int32)
+            ndpointer(ctypes.c_int32),
+            ctypes.c_int
         ]
 
         self.get_device_name = self.lib.get_device_name
@@ -421,7 +440,8 @@ class BoardControllerDLL(object):
             ctypes.c_int,
             ctypes.c_int,
             ndpointer(ctypes.c_ubyte),
-            ndpointer(ctypes.c_int32)
+            ndpointer(ctypes.c_int32),
+            ctypes.c_int
         ]
 
         self.get_eeg_channels = self.lib.get_eeg_channels
@@ -777,7 +797,8 @@ class BoardShim(object):
 
         string = numpy.zeros(4096).astype(numpy.ubyte)
         string_len = numpy.zeros(1).astype(numpy.int32)
-        res = BoardControllerDLL.get_instance().get_eeg_names(board_id, preset, string, string_len)
+        res = BoardControllerDLL.get_instance().get_eeg_names(
+            board_id, preset, string, string_len, string.size)
         if res != BrainFlowExitCodes.STATUS_OK.value:
             raise BrainFlowError('unable to request info about this board', res)
         return string.tobytes().decode('utf-8')[0:string_len[0]].split(',')
@@ -832,7 +853,8 @@ class BoardShim(object):
 
         string = numpy.zeros(16000).astype(numpy.ubyte)
         string_len = numpy.zeros(1).astype(numpy.int32)
-        res = BoardControllerDLL.get_instance().get_board_descr(board_id, preset, string, string_len)
+        res = BoardControllerDLL.get_instance().get_board_descr(
+            board_id, preset, string, string_len, string.size)
         if res != BrainFlowExitCodes.STATUS_OK.value:
             raise BrainFlowError('unable to request info about this board', res)
         return json.loads(string.tobytes().decode('utf-8')[0:string_len[0]])
@@ -852,7 +874,8 @@ class BoardShim(object):
 
         string = numpy.zeros(4096).astype(numpy.ubyte)
         string_len = numpy.zeros(1).astype(numpy.int32)
-        res = BoardControllerDLL.get_instance().get_device_name(board_id, preset, string, string_len)
+        res = BoardControllerDLL.get_instance().get_device_name(
+            board_id, preset, string, string_len, string.size)
         if res != BrainFlowExitCodes.STATUS_OK.value:
             raise BrainFlowError('unable to request info about this board', res)
         return string.tobytes().decode('utf-8')[0:string_len[0]]
@@ -1330,6 +1353,22 @@ class BoardShim(object):
 
         return self._master_board_id
 
+    def get_board_sampling_rate(self, preset: int = BrainFlowPresets.DEFAULT_PRESET) -> int:
+        """Get actual sampling rate for this prepared board session.
+
+        :param preset: preset
+        :type preset: int
+        :return: sampling rate
+        :rtype: int
+        """
+
+        sampling_rate = numpy.zeros(1).astype(numpy.int32)
+        res = BoardControllerDLL.get_instance().get_board_sampling_rate(
+            preset, sampling_rate, self.board_id, self.input_json)
+        if res != BrainFlowExitCodes.STATUS_OK.value:
+            raise BrainFlowError('unable to get sampling rate for this board session', res)
+        return sampling_rate[0]
+
     def insert_marker(self, value: float, preset: int = BrainFlowPresets.DEFAULT_PRESET) -> None:
         """Insert Marker to Data Stream
 
@@ -1399,8 +1438,8 @@ class BoardShim(object):
         string = numpy.zeros(4096).astype(numpy.ubyte)
         string_len = numpy.zeros(1).astype(numpy.int32)
 
-        res = BoardControllerDLL.get_instance().config_board(config_string, string, string_len, self.board_id,
-                                                             self.input_json)
+        res = BoardControllerDLL.get_instance().config_board(
+            config_string, string, string_len, string.size, self.board_id, self.input_json)
         if res != BrainFlowExitCodes.STATUS_OK.value:
             raise BrainFlowError('unable to config board', res)
         return string.tobytes().decode('utf-8')[0:string_len[0]]

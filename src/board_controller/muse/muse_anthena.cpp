@@ -34,6 +34,9 @@ MuseAnthena::MuseAnthena (int board_id, struct BrainFlowInputParams params)
     muse_adapter = NULL;
     muse_peripheral = NULL;
     is_streaming = false;
+    last_sensor_packet_id = -1;
+    last_status_packet_id = -1;
+    last_traditional_packet_id = -1;
 }
 
 MuseAnthena::~MuseAnthena ()
@@ -231,6 +234,12 @@ int MuseAnthena::start_stream (int buffer_size, const char *streamer_params)
     }
 
     int res = prepare_for_acquisition (buffer_size, streamer_params);
+    if (res == (int)BrainFlowExitCodes::STATUS_OK)
+    {
+        last_sensor_packet_id = -1;
+        last_status_packet_id = -1;
+        last_traditional_packet_id = -1;
+    }
     if (res == (int)BrainFlowExitCodes::STATUS_OK)
     {
         res = config_board ("dc001");

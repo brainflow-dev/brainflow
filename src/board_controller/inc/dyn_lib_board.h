@@ -45,7 +45,7 @@ protected:
 
 public:
     DynLibBoard (int board_id, struct BrainFlowInputParams params);
-    virtual ~DynLibBoard ();
+    ~DynLibBoard () override;
 
     int prepare_session () override;
     int start_stream (int buffer_size, const char *streamer_params) override;

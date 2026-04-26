@@ -1,13 +1,13 @@
 #pragma once
 
+#include <set>
 #include <thread>
 
 #include "board.h"
 #include "board_controller.h"
 #include "serial.h"
 
-
-class FreeEEG : public Board
+class KnightBase : public Board
 {
 
 protected:
@@ -16,17 +16,20 @@ protected:
     bool is_streaming;
     std::thread streaming_thread;
     Serial *serial;
-    // dont know exact package size and it can be changed with new firmware versions, its >=
-    // min_package_size and we can check start\stop bytes, and it depends on exact board
+
     int min_package_size;
 
-    int open_port ();
-    int set_port_settings ();
-    void read_thread ();
+    virtual int send_to_board (const char *msg);
+    virtual int send_to_board (const char *msg, std::string &response);
+    virtual std::string read_serial_response ();
+    virtual int open_port ();
+    virtual int set_port_settings ();
+    virtual void read_thread () = 0;
 
+private:
 public:
-    FreeEEG (int board_id, struct BrainFlowInputParams params);
-    ~FreeEEG () override;
+    KnightBase (int board_id, struct BrainFlowInputParams params);
+    ~KnightBase () override;
 
     int prepare_session () override;
     int start_stream (int buffer_size, const char *streamer_params) override;
@@ -36,6 +39,4 @@ public:
 
     static constexpr int start_byte = 0xA0;
     static constexpr int end_byte = 0xC0;
-    static constexpr double ads_gain = 8.0;
-    static constexpr double ads_vref = 2.5;
 };

@@ -13,10 +13,12 @@
 static int get_single_value (
     int board_id, int preset, const char *param_name, int *value, bool use_logger = true);
 static int get_string_value (int board_id, int preset, const char *param_name, char *string,
-    int *len, bool use_logger = true);
+    int *len, int max_len, bool use_logger = true);
 static int get_array_value (int board_id, int preset, const char *param_name, int *output_array,
     int *len, bool use_logger = true);
 static std::string get_preset_str (int preset);
+static int copy_string_value (
+    const std::string &value, char *destination, int *len, int max_len, bool use_logger);
 
 int get_board_presets (int board_id, int *presets, int *len)
 {
@@ -63,7 +65,7 @@ int get_board_presets (int board_id, int *presets, int *len)
     }
 }
 
-int get_board_descr (int board_id, int preset, char *board_descr, int *len)
+int get_board_descr (int board_id, int preset, char *board_descr, int *len, int max_len)
 {
     std::string preset_str = get_preset_str (preset);
     try
@@ -77,9 +79,7 @@ int get_board_descr (int board_id, int preset, char *board_descr, int *len)
         }
         else
         {
-            strcpy (board_descr, res.c_str ());
-            *len = (int)strlen (res.c_str ());
-            return (int)BrainFlowExitCodes::STATUS_OK;
+            return copy_string_value (res, board_descr, len, max_len, true);
         }
     }
     catch (json::exception &e)
@@ -121,14 +121,14 @@ int get_timestamp_channel (int board_id, int preset, int *timestamp_channel)
     return get_single_value (board_id, preset, "timestamp_channel", timestamp_channel);
 }
 
-int get_eeg_names (int board_id, int preset, char *eeg_names, int *len)
+int get_eeg_names (int board_id, int preset, char *eeg_names, int *len, int max_len)
 {
-    return get_string_value (board_id, preset, "eeg_names", eeg_names, len);
+    return get_string_value (board_id, preset, "eeg_names", eeg_names, len, max_len);
 }
 
-int get_device_name (int board_id, int preset, char *name, int *len)
+int get_device_name (int board_id, int preset, char *name, int *len, int max_len)
 {
-    return get_string_value (board_id, preset, "name", name, len);
+    return get_string_value (board_id, preset, "name", name, len, max_len);
 }
 
 int get_eeg_channels (int board_id, int preset, int *eeg_channels, int *len)
@@ -294,8 +294,8 @@ static int get_array_value (
     }
 }
 
-static int get_string_value (
-    int board_id, int preset, const char *param_name, char *string, int *len, bool use_logger)
+static int get_string_value (int board_id, int preset, const char *param_name, char *string,
+    int *len, int max_len, bool use_logger)
 {
     std::string preset_str = get_preset_str (preset);
     if (preset_str.empty ())
@@ -307,9 +307,7 @@ static int get_string_value (
         std::string val =
             boards_struct
                 .brainflow_boards_json["boards"][std::to_string (board_id)][preset_str][param_name];
-        strcpy (string, val.c_str ());
-        *len = (int)strlen (val.c_str ());
-        return (int)BrainFlowExitCodes::STATUS_OK;
+        return copy_string_value (val, string, len, max_len, use_logger);
     }
     catch (json::exception &e)
     {
@@ -344,4 +342,28 @@ static std::string get_preset_str (int preset)
         Board::board_logger->error ("unknown preset");
     }
     return preset_str;
+}
+
+static int copy_string_value (
+    const std::string &value, char *destination, int *len, int max_len, bool use_logger)
+{
+    if ((destination == NULL) || (len == NULL) || (max_len < 1))
+    {
+        return (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR;
+    }
+
+    *len = (int)value.size ();
+    if (((int)value.size () + 1) > max_len)
+    {
+        destination[0] = '\0';
+        if (use_logger)
+        {
+            Board::board_logger->error ("provided output buffer is too small, required {}, got {}",
+                value.size () + 1, max_len);
+        }
+        return (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR;
+    }
+
+    memcpy (destination, value.c_str (), value.size () + 1);
+    return (int)BrainFlowExitCodes::STATUS_OK;
 }

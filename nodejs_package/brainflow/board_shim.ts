@@ -12,6 +12,7 @@ import {
     LogLevels,
 } from './brainflow.types';
 import {BoardControllerCLikeFunctions as CLike, BoardControllerFunctions} from './functions.types';
+import {resolveLibPath} from './lib_path';
 
 export class BrainFlowInputParams
 {
@@ -60,7 +61,7 @@ class BoardControllerDLL extends BoardControllerFunctions
     private constructor()
     {
         super ();
-        this.libPath = `${__dirname}/../brainflow/lib`;
+        this.libPath = resolveLibPath();
         this.dllPath = this.getDLLPath();
         this.lib = this.getLib();
 
@@ -77,6 +78,7 @@ class BoardControllerDLL extends BoardControllerFunctions
         this.releaseSession = this.lib.func(CLike.release_session);
         this.stopStream = this.lib.func(CLike.stop_stream);
         this.getSamplingRate = this.lib.func(CLike.get_sampling_rate);
+        this.getBoardSamplingRate = this.lib.func(CLike.get_board_sampling_rate);
         this.getPackageNumChannel = this.lib.func(CLike.get_package_num_channel);
         this.getTimestampChannel = this.lib.func(CLike.get_timestamp_channel);
         this.getMarkerChannel = this.lib.func(CLike.get_marker_channel);
@@ -278,7 +280,7 @@ export class BoardShim
         const len = [0];
         let out = ['\0'.repeat(4096)];
         const res = BoardControllerDLL.getInstance().configBoard(
-            config, out, len, this.boardId, this.inputJson);
+            config, out, len, out[0].length, this.boardId, this.inputJson);
         if (res !== BrainFlowExitCodes.STATUS_OK)
         {
             throw new BrainFlowError (res, 'Could not config board');
@@ -306,6 +308,18 @@ export class BoardShim
             throw new BrainFlowError (res, 'Could not get board data count');
         }
         return dataSize[0];
+    }
+
+    public getBoardSamplingRate(preset = BrainFlowPresets.DEFAULT_PRESET): number
+    {
+        const samplingRate = [0];
+        const res = BoardControllerDLL.getInstance().getBoardSamplingRate(
+            preset, samplingRate, this.boardId, this.inputJson);
+        if (res !== BrainFlowExitCodes.STATUS_OK)
+        {
+            throw new BrainFlowError (res, 'Could not get board sampling rate');
+        }
+        return samplingRate[0];
     }
 
     public getBoardData(numSamples?: number, preset = BrainFlowPresets.DEFAULT_PRESET): number[][]
@@ -673,8 +687,9 @@ export class BoardShim
     public static getDeviceName(boardId: BoardIds, preset = BrainFlowPresets.DEFAULT_PRESET): string
     {
         const len = [0];
-        let out = ['\0'.repeat(512)];
-        const res = BoardControllerDLL.getInstance().getDeviceName(boardId, preset, out, len);
+        let out = ['\0'.repeat(4096)];
+        const res =
+            BoardControllerDLL.getInstance().getDeviceName(boardId, preset, out, len, out[0].length);
         if (res !== BrainFlowExitCodes.STATUS_OK)
         {
             throw new BrainFlowError (res, 'Could not get device info');
@@ -686,7 +701,8 @@ export class BoardShim
     {
         const len = [0];
         let out = ['\0'.repeat(4096)];
-        const res = BoardControllerDLL.getInstance().getEegNames(boardId, preset, out, len);
+        const res =
+            BoardControllerDLL.getInstance().getEegNames(boardId, preset, out, len, out[0].length);
         if (res !== BrainFlowExitCodes.STATUS_OK)
         {
             throw new BrainFlowError (res, 'Could not get device info');
@@ -697,8 +713,9 @@ export class BoardShim
     public static getBoardDescr(boardId: BoardIds, preset = BrainFlowPresets.DEFAULT_PRESET): Object
     {
         const len = [0];
-        let out = ['\0'.repeat(4096)];
-        const res = BoardControllerDLL.getInstance().getBoardDescr(boardId, preset, out, len);
+        let out = ['\0'.repeat(16000)];
+        const res =
+            BoardControllerDLL.getInstance().getBoardDescr(boardId, preset, out, len, out[0].length);
         if (res !== BrainFlowExitCodes.STATUS_OK)
         {
             throw new BrainFlowError (res, 'Could not get device info');

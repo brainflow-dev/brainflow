@@ -19,6 +19,7 @@ import {
 } from './brainflow.types';
 import {complex} from './complex';
 import {DataHandlerCLikeFunctions as CLike, DataHandlerFunctions} from './functions.types';
+import {resolveLibPath} from './lib_path';
 
 class DataHandlerDLL extends DataHandlerFunctions
 {
@@ -32,7 +33,7 @@ class DataHandlerDLL extends DataHandlerFunctions
     private constructor()
     {
         super ();
-        this.libPath = `${__dirname}/../brainflow/lib`;
+        this.libPath = resolveLibPath();
         this.dllPath = this.getDLLPath();
         this.lib = this.getLib();
 

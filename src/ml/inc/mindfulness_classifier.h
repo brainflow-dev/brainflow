@@ -10,13 +10,13 @@ public:
     {
     }
 
-    virtual ~MindfulnessClassifier ()
+    ~MindfulnessClassifier () override
     {
         skip_logs = true;
         release ();
     }
 
-    virtual int prepare ();
-    virtual int predict (double *data, int data_len, double *output, int *output_len);
-    virtual int release ();
+    int prepare () override;
+    int predict (double *data, int data_len, double *output, int *output_len) override;
+    int release () override;
 };

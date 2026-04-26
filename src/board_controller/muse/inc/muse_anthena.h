@@ -20,6 +20,9 @@ protected:
     std::condition_variable cv;
     std::vector<std::pair<simpleble_uuid_t, simpleble_uuid_t>> notified_characteristics;
     std::pair<simpleble_uuid_t, simpleble_uuid_t> control_characteristics;
+    int last_sensor_packet_id;
+    int last_status_packet_id;
+    int last_traditional_packet_id;
 
     std::string bytes_to_string (const uint8_t *data, size_t size);
 

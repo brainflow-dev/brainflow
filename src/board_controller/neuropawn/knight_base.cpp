@@ -3,41 +3,31 @@
 #include <vector>
 
 #include "custom_cast.h"
-#include "freeeeg.h"
+#include "json.hpp"
+#include "knight_base.h"
 #include "serial.h"
 #include "timestamp.h"
 
+using json = nlohmann::json;
 
-constexpr int FreeEEG::start_byte;
-constexpr int FreeEEG::end_byte;
-constexpr double FreeEEG::ads_gain;
-constexpr double FreeEEG::ads_vref;
+constexpr int KnightBase::start_byte;
+constexpr int KnightBase::end_byte;
 
-
-FreeEEG::FreeEEG (int board_id, struct BrainFlowInputParams params) : Board (board_id, params)
+KnightBase::KnightBase (int board_id, struct BrainFlowInputParams params) : Board (board_id, params)
 {
     serial = NULL;
     is_streaming = false;
     keep_alive = false;
     initialized = false;
-    if ((board_id == (int)BoardIds::FREEEEG32_BOARD) ||
-        (board_id == (int)BoardIds::IRONBCI_32_BOARD))
-    {
-        min_package_size = 1 + 32 * 3;
-    }
-    if (board_id == (int)BoardIds::FREEEEG128_BOARD)
-    {
-        min_package_size = 1 + 128 * 3;
-    }
 }
 
-FreeEEG::~FreeEEG ()
+KnightBase::~KnightBase ()
 {
     skip_logs = true;
     release_session ();
 }
 
-int FreeEEG::prepare_session ()
+int KnightBase::prepare_session ()
 {
     if (initialized)
     {
@@ -49,6 +39,7 @@ int FreeEEG::prepare_session ()
         safe_logger (spdlog::level::err, "serial port is empty");
         return (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR;
     }
+
     serial = Serial::create (params.serial_port.c_str (), this);
     int port_open = open_port ();
     if (port_open != (int)BrainFlowExitCodes::STATUS_OK)
@@ -70,7 +61,7 @@ int FreeEEG::prepare_session ()
     return (int)BrainFlowExitCodes::STATUS_OK;
 }
 
-int FreeEEG::start_stream (int buffer_size, const char *streamer_params)
+int KnightBase::start_stream (int buffer_size, const char *streamer_params)
 {
     if (is_streaming)
     {
@@ -91,7 +82,7 @@ int FreeEEG::start_stream (int buffer_size, const char *streamer_params)
     return (int)BrainFlowExitCodes::STATUS_OK;
 }
 
-int FreeEEG::stop_stream ()
+int KnightBase::stop_stream ()
 {
     if (is_streaming)
     {
@@ -109,7 +100,7 @@ int FreeEEG::stop_stream ()
     }
 }
 
-int FreeEEG::release_session ()
+int KnightBase::release_session ()
 {
     if (initialized)
     {
@@ -129,64 +120,7 @@ int FreeEEG::release_session ()
     return (int)BrainFlowExitCodes::STATUS_OK;
 }
 
-void FreeEEG::read_thread ()
-{
-    int res;
-    constexpr int max_size = 1000; // random value bigger than package size which is unknown
-    unsigned char b[max_size] = {0};
-    float eeg_scale = FreeEEG::ads_vref / float ((pow (2, 23) - 1)) / FreeEEG::ads_gain * 1000000.;
-    int num_rows = board_descr["default"]["num_rows"];
-    double *package = new double[num_rows];
-    for (int i = 0; i < num_rows; i++)
-    {
-        package[i] = 0.0;
-    }
-    bool first_package_received = false;
-
-    std::vector<int> eeg_channels = board_descr["default"]["eeg_channels"];
-
-    while (keep_alive)
-    {
-        int pos = 0;
-        bool complete_package = false;
-        while ((keep_alive) && (pos < max_size - 2))
-        {
-            res = serial->read_from_serial_port (b + pos, 1);
-            int prev_id = (pos <= 0) ? 0 : pos - 1;
-            if ((b[pos] == FreeEEG::start_byte) && (b[prev_id] == FreeEEG::end_byte) &&
-                (pos >= min_package_size))
-            {
-                complete_package = true;
-                break;
-            }
-            pos += res;
-        }
-        if (complete_package)
-        {
-            // handle the case that we start reading in the middle of data stream
-            if (!first_package_received)
-            {
-                first_package_received = true;
-                continue;
-            }
-            package[board_descr["default"]["package_num_channel"].get<int> ()] = (double)b[0];
-            for (unsigned int i = 0; i < eeg_channels.size (); i++)
-            {
-                package[eeg_channels[i]] = (double)eeg_scale * cast_24bit_to_int32 (b + 1 + 3 * i);
-            }
-            package[board_descr["default"]["timestamp_channel"].get<int> ()] = get_timestamp ();
-            push_package (package);
-        }
-        else
-        {
-            safe_logger (
-                spdlog::level::trace, "stopped with pos: {}, keep_alive: {}", pos, keep_alive);
-        }
-    }
-    delete[] package;
-}
-
-int FreeEEG::open_port ()
+int KnightBase::open_port ()
 {
     if (serial->is_port_open ())
     {
@@ -204,33 +138,96 @@ int FreeEEG::open_port ()
     return (int)BrainFlowExitCodes::STATUS_OK;
 }
 
-int FreeEEG::set_port_settings ()
+int KnightBase::set_port_settings ()
 {
     int res = serial->set_serial_port_settings (1000, false);
     if (res < 0)
     {
         safe_logger (spdlog::level::err, "Unable to set port settings, res is {}", res);
-#ifndef _WIN32
         return (int)BrainFlowExitCodes::SET_PORT_ERROR;
-#endif
     }
-    res = serial->set_custom_baudrate (921600);
+    res = serial->set_custom_baudrate (115200);
     if (res < 0)
     {
         safe_logger (spdlog::level::err, "Unable to set custom baud rate, res is {}", res);
-#ifndef _WIN32
-        // Setting the baudrate may return an error on Windows for some serial drivers.
-        // We do not throw an exception, because it will still work with USB.
-        // Optical connection will fail, though.
         return (int)BrainFlowExitCodes::SET_PORT_ERROR;
-#endif
     }
     safe_logger (spdlog::level::trace, "set port settings");
     return (int)BrainFlowExitCodes::STATUS_OK;
 }
 
-int FreeEEG::config_board (std::string config, std::string &response)
+int KnightBase::config_board (std::string config, std::string &response)
 {
-    safe_logger (spdlog::level::err, "FreeEEG doesn't support board configuration.");
-    return (int)BrainFlowExitCodes::UNSUPPORTED_BOARD_ERROR;
+    if (!initialized)
+    {
+        return (int)BrainFlowExitCodes::BOARD_NOT_READY_ERROR;
+    }
+    int res = (int)BrainFlowExitCodes::STATUS_OK;
+    if (is_streaming)
+    {
+        safe_logger (spdlog::level::warn,
+            "You are changing board params during streaming, it may lead to sync mismatch between "
+            "data acquisition thread and device");
+        res = send_to_board (config.c_str ());
+    }
+    else
+    {
+        // read response if streaming is not running
+        res = send_to_board (config.c_str (), response);
+    }
+
+    return res;
+}
+
+int KnightBase::send_to_board (const char *msg)
+{
+    int length = (int)strlen (msg);
+    safe_logger (spdlog::level::debug, "sending {} to the board", msg);
+    int res = serial->send_to_serial_port ((const void *)msg, length);
+    if (res != length)
+    {
+        return (int)BrainFlowExitCodes::BOARD_WRITE_ERROR;
+    }
+
+    return (int)BrainFlowExitCodes::STATUS_OK;
+}
+
+int KnightBase::send_to_board (const char *msg, std::string &response)
+{
+    int length = (int)strlen (msg);
+    safe_logger (spdlog::level::debug, "sending {} to the board", msg);
+    int res = serial->send_to_serial_port ((const void *)msg, length);
+    if (res != length)
+    {
+        response = "";
+        return (int)BrainFlowExitCodes::BOARD_WRITE_ERROR;
+    }
+    response = read_serial_response ();
+
+    return (int)BrainFlowExitCodes::STATUS_OK;
+}
+
+std::string KnightBase::read_serial_response ()
+{
+    constexpr int max_tmp_size = 4096;
+    unsigned char tmp_array[max_tmp_size];
+    unsigned char tmp;
+    int tmp_id = 0;
+    while (serial->read_from_serial_port (&tmp, 1) == 1)
+    {
+        if (tmp_id < max_tmp_size)
+        {
+            tmp_array[tmp_id] = tmp;
+            tmp_id++;
+        }
+        else
+        {
+            serial->flush_buffer ();
+            break;
+        }
+    }
+    tmp_id = (tmp_id == max_tmp_size) ? tmp_id - 1 : tmp_id;
+    tmp_array[tmp_id] = '\0';
+
+    return std::string ((const char *)tmp_array);
 }

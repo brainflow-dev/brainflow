@@ -30,7 +30,6 @@ public enum BoardIds
     FREEEEG32_BOARD (17),
     BRAINBIT_BLED_BOARD (18),
     GFORCE_DUAL_BOARD (19),
-    GALEA_SERIAL_BOARD (20),
     MUSE_S_BLED_BOARD (21),
     MUSE_2_BLED_BOARD (22),
     CROWN_BOARD (23),
@@ -57,8 +56,6 @@ public enum BoardIds
     EXPLORE_8_CHAN_BOARD (45),
     GANGLION_NATIVE_BOARD (46),
     EMOTIBIT_BOARD (47),
-    GALEA_BOARD_V4 (48),
-    GALEA_SERIAL_BOARD_V4 (49),
     NTL_WIFI_BOARD (50),
     ANT_NEURO_EE_511_BOARD (51),
     FREEEEG128_BOARD (52),
@@ -74,7 +71,9 @@ public enum BoardIds
     SYNCHRONI_UNO_1_CHANNELS_BOARD(62),
     OB3000_24_CHANNELS_BOARD(63),
     BIOLISTENER_BOARD(64),
-    MUSE_S_ANTHENA_BOARD(65);
+    IRONBCI_32_BOARD(65),
+    NEUROPAWN_KNIGHT_BOARD_IMU(66),
+    MUSE_S_ANTHENA_BOARD(67);
 
     private final int board_id;
     private static final Map<Integer, BoardIds> bi_map = new HashMap<Integer, BoardIds> ();

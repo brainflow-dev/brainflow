@@ -32,13 +32,13 @@ protected:
 
 public:
     Muse (int board_id, struct BrainFlowInputParams params);
-    ~Muse ();
+    ~Muse () override;
 
-    int prepare_session ();
-    int start_stream (int buffer_size, const char *streamer_params);
-    int stop_stream ();
-    int release_session ();
-    int config_board (std::string config, std::string &response);
+    int prepare_session () override;
+    int start_stream (int buffer_size, const char *streamer_params) override;
+    int stop_stream () override;
+    int release_session () override;
+    int config_board (std::string config, std::string &response) override;
     int config_board (std::string config);
 
     void adapter_on_scan_found (simpleble_adapter_t adapter, simpleble_peripheral_t peripheral);

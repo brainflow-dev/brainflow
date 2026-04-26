@@ -71,5 +71,5 @@ protected:
 
 public:
     BLELibBoard (int board_id, struct BrainFlowInputParams params);
-    virtual ~BLELibBoard ();
+    ~BLELibBoard () override;
 };

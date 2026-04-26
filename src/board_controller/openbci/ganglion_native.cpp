@@ -42,13 +42,33 @@ GanglionNative::GanglionNative (struct BrainFlowInputParams params)
     is_streaming = false;
     start_command = "b";
     stop_command = "s";
-    firmware = 0;
+    firmware = get_firmware_from_params (params);
+    current_sampling_rate = Board::get_board_sampling_rate ((int)BrainFlowPresets::DEFAULT_PRESET);
 }
 
 GanglionNative::~GanglionNative ()
 {
     skip_logs = true;
     release_session ();
+}
+
+int GanglionNative::get_firmware_from_params (BrainFlowInputParams &params)
+{
+    if (params.other_info.compare ("fw:auto") == 0)
+    {
+        safe_logger (spdlog::level::info, "Autodetecting firmware version...");
+        return 0;
+    }
+    if (params.other_info.compare ("fw:2") == 0)
+    {
+        safe_logger (spdlog::level::info, "Setting firmware version to 2");
+        return 2;
+    }
+    else
+    {
+        safe_logger (spdlog::level::info, "Setting firmware version to 3");
+        return 3;
+    }
 }
 
 int GanglionNative::prepare_session ()
@@ -167,7 +187,8 @@ int GanglionNative::prepare_session ()
             for (size_t j = 0; j < service.characteristic_count; j++)
             {
                 // Read the software revision characteristic to get the firmware version
-                if (strcmp (service.characteristics[j].uuid.value, GANGLION_SOFTWARE_REVISION) == 0)
+                if (firmware == 0 &&
+                    strcmp (service.characteristics[j].uuid.value, GANGLION_SOFTWARE_REVISION) == 0)
                 {
                     uint8_t *data;
                     size_t data_length;
@@ -382,7 +403,20 @@ int GanglionNative::config_board (std::string config)
     {
         res = send_command (config);
     }
+    if (res == (int)BrainFlowExitCodes::STATUS_OK)
+    {
+        track_openbci_sampling_rate (board_id, config, current_sampling_rate);
+    }
     return res;
+}
+
+int GanglionNative::get_board_sampling_rate (int preset)
+{
+    if (preset != (int)BrainFlowPresets::DEFAULT_PRESET)
+    {
+        return Board::get_board_sampling_rate (preset);
+    }
+    return current_sampling_rate;
 }
 
 int GanglionNative::send_command (std::string config)

@@ -146,6 +146,74 @@ Supported platforms:
 OpenBCI
 --------
 
+Galea
+~~~~~~~
+
+.. image:: https://live.staticflickr.com/65535/54878775360_9bf1969eec_w.jpg
+    :width: 400px
+    :height: 400px
+
+`Specification for Galea from OpenBCI <https://galea.co/#specs/>`_
+
+To create such board you need to specify the following board ID and fields of BrainFlowInputParams object:
+
+- :code:`BoardIds.GALEA_BOARD`
+- :code:`timeout`, optional, will be used as a timeout for socket operations, should be between 1 and 600, default is 5 seconds
+
+Initialization Example:
+
+.. code-block:: python
+
+    params = BrainFlowInputParams()
+    board = BoardShim(BoardIds.GALEA_BOARD, params)
+
+Supported platforms:
+
+- Windows >= 8.1
+- Linux
+- MacOS
+- Devices like Raspberry Pi
+- Android
+
+Available :ref:`presets-label`:
+
+- :code:`BrainFlowPresets.DEFAULT_PRESET`, it contains EEG, EMG, and EOG data
+- :code:`BrainFlowPresets.AUXILIARY_PRESET`, it contains Gyroscope, Accelerometer, Magnetometer, EDA, PPG, temperature and battery data
+
+.. code-block:: python
+
+    import time
+    from pprint import pprint
+
+    from brainflow.board_shim import BoardShim, BrainFlowInputParams, BrainFlowPresets, BoardIds
+    from brainflow.data_filter import DataFilter
+
+    def main():
+        BoardShim.enable_dev_board_logger()
+
+        params = BrainFlowInputParams()
+        board = BoardShim(BoardIds.GALEA_BOARD, params)
+        board.prepare_session()
+        board.start_stream()
+        time.sleep(10)
+        data_default = board.get_board_data(preset=BrainFlowPresets.DEFAULT_PRESET)
+        data_aux = board.get_board_data(preset=BrainFlowPresets.AUXILIARY_PRESET)
+        board.stop_stream()
+        board.release_session()
+
+        DataFilter.write_file(data_eeg, 'data_default.csv', 'w')
+        DataFilter.write_file(data_orn, 'data_aux.csv', 'w')
+
+        # To get info about channels and presets
+        for preset in BoardShim.get_board_presets(BoardIds.GALEA_BOARD):
+            preset_description = BoardShim.get_board_descr(BoardIds.GALEA_BOARD, preset)
+            pprint(preset_description)
+
+
+    if __name__ == "__main__":
+        main()
+
+
 Cyton
 ~~~~~~~
 
@@ -196,11 +264,14 @@ Ganglion
 
 **On Unix-like systems you may need to configure permissions for serial port or run with sudo.**
 
+**Breaking change in 5.21.x, by default Ganglion board will use `FW version 3 <https://openbci.com/forum/index.php?p=/discussion/3721/ganglion-firmware-upgrade>`_, if you have FW version 2, you can force it using BrainFlowInputParams.**
+
 To create such board you need to specify the following board ID and fields of BrainFlowInputParams object:
 
 - :code:`BoardIds.GANGLION_BOARD`
 - :code:`serial_port`, e.g. COM4, /dev/ttyACM0, etc
 - *optoinal:* :code:`mac_address`, if not provided BrainFlow will try to autodiscover the device
+- *optoinal:* :code:`other_info`, if not provided BrainFlow will use fw version 3, available options are: fw:auto, fw:2, fw:3
 - *optional:* :code:`timeout`, timeout for device discovery, default is 15sec
 
 Initialization Example:
@@ -209,6 +280,8 @@ Initialization Example:
 
     params = BrainFlowInputParams()
     params.serial_port = "COM4"
+    # Use it only to override default fw version(3)
+    # params.other_info = "fw:2"
     board = BoardShim(BoardIds.GANGLION_BOARD, params)
 
 To get Ganglion's MAC address you can use:
@@ -223,6 +296,14 @@ Supported platforms:
 - MacOS
 - Devices like Raspberry Pi
 
+Available Ganglion commands can be found at `OpenBCI docs page <https://docs.openbci.com/Ganglion/GanglionSDK/>`_.
+
+Enabling accelerometer data:
+
+.. code-block:: python
+
+    board.config_board("n")  # this decreases the resolution of EEG data and enables accel data
+
 Ganglion Native
 ~~~~~~~~~~~~~~~~~
 
@@ -233,6 +314,8 @@ Ganglion Native
 `Ganglion Getting Started Guide from OpenBCI <https://docs.openbci.com/GettingStarted/Boards/GanglionGS/>`_
 
 Unlike Ganglion board this BrainFlow board does not use BLED112 dongle, so you need to have BLE support on your device in order to use it.
+
+**Breaking change in 5.21.x, by default Ganglion board will use `FW version 3 <https://openbci.com/forum/index.php?p=/discussion/3721/ganglion-firmware-upgrade>`_, if you have FW version 2, you can force it using BrainFlowInputParams.**
 
 To create such board you need to specify the following board ID and fields of BrainFlowInputParams object:
 
@@ -245,6 +328,8 @@ Initialization Example:
 .. code-block:: python
 
     params = BrainFlowInputParams()
+    # Use it only if you have an old device with fw version 2
+    # params.other_info = "fw:2"
     board = BoardShim(BoardIds.GANGLION_NATIVE_BOARD, params)
 
 To get Ganglion's MAC address or device name you can use:
@@ -258,6 +343,14 @@ Supported platforms:
 - MacOS 10.15+, 12.0 to 12.2 have known issues while scanning, you need to update to 12.3+. On MacOS 12+ you may need to configure Bluetooth permissions for your appication
 - Linux, compilation from source code probably will be needed
 - Devices like Raspberry Pi
+
+Available Ganglion commands can be found at `OpenBCI docs page <https://docs.openbci.com/Ganglion/GanglionSDK/>`_.
+
+Enabling accelerometer data:
+
+.. code-block:: python
+
+    board.config_board("n")  # this decreases the resolution of EEG data and enables accel data
 
 Cyton Daisy
 ~~~~~~~~~~~~
@@ -1341,7 +1434,44 @@ Initialization Example:
 
     params = BrainFlowInputParams()
     params.serial_port = "COM3"
+    params.other_info = '{"gain": 6}' # optional: set gain to allowed values: 1, 2, 3, 4, 6, 8, 12 (default)
+
     board = BoardShim(BoardIds.NEUROPAWN_KNIGHT_BOARD, params)
+
+**On Unix-like systems you may need to configure permissions for serial port or run with sudo.**
+
+**On MacOS there are two serial ports for each device: /dev/tty..... and /dev/cu..... You HAVE to specify /dev/cu.....**
+
+Supported platforms:
+
+- Windows
+- Linux
+- MacOS
+- Devices like Raspberry Pi
+
+Knight IMU Board
+~~~~~~~~~~~~~~~~~
+
+.. image:: https://live.staticflickr.com/65535/54061606098_e223ab04a6_w.jpg
+    :width: 400px
+    :height: 274px
+
+`NeuroPawn website <https://www.neuropawn.tech/>`_
+
+To create such board you need to specify the following board ID and fields of BrainFlowInputParams object:
+
+- :code:`BoardIds.NEUROPAWN_KNIGHT_BOARD_IMU`
+- :code:`serial_port`, e.g. COM3, /dev/tty.*
+
+Initialization Example:
+
+.. code-block:: python
+
+    params = BrainFlowInputParams()
+    params.serial_port = "COM3"
+    params.other_info = '{"gain": 6}' # optional: set gain to allowed values: 1, 2, 3, 4, 6, 8, 12 (default)
+
+    board = BoardShim(BoardIds.NEUROPAWN_KNIGHT_BOARD_IMU, params)
 
 **On Unix-like systems you may need to configure permissions for serial port or run with sudo.**
 
@@ -1397,3 +1527,37 @@ Available :ref:`presets-label`:
 
 - :code:`BrainFlowPresets.DEFAULT_PRESET`, it contains EEG (EMG, ECG, EOG) data
 - :code:`BrainFlowPresets.AUXILIARY_PRESET`, it contains Gyro, Accel, battery and ESP32 chip temperature data
+
+IronBCI
+--------
+
+IronBCI32
+~~~~~~~~~~
+
+.. image:: https://live.staticflickr.com/65535/55036534734_d467ed741e.jpg
+    :width: 500px
+    :height: 389px
+
+`Github <https://github.com/pieeg-club/ironbci-32>`_
+
+To create such board you need to specify the following board ID and fields of BrainFlowInputParams object:
+
+- :code:`BoardIds.IRONBCI_32_BOARD`
+- :code:`serial_port`, e.g. COM3
+
+Initialization Example:
+
+.. code-block:: python
+
+    params = BrainFlowInputParams()
+    params.serial_port = "COM3"
+    board = BoardShim(BoardIds.IRONBCI_32_BOARD, params)
+
+**On Unix-like systems you may need to configure permissions for serial port or run with sudo.**
+
+Supported platforms:
+
+- Windows
+- Linux
+- MacOS
+- Devices like Raspberry Pi

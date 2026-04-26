@@ -132,6 +132,30 @@ int PlaybackFileBoard::start_stream (int buffer_size, const char *streamer_param
     {
         return res;
     }
+    if (!params.file.empty ())
+    {
+        res = validate_file_access (params.file);
+        if (res != (int)BrainFlowExitCodes::STATUS_OK)
+        {
+            return res;
+        }
+    }
+    if (!params.file_aux.empty ())
+    {
+        res = validate_file_access (params.file_aux);
+        if (res != (int)BrainFlowExitCodes::STATUS_OK)
+        {
+            return res;
+        }
+    }
+    if (!params.file_anc.empty ())
+    {
+        res = validate_file_access (params.file_anc);
+        if (res != (int)BrainFlowExitCodes::STATUS_OK)
+        {
+            return res;
+        }
+    }
 
     keep_alive = true;
     if (!params.file.empty ())
@@ -150,6 +174,18 @@ int PlaybackFileBoard::start_stream (int buffer_size, const char *streamer_param
             { this->read_thread ((int)BrainFlowPresets::ANCILLARY_PRESET, params.file_anc); }));
     }
 
+    return (int)BrainFlowExitCodes::STATUS_OK;
+}
+
+int PlaybackFileBoard::validate_file_access (const std::string &filename)
+{
+    FILE *fp = fopen (filename.c_str (), "rb");
+    if (fp == NULL)
+    {
+        safe_logger (spdlog::level::err, "failed to open file {}", filename);
+        return (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR;
+    }
+    fclose (fp);
     return (int)BrainFlowExitCodes::STATUS_OK;
 }
 

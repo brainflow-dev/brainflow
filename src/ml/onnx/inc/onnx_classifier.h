@@ -45,13 +45,13 @@ public:
         dll_loader = NULL;
     }
 
-    ~OnnxClassifier ()
+    ~OnnxClassifier () override
     {
         skip_logs = true;
         release ();
     }
 
-    int prepare ();
-    int predict (double *data, int data_len, double *output, int *output_len);
-    int release ();
+    int prepare () override;
+    int predict (double *data, int data_len, double *output, int *output_len) override;
+    int release () override;
 };

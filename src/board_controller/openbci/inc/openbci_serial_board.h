@@ -14,6 +14,7 @@ protected:
     volatile bool keep_alive;
     bool initialized;
     bool is_streaming;
+    int current_sampling_rate;
     std::thread streaming_thread;
 
     Serial *serial;
@@ -28,11 +29,12 @@ protected:
 
 public:
     OpenBCISerialBoard (struct BrainFlowInputParams params, int board_id);
-    virtual ~OpenBCISerialBoard ();
+    ~OpenBCISerialBoard () override;
 
-    virtual int prepare_session ();
-    virtual int start_stream (int buffer_size, const char *streamer_params);
-    virtual int stop_stream ();
-    virtual int release_session ();
-    virtual int config_board (std::string config, std::string &response);
+    int prepare_session () override;
+    int start_stream (int buffer_size, const char *streamer_params) override;
+    int stop_stream () override;
+    int release_session () override;
+    int config_board (std::string config, std::string &response) override;
+    int get_board_sampling_rate (int preset) override;
 };

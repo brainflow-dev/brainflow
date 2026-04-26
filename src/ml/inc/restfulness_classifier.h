@@ -11,7 +11,7 @@ public:
     {
     }
 
-    int predict (double *data, int data_len, double *output, int *output_len)
+    int predict (double *data, int data_len, double *output, int *output_len) override
     {
         int res = MindfulnessClassifier::predict (data, data_len, output, output_len);
         if (res != (int)BrainFlowExitCodes::STATUS_OK)

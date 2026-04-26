@@ -12,7 +12,7 @@ class CytonDaisy : public OpenBCISerialBoard
 protected:
     CytonDaisyGainTracker gain_tracker;
 
-    void read_thread ();
+    void read_thread () override;
 
 public:
     CytonDaisy (struct BrainFlowInputParams params)
@@ -20,5 +20,5 @@ public:
     {
     }
 
-    int config_board (std::string config, std::string &response);
+    int config_board (std::string config, std::string &response) override;
 };

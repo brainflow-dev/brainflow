@@ -44,7 +44,9 @@ void Adapter::scan_start() {
     if (!initialized()) throw Exception::NotInitialized();
     if (!bluetooth_enabled()) {
         SIMPLEBLE_LOG_WARN(fmt::format("Bluetooth is not enabled."));
+#if defined(_WIN32) && !defined(_WIN64)
         return;
+#endif
     }
     internal_->scan_start();
 }

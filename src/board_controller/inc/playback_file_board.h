@@ -21,16 +21,17 @@ private:
     bool initialized;
     std::vector<std::vector<long int>> file_offsets;
 
+    int validate_file_access (const std::string &filename);
     void read_thread (int preset, std::string filename);
     int get_file_offsets (std::string filename, std::vector<long int> &offsets);
 
 public:
     PlaybackFileBoard (struct BrainFlowInputParams params);
-    ~PlaybackFileBoard ();
+    ~PlaybackFileBoard () override;
 
-    int prepare_session ();
-    int start_stream (int buffer_size, const char *streamer_params);
-    int stop_stream ();
-    int release_session ();
-    int config_board (std::string config, std::string &response);
+    int prepare_session () override;
+    int start_stream (int buffer_size, const char *streamer_params) override;
+    int stop_stream () override;
+    int release_session () override;
+    int config_board (std::string config, std::string &response) override;
 };

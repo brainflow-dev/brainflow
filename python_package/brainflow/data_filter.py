@@ -6,7 +6,7 @@ import struct
 from typing import List, Tuple
 
 import numpy
-import pkg_resources
+from importlib.resources import files
 from brainflow.exit_codes import BrainFlowExitCodes, BrainFlowError
 from brainflow.utils import check_memory_layout_row_major, LogLevels
 from numpy.ctypeslib import ndpointer
@@ -153,7 +153,15 @@ class DataHandlerDLL(object):
             dll_path = 'lib/libDataHandler.dylib'
         else:
             dll_path = 'lib/libDataHandler.so'
-        full_path = pkg_resources.resource_filename(__name__, dll_path)
+        try:
+            resource = files(__name__).joinpath(dll_path)
+            full_path = str(resource)
+        except (TypeError, AttributeError):
+            # Fallback for:
+           # 1. Python < 3.9 (importlib.resources.files not available)
+           # 2. NixOS/packaging edge cases where importlib.resources may not work
+            import pkg_resources
+            full_path = pkg_resources.resource_filename(__name__, dll_path)
         if os.path.isfile(full_path):
             dir_path = os.path.abspath(os.path.dirname(full_path))
             # for python 3.8 PATH env var doesnt work anymore
