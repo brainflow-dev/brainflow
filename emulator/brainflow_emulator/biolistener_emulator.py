@@ -166,6 +166,7 @@ class BioListenerEmulator(threading.Thread):
             except TimeoutError:
                 pass
             except socket.timeout:
+                # Expected when no command is received before socket timeout; continue loop.
                 pass
             except Exception as err:
                 logging.error(f"Error in recv thread: {err}")
