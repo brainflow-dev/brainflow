@@ -191,7 +191,10 @@ class BoardControllerDLL(object):
             # for python 3.8 PATH env var doesnt work anymore
             try:
                 os.add_dll_directory(dir_path)
-            except:
+            except (AttributeError, FileNotFoundError, OSError):
+                # Best effort only: this may be unavailable or fail on some
+                # platforms/runtime configurations; PATH/LD_LIBRARY_PATH is
+                # updated below as a fallback.
                 pass
             if platform.system() == 'Windows':
                 os.environ['PATH'] = dir_path + os.pathsep + os.environ.get('PATH', '')
