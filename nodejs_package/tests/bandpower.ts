@@ -14,7 +14,7 @@ async function runExample (): Promise<void>
     await sleep (5000);
     board.stopStream();
     const data = board.getCurrentBoardData(128);
-    board.releaseSession()
+    board.releaseSession();
     const eegChannels = BoardShim.getEegChannels(boardId);
     const samplingRate = BoardShim.getSamplingRate(boardId);
     const oldData = data[eegChannels[1]];
