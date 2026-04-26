@@ -664,11 +664,3 @@ Swift ICA
 
 .. literalinclude:: ../swift_package/examples/tests/ica/ica.swift
    :language: swift
-
-Notebooks
-------------
-.. toctree::
-
-   ./notebooks/brainflow_mne
-   ./notebooks/denoising
-   ./notebooks/band_power
