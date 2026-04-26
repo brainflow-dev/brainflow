@@ -38,67 +38,78 @@ public class BrainFlowGetData
         int board_id = -1;
         for (int i = 0; i < args.length; i++)
         {
-            if (args[i].equals ("--ip-address"))
+            String arg = args[i];
+            if ((arg.equals ("--ip-address") || arg.equals ("--ip-address-aux") || arg.equals ("--ip-address-anc")
+                    || arg.equals ("--serial-port") || arg.equals ("--ip-port") || arg.equals ("--ip-port-aux")
+                    || arg.equals ("--ip-port-anc") || arg.equals ("--ip-protocol") || arg.equals ("--other-info")
+                    || arg.equals ("--board-id") || arg.equals ("--timeout") || arg.equals ("--serial-number")
+                    || arg.equals ("--file") || arg.equals ("--file-aux") || arg.equals ("--file-anc")
+                    || arg.equals ("--master-board")) && (i + 1 >= args.length))
+            {
+                throw new IllegalArgumentException ("Missing value for argument: " + arg);
+            }
+
+            if (arg.equals ("--ip-address"))
             {
                 params.ip_address = args[i + 1];
             }
-            if (args[i].equals ("--ip-address-aux"))
+            if (arg.equals ("--ip-address-aux"))
             {
                 params.ip_address_aux = args[i + 1];
             }
-            if (args[i].equals ("--ip-address-anc"))
+            if (arg.equals ("--ip-address-anc"))
             {
                 params.ip_address_anc = args[i + 1];
             }
-            if (args[i].equals ("--serial-port"))
+            if (arg.equals ("--serial-port"))
             {
                 params.serial_port = args[i + 1];
             }
-            if (args[i].equals ("--ip-port"))
+            if (arg.equals ("--ip-port"))
             {
                 params.ip_port = Integer.parseInt (args[i + 1]);
             }
-            if (args[i].equals ("--ip-port-aux"))
+            if (arg.equals ("--ip-port-aux"))
             {
                 params.ip_port_aux = Integer.parseInt (args[i + 1]);
             }
-            if (args[i].equals ("--ip-port-anc"))
+            if (arg.equals ("--ip-port-anc"))
             {
                 params.ip_port_anc = Integer.parseInt (args[i + 1]);
             }
-            if (args[i].equals ("--ip-protocol"))
+            if (arg.equals ("--ip-protocol"))
             {
                 params.ip_protocol = Integer.parseInt (args[i + 1]);
             }
-            if (args[i].equals ("--other-info"))
+            if (arg.equals ("--other-info"))
             {
                 params.other_info = args[i + 1];
             }
-            if (args[i].equals ("--board-id"))
+            if (arg.equals ("--board-id"))
             {
                 board_id = Integer.parseInt (args[i + 1]);
             }
-            if (args[i].equals ("--timeout"))
+            if (arg.equals ("--timeout"))
             {
                 params.timeout = Integer.parseInt (args[i + 1]);
             }
-            if (args[i].equals ("--serial-number"))
+            if (arg.equals ("--serial-number"))
             {
                 params.serial_number = args[i + 1];
             }
-            if (args[i].equals ("--file"))
+            if (arg.equals ("--file"))
             {
                 params.file = args[i + 1];
             }
-            if (args[i].equals ("--file-aux"))
+            if (arg.equals ("--file-aux"))
             {
                 params.file_aux = args[i + 1];
             }
-            if (args[i].equals ("--file-anc"))
+            if (arg.equals ("--file-anc"))
             {
                 params.file_anc = args[i + 1];
             }
-            if (args[i].equals ("--master-board"))
+            if (arg.equals ("--master-board"))
             {
                 params.master_board = Integer.parseInt (args[i + 1]);
             }
