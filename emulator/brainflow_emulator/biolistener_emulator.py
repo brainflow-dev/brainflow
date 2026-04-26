@@ -113,8 +113,10 @@ class BioListenerEmulator(threading.Thread):
                 # A failed connect may leave the socket unusable.
                 try:
                     self.server_socket.close()
-                except Exception:
-                    pass
+                except Exception as close_err:
+                    # Closing can fail if the socket is already invalid/closed after connect failure.
+                    # Ignore and continue with socket recreation.
+                    logging.debug(f"Ignoring socket close error during reconnect cleanup: {close_err}")
                 # Recreate the socket with the same options.
                 self.server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
                 self.server_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
