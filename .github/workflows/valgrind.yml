@@ -16,10 +16,10 @@ jobs:
     # compile and prepare env
     - name: Clone Repository
       uses: actions/checkout@v2
-    - name: Setup Cmake
-      uses: jwlawson/actions-setup-cmake@v1.4
+    - name: Setup CMake
+      uses: jwlawson/actions-setup-cmake@v2.2
       with:
-        cmake-version: '3.16.x'
+        cmake-version: '3.31.x'
     - name: Install Dependencies
       run: |
         sudo -H apt-get update -y

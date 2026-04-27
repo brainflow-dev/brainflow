@@ -27,10 +27,10 @@ jobs:
         sudo -H apt-get install -y python3-setuptools python3-pygments libftdi1-dev
       env:
         DEBIAN_FRONTEND: noninteractive
-    - name: Setup Cmake
-      uses: jwlawson/actions-setup-cmake@v1.4
+    - name: Setup CMake
+      uses: jwlawson/actions-setup-cmake@v2.2
       with:
-        cmake-version: '3.16.x'
+        cmake-version: '3.31.x'
     - name: Compile BrainFlow
       run: |
         mkdir $GITHUB_WORKSPACE/build

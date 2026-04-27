@@ -64,10 +64,10 @@ jobs:
     steps:
     - name: Clone Repository
       uses: actions/checkout@v2
-    - name: Setup Cmake
-      uses: jwlawson/actions-setup-cmake@v1.13
+    - name: Setup CMake
+      uses: jwlawson/actions-setup-cmake@v2.2
       with:
-        cmake-version: '3.21.x'
+        cmake-version: '3.31.x'
     - name: Install Ninja
       if: (matrix.os == 'macos-14')
       run: |
