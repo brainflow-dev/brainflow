@@ -122,7 +122,8 @@ namespace brainflow
         OB3000_24_CHANNELS_BOARD = 63,
         BIOLISTENER_BOARD = 64,
         IRONBCI_32_BOARD = 65,
-        NEUROPAWN_KNIGHT_BOARD_IMU = 66
+        NEUROPAWN_KNIGHT_BOARD_IMU = 66,
+        MUSE_S_ANTHENA_BOARD = 67
     };
 
 
@@ -159,6 +160,8 @@ namespace brainflow
         [DllImport ("BoardController", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int get_sampling_rate (int board_id, int preset, int[] sampling_rate);
         [DllImport ("BoardController", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        public static extern int get_board_sampling_rate (int preset, int[] sampling_rate, int board_id, string input_json);
+        [DllImport ("BoardController", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int get_timestamp_channel (int board_id, int preset, int[] timestamp_channel);
         [DllImport ("BoardController", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int get_marker_channel (int board_id, int preset, int[] marker_channel);
@@ -180,6 +183,8 @@ namespace brainflow
         public static extern int get_eda_channels (int board_id, int preset, int[] channels, int[] len);
         [DllImport ("BoardController", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int get_ppg_channels (int board_id, int preset, int[] channels, int[] len);
+        [DllImport ("BoardController", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        public static extern int get_optical_channels (int board_id, int preset, int[] channels, int[] len);
         [DllImport ("BoardController", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int get_accel_channels (int board_id, int preset, int[] channels, int[] len);
         [DllImport ("BoardController", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
@@ -249,6 +254,8 @@ namespace brainflow
         [DllImport ("BoardController32", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int get_sampling_rate (int board_id, int preset, int[] sampling_rate);
         [DllImport ("BoardController32", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        public static extern int get_board_sampling_rate (int preset, int[] sampling_rate, int board_id, string input_json);
+        [DllImport ("BoardController32", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int get_timestamp_channel (int board_id, int preset, int[] timestamp_channel);
         [DllImport ("BoardController32", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int get_marker_channel (int board_id, int preset, int[] marker_channel);
@@ -270,6 +277,8 @@ namespace brainflow
         public static extern int get_eda_channels (int board_id, int preset, int[] channels, int[] len);
         [DllImport ("BoardController32", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int get_ppg_channels (int board_id, int preset, int[] channels, int[] len);
+        [DllImport ("BoardController32", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        public static extern int get_optical_channels (int board_id, int preset, int[] channels, int[] len);
         [DllImport ("BoardController32", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int get_accel_channels (int board_id, int preset, int[] channels, int[] len);
         [DllImport ("BoardController32", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
@@ -535,6 +544,19 @@ namespace brainflow
             return (int)BrainFlowExitCodes.GENERAL_ERROR;
         }
 
+        public static int get_board_sampling_rate (int preset, int[] sampling_rate, int board_id, string input_json)
+        {
+            switch (PlatformHelper.get_library_environment ())
+            {
+                case LibraryEnvironment.x64:
+                    return BoardControllerLibrary64.get_board_sampling_rate (preset, sampling_rate, board_id, input_json);
+                case LibraryEnvironment.x86:
+                    return BoardControllerLibrary32.get_board_sampling_rate (preset, sampling_rate, board_id, input_json);
+            }
+
+            return (int)BrainFlowExitCodes.GENERAL_ERROR;
+        }
+
         public static int get_package_num_channel (int board_id, int preset, int[] package_num)
         {
             switch (PlatformHelper.get_library_environment ())
@@ -751,6 +773,19 @@ namespace brainflow
                     return BoardControllerLibrary64.get_ppg_channels (board_id, preset, channels, len);
                 case LibraryEnvironment.x86:
                     return BoardControllerLibrary32.get_ppg_channels (board_id, preset, channels, len);
+            }
+
+            return (int)BrainFlowExitCodes.GENERAL_ERROR;
+        }
+
+        public static int get_optical_channels (int board_id, int preset, int[] channels, int[] len)
+        {
+            switch (PlatformHelper.get_library_environment ())
+            {
+                case LibraryEnvironment.x64:
+                    return BoardControllerLibrary64.get_optical_channels (board_id, preset, channels, len);
+                case LibraryEnvironment.x86:
+                    return BoardControllerLibrary32.get_optical_channels (board_id, preset, channels, len);
             }
 
             return (int)BrainFlowExitCodes.GENERAL_ERROR;

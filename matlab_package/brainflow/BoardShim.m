@@ -269,6 +269,17 @@ classdef BoardShim
             ppg_channels = data.Value(1,1:num_channels.Value) + 1;
         end
 
+        function optical_channels = get_optical_channels(board_id, preset)
+            % get optical channels for provided board id
+            task_name = 'get_optical_channels';
+            num_channels = libpointer('int32Ptr', 0);
+            data = libpointer('int32Ptr', zeros(1, 512));
+            lib_name = BoardShim.load_lib();
+            exit_code = calllib(lib_name, task_name, board_id, preset, data, num_channels);
+            BoardShim.check_ec(exit_code, task_name);
+            optical_channels = data.Value(1,1:num_channels.Value) + 1;
+        end
+
         function eda_channels = get_eda_channels(board_id, preset)
             % get eda channels for provided board id
             task_name = 'get_eda_channels';
@@ -503,6 +514,16 @@ classdef BoardShim
            exit_code = calllib(lib_name, task_name, res, obj.board_id, obj.input_params_json);
            BoardShim.check_ec(exit_code, task_name);
            prepared = boolean(res.value);
+        end
+
+        function sampling_rate = get_board_sampling_rate(obj, preset)
+            % get actual sampling rate for prepared board session
+            task_name = 'get_board_sampling_rate';
+            lib_name = BoardShim.load_lib();
+            res = libpointer('int32Ptr', 0);
+            exit_code = calllib(lib_name, task_name, preset, res, obj.board_id, obj.input_params_json);
+            BoardShim.check_ec(exit_code, task_name);
+            sampling_rate = res.value;
         end
 
     end

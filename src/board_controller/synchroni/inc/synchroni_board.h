@@ -33,7 +33,7 @@ protected:
 
 public:
     SynchroniBoard (int board_id, struct BrainFlowInputParams params);
-    virtual ~SynchroniBoard ();
+    ~SynchroniBoard () override;
 
     int prepare_session () override;
     int start_stream (int buffer_size, const char *streamer_params) override;

@@ -18,6 +18,8 @@ namespace brainflow
         [DataMember]
         public int[] ppg_channels;
         [DataMember]
+        public int[] optical_channels;
+        [DataMember]
         public int[] eda_channels;
         [DataMember]
         public int[] accel_channels;
@@ -54,6 +56,7 @@ namespace brainflow
             exg_channels = null;
             emg_channels = null;
             ppg_channels = null;
+            optical_channels = null;
             eda_channels = null;
             accel_channels = null;
             rotation_channels = null;

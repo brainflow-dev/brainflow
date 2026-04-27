@@ -13,7 +13,7 @@ class NtlWifi : public OpenBCIWifiShieldBoard
     double accel_scale = (double)(0.002 / (pow (2, 4)));
 
 protected:
-    void read_thread ();
+    void read_thread () override;
 
 public:
     // package num, 8 eeg channels, 3 accel channels
@@ -22,5 +22,5 @@ public:
     {
     }
 
-    int prepare_session ();
+    int prepare_session () override;
 };

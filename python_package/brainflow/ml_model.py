@@ -94,7 +94,9 @@ class MLModuleDLL(object):
             dir_path = os.path.abspath(os.path.dirname(full_path))
             try:
                 os.add_dll_directory(dir_path)
-            except:
+            except (AttributeError, OSError):
+                # Ignore when API is unavailable or directory registration fails;
+                # PATH/LD_LIBRARY_PATH fallback is applied below.
                 pass
             if platform.system() == 'Windows':
                 os.environ['PATH'] = dir_path + os.pathsep + os.environ.get('PATH', '')

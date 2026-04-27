@@ -47,6 +47,7 @@
 #include "knight.h"
 #include "knight_imu.h"
 #include "muse.h"
+#include "muse_anthena.h"
 #include "muse_bled.h"
 #include "notion_osc.h"
 #include "ntl_wifi.h"
@@ -236,6 +237,9 @@ int prepare_session (int board_id, const char *json_brainflow_input_params)
             break;
         case BoardIds::MUSE_S_BOARD:
             board = std::shared_ptr<Board> (new Muse (board_id, params));
+            break;
+        case BoardIds::MUSE_S_ANTHENA_BOARD:
+            board = std::shared_ptr<Board> (new MuseAnthena (board_id, params));
             break;
         case BoardIds::BRAINALIVE_BOARD:
             board = std::shared_ptr<Board> (new BrainAlive (params));
@@ -445,6 +449,31 @@ int get_board_data (int data_count, int preset, double *data_buf, int board_id,
     return board_it->second->get_board_data (data_count, preset, data_buf);
 }
 
+int get_board_sampling_rate (
+    int preset, int *sampling_rate, int board_id, const char *json_brainflow_input_params)
+{
+    std::lock_guard<std::mutex> lock (mutex);
+    if (sampling_rate == NULL)
+    {
+        return (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR;
+    }
+
+    std::pair<int, struct BrainFlowInputParams> key;
+    int res = check_board_session (board_id, json_brainflow_input_params, key, false);
+    if (res != (int)BrainFlowExitCodes::STATUS_OK)
+    {
+        return res;
+    }
+    auto board_it = boards.find (key);
+    int value = board_it->second->get_board_sampling_rate (preset);
+    if (value <= 0)
+    {
+        return (int)BrainFlowExitCodes::UNSUPPORTED_BOARD_ERROR;
+    }
+    *sampling_rate = value;
+    return (int)BrainFlowExitCodes::STATUS_OK;
+}
+
 int set_log_level_board_controller (int log_level)
 {
     std::lock_guard<std::mutex> lock (mutex);
@@ -485,8 +514,7 @@ int java_set_jnienv (JNIEnv *java_jnienv)
 }
 
 int config_board (const char *config, char *response, int *response_len, int response_max_len,
-    int board_id,
-    const char *json_brainflow_input_params)
+    int board_id, const char *json_brainflow_input_params)
 {
     std::lock_guard<std::mutex> lock (mutex);
     if ((config == NULL) || (response == NULL) || (response_len == NULL) || (response_max_len < 1))
@@ -561,9 +589,8 @@ static int copy_string_to_buffer (
     if (((int)source.size () + 1) > max_len)
     {
         destination[0] = '\0';
-        Board::board_logger->error (
-            "provided output buffer is too small, required {}, got {}", source.size () + 1,
-            max_len);
+        Board::board_logger->error ("provided output buffer is too small, required {}, got {}",
+            source.size () + 1, max_len);
         return (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR;
     }
 

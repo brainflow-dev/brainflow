@@ -56,6 +56,7 @@ public class BoardShim
         int java_set_jnienv (JNIEnv java_jnienv);
 
         int get_sampling_rate (int board_id, int preset, int[] sampling_rate);
+        int get_board_sampling_rate (int preset, int[] sampling_rate, int board_id, String params);
 
         int get_battery_channel (int board_id, int preset, int[] battery_channel);
 
@@ -80,6 +81,8 @@ public class BoardShim
         int get_eda_channels (int board_id, int preset, int[] eda_channels, int[] len);
 
         int get_ppg_channels (int board_id, int preset, int[] ppg_channels, int[] len);
+
+        int get_optical_channels (int board_id, int preset, int[] optical_channels, int[] len);
 
         int get_accel_channels (int board_id, int preset, int[] accel_channels, int[] len);
 
@@ -1108,6 +1111,50 @@ public class BoardShim
     }
 
     /**
+     * get row indices in returned by get_board_data() 2d array which contain
+     * optical data
+     */
+    public static int[] get_optical_channels (int board_id, BrainFlowPresets preset) throws BrainFlowError
+    {
+        int[] len = new int[1];
+        int[] channels = new int[512];
+        int ec = instance.get_optical_channels (board_id, preset.get_code (), channels, len);
+        if (ec != BrainFlowExitCode.STATUS_OK.get_code ())
+        {
+            throw new BrainFlowError ("Error in board info getter", ec);
+        }
+
+        return Arrays.copyOfRange (channels, 0, len[0]);
+    }
+
+    /**
+     * get row indices in returned by get_board_data() 2d array which contain
+     * optical data
+     */
+    public static int[] get_optical_channels (int board_id) throws BrainFlowError
+    {
+        return get_optical_channels (board_id, BrainFlowPresets.DEFAULT_PRESET);
+    }
+
+    /**
+     * get row indices in returned by get_board_data() 2d array which contain
+     * optical data
+     */
+    public static int[] get_optical_channels (BoardIds board_id, BrainFlowPresets preset) throws BrainFlowError
+    {
+        return get_optical_channels (board_id.get_code (), preset);
+    }
+
+    /**
+     * get row indices in returned by get_board_data() 2d array which contain
+     * optical data
+     */
+    public static int[] get_optical_channels (BoardIds board_id) throws BrainFlowError
+    {
+        return get_optical_channels (board_id.get_code ());
+    }
+
+    /**
      * get row indices in returned by get_board_data() 2d array which contain accel
      * data
      */
@@ -1357,6 +1404,28 @@ public class BoardShim
     public int get_board_id ()
     {
         return master_board_id;
+    }
+
+    /**
+     * get actual sampling rate for this prepared board session
+     */
+    public int get_board_sampling_rate (BrainFlowPresets preset) throws BrainFlowError
+    {
+        int[] res = new int[1];
+        int ec = instance.get_board_sampling_rate (preset.get_code (), res, board_id, input_json);
+        if (ec != BrainFlowExitCode.STATUS_OK.get_code ())
+        {
+            throw new BrainFlowError ("Error in get_board_sampling_rate", ec);
+        }
+        return res[0];
+    }
+
+    /**
+     * get actual sampling rate for this prepared board session
+     */
+    public int get_board_sampling_rate () throws BrainFlowError
+    {
+        return get_board_sampling_rate (BrainFlowPresets.DEFAULT_PRESET);
     }
 
     /**

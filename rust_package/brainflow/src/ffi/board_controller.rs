@@ -112,6 +112,14 @@ extern "C" {
     ) -> ::std::os::raw::c_int;
 }
 extern "C" {
+    pub fn get_optical_channels(
+        board_id: ::std::os::raw::c_int,
+        preset: ::std::os::raw::c_int,
+        optical_channels: *mut ::std::os::raw::c_int,
+        len: *mut ::std::os::raw::c_int,
+    ) -> ::std::os::raw::c_int;
+}
+extern "C" {
     pub fn get_eda_channels(
         board_id: ::std::os::raw::c_int,
         preset: ::std::os::raw::c_int,
@@ -248,6 +256,14 @@ extern "C" {
         data_count: ::std::os::raw::c_int,
         preset: ::std::os::raw::c_int,
         data_buf: *mut f64,
+        board_id: ::std::os::raw::c_int,
+        json_brainflow_input_params: *const ::std::os::raw::c_char,
+    ) -> ::std::os::raw::c_int;
+}
+extern "C" {
+    pub fn get_board_sampling_rate(
+        preset: ::std::os::raw::c_int,
+        sampling_rate: *mut ::std::os::raw::c_int,
         board_id: ::std::os::raw::c_int,
         json_brainflow_input_params: *const ::std::os::raw::c_char,
     ) -> ::std::os::raw::c_int;

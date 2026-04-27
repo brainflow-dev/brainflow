@@ -65,7 +65,6 @@ Instructions to build docs locally
 
 Don't push changes to Docs without local verification.
 
-- install `pandoc <https://pandoc.org/installing.html>`_
 - optional: install Doxygen, skip it if you dont understand what it is or don't need to publish your local build
 
 Install requirements::

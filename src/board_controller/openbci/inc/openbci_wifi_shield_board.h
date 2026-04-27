@@ -19,6 +19,7 @@ protected:
 
     volatile bool keep_alive;
     bool initialized;
+    int current_sampling_rate;
     std::thread streaming_thread;
 
     SocketServerTCP *server_socket;
@@ -30,13 +31,14 @@ protected:
 
 public:
     OpenBCIWifiShieldBoard (struct BrainFlowInputParams params, int board_id);
-    virtual ~OpenBCIWifiShieldBoard ();
+    ~OpenBCIWifiShieldBoard () override;
 
-    virtual int prepare_session ();
-    virtual int start_stream (int buffer_size, const char *streamer_params);
-    virtual int stop_stream ();
-    virtual int release_session ();
-    virtual int config_board (std::string config, std::string &response);
+    int prepare_session () override;
+    int start_stream (int buffer_size, const char *streamer_params) override;
+    int stop_stream () override;
+    int release_session () override;
+    int config_board (std::string config, std::string &response) override;
+    int get_board_sampling_rate (int preset) override;
 
     static constexpr int package_size = 33;
 };

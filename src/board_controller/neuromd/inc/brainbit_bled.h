@@ -13,11 +13,11 @@ private:
 
 public:
     BrainBitBLED (struct BrainFlowInputParams params);
-    ~BrainBitBLED ();
+    ~BrainBitBLED () override;
 
-    int prepare_session ();
+    int prepare_session () override;
 
 protected:
-    std::string get_lib_name ();
-    virtual int call_open ();
+    std::string get_lib_name () override;
+    int call_open () override;
 };

@@ -139,6 +139,13 @@ public:
     static std::vector<int> get_ppg_channels (
         int board_id, int preset = (int)BrainFlowPresets::DEFAULT_PRESET);
     /**
+     * get row indices which hold optical data
+     * @param board_id board id of your device
+     * @throw BrainFlowException If this board has no such data exit code is UNSUPPORTED_BOARD_ERROR
+     */
+    static std::vector<int> get_optical_channels (
+        int board_id, int preset = (int)BrainFlowPresets::DEFAULT_PRESET);
+    /**
      * get row indices which hold EDA data
      * @param board_id board id of your device
      * @throw BrainFlowException If this board has no such data exit code is UNSUPPORTED_BOARD_ERROR
@@ -255,6 +262,8 @@ public:
         int num_samples, int preset = (int)BrainFlowPresets::DEFAULT_PRESET);
     /// Get board id, for some boards can be different than provided (playback, streaming)
     int get_board_id ();
+    /// get actual sampling rate for prepared board session
+    int get_board_sampling_rate (int preset = (int)BrainFlowPresets::DEFAULT_PRESET);
     /// get number of packages in ringbuffer
     int get_board_data_count (int preset = (int)BrainFlowPresets::DEFAULT_PRESET);
     /// get all collected data and flush it from internal buffer

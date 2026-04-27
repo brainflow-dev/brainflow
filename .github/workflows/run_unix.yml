@@ -45,9 +45,11 @@ jobs:
         npm install -g ts-node
     - name: Install Ninja
       if: (matrix.os == 'macos-14')
-      uses: seanmiddleditch/gha-setup-ninja@master
-      with:
-        version: 1.10.2
+      run: |
+        if ! command -v ninja; then
+          brew install ninja
+        fi
+        ninja --version
     - name: Install Julia
       uses: julia-actions/setup-julia@v2
       with:

@@ -51,6 +51,8 @@ export enum BoardControllerCLikeFunctions {
     get_num_rows = 'int get_num_rows (int board_id, int preset, _Inout_ int *num_rows)',
     get_sampling_rate =
         'int get_sampling_rate (int board_id, int preset, _Inout_ int *sampling_rate)',
+    get_board_sampling_rate =
+        'int get_board_sampling_rate (int preset, _Inout_ int *sampling_rate, int board_id, const char *json_brainflow_input_params)',
     get_battery_channel = 'int get_battery_channel (int board_id, int preset, _Inout_ int *value)',
     get_package_num_channel =
         'int get_package_num_channel (int board_id, int preset, _Inout_ int *value)',
@@ -69,6 +71,8 @@ export enum BoardControllerCLikeFunctions {
         'int get_eog_channels (int board_id, int preset, _Inout_ int *channels, _Inout_ int *len)',
     get_ppg_channels =
         'int get_ppg_channels (int board_id, int preset, _Inout_ int *channels, _Inout_ int *len)',
+    get_optical_channels =
+        'int get_optical_channels (int board_id, int preset, _Inout_ int *channels, _Inout_ int *len)',
     get_eda_channels =
         'int get_eda_channels (int board_id, int preset, _Inout_ int *channels, _Inout_ int *len)',
     get_accel_channels =
@@ -182,6 +186,12 @@ export class BoardControllerFunctions
         boardId: BoardIds, preset: BrainFlowPresets, numRows: number[]) => BrainFlowExitCodes;
     getSamplingRate!: (
         boardId: BoardIds, preset: BrainFlowPresets, samplingRate: number[]) => BrainFlowExitCodes;
+    getBoardSamplingRate!: (
+        preset: BrainFlowPresets,
+        samplingRate: number[],
+        boardId: BoardIds,
+        inputJson: string,
+        ) => BrainFlowExitCodes;
     getEegChannels!: (
         boardId: BoardIds,
         preset: BrainFlowPresets,
@@ -216,6 +226,12 @@ export class BoardControllerFunctions
         boardId: BoardIds,
         preset: BrainFlowPresets,
         ppgChannels: number[],
+        len: number[],
+        ) => BrainFlowExitCodes;
+    getOpticalChannels!: (
+        boardId: BoardIds,
+        preset: BrainFlowPresets,
+        opticalChannels: number[],
         len: number[],
         ) => BrainFlowExitCodes;
     getEdaChannels!: (

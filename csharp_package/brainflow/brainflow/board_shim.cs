@@ -442,6 +442,30 @@ namespace brainflow
         }
 
         /// <summary>
+        /// get row indices which hold optical data
+        /// </summary>
+        /// <param name="board_id"></param>
+        /// <param name="preset">preset for device</param>
+        /// <returns>array of row nums</returns>
+        /// <exception cref="BrainFlowException">If this board has no such data exit code is UNSUPPORTED_BOARD_ERROR</exception>
+        public static int[] get_optical_channels (int board_id, int preset = (int)BrainFlowPresets.DEFAULT_PRESET)
+        {
+            int[] len = new int[1];
+            int[] channels = new int[512];
+            int res = BoardControllerLibrary.get_optical_channels (board_id, preset, channels, len);
+            if (res != (int)BrainFlowExitCodes.STATUS_OK)
+            {
+                throw new BrainFlowError (res);
+            }
+            int[] result = new int[len[0]];
+            for (int i = 0; i < len[0]; i++)
+            {
+                result[i] = channels[i];
+            }
+            return result;
+        }
+
+        /// <summary>
         /// get row indices which hold accel data
         /// </summary>
         /// <param name="board_id"></param>
@@ -837,6 +861,22 @@ namespace brainflow
         public int get_board_id ()
         {
             return master_board;
+        }
+
+        /// <summary>
+        /// get actual sampling rate for this prepared board session
+        /// </summary>
+        /// <param name="preset">preset for device</param>
+        /// <returns>sampling rate</returns>
+        public int get_board_sampling_rate (int preset = (int)BrainFlowPresets.DEFAULT_PRESET)
+        {
+            int[] val = new int[1];
+            int res = BoardControllerLibrary.get_board_sampling_rate (preset, val, board_id, input_json);
+            if (res != (int)BrainFlowExitCodes.STATUS_OK)
+            {
+                throw new BrainFlowError (res);
+            }
+            return val[0];
         }
 
         ///<summary>

@@ -11,7 +11,7 @@ class CytonDaisyWifi : public OpenBCIWifiShieldBoard
 protected:
     CytonDaisyGainTracker gain_tracker;
 
-    void read_thread ();
+    void read_thread () override;
 
 public:
     // package num, 16 eeg channels, 3 accel channels
@@ -20,6 +20,6 @@ public:
     {
     }
 
-    int prepare_session ();
-    int config_board (std::string config, std::string &response);
+    int prepare_session () override;
+    int config_board (std::string config, std::string &response) override;
 };

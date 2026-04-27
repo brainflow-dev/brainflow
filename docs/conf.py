@@ -45,7 +45,6 @@ extensions = [
     'sphinx.ext.autodoc',
     'breathe',
     'sphinxcontrib.ghcontributors',
-    'nbsphinx',
     'sphinx.ext.mathjax',
     'sphinxcontrib.matlab'
 ]
@@ -91,12 +90,6 @@ if read_the_docs_build:
     configure_doxyfile(input_dir, output_dir, 'BrainFlowCsharp')
     subprocess.call('doxygen', shell=True)
     breathe_projects['BrainFlowCsharp'] = output_dir + '/xml'
-    # core api, we dont use it right now but maybe later we will have docs for developers too
-    input_dir = '../src'
-    output_dir = 'build-core'
-    configure_doxyfile(input_dir, output_dir, 'BrainFlowCore')
-    subprocess.call('doxygen', shell=True)
-    breathe_projects['BrainFlowCore'] = output_dir + '/xml'
 
 
 # sphinx.ext.autodoc
@@ -127,22 +120,11 @@ language = None
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.
 # This pattern also affects html_static_path and html_extra_path.
-exclude_patterns = [u'_build', 'Thumbs.db', '.DS_Store', '**.ipynb_checkpoints']
+exclude_patterns = [u'_build', 'Thumbs.db', '.DS_Store']
 
 # The name of the Pygments (syntax highlighting) style to use.
 pygments_style = None
 
-# options for nbsphinx
-html_scaled_image_link = False
-html_sourcelink_suffix = ''
-
-nbsphinx_execute_arguments = [
-    "--InlineBackend.figure_formats={'svg', 'pdf'}",
-    "--InlineBackend.rc={'figure.dpi': 96}",
-]
-nbsphinx_input_prompt = 'In [%s]:'
-nbsphinx_output_prompt = 'Out[%s]:'
-nbsphinx_timeout = 120
 # -- Options for HTML output -------------------------------------------------
 
 # The theme to use for HTML and HTML Help pages.  See the documentation for

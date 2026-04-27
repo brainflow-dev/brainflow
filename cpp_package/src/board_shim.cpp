@@ -282,6 +282,18 @@ int BoardShim::get_board_id ()
     return master_board_id;
 }
 
+int BoardShim::get_board_sampling_rate (int preset)
+{
+    int sampling_rate = -1;
+    int res =
+        ::get_board_sampling_rate (preset, &sampling_rate, board_id, serialized_params.c_str ());
+    if (res != (int)BrainFlowExitCodes::STATUS_OK)
+    {
+        throw BrainFlowException ("failed to get board sampling rate", res);
+    }
+    return sampling_rate;
+}
+
 //////////////////////////////////////////
 ///////////// data desc methods //////////
 //////////////////////////////////////////
@@ -489,6 +501,18 @@ std::vector<int> BoardShim::get_ppg_channels (int board_id, int preset)
     int channels[MAX_CHANNELS];
     int len = 0;
     int res = ::get_ppg_channels (board_id, preset, channels, &len);
+    if (res != (int)BrainFlowExitCodes::STATUS_OK)
+    {
+        throw BrainFlowException ("failed to get board info", res);
+    }
+    return std::vector<int> (channels, channels + len);
+}
+
+std::vector<int> BoardShim::get_optical_channels (int board_id, int preset)
+{
+    int channels[MAX_CHANNELS];
+    int len = 0;
+    int res = ::get_optical_channels (board_id, preset, channels, &len);
     if (res != (int)BrainFlowExitCodes::STATUS_OK)
     {
         throw BrainFlowException ("failed to get board info", res);

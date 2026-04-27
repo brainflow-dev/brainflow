@@ -161,6 +161,11 @@ int get_ppg_channels (int board_id, int preset, int *ppg_channels, int *len)
     return get_array_value (board_id, preset, "ppg_channels", ppg_channels, len);
 }
 
+int get_optical_channels (int board_id, int preset, int *optical_channels, int *len)
+{
+    return get_array_value (board_id, preset, "optical_channels", optical_channels, len);
+}
+
 int get_accel_channels (int board_id, int preset, int *accel_channels, int *len)
 {
     return get_array_value (board_id, preset, "accel_channels", accel_channels, len);
@@ -294,9 +299,8 @@ static int get_array_value (
     }
 }
 
-static int get_string_value (
-    int board_id, int preset, const char *param_name, char *string, int *len, int max_len,
-    bool use_logger)
+static int get_string_value (int board_id, int preset, const char *param_name, char *string,
+    int *len, int max_len, bool use_logger)
 {
     std::string preset_str = get_preset_str (preset);
     if (preset_str.empty ())
@@ -359,9 +363,8 @@ static int copy_string_value (
         destination[0] = '\0';
         if (use_logger)
         {
-            Board::board_logger->error (
-                "provided output buffer is too small, required {}, got {}", value.size () + 1,
-                max_len);
+            Board::board_logger->error ("provided output buffer is too small, required {}, got {}",
+                value.size () + 1, max_len);
         }
         return (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR;
     }

@@ -35,7 +35,7 @@ class GaleaEmulator(object):
         self.channel_on_off = [1] * 24
         self.channel_identifiers = [
             '1', '2', '3', '4', '5', '6', '7', '8',
-            'Q', 'W', 'E', 'R', 'T', 'Y', 'U', 'I', 
+            'Q', 'W', 'E', 'R', 'T', 'Y', 'U', 'I',
             'A', 'S', 'D', 'G', 'H', 'J', 'K', 'L'
         ]
 

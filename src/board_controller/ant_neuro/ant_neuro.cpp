@@ -546,6 +546,15 @@ int AntNeuroBoard::config_board (std::string config, std::string &response)
     return (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR;
 }
 
+int AntNeuroBoard::get_board_sampling_rate (int preset)
+{
+    if (preset != (int)BrainFlowPresets::DEFAULT_PRESET)
+    {
+        return Board::get_board_sampling_rate (preset);
+    }
+    return sampling_rate;
+}
+
 // stub for macos
 #else
 AntNeuroBoard::AntNeuroBoard (int board_id, struct BrainFlowInputParams params)
@@ -585,5 +594,10 @@ int AntNeuroBoard::start_stream (int buffer_size, const char *streamer_params)
 {
     safe_logger (spdlog::level::err, "AntNeuroBoard doesnt support MacOS.");
     return (int)BrainFlowExitCodes::UNSUPPORTED_BOARD_ERROR;
+}
+
+int AntNeuroBoard::get_board_sampling_rate (int preset)
+{
+    return Board::get_board_sampling_rate (preset);
 }
 #endif
