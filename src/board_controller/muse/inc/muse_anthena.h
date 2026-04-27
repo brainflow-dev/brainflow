@@ -42,9 +42,9 @@ protected:
     std::condition_variable cv;
     std::vector<std::pair<simpleble_uuid_t, simpleble_uuid_t>> notified_characteristics;
     std::pair<simpleble_uuid_t, simpleble_uuid_t> control_characteristics;
-    bool timestamp_initialized;
-    uint32_t first_device_tick;
-    double first_host_timestamp;
+    double last_eeg_timestamp;
+    double last_aux_timestamp;
+    double last_anc_timestamp;
     double last_battery;
     std::string muse_preset;
     bool enable_low_latency;
@@ -57,10 +57,12 @@ protected:
     std::string bytes_to_string (const uint8_t *data, size_t size);
     void handle_data_notification (const uint8_t *data, size_t size);
     void parse_sensor_payload (
-        uint8_t tag, uint8_t sequence_num, uint32_t device_tick, const uint8_t *data, size_t size);
+        uint8_t tag, uint8_t sequence_num, double host_timestamp, const uint8_t *data, size_t size);
     bool get_sensor_config (uint8_t tag, SensorConfig &config);
     int get_optics_canonical_index (uint8_t tag, int channel);
-    double get_sample_timestamp (uint32_t device_tick, int sample_index, double sampling_rate);
+    void reset_timestamps ();
+    static double get_sample_timestamp (double last_timestamp, double current_timestamp,
+        int sample_index, int n_samples, double sampling_rate);
 
 public:
     MuseAnthena (int board_id, struct BrainFlowInputParams params);
