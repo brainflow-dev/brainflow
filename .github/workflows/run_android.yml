@@ -27,7 +27,7 @@ jobs:
     - name: Setup CMake
       uses: jwlawson/actions-setup-cmake@v2.2
       with:
-        cmake-version: '3.31.x'
+        cmake-version: '3.21.4'
     - name: Install NDK
       run: |
         echo "y" | sudo -H ${ANDROID_SDK_ROOT}/cmdline-tools/latest/bin/sdkmanager --install "ndk;${ANDROID_NDK_VERSION}" --sdk_root=${ANDROID_SDK_ROOT}

@@ -19,7 +19,7 @@ jobs:
     - name: Setup CMake
       uses: jwlawson/actions-setup-cmake@v2.2
       with:
-        cmake-version: '3.31.x'
+        cmake-version: '3.21.4'
     - name: Install Dependencies
       run: |
         sudo -H apt-get update -y
