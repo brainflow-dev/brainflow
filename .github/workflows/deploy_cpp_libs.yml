@@ -65,9 +65,9 @@ jobs:
     - name: Clone Repository
       uses: actions/checkout@v2
     - name: Setup CMake
-      uses: jwlawson/actions-setup-cmake@v2.2
+      uses: lukka/get-cmake@v4.3.2
       with:
-        cmake-version: '3.21.4'
+        cmakeVersion: '3.21.4'
     - name: Install Ninja
       if: (matrix.os == 'macos-14')
       run: |

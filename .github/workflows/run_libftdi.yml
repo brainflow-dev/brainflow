@@ -28,9 +28,9 @@ jobs:
       env:
         DEBIAN_FRONTEND: noninteractive
     - name: Setup CMake
-      uses: jwlawson/actions-setup-cmake@v2.2
+      uses: lukka/get-cmake@v4.3.2
       with:
-        cmake-version: '3.21.4'
+        cmakeVersion: '3.21.4'
     - name: Compile BrainFlow
       run: |
         mkdir $GITHUB_WORKSPACE/build
