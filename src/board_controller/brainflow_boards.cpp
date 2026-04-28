@@ -892,10 +892,11 @@ BrainFlowBoards::BrainFlowBoards()
         {"package_num_channel", 0},
         {"timestamp_channel", 4},
         {"marker_channel", 5},
-        {"num_rows", 6},
+        {"num_rows", 8},
         {"eda_channels", {1}},
         {"temperature_channels", {2}},
-        {"other_channels", {3}}
+        {"other_channels", {3, 6}},
+        {"battery_channel", 7}
     };
     brainflow_boards_json["boards"]["50"]["default"] =
     {
