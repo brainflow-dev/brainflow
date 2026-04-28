@@ -6,6 +6,7 @@
 #include "custom_cast.h"
 #include "muse_bglib_helper.h"
 #include "muse_constants.h"
+#include "muse_options.h"
 #include "timestamp.h"
 #include "uart.h"
 
@@ -21,6 +22,15 @@ int MuseBGLibHelper::initialize (struct BrainFlowInputParams params)
     if (!initialized)
     {
         input_params = params;
+        muse_preset = "p21";
+        bool unused_low_latency = false;
+        std::string parse_error;
+        if (!MuseOptions::parse_preset_options (input_params.other_info, board_id,
+                MuseOptions::PresetFamily::Legacy, false, muse_preset, unused_low_latency,
+                parse_error))
+        {
+            return (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR;
+        }
         exit_code = (int)BrainFlowExitCodes::SYNC_TIMEOUT_ERROR;
         int buffer_size_default = board_descr["default"]["num_rows"].get<int> ();
         int buffer_size_aux = board_descr["auxiliary"]["num_rows"].get<int> ();
@@ -94,7 +104,7 @@ int MuseBGLibHelper::open_device ()
     }
     if (res == (int)BrainFlowExitCodes::STATUS_OK)
     {
-        res = config_device ("p21");
+        res = config_device (muse_preset.c_str ());
     }
 
     return res;
