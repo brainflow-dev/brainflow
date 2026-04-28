@@ -263,9 +263,7 @@ MuseAnthena::MuseAnthena (int board_id, struct BrainFlowInputParams params)
     muse_adapter = NULL;
     muse_peripheral = NULL;
     is_streaming = false;
-    timestamp_initialized = false;
-    first_device_tick = 0;
-    first_host_timestamp = 0.0;
+    reset_timestamps ();
     last_battery = 0.0;
     muse_preset = "p1041";
     enable_low_latency = true;
@@ -486,9 +484,7 @@ int MuseAnthena::start_stream (int buffer_size, const char *streamer_params)
     if (res == (int)BrainFlowExitCodes::STATUS_OK)
     {
         std::lock_guard<std::mutex> callback_guard (callback_lock);
-        timestamp_initialized = false;
-        first_device_tick = 0;
-        first_host_timestamp = 0.0;
+        reset_timestamps ();
         last_battery = 0.0;
     }
     if (res == (int)BrainFlowExitCodes::STATUS_OK)
@@ -555,7 +551,7 @@ int MuseAnthena::stop_stream ()
         res = (int)BrainFlowExitCodes::STREAM_ALREADY_RUN_ERROR;
     }
     is_streaming = false;
-    timestamp_initialized = false;
+    reset_timestamps ();
     return res;
 }
 
@@ -744,8 +740,7 @@ void MuseAnthena::handle_data_notification (const uint8_t *data, size_t size)
 
         const uint8_t *packet = data + offset;
         uint8_t packet_index = packet[1];
-        uint32_t device_tick =
-            cast_32bit_to_uint32_little_endian ((const unsigned char *)(packet + 2));
+        double packet_host_timestamp = get_timestamp ();
         uint8_t primary_tag = packet[9];
         const uint8_t *packet_data = packet + PACKET_HEADER_SIZE;
         size_t packet_data_size = packet_len - PACKET_HEADER_SIZE;
@@ -758,8 +753,8 @@ void MuseAnthena::handle_data_notification (const uint8_t *data, size_t size)
                 primary_config.variable_length ? packet_data_size : primary_config.data_len;
             if ((primary_data_len > 0) && (primary_data_len <= packet_data_size))
             {
-                parse_sensor_payload (
-                    primary_tag, packet_index, device_tick, packet_data, primary_data_len);
+                parse_sensor_payload (primary_tag, packet_index, packet_host_timestamp, packet_data,
+                    primary_data_len);
                 packet_data_offset = primary_data_len;
             }
             else
@@ -799,7 +794,7 @@ void MuseAnthena::handle_data_notification (const uint8_t *data, size_t size)
                 break;
             }
 
-            parse_sensor_payload (tag, subpacket_index, device_tick,
+            parse_sensor_payload (tag, subpacket_index, packet_host_timestamp,
                 packet_data + packet_data_offset + SUBPACKET_HEADER_SIZE, sensor_data_len);
             packet_data_offset += SUBPACKET_HEADER_SIZE + sensor_data_len;
         }
@@ -809,7 +804,7 @@ void MuseAnthena::handle_data_notification (const uint8_t *data, size_t size)
 }
 
 void MuseAnthena::parse_sensor_payload (
-    uint8_t tag, uint8_t sequence_num, uint32_t device_tick, const uint8_t *data, size_t size)
+    uint8_t tag, uint8_t sequence_num, double host_timestamp, const uint8_t *data, size_t size)
 {
     SensorConfig config;
     if (!get_sensor_config (tag, config))
@@ -872,10 +867,11 @@ void MuseAnthena::parse_sensor_payload (
                     }
                 }
             }
-            package[(size_t)timestamp_channel] =
-                get_sample_timestamp (device_tick, sample, config.sampling_rate);
+            package[(size_t)timestamp_channel] = get_sample_timestamp (
+                last_eeg_timestamp, host_timestamp, sample, config.n_samples, config.sampling_rate);
             push_package (package.data (), (int)BrainFlowPresets::DEFAULT_PRESET);
         }
+        last_eeg_timestamp = host_timestamp;
         return;
     }
 
@@ -911,10 +907,11 @@ void MuseAnthena::parse_sensor_payload (
                         (double)raw * MUSE_ANTHENA_GYRO_SCALE_FACTOR;
                 }
             }
-            package[(size_t)timestamp_channel] =
-                get_sample_timestamp (device_tick, sample, config.sampling_rate);
+            package[(size_t)timestamp_channel] = get_sample_timestamp (
+                last_aux_timestamp, host_timestamp, sample, config.n_samples, config.sampling_rate);
             push_package (package.data (), (int)BrainFlowPresets::AUXILIARY_PRESET);
         }
+        last_aux_timestamp = host_timestamp;
         return;
     }
 
@@ -947,26 +944,47 @@ void MuseAnthena::parse_sensor_payload (
                 }
             }
 
-            package[(size_t)timestamp_channel] =
-                get_sample_timestamp (device_tick, sample, config.sampling_rate);
+            package[(size_t)timestamp_channel] = get_sample_timestamp (
+                last_anc_timestamp, host_timestamp, sample, config.n_samples, config.sampling_rate);
             push_package (package.data (), (int)BrainFlowPresets::ANCILLARY_PRESET);
         }
+        last_anc_timestamp = host_timestamp;
     }
 }
 
-double MuseAnthena::get_sample_timestamp (
-    uint32_t device_tick, int sample_index, double sampling_rate)
+void MuseAnthena::reset_timestamps ()
 {
-    if (!timestamp_initialized)
+    last_eeg_timestamp = -1.0;
+    last_aux_timestamp = -1.0;
+    last_anc_timestamp = -1.0;
+}
+
+double MuseAnthena::get_sample_timestamp (double last_timestamp, double current_timestamp,
+    int sample_index, int n_samples, double sampling_rate)
+{
+    if ((n_samples <= 0) || (sampling_rate <= 0.0))
     {
-        timestamp_initialized = true;
-        first_device_tick = device_tick;
-        first_host_timestamp = get_timestamp ();
+        return current_timestamp;
     }
 
-    uint32_t elapsed_ticks = device_tick - first_device_tick;
-    return first_host_timestamp + (double)elapsed_ticks / MUSE_ANTHENA_DEVICE_CLOCK_HZ +
-        (double)sample_index / sampling_rate;
+    if (last_timestamp <= 0.0)
+    {
+        return current_timestamp - (double)(n_samples - sample_index - 1) / sampling_rate;
+    }
+
+    if (current_timestamp <= last_timestamp)
+    {
+        return current_timestamp;
+    }
+
+    double sample_timestamp = last_timestamp + (double)(sample_index + 1) / sampling_rate;
+    if (sample_timestamp <= current_timestamp)
+    {
+        return sample_timestamp;
+    }
+
+    double step = (current_timestamp - last_timestamp) / (double)n_samples;
+    return last_timestamp + step * (double)(sample_index + 1);
 }
 
 std::string MuseAnthena::bytes_to_string (const uint8_t *data, size_t size)
