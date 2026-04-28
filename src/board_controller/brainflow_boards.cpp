@@ -420,7 +420,8 @@ BrainFlowBoards::BrainFlowBoards()
         {"marker_channel", 5},
         {"package_num_channel", 0},
         {"num_rows", 6},
-        {"ppg_channels", {1, 2, 3}}
+        {"ppg_channels", {1, 2, 3}},
+        {"optical_channels", {1, 2, 3}}
     };
     brainflow_boards_json["boards"]["22"]["default"] =
     {
@@ -453,7 +454,8 @@ BrainFlowBoards::BrainFlowBoards()
         {"marker_channel", 5},
         {"package_num_channel", 0},
         {"num_rows", 6},
-        {"ppg_channels", {1, 2, 3}}
+        {"ppg_channels", {1, 2, 3}},
+        {"optical_channels", {1, 2, 3}}
     };
     brainflow_boards_json["boards"]["23"]["default"] =
     {
@@ -681,7 +683,8 @@ BrainFlowBoards::BrainFlowBoards()
         {"marker_channel", 5},
         {"package_num_channel", 0},
         {"num_rows", 6},
-        {"ppg_channels", {1, 2, 3}}
+        {"ppg_channels", {1, 2, 3}},
+        {"optical_channels", {1, 2, 3}}
     };
     brainflow_boards_json["boards"]["39"]["default"] =
     {
@@ -714,7 +717,8 @@ BrainFlowBoards::BrainFlowBoards()
         {"marker_channel", 5},
         {"package_num_channel", 0},
         {"num_rows", 6},
-        {"ppg_channels", {1, 2, 3}}
+        {"ppg_channels", {1, 2, 3}},
+        {"optical_channels", {1, 2, 3}}
     };
     brainflow_boards_json["boards"]["40"]["default"] =
     {
