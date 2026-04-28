@@ -117,7 +117,7 @@ if (BUILD_BLE)
 endif (BUILD_BLE)
 
 add_library (
-    ${BOARD_CONTROLLER_NAME} SHARED
+    ${BOARD_CONTROLLER_NAME} ${BRAINFLOW_CORE_LIBRARY_TYPE}
     ${BOARD_CONTROLLER_SRC}
 )
 
@@ -191,7 +191,7 @@ if (BUILD_PERIPHERY)
     target_link_libraries (${BOARD_CONTROLLER_NAME} PRIVATE periphery ${CMAKE_THREAD_LIBS_INIT} dl)
 endif (BUILD_PERIPHERY)
 
-if (MSVC)
+if (BRAINFLOW_COPY_TO_PACKAGE_DIRS AND MSVC)
     add_custom_command (TARGET ${BOARD_CONTROLLER_NAME} POST_BUILD
         COMMAND "${CMAKE_COMMAND}" -E copy_if_different "$<TARGET_FILE:${BOARD_CONTROLLER_NAME}>" "${CMAKE_CURRENT_SOURCE_DIR}/nodejs_package/brainflow/lib/${BOARD_CONTROLLER_COMPILED_NAME}"
         COMMAND "${CMAKE_COMMAND}" -E copy_if_different "$<TARGET_FILE:${BOARD_CONTROLLER_NAME}>" "${CMAKE_CURRENT_SOURCE_DIR}/python_package/brainflow/lib/${BOARD_CONTROLLER_COMPILED_NAME}"
@@ -208,8 +208,8 @@ if (MSVC)
         COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/src/board_controller/inc/board_info_getter.h" "${CMAKE_CURRENT_SOURCE_DIR}/rust_package/brainflow/inc/board_info_getter.h"
         COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/src/utils/inc/brainflow_constants.h" "${CMAKE_CURRENT_SOURCE_DIR}/rust_package/brainflow/inc/brainflow_constants.h"
     )
-endif (MSVC)
-if (UNIX AND NOT ANDROID)
+endif (BRAINFLOW_COPY_TO_PACKAGE_DIRS AND MSVC)
+if (BRAINFLOW_COPY_TO_PACKAGE_DIRS AND UNIX AND NOT ANDROID)
     add_custom_command (TARGET ${BOARD_CONTROLLER_NAME} POST_BUILD
         COMMAND "${CMAKE_COMMAND}" -E copy_if_different "$<TARGET_FILE:${BOARD_CONTROLLER_NAME}>" "${CMAKE_CURRENT_SOURCE_DIR}/nodejs_package/brainflow/lib/${BOARD_CONTROLLER_COMPILED_NAME}"
         COMMAND "${CMAKE_COMMAND}" -E copy_if_different "$<TARGET_FILE:${BOARD_CONTROLLER_NAME}>" "${CMAKE_CURRENT_SOURCE_DIR}/python_package/brainflow/lib/${BOARD_CONTROLLER_COMPILED_NAME}"
@@ -226,7 +226,7 @@ if (UNIX AND NOT ANDROID)
         COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/src/board_controller/inc/board_info_getter.h" "${CMAKE_CURRENT_SOURCE_DIR}/rust_package/brainflow/inc/board_info_getter.h"
         COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/src/utils/inc/brainflow_constants.h" "${CMAKE_CURRENT_SOURCE_DIR}/rust_package/brainflow/inc/brainflow_constants.h"
     )
-endif (UNIX AND NOT ANDROID)
+endif (BRAINFLOW_COPY_TO_PACKAGE_DIRS AND UNIX AND NOT ANDROID)
 
 if (ANDROID)
     add_custom_command (TARGET ${BOARD_CONTROLLER_NAME} POST_BUILD
@@ -251,9 +251,9 @@ if (ANDROID)
     endif (LibFTDI1_FOUND)
 endif (ANDROID)
 
-if (UNIX AND NOT ANDROID)
+if (UNIX AND NOT ANDROID AND NOT BRAINFLOW_IOS)
     target_link_libraries (${BOARD_CONTROLLER_NAME} PRIVATE pthread dl)
-endif (UNIX AND NOT ANDROID)
+endif (UNIX AND NOT ANDROID AND NOT BRAINFLOW_IOS)
 if (ANDROID)
     find_library (log-lib log)
     target_link_libraries (${BOARD_CONTROLLER_NAME} PRIVATE log)

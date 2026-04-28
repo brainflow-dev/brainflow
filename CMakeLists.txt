@@ -27,6 +27,32 @@ option (BUILD_BLE "BUILD_BLE" OFF)
 option (BUILD_ONNX "BUILD_ONNX" OFF)
 option (BUILD_TESTS "BUILD_TESTS" OFF)
 option (BUILD_PERIPHERY "BUILD_PERIPHERY" OFF)
+option (BRAINFLOW_COPY_TO_PACKAGE_DIRS "Copy built artifacts into language package folders" ON)
+
+set (BRAINFLOW_IOS OFF)
+if (CMAKE_SYSTEM_NAME STREQUAL "iOS")
+    set (BRAINFLOW_IOS ON)
+endif ()
+
+set (BRAINFLOW_CORE_LIBRARY_TYPE SHARED)
+if (BRAINFLOW_IOS)
+    set (BRAINFLOW_CORE_LIBRARY_TYPE STATIC)
+
+    if (BRAINFLOW_COPY_TO_PACKAGE_DIRS)
+        message (STATUS "Disabling BRAINFLOW_COPY_TO_PACKAGE_DIRS for iOS builds.")
+        set (BRAINFLOW_COPY_TO_PACKAGE_DIRS OFF CACHE BOOL "Copy built artifacts into language package folders" FORCE)
+    endif ()
+
+    if (BUILD_SYNCHRONI_SDK)
+        message (STATUS "Disabling BUILD_SYNCHRONI_SDK for iOS builds; the bundled wrapper is macOS/Linux/Windows-only.")
+        set (BUILD_SYNCHRONI_SDK OFF CACHE BOOL "BUILD_SYNCHRONI_SDK" FORCE)
+    endif ()
+
+    if (BUILD_PERIPHERY)
+        message (STATUS "Disabling BUILD_PERIPHERY for iOS builds.")
+        set (BUILD_PERIPHERY OFF CACHE BOOL "BUILD_PERIPHERY" FORCE)
+    endif ()
+endif ()
 
 include (${CMAKE_CURRENT_SOURCE_DIR}/cmake/macros.cmake)
 configure_msvc_runtime ()

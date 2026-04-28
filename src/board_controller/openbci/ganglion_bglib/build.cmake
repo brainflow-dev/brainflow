@@ -30,7 +30,7 @@ SET (GANGLION_SOURCE_LIB
     ${CMAKE_CURRENT_SOURCE_DIR}/src/utils/timestamp.cpp
 )
 
-add_library (${GANGLION_LIB} SHARED ${GANGLION_SOURCE_LIB})
+add_library (${GANGLION_LIB} ${BRAINFLOW_CORE_LIBRARY_TYPE} ${GANGLION_SOURCE_LIB})
 target_include_directories (${GANGLION_LIB} PUBLIC
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src/utils/inc>
     $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/inc>
@@ -44,7 +44,7 @@ set_target_properties (${GANGLION_LIB}
     RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/compiled
 )
 
-if (MSVC)
+if (BRAINFLOW_COPY_TO_PACKAGE_DIRS AND MSVC)
     add_custom_command (TARGET ${GANGLION_LIB} POST_BUILD
         COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/compiled/$<CONFIG>/${GANGLION_LIB_NAME}" "${CMAKE_CURRENT_SOURCE_DIR}/nodejs_package/brainflow/lib/${GANGLION_LIB_NAME}"
         COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/compiled/$<CONFIG>/${GANGLION_LIB_NAME}" "${CMAKE_CURRENT_SOURCE_DIR}/python_package/brainflow/lib/${GANGLION_LIB_NAME}"
@@ -53,8 +53,8 @@ if (MSVC)
         COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/compiled/$<CONFIG>/${GANGLION_LIB_NAME}" "${CMAKE_CURRENT_SOURCE_DIR}/matlab_package/brainflow/lib/${GANGLION_LIB_NAME}"
         COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/compiled/$<CONFIG>/${GANGLION_LIB_NAME}" "${CMAKE_CURRENT_SOURCE_DIR}/julia_package/brainflow/lib/${GANGLION_LIB_NAME}"
     )
-endif (MSVC)
-if (UNIX AND NOT ANDROID)
+endif (BRAINFLOW_COPY_TO_PACKAGE_DIRS AND MSVC)
+if (BRAINFLOW_COPY_TO_PACKAGE_DIRS AND UNIX AND NOT ANDROID)
     add_custom_command (TARGET ${GANGLION_LIB} POST_BUILD
         COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/compiled/${GANGLION_LIB_NAME}" "${CMAKE_CURRENT_SOURCE_DIR}/nodejs_package/brainflow/lib/${GANGLION_LIB_NAME}"
         COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/compiled/${GANGLION_LIB_NAME}" "${CMAKE_CURRENT_SOURCE_DIR}/python_package/brainflow/lib/${GANGLION_LIB_NAME}"
@@ -63,7 +63,7 @@ if (UNIX AND NOT ANDROID)
         COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/compiled/${GANGLION_LIB_NAME}" "${CMAKE_CURRENT_SOURCE_DIR}/csharp_package/brainflow/brainflow/${GANGLION_LIB_NAME}"
         COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/compiled/${GANGLION_LIB_NAME}" "${CMAKE_CURRENT_SOURCE_DIR}/matlab_package/brainflow/lib/${GANGLION_LIB_NAME}"
     )
-endif (UNIX AND NOT ANDROID)
+endif (BRAINFLOW_COPY_TO_PACKAGE_DIRS AND UNIX AND NOT ANDROID)
 
 install (
     TARGETS ${GANGLION_LIB}
