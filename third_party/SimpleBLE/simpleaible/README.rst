@@ -64,7 +64,7 @@ Install the SimpleAIBLE skill to give your AI agent built-in knowledge of BLE wo
 See the `Agent Skills docs`_ for more details.
 
 License
-=======
+-------
 
 SimpleAIBLE is available under the Business Source License 1.1 (BUSL-1.1). Each
 version of SimpleAIBLE will convert to the GNU General Public License version 3 after four years of its initial release.

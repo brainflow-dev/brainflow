@@ -39,7 +39,7 @@ Explore projects built with SimpleBLE, including `BrainFlow`_, `InsideBlue`_, an
 **Don't hesitate to reach out if you need assistance - we're happy to help!**
 
 License
-=======
+-------
 
 Since January 20th 2025, SimpleBLE is now available under the Business Source License 1.1 (BUSL-1.1). Each
 version of SimpleBLE will convert to the GNU General Public License version 3 after four years of its initial release.
