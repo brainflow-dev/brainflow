@@ -53,6 +53,7 @@
 #include "ntl_wifi.h"
 #include "pieeg_board.h"
 #include "playback_file_board.h"
+#include "shimmer3.h"
 #include "streaming_board.h"
 #include "synchroni_board.h"
 #include "synthetic_board.h"
@@ -309,6 +310,9 @@ int prepare_session (int board_id, const char *json_brainflow_input_params)
         case BoardIds::NEUROPAWN_KNIGHT_BOARD_IMU:
             board = std::shared_ptr<Board> (
                 new KnightIMU ((int)BoardIds::NEUROPAWN_KNIGHT_BOARD_IMU, params));
+            break;
+        case BoardIds::SHIMMER3_BOARD:
+            board = std::shared_ptr<Board> (new Shimmer3 (params));
             break;
         default:
             return (int)BrainFlowExitCodes::UNSUPPORTED_BOARD_ERROR;
