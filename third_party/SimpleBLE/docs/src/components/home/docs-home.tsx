@@ -1,6 +1,5 @@
 "use client";
 
-import Link from "next/link";
 import { useState, type ReactElement } from "react";
 
 import { DocsHomeHero } from "@/components/home/docs-home-hero";
