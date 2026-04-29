@@ -85,7 +85,8 @@ BrainFlowBoards::BrainFlowBoards()
             {"64", json::object()},
             {"65", json::object()},
             {"66", json::object()},
-            {"67", json::object()}
+            {"67", json::object()},
+            {"68", json::object()}
         }
     }};
 
@@ -1197,6 +1198,47 @@ BrainFlowBoards::BrainFlowBoards()
         {"num_rows", 20},
         {"optical_channels", {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16}},
         {"battery_channel", 17}
+    };
+    // Shimmer3 (ID 67)
+    // Default preset: IMU data (accel, gyro, mag)
+    brainflow_boards_json["boards"]["68"]["default"] =
+    {
+        {"name", "Shimmer3"},
+        {"sampling_rate", 512},
+        {"package_num_channel", 0},
+        {"timestamp_channel", 10},
+        {"marker_channel", 11},
+        {"num_rows", 12},
+        {"accel_channels", {1, 2, 3}},
+        {"gyro_channels", {4, 5, 6}},
+        {"magnetometer_channels", {7, 8, 9}}
+    };
+    // Auxiliary preset: ExG data (ECG/EMG via ADS1292R chips)
+    brainflow_boards_json["boards"]["68"]["auxiliary"] =
+    {
+        {"name", "Shimmer3"},
+        {"sampling_rate", 512},
+        {"package_num_channel", 0},
+        {"timestamp_channel", 7},
+        {"marker_channel", 8},
+        {"num_rows", 9},
+        {"ecg_channels", {1, 2}},
+        {"emg_channels", {3, 4}},
+        {"other_channels", {5, 6}}  // ExG1 status, ExG2 status
+    };
+    // Ancillary preset: GSR, temperature, battery, pressure
+    brainflow_boards_json["boards"]["68"]["ancillary"] =
+    {
+        {"name", "Shimmer3"},
+        {"sampling_rate", 64},
+        {"package_num_channel", 0},
+        {"timestamp_channel", 7},
+        {"marker_channel", 8},
+        {"num_rows", 9},
+        {"eda_channels", {1}},
+        {"temperature_channels", {2}},
+        {"battery_channel", 3},
+        {"other_channels", {4, 5, 6}}  // pressure, internal ADC, external ADC
     };
 }
 
