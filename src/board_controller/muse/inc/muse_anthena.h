@@ -57,7 +57,7 @@ protected:
     std::string bytes_to_string (const uint8_t *data, size_t size);
     void handle_data_notification (const uint8_t *data, size_t size);
     void parse_sensor_payload (
-        uint8_t tag, uint8_t sequence_num, double host_timestamp, const uint8_t *data, size_t size);
+        uint8_t tag, uint32_t package_num, double host_timestamp, const uint8_t *data, size_t size);
     bool get_sensor_config (uint8_t tag, SensorConfig &config);
     int get_optics_canonical_index (uint8_t tag, int channel);
     void reset_timestamps ();

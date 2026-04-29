@@ -3,6 +3,7 @@
 #include "ble_lib_board.h"
 #include <condition_variable>
 #include <mutex>
+#include <string>
 #include <utility>
 #include <vector>
 
@@ -29,6 +30,7 @@ protected:
     double last_ppg_timestamp;        // used for timestamp correction
     double last_eeg_timestamp;        // used for timestamp correction
     double last_aux_timestamp;        // used for timestamp correction
+    std::string muse_preset;
 
 public:
     Muse (int board_id, struct BrainFlowInputParams params);

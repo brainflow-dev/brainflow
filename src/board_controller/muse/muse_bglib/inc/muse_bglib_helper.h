@@ -61,6 +61,7 @@ protected:
     double last_ppg_timestamp;        // used for timestamp correction
     double last_eeg_timestamp;        // used for timestamp correction
     double last_aux_timestamp;        // used for timestamp correction
+    std::string muse_preset;
 
     void thread_worker ();
 
@@ -86,6 +87,7 @@ public:
         last_aux_timestamp = -1.0;
         last_eeg_timestamp = -1.0;
         last_ppg_timestamp = -1.0;
+        muse_preset = "p21";
     }
 
     virtual ~MuseBGLibHelper ()

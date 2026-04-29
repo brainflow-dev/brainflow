@@ -1,7 +1,5 @@
 #include "muse_anthena.h"
 
-#include <algorithm>
-#include <cctype>
 #include <chrono>
 #include <cstdint>
 #include <cstring>
@@ -12,6 +10,7 @@
 
 #include "custom_cast.h"
 #include "muse_anthena_constants.h"
+#include "muse_options.h"
 #include "timestamp.h"
 
 
@@ -60,13 +59,15 @@ bool MuseAnthena::get_sensor_config (uint8_t tag, SensorConfig &config)
             config = SensorConfig (SensorType::ACC_GYRO, 6, 3, 52.0, 36);
             return true;
         case 0x53:
-            config = SensorConfig (SensorType::UNKNOWN, 0, 0, 0.0, 24);
+            // DRL/REF: 2 channels, 6 samples at 32 Hz. BrainFlow does not expose it for
+            // Muse Anthena, but the fixed length is needed to skip the block correctly.
+            config = SensorConfig (SensorType::UNKNOWN, 2, 6, 32.0, 24);
             return true;
         case 0x88:
-            config = SensorConfig (SensorType::BATTERY, 1, 1, 0.2, 0, true);
+            config = SensorConfig (SensorType::BATTERY, 10, 1, 1.0, 20);
             return true;
         case 0x98:
-            config = SensorConfig (SensorType::BATTERY, 1, 1, 1.0, 20);
+            config = SensorConfig (SensorType::BATTERY, 10, 1, 0.1, 20);
             return true;
         default:
             return false;
@@ -75,17 +76,21 @@ bool MuseAnthena::get_sensor_config (uint8_t tag, SensorConfig &config)
 
 int MuseAnthena::get_optics_canonical_index (uint8_t tag, int channel)
 {
-    static const int optics4_indexes[] = {4, 5, 6, 7};
-
+    int num_channels = 0;
     if (tag == 0x34)
     {
-        return (channel >= 0 && channel < 4) ? optics4_indexes[channel] : -1;
+        num_channels = 4;
     }
-    if ((tag == 0x35) && (channel >= 0) && (channel < 8))
+    else if (tag == 0x35)
     {
-        return channel;
+        num_channels = 8;
     }
-    if ((tag == 0x36) && (channel >= 0) && (channel < 16))
+    else if (tag == 0x36)
+    {
+        num_channels = 16;
+    }
+
+    if ((channel >= 0) && (channel < num_channels))
     {
         return channel;
     }
@@ -94,52 +99,22 @@ int MuseAnthena::get_optics_canonical_index (uint8_t tag, int channel)
 
 std::string MuseAnthena::trim_string (const std::string &value)
 {
-    size_t first = value.find_first_not_of (" \t\r\n");
-    if (first == std::string::npos)
-    {
-        return "";
-    }
-    size_t last = value.find_last_not_of (" \t\r\n");
-    return value.substr (first, last - first + 1);
+    return MuseOptions::trim_string (value);
 }
 
 std::string MuseAnthena::to_lower (const std::string &value)
 {
-    std::string lower_value = value;
-    std::transform (lower_value.begin (), lower_value.end (), lower_value.begin (),
-        [] (unsigned char ch) { return (char)std::tolower (ch); });
-    return lower_value;
+    return MuseOptions::to_lower (value);
 }
 
 bool MuseAnthena::is_valid_muse_preset (const std::string &preset)
 {
-    static const char *valid_presets[] = {"p20", "p21", "p50", "p51", "p60", "p61", "p1034",
-        "p1035", "p1041", "p1042", "p1043", "p1044", "p1045", "p1046", "p4129"};
-
-    for (size_t i = 0; i < sizeof (valid_presets) / sizeof (valid_presets[0]); i++)
-    {
-        if (preset == valid_presets[i])
-        {
-            return true;
-        }
-    }
-    return false;
+    return MuseOptions::is_valid_anthena_preset (preset);
 }
 
 bool MuseAnthena::parse_bool_option (const std::string &value, bool &parsed)
 {
-    std::string lower_value = to_lower (trim_string (value));
-    if (lower_value == "true")
-    {
-        parsed = true;
-        return true;
-    }
-    if (lower_value == "false")
-    {
-        parsed = false;
-        return true;
-    }
-    return false;
+    return MuseOptions::parse_bool_option (value, parsed);
 }
 
 int MuseAnthena::parse_muse_options ()
@@ -147,89 +122,11 @@ int MuseAnthena::parse_muse_options ()
     muse_preset = "p1041";
     enable_low_latency = true;
 
-    std::string other_info = trim_string (params.other_info);
-    if (other_info.empty ())
+    std::string parse_error;
+    if (!MuseOptions::parse_preset_options (params.other_info, board_id,
+            MuseOptions::PresetFamily::Anthena, true, muse_preset, enable_low_latency, parse_error))
     {
-        return (int)BrainFlowExitCodes::STATUS_OK;
-    }
-
-    if ((other_info.find ('=') == std::string::npos) &&
-        (other_info.find (';') == std::string::npos))
-    {
-        std::string preset = to_lower (other_info);
-        if (!is_valid_muse_preset (preset))
-        {
-            safe_logger (
-                spdlog::level::err, "Invalid MuseAnthena preset in other_info: {}", other_info);
-            return (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR;
-        }
-        muse_preset = preset;
-        return (int)BrainFlowExitCodes::STATUS_OK;
-    }
-
-    bool has_options = false;
-    std::stringstream ss (other_info);
-    std::string token;
-    while (std::getline (ss, token, ';'))
-    {
-        token = trim_string (token);
-        if (token.empty ())
-        {
-            continue;
-        }
-
-        size_t separator = token.find ('=');
-        if ((separator == std::string::npos) ||
-            (token.find ('=', separator + 1) != std::string::npos))
-        {
-            safe_logger (spdlog::level::err,
-                "Invalid MuseAnthena other_info option: {}. Expected key=value", token);
-            return (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR;
-        }
-
-        std::string key = to_lower (trim_string (token.substr (0, separator)));
-        std::string value = trim_string (token.substr (separator + 1));
-        if (key.empty () || value.empty ())
-        {
-            safe_logger (spdlog::level::err,
-                "Invalid MuseAnthena other_info option: {}. Empty key or value", token);
-            return (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR;
-        }
-
-        if (key == "preset")
-        {
-            value = to_lower (value);
-            if (!is_valid_muse_preset (value))
-            {
-                safe_logger (
-                    spdlog::level::err, "Invalid MuseAnthena preset in other_info: {}", value);
-                return (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR;
-            }
-            muse_preset = value;
-            has_options = true;
-        }
-        else if (key == "low_latency")
-        {
-            bool parsed = false;
-            if (!parse_bool_option (value, parsed))
-            {
-                safe_logger (spdlog::level::err,
-                    "Invalid MuseAnthena low_latency value in other_info: {}", value);
-                return (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR;
-            }
-            enable_low_latency = parsed;
-            has_options = true;
-        }
-        else
-        {
-            safe_logger (spdlog::level::err, "Unknown MuseAnthena other_info option: {}", key);
-            return (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR;
-        }
-    }
-
-    if (!has_options)
-    {
-        safe_logger (spdlog::level::err, "Invalid MuseAnthena other_info: {}", params.other_info);
+        safe_logger (spdlog::level::err, "Invalid MuseAnthena other_info: {}", parse_error);
         return (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR;
     }
 
@@ -739,9 +636,12 @@ void MuseAnthena::handle_data_notification (const uint8_t *data, size_t size)
         }
 
         const uint8_t *packet = data + offset;
-        uint8_t packet_index = packet[1];
+        uint16_t packet_index =
+            cast_16bit_to_uint16_little_endian ((const unsigned char *)(packet + 1));
         double packet_host_timestamp = get_timestamp ();
         uint8_t primary_tag = packet[9];
+        uint8_t primary_block_index = packet[10];
+        uint32_t primary_package_num = ((uint32_t)packet_index << 8) | primary_block_index;
         const uint8_t *packet_data = packet + PACKET_HEADER_SIZE;
         size_t packet_data_size = packet_len - PACKET_HEADER_SIZE;
         size_t packet_data_offset = 0;
@@ -753,8 +653,8 @@ void MuseAnthena::handle_data_notification (const uint8_t *data, size_t size)
                 primary_config.variable_length ? packet_data_size : primary_config.data_len;
             if ((primary_data_len > 0) && (primary_data_len <= packet_data_size))
             {
-                parse_sensor_payload (primary_tag, packet_index, packet_host_timestamp, packet_data,
-                    primary_data_len);
+                parse_sensor_payload (primary_tag, primary_package_num, packet_host_timestamp,
+                    packet_data, primary_data_len);
                 packet_data_offset = primary_data_len;
             }
             else
@@ -776,6 +676,7 @@ void MuseAnthena::handle_data_notification (const uint8_t *data, size_t size)
         {
             uint8_t tag = packet_data[packet_data_offset];
             uint8_t subpacket_index = packet_data[packet_data_offset + 1];
+            uint32_t subpacket_package_num = ((uint32_t)packet_index << 8) | subpacket_index;
             SensorConfig config;
             if (!get_sensor_config (tag, config))
             {
@@ -794,7 +695,7 @@ void MuseAnthena::handle_data_notification (const uint8_t *data, size_t size)
                 break;
             }
 
-            parse_sensor_payload (tag, subpacket_index, packet_host_timestamp,
+            parse_sensor_payload (tag, subpacket_package_num, packet_host_timestamp,
                 packet_data + packet_data_offset + SUBPACKET_HEADER_SIZE, sensor_data_len);
             packet_data_offset += SUBPACKET_HEADER_SIZE + sensor_data_len;
         }
@@ -804,7 +705,7 @@ void MuseAnthena::handle_data_notification (const uint8_t *data, size_t size)
 }
 
 void MuseAnthena::parse_sensor_payload (
-    uint8_t tag, uint8_t sequence_num, double host_timestamp, const uint8_t *data, size_t size)
+    uint8_t tag, uint32_t package_num, double host_timestamp, const uint8_t *data, size_t size)
 {
     SensorConfig config;
     if (!get_sensor_config (tag, config))
@@ -824,7 +725,8 @@ void MuseAnthena::parse_sensor_payload (
         if (size >= 2)
         {
             last_battery =
-                (double)cast_16bit_to_uint16_little_endian ((const unsigned char *)data) / 256.0;
+                (double)cast_16bit_to_uint16_little_endian ((const unsigned char *)data) *
+                MUSE_ANTHENA_BATTERY_PERCENT_SCALE_FACTOR;
         }
         return;
     }
@@ -847,7 +749,7 @@ void MuseAnthena::parse_sensor_payload (
         for (int sample = 0; sample < config.n_samples; sample++)
         {
             std::vector<double> package ((size_t)num_rows, 0.0);
-            package[(size_t)package_num_channel] = (double)sequence_num;
+            package[(size_t)package_num_channel] = (double)package_num;
             for (int channel = 0; channel < config.n_channels; channel++)
             {
                 size_t bit_start = (size_t)(sample * config.n_channels + channel) * 14;
@@ -886,7 +788,7 @@ void MuseAnthena::parse_sensor_payload (
         for (int sample = 0; sample < config.n_samples; sample++)
         {
             std::vector<double> package ((size_t)num_rows, 0.0);
-            package[(size_t)package_num_channel] = (double)sequence_num;
+            package[(size_t)package_num_channel] = (double)package_num;
             for (int channel = 0; channel < 3; channel++)
             {
                 int16_t raw = cast_16bit_to_int16_little_endian (
@@ -926,7 +828,7 @@ void MuseAnthena::parse_sensor_payload (
         for (int sample = 0; sample < config.n_samples; sample++)
         {
             std::vector<double> package ((size_t)num_rows, 0.0);
-            package[(size_t)package_num_channel] = (double)sequence_num;
+            package[(size_t)package_num_channel] = (double)package_num;
             package[(size_t)battery_channel] = last_battery;
 
             for (int channel = 0; channel < config.n_channels; channel++)
