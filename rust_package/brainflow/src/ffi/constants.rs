@@ -103,6 +103,7 @@ pub enum BoardIds {
     Ironbci32Board = 65,
     NeuropawnKnightBoardImu = 66,
     MuseSAnthenaBoard = 67,
+    Shimmer3Board = 67,
 }
 #[repr(i32)]
 #[derive(FromPrimitive, ToPrimitive, Debug, Copy, Clone, Hash, PartialEq, Eq)]
