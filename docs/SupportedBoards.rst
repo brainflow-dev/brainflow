@@ -841,174 +841,7 @@ Supported platforms:
 Muse
 ------
 
-.. _muse-presets-table:
-
-Muse preset commands:
-
-The table below summarizes startup Muse commands accepted by BrainFlow and the Muse device families where they are intended to be used.
-
-.. list-table::
-   :header-rows: 1
-
-   * - Preset
-     - BrainFlow support
-     - Muse devices
-     - Confidence / use
-     - Description
-   * - :code:`p20`
-     - Accepted
-     - Muse 2016, 2018, 2019, 2021, 2024
-     - Unverified for MuseS Anthena; older Muse preset.
-     - 5 EEG channels, 12-bit EEG at 256 Hz, accelerometer and gyro at 52 Hz, battery at 0.1 Hz, DRL/REF at 32 Hz.
-   * - :code:`p21`
-     - Accepted
-     - Muse 2016, 2018, 2019, 2021, 2024
-     - Important EEG-only preset; tested/recommended for 4-channel EEG.
-     - 4 EEG channels, 12-bit EEG at 256 Hz, accelerometer and gyro at 52 Hz, battery at 0.1 Hz, DRL/REF at 32 Hz.
-   * - :code:`p50`
-     - Accepted
-     - Muse 2018, 2019, 2021, 2024
-     - Unverified for MuseS Anthena; older Muse preset.
-     - 5 EEG channels, 12-bit EEG at 256 Hz, accelerometer and gyro at 52 Hz, battery at 0.1 Hz, DRL/REF at 32 Hz, PPG at 64 Hz.
-   * - :code:`p51`
-     - Accepted
-     - Muse 2018, 2019, 2021, 2024
-     - Unverified for MuseS Anthena; older Muse preset.
-     - 4 EEG channels, 12-bit EEG at 256 Hz, accelerometer and gyro at 52 Hz, battery at 0.1 Hz, DRL/REF at 32 Hz, PPG at 64 Hz.
-   * - :code:`p60`
-     - Accepted
-     - Muse 2019, 2021
-     - Unverified for MuseS Anthena; older Muse preset.
-     - 5 EEG channels, 12-bit EEG at 256 Hz, accelerometer and gyro at 52 Hz, battery at 0.1 Hz, DRL/REF at 32 Hz, PPG at 64 Hz, thermistor at 16 Hz.
-   * - :code:`p61`
-     - Accepted
-     - Muse 2019, 2021
-     - Unverified for MuseS Anthena; older Muse preset.
-     - 4 EEG channels, 12-bit EEG at 256 Hz, accelerometer and gyro at 52 Hz, battery at 0.1 Hz, DRL/REF at 32 Hz, PPG at 64 Hz, thermistor at 16 Hz.
-   * - :code:`p1021`
-     - Not accepted
-     - MuseS Anthena
-     - Known MuseS Anthena command, not BrainFlow-enabled yet.
-     - 4 EEG channels, 14-bit EEG at 256 Hz, accelerometer and gyro at 52 Hz, battery at 1 Hz, DRL/REF at 32 Hz.
-   * - :code:`p1022`
-     - Not accepted
-     - MuseS Anthena
-     - Known MuseS Anthena command, not BrainFlow-enabled yet.
-     - 8 EEG channels, 14-bit EEG at 256 Hz, battery at 1 Hz, DRL/REF at 32 Hz.
-   * - :code:`p1023`
-     - Not accepted
-     - MuseS Anthena
-     - Known MuseS Anthena command, not BrainFlow-enabled yet.
-     - Battery only at 5 Hz.
-   * - :code:`p1024`
-     - Not accepted
-     - MuseS Anthena
-     - Known MuseS Anthena command, not BrainFlow-enabled yet.
-     - Accelerometer and gyro at 52 Hz.
-   * - :code:`p1025`
-     - Not accepted
-     - MuseS Anthena
-     - Known MuseS Anthena command, not BrainFlow-enabled yet.
-     - 16 optics channels at 64 Hz, low power.
-   * - :code:`p1026`
-     - Not accepted
-     - MuseS Anthena
-     - Known MuseS Anthena command, not BrainFlow-enabled yet.
-     - 16 optics channels at 64 Hz, high power.
-   * - :code:`p1027`
-     - Not accepted
-     - MuseS Anthena
-     - Known MuseS Anthena command, not BrainFlow-enabled yet.
-     - 8 optics channels at 64 Hz, low power.
-   * - :code:`p1028`
-     - Not accepted
-     - MuseS Anthena
-     - Known MuseS Anthena command, not BrainFlow-enabled yet.
-     - 8 optics channels at 64 Hz, high power.
-   * - :code:`p1029`
-     - Not accepted
-     - MuseS Anthena
-     - Known MuseS Anthena command, not BrainFlow-enabled yet.
-     - 4 optics channels at 64 Hz, low power.
-   * - :code:`p102a`
-     - Not accepted
-     - MuseS Anthena
-     - Known MuseS Anthena command, not BrainFlow-enabled yet.
-     - 4 optics channels at 64 Hz, high power.
-   * - :code:`p1031`
-     - Not accepted
-     - MuseS Anthena
-     - Known MuseS Anthena command, not BrainFlow-enabled yet.
-     - 4 EEG channels, 14-bit EEG at 256 Hz, accelerometer and gyro at 52 Hz, battery at 1 Hz, DRL/REF at 32 Hz, 16 optics channels at 64 Hz, low power.
-   * - :code:`p1032`
-     - Not accepted
-     - MuseS Anthena
-     - Known MuseS Anthena command, not BrainFlow-enabled yet.
-     - 4 EEG channels, 14-bit EEG at 256 Hz, accelerometer and gyro at 52 Hz, battery at 1 Hz, DRL/REF at 32 Hz, 16 optics channels at 64 Hz, high power.
-   * - :code:`p1033`
-     - Not accepted
-     - MuseS Anthena
-     - Known MuseS Anthena command, not BrainFlow-enabled yet.
-     - 4 EEG channels, 14-bit EEG at 256 Hz, accelerometer and gyro at 52 Hz, battery at 1 Hz, DRL/REF at 32 Hz, 8 optics channels at 64 Hz, low power.
-   * - :code:`p1034`
-     - Accepted
-     - MuseS Anthena
-     - Accepted but not device-tested in this work.
-     - 4 EEG channels, 14-bit EEG at 256 Hz, accelerometer and gyro at 52 Hz, battery at 1 Hz, DRL/REF at 32 Hz, 8 optics channels at 64 Hz, high power.
-   * - :code:`p1035`
-     - Accepted
-     - MuseS Anthena
-     - Important/tested; recommended for 4 EEG plus 4 optics.
-     - 4 EEG channels, 14-bit EEG at 256 Hz, accelerometer and gyro at 52 Hz, battery at 1 Hz, DRL/REF at 32 Hz, 4 optics channels at 64 Hz, low power.
-   * - :code:`p1036`
-     - Not accepted
-     - MuseS Anthena
-     - Important missing high-power pair for :code:`p1035`.
-     - 4 EEG channels, 14-bit EEG at 256 Hz, accelerometer and gyro at 52 Hz, battery at 1 Hz, DRL/REF at 32 Hz, 4 optics channels at 64 Hz, high power.
-   * - :code:`p1041`
-     - Accepted
-     - MuseS Anthena
-     - Important/tested; default recommended full-data preset.
-     - 8 EEG channels, 14-bit EEG at 256 Hz, accelerometer and gyro at 52 Hz, battery at 1 Hz, DRL/REF at 32 Hz, 16 optics channels at 64 Hz, low power. This is the default BrainFlow preset.
-   * - :code:`p1042`
-     - Accepted
-     - MuseS Anthena
-     - Accepted but not device-tested in this work.
-     - 8 EEG channels, 14-bit EEG at 256 Hz, accelerometer and gyro at 52 Hz, battery at 1 Hz, DRL/REF at 32 Hz, 16 optics channels at 64 Hz, high power.
-   * - :code:`p1043`
-     - Accepted
-     - MuseS Anthena
-     - Accepted but not device-tested in this work.
-     - 8 EEG channels, 14-bit EEG at 256 Hz, accelerometer and gyro at 52 Hz, battery at 1 Hz, DRL/REF at 32 Hz, 8 optics channels at 64 Hz, low power.
-   * - :code:`p1044`
-     - Accepted
-     - MuseS Anthena
-     - Accepted but not device-tested in this work.
-     - 8 EEG channels, 14-bit EEG at 256 Hz, accelerometer and gyro at 52 Hz, battery at 1 Hz, DRL/REF at 32 Hz, 8 optics channels at 64 Hz, high power.
-   * - :code:`p1045`
-     - Accepted
-     - MuseS Anthena
-     - Tested; useful for comparing 8 EEG plus 4 optics low power.
-     - 8 EEG channels, 14-bit EEG at 256 Hz, accelerometer and gyro at 52 Hz, battery at 1 Hz, DRL/REF at 32 Hz, 4 optics channels at 64 Hz, low power.
-   * - :code:`p1046`
-     - Accepted
-     - MuseS Anthena
-     - Tested; high-power pair for :code:`p1045`.
-     - 8 EEG channels, 14-bit EEG at 256 Hz, accelerometer and gyro at 52 Hz, battery at 1 Hz, DRL/REF at 32 Hz, 4 optics channels at 64 Hz, high power.
-   * - :code:`p4129`
-     - Accepted
-     - Unknown
-     - Uncertain; accepted by BrainFlow but not tied to a documented Muse device family.
-     - Not tied to a documented Muse device family.
-
-Low power and high power optics presets:
-
-- Low power and high power variants have the same sampling rate and the same number of channels.
-- Low power uses lower optical emitter intensity. It uses less battery and is less likely to saturate the optical signal.
-- High power uses stronger optical emitter intensity. It can produce larger optical values and may help with weaker optical contact, but uses more battery and has a higher risk of saturation.
-- BrainFlow does not document the exact optical emitter current for these modes.
-
-For legacy Muse boards, :code:`BrainFlowInputParams.other_info` can select the startup Muse command. Use a shorthand such as :code:`p21` or a key-value form such as :code:`preset=p21`. If :code:`other_info` is empty, BrainFlow uses :code:`p21`. Muse 2016 boards accept :code:`p20` and :code:`p21`; Muse 2 boards accept :code:`p20`, :code:`p21`, :code:`p50`, and :code:`p51`; Muse S boards accept :code:`p20`, :code:`p21`, :code:`p50`, :code:`p51`, :code:`p60`, and :code:`p61`. :code:`low_latency` is only supported for MuseS Anthena.
+Muse startup commands can be selected with :code:`BrainFlowInputParams.other_info`. Use a shorthand such as :code:`p21` or a key-value form such as :code:`preset=p21`. If :code:`other_info` is empty, BrainFlow uses the default command listed in the device section. :code:`low_latency` is only supported for MuseS Anthena.
 
 
 Muse S BLED
@@ -1046,7 +879,27 @@ Supported platforms:
 - Linux
 - Devices like Raspberry Pi
 
-BrainFlow initializes this board with Muse command :code:`p21` by default. See :ref:`muse-presets-table` for Muse command availability, device support, and tested/default presets.
+BrainFlow initializes this board with Muse command :code:`p21` by default.
+
+Supported Muse commands:
+
+.. list-table::
+   :header-rows: 1
+
+   * - Command
+     - Data stream
+   * - :code:`p20`
+     - 5 EEG values and IMU data.
+   * - :code:`p21`
+     - 4 EEG channels and IMU data. This is the default.
+   * - :code:`p50`
+     - 5 EEG values, IMU data, and PPG data.
+   * - :code:`p51`
+     - 4 EEG channels, IMU data, and PPG data.
+   * - :code:`p60`
+     - Muse S extended command with 5 EEG values, IMU data, and PPG data.
+   * - :code:`p61`
+     - Muse S extended command with 4 EEG channels, IMU data, and PPG data.
 
 Available :ref:`presets-label`:
 
@@ -1091,7 +944,23 @@ Supported platforms:
 - Linux
 - Devices like Raspberry Pi
 
-BrainFlow initializes this board with Muse command :code:`p21` by default. See :ref:`muse-presets-table` for Muse command availability, device support, and tested/default presets.
+BrainFlow initializes this board with Muse command :code:`p21` by default.
+
+Supported Muse commands:
+
+.. list-table::
+   :header-rows: 1
+
+   * - Command
+     - Data stream
+   * - :code:`p20`
+     - 5 EEG values and IMU data.
+   * - :code:`p21`
+     - 4 EEG channels and IMU data. This is the default.
+   * - :code:`p50`
+     - 5 EEG values, IMU data, and PPG data.
+   * - :code:`p51`
+     - 4 EEG channels, IMU data, and PPG data.
 
 Available :ref:`presets-label`:
 
@@ -1135,7 +1004,19 @@ Supported platforms:
 - Linux
 - Devices like Raspberry Pi
 
-BrainFlow initializes this board with Muse command :code:`p21` by default. See :ref:`muse-presets-table` for Muse command availability, device support, and tested/default presets.
+BrainFlow initializes this board with Muse command :code:`p21` by default.
+
+Supported Muse commands:
+
+.. list-table::
+   :header-rows: 1
+
+   * - Command
+     - Data stream
+   * - :code:`p20`
+     - 5 EEG values and IMU data.
+   * - :code:`p21`
+     - 4 EEG channels and IMU data. This is the default.
 
 Available :ref:`presets-label`:
 
@@ -1180,7 +1061,27 @@ Supported platforms:
 - Linux, compilation from source code probably will be needed
 - Devices like Raspberry Pi
 
-BrainFlow initializes this board with Muse command :code:`p21` by default. See :ref:`muse-presets-table` for Muse command availability, device support, and tested/default presets.
+BrainFlow initializes this board with Muse command :code:`p21` by default.
+
+Supported Muse commands:
+
+.. list-table::
+   :header-rows: 1
+
+   * - Command
+     - Data stream
+   * - :code:`p20`
+     - 5 EEG values and IMU data.
+   * - :code:`p21`
+     - 4 EEG channels and IMU data. This is the default.
+   * - :code:`p50`
+     - 5 EEG values, IMU data, and PPG data.
+   * - :code:`p51`
+     - 4 EEG channels, IMU data, and PPG data.
+   * - :code:`p60`
+     - Muse S extended command with 5 EEG values, IMU data, and PPG data.
+   * - :code:`p61`
+     - Muse S extended command with 4 EEG channels, IMU data, and PPG data.
 
 Available :ref:`presets-label`:
 
@@ -1233,10 +1134,53 @@ Available :code:`other_info` options:
 - If :code:`other_info` is empty, BrainFlow uses :code:`preset=p1041;low_latency=true`.
 - :code:`other_info` can be a preset shorthand, for example :code:`p1041`.
 - :code:`other_info` can be a semicolon-separated key-value string, for example :code:`preset=p1041;low_latency=false`.
-- :code:`preset` selects the Muse streaming preset. BrainFlow accepts :code:`p20`, :code:`p21`, :code:`p50`, :code:`p51`, :code:`p60`, :code:`p61`, :code:`p1034`, :code:`p1035`, :code:`p1041`, :code:`p1042`, :code:`p1043`, :code:`p1044`, :code:`p1045`, :code:`p1046`, and :code:`p4129`.
+- :code:`preset` selects the Muse streaming command. Supported commands for this board are listed below.
 - :code:`low_latency` can be :code:`true` or :code:`false`. If enabled, BrainFlow sends the :code:`L1` command after starting the stream.
 
-BrainFlow uses Muse command :code:`p1041` by default for this board. See :ref:`muse-presets-table` for Muse command availability, device support, and tested/default presets.
+BrainFlow uses Muse command :code:`p1041` by default for this board.
+
+Supported Muse commands:
+
+.. list-table::
+   :header-rows: 1
+
+   * - Command
+     - Data stream
+   * - :code:`p20`
+     - 5 EEG values and IMU data.
+   * - :code:`p21`
+     - 4 EEG channels and IMU data.
+   * - :code:`p50`
+     - 5 EEG values, IMU data, and optics data.
+   * - :code:`p51`
+     - 4 EEG channels, IMU data, and optics data.
+   * - :code:`p60`
+     - Muse S command with 5 EEG values, IMU data, and optics data.
+   * - :code:`p61`
+     - Muse S command with 4 EEG channels, IMU data, and optics data.
+   * - :code:`p1034`
+     - 4 EEG channels, IMU data, battery data, and 8 high-power optics channels.
+   * - :code:`p1035`
+     - 4 EEG channels, IMU data, battery data, and 4 low-power optics channels.
+   * - :code:`p1041`
+     - 8 EEG values, IMU data, battery data, and 16 low-power optics channels. This is the default.
+   * - :code:`p1042`
+     - 8 EEG values, IMU data, battery data, and 16 high-power optics channels.
+   * - :code:`p1043`
+     - 8 EEG values, IMU data, battery data, and 8 low-power optics channels.
+   * - :code:`p1044`
+     - 8 EEG values, IMU data, battery data, and 8 high-power optics channels.
+   * - :code:`p1045`
+     - 8 EEG values, IMU data, battery data, and 4 low-power optics channels.
+   * - :code:`p1046`
+     - 8 EEG values, IMU data, battery data, and 4 high-power optics channels.
+
+Low power and high power optics commands:
+
+- Low power and high power variants have the same sampling rate and the same number of channels.
+- Low power uses lower optical emitter intensity. It uses less battery and is less likely to saturate the optical signal.
+- High power uses stronger optical emitter intensity. It can produce larger optical values and may help with weaker optical contact, but uses more battery and has a higher risk of saturation.
+- BrainFlow does not document the exact optical emitter current for these modes.
 
 Available :ref:`presets-label`:
 
@@ -1283,7 +1227,23 @@ Supported platforms:
 - Linux, compilation from source code probably will be needed
 - Devices like Raspberry Pi
 
-BrainFlow initializes this board with Muse command :code:`p21` by default. See :ref:`muse-presets-table` for Muse command availability, device support, and tested/default presets.
+BrainFlow initializes this board with Muse command :code:`p21` by default.
+
+Supported Muse commands:
+
+.. list-table::
+   :header-rows: 1
+
+   * - Command
+     - Data stream
+   * - :code:`p20`
+     - 5 EEG values and IMU data.
+   * - :code:`p21`
+     - 4 EEG channels and IMU data. This is the default.
+   * - :code:`p50`
+     - 5 EEG values, IMU data, and PPG data.
+   * - :code:`p51`
+     - 4 EEG channels, IMU data, and PPG data.
 
 Available :ref:`presets-label`:
 
@@ -1330,7 +1290,19 @@ Supported platforms:
 - Linux, compilation from source code probably will be needed
 - Devices like Raspberry Pi
 
-BrainFlow initializes this board with Muse command :code:`p21` by default. See :ref:`muse-presets-table` for Muse command availability, device support, and tested/default presets.
+BrainFlow initializes this board with Muse command :code:`p21` by default.
+
+Supported Muse commands:
+
+.. list-table::
+   :header-rows: 1
+
+   * - Command
+     - Data stream
+   * - :code:`p20`
+     - 5 EEG values and IMU data.
+   * - :code:`p21`
+     - 4 EEG channels and IMU data. This is the default.
 
 Available :ref:`presets-label`:
 
