@@ -112,7 +112,7 @@ index 1e851e0..144a99c 100644
  
      target_sources(simpleble PRIVATE
 diff --git a/simplecble/CMakeLists.txt b/simplecble/CMakeLists.txt
-index d1b3590..b5efb8a 100644
+index d1b3590..4a964dd 100644
 --- a/simplecble/CMakeLists.txt
 +++ b/simplecble/CMakeLists.txt
 @@ -12,13 +12,29 @@ project(
@@ -163,7 +163,7 @@ index d1b3590..b5efb8a 100644
  
  # NOTE: This is a temporary alias to ensure backwards compatibility with the old C bindings.
  add_library(simpleble-c ALIAS simplecble)
-@@ -43,14 +59,17 @@ set_target_properties(simplecble PROPERTIES
+@@ -43,15 +59,18 @@ set_target_properties(simplecble PROPERTIES
      CXX_STANDARD_REQUIRED YES
      CXX_EXTENSIONS NO
      POSITION_INDEPENDENT_CODE ON
@@ -175,6 +175,7 @@ index d1b3590..b5efb8a 100644
 -    RELEASE_POSTFIX ""
 -    RELWITHDEBINFO_POSTFIX "-relwithdebinfo"
 -    MINSIZEREL_POSTFIX "-minsizerel"
+-    DEBUG_POSTFIX "-debug")
 +    DEFINE_SYMBOL simpleble_EXPORTS
 +    VERSION "${PROJECT_VERSION}"
 +    SOVERSION "${PROJECT_VERSION_MAJOR}"
@@ -186,9 +187,10 @@ index d1b3590..b5efb8a 100644
 +    RELEASE_POSTFIX ""
 +    RELWITHDEBINFO_POSTFIX "-relwithdebinfo"
 +    MINSIZEREL_POSTFIX "-minsizerel"
-     DEBUG_POSTFIX "-debug")
++    DEBUG_POSTFIX "")
  
  # TODO: We need to migrate everything internally to use the new export header.
+ generate_export_header(
 @@ -72,12 +91,12 @@ target_include_directories(simplecble SYSTEM PUBLIC
  target_link_libraries(simplecble PRIVATE simpleble::simpleble)
  target_compile_definitions(simplecble PRIVATE SIMPLEBLE_VERSION="${PROJECT_VERSION}")

@@ -70,7 +70,7 @@ set_target_properties(simplecble PROPERTIES
     RELEASE_POSTFIX ""
     RELWITHDEBINFO_POSTFIX "-relwithdebinfo"
     MINSIZEREL_POSTFIX "-minsizerel"
-    DEBUG_POSTFIX "-debug")
+    DEBUG_POSTFIX "")
 
 # TODO: We need to migrate everything internally to use the new export header.
 generate_export_header(
