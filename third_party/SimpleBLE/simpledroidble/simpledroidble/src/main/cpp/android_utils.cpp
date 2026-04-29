@@ -3,21 +3,13 @@
 #include <android/log.h>
 #include <fmt/core.h>
 
-void log_error(const std::string& msg) {
-    __android_log_write(ANDROID_LOG_ERROR, "SimpleBLE", msg.c_str());
-}
-void log_info(const std::string& msg) {
-    __android_log_write(ANDROID_LOG_INFO, "SimpleBLE", msg.c_str());
-}
-void log_debug(const std::string& msg) {
-    __android_log_write(ANDROID_LOG_DEBUG, "SimpleBLE", msg.c_str());
-}
+void log_error(const std::string& msg) { __android_log_write(ANDROID_LOG_ERROR, "SimpleBLE", msg.c_str()); }
+void log_info(const std::string& msg) { __android_log_write(ANDROID_LOG_INFO, "SimpleBLE", msg.c_str()); }
+void log_debug(const std::string& msg) { __android_log_write(ANDROID_LOG_DEBUG, "SimpleBLE", msg.c_str()); }
 
-jstring to_jstring(JNIEnv* env, const std::string& str){
-    return env->NewStringUTF(str.c_str());
-}
+jstring to_jstring(JNIEnv* env, const std::string& str) { return env->NewStringUTF(str.c_str()); }
 
-std::string from_jstring(JNIEnv* env, jstring str){
+std::string from_jstring(JNIEnv* env, jstring str) {
     const char* c_str = env->GetStringUTFChars(str, nullptr);
     std::string result(c_str);
     env->ReleaseStringUTFChars(str, c_str);
@@ -38,7 +30,6 @@ jbyteArray to_jbyteArray(JNIEnv* env, const std::string& data) {
     log_debug(arrayOut);
 
     env->ReleaseByteArrayElements(result, bytes, JNI_ABORT);
-
 
     return result;
 }

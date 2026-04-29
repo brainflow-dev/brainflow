@@ -1,0 +1,211 @@
+@import "tailwindcss";
+@import "fumadocs-ui/css/neutral.css";
+@import "fumadocs-ui/css/preset.css";
+
+:root {
+  --background: #ffffff;
+  --foreground: #171717;
+
+  --primary: #217ff1;
+  --primary-foreground: #ffffff;
+
+  --secondary: #6b6b6b;
+  --secondary-foreground: #ffffff;
+
+  --muted: #f4f4f5;
+  --muted-foreground: #6b6b6b;
+
+  --card: #ffffff;
+  --card-foreground: #171717;
+
+  --accent: #217ff1;
+  --accent-foreground: #ffffff;
+
+  --border: #e4e4e7;
+  --input: #e4e4e7;
+  --ring: #217ff1;
+
+  --destructive: #ef4444;
+  --destructive-foreground: #ffffff;
+
+  /* Fumadocs overrides */
+  --fd-primary: #217ff1;
+  --fd-primary-foreground: #ffffff;
+  --fd-background: #ffffff;
+  --fd-foreground: #171717;
+  --fd-border: #e4e4e7;
+  --fd-nav-height: 96px !important;
+}
+
+@media (min-width: 768px) {
+  :root {
+    --fd-nav-height: 96px !important;
+  }
+}
+
+@media (min-width: 2560px) {
+  :root {
+    --fd-nav-height: 120px !important;
+  }
+}
+
+.dark {
+  --background: #0a0a0a;
+  --foreground: #ededed;
+
+  --primary: #217ff1;
+  --primary-foreground: #ffffff;
+
+  --secondary: #6b6b6b;
+  --secondary-foreground: #ffffff;
+
+  --muted: #27272a;
+  --muted-foreground: #a1a1aa;
+
+  --card: #6b6b6b;
+  --card-foreground: #ffffff;
+
+  --accent: #217ff1;
+  --accent-foreground: #ffffff;
+
+  --border: #27272a;
+  --input: #27272a;
+  --ring: #217ff1;
+
+  --destructive: #ef4444;
+  --destructive-foreground: #ffffff;
+
+  /* Fumadocs overrides for dark mode */
+  --fd-primary: #217ff1;
+  --fd-primary-foreground: #ffffff;
+  --fd-background: #0a0a0a;
+  --fd-foreground: #ededed;
+  --fd-border: #27272a;
+}
+
+@theme inline {
+  /* 4K breakpoint for large displays (2560px) */
+  --breakpoint-4k: 2560px;
+
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+  --font-sora: var(--font-sora);
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+}
+
+/* Docs UI Refinements */
+.prose {
+  --tw-prose-body: var(--fd-foreground);
+  --tw-prose-headings: var(--fd-foreground);
+  --tw-prose-links: var(--primary);
+  --tw-prose-bold: var(--fd-foreground);
+  --tw-prose-counters: var(--fd-muted-foreground);
+  --tw-prose-bullets: var(--fd-muted-foreground);
+  --tw-prose-hr: var(--fd-border);
+  --tw-prose-quotes: var(--fd-foreground);
+  --tw-prose-quote-borders: var(--primary);
+  --tw-prose-captions: var(--fd-muted-foreground);
+  --tw-prose-code: var(--fd-foreground);
+  --tw-prose-pre-code: var(--fd-foreground);
+  --tw-prose-pre-bg: var(--fd-muted);
+  --tw-prose-th-borders: var(--fd-border);
+  --tw-prose-td-borders: var(--fd-border);
+}
+
+.prose strong {
+  font-weight: 700;
+}
+
+a {
+  text-decoration-color: var(--primary);
+}
+
+/* Sidebar styling */
+#nd-sidebar {
+  border-right: 1px solid color-mix(in srgb, var(--fd-border), transparent 50%);
+  background: color-mix(in srgb, var(--fd-background), transparent 20%);
+  backdrop-filter: blur(8px);
+}
+
+/* TOC styling */
+.fd-toc {
+  border-left: 1px solid color-mix(in srgb, var(--fd-border), transparent 50%);
+}
+
+.fd-toc [data-active="true"] {
+  color: var(--primary);
+}
+
+/* Scroll progress bar customization */
+.fd-toc-progress {
+  background-color: var(--primary) !important;
+}
+
+.fd-toc-item[data-active="true"] {
+  color: var(--primary) !important;
+}
+
+/* Background gradient for docs pages */
+#nd-docs-layout {
+  background-image: radial-gradient(
+    circle at 50% 0%,
+    color-mix(in srgb, var(--primary), transparent 95%) 0%,
+    transparent 50%
+  );
+  background-attachment: fixed;
+}
+
+/* Center the desktop sidebar header row (logo/title). */
+#nd-sidebar > div > div.flex:first-child {
+  width: 100%;
+  justify-content: center;
+}
+
+/* Primary color override */
+.bg-fd-primary[data-hidden="false"] {
+  background-color: #217ff1 !important;
+}
+
+[data-active="true"] {
+  color: #217ff1 !important; /* Mismo color rosa para consistencia */
+}
+
+/* Ensure mobile sidebar has higher z-index than page action buttons */
+@media (max-width: 767px) {
+  /* Fumadocs mobile sidebar overlay should be above everything */
+  [data-sidebar="mobile"],
+  [data-sidebar-mobile],
+  #nd-sidebar[data-mobile="true"] {
+    z-index: 50 !important;
+  }
+
+  /* Ensure sidebar overlay/backdrop is above content */
+  [data-sidebar-overlay] {
+    z-index: 49 !important;
+  }
+}

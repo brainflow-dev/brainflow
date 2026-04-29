@@ -15,6 +15,44 @@ elseif(CMAKE_GENERATOR_PLATFORM MATCHES "^[Xx]64$")
     set(WINDOWS_TARGET_ARCH x64)
 endif()
 
+if(MSVC)
+    add_definitions(-D_CRT_SECURE_NO_WARNINGS -D_SILENCE_TR1_NAMESPACE_DEPRECATION_WARNING -D_CRT_NONSTDC_NO_DEPRECATE)
+
+    if("${MSVC_RUNTIME}" STREQUAL "")
+        set(MSVC_RUNTIME "static")
+    endif()
+
+    set(MSVC_RUNTIME_VARIABLES
+        CMAKE_C_FLAGS_DEBUG
+        CMAKE_C_FLAGS_MINSIZEREL
+        CMAKE_C_FLAGS_RELEASE
+        CMAKE_C_FLAGS_RELWITHDEBINFO
+        CMAKE_CXX_FLAGS_DEBUG
+        CMAKE_CXX_FLAGS_MINSIZEREL
+        CMAKE_CXX_FLAGS_RELEASE
+        CMAKE_CXX_FLAGS_RELWITHDEBINFO)
+
+    if("${MSVC_RUNTIME}" STREQUAL "static")
+        message(STATUS "MSVC -> forcing use of statically-linked runtime.")
+        set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
+        foreach(variable ${MSVC_RUNTIME_VARIABLES})
+            if("${${variable}}" MATCHES "/MD")
+                string(REGEX REPLACE "/MD" "/MT" ${variable} "${${variable}}")
+            endif()
+        endforeach()
+    elseif("${MSVC_RUNTIME}" STREQUAL "dynamic")
+        message(STATUS "MSVC -> forcing use of dynamically-linked runtime.")
+        set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>DLL")
+        foreach(variable ${MSVC_RUNTIME_VARIABLES})
+            if("${${variable}}" MATCHES "/MT")
+                string(REGEX REPLACE "/MT" "/MD" ${variable} "${${variable}}")
+            endif()
+        endforeach()
+    else()
+        message(FATAL_ERROR "Unsupported MSVC_RUNTIME value '${MSVC_RUNTIME}', expected 'static' or 'dynamic'.")
+    endif()
+endif()
+
 macro(apply_build_options
     TARGET
     PRIVATE_COMPILE_DEFINITIONS
@@ -74,3 +112,8 @@ macro(append_sanitize_options MODIFIER)
     endif()
 
 endmacro()
+
+# Define the list of source files with relative paths
+set(SIMPLEJNI_SOURCES
+    "${CMAKE_CURRENT_LIST_DIR}/../dependencies/internal/src/simplejni/Common.cpp"
+)

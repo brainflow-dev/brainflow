@@ -10,10 +10,10 @@
 DLLLoader *BLELibBoard::dll_loader = NULL;
 std::mutex BLELibBoard::mutex;
 #else
-#include "simpleble_c/adapter.h"
-#include "simpleble_c/peripheral.h"
-#include "simpleble_c/simpleble.h"
-#include "simpleble_c/utils.h"
+#include "simplecble/adapter.h"
+#include "simplecble/peripheral.h"
+#include "simplecble/simplecble.h"
+#include "simplecble/utils.h"
 #endif
 
 BLELibBoard::BLELibBoard (int board_id, struct BrainFlowInputParams params)

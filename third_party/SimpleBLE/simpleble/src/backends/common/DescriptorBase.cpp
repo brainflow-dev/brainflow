@@ -1,7 +1,4 @@
-#include <simpleble/Descriptor.h>
-
 #include "DescriptorBase.h"
-#include "DescriptorBuilder.h"
 
 using namespace SimpleBLE;
 

@@ -1,0 +1,129 @@
+name: "Build Native Target"
+description: "Builds and installs a CMake target on Linux, Windows, macOS, iOS, or Android."
+
+inputs:
+  source-dir:
+    description: "Path to the source directory containing CMakeLists.txt"
+    required: true
+  build-dir:
+    description: "Path for the CMake build directory (e.g., build_linux_x64)"
+    required: true
+  install-prefix:
+    description: 'Directory where the target will be installed via "cmake --install"'
+    default: ""
+  build-config:
+    description: "CMake build configuration (e.g., Release, Debug)"
+    default: "Release"
+  cmake-options: # Platform-specific options
+    description: "Additional options to pass to the initial CMake configuration command (e.g., -DSOME_FLAG=ON)"
+    default: ""
+  parallel-jobs:
+    description: "Number of parallel jobs to use for building (empty means default to CPU cores)"
+    default: "" # Empty means default to CPU cores
+  os:
+    description: "Operating system (e.g., linux, windows, macos, ios, android)"
+    required: true
+  target-arch:
+    description: "Target architecture (x64, aarch64, or x86). Defaults to x64."
+    required: false
+    default: "x64"
+  linux-use-system-dbus:
+    description: "Use system DBus instead of building it from source"
+    default: "false"
+
+# TODO: Add an option to select the target architecture.
+
+runs:
+  using: "composite"
+  steps:
+    - name: Setup Environment (Linux)
+      if: inputs.os == 'linux' && inputs.linux-use-system-dbus == 'false'
+      uses: ./.github/actions/build-dbus-full
+      with:
+        os: ${{ inputs.os }}
+        arch: ${{ inputs.target-arch }}
+
+    - name: Setup Environment (Windows)
+      if: inputs.os == 'windows'
+      uses: microsoft/setup-msbuild@v1.1
+
+    - name: Setup CMake (macOS)
+      if: inputs.os == 'macos'
+      uses: ./.github/actions/setup-cmake
+
+    - name: Prepare Environment
+      shell: bash
+      run: |
+        echo "BUILD_TYPE=${{ inputs.build-config }}" >> $GITHUB_ENV
+        echo "PARALLEL_JOBS=${{ inputs.parallel-jobs }}" >> $GITHUB_ENV
+
+        _BASE_CMAKE_OPTIONS="${{ inputs.cmake-options }}"
+
+        if [ "${{ inputs.os }}" == "windows" ]; then
+          _ARCH_FLAG=""
+          if [ "${{ inputs.target-arch }}" == "x64" ]; then
+            _ARCH_FLAG="-A x64"
+          elif [ "${{ inputs.target-arch }}" == "aarch64" ]; then
+            _ARCH_FLAG="-A ARM64"
+          elif [ "${{ inputs.target-arch }}" == "x86" ]; then
+            _ARCH_FLAG="-A Win32"
+          fi
+          echo "CMAKE_OPTIONS=-G \"Visual Studio 17 2022\" $_ARCH_FLAG -DCMAKE_SYSTEM_VERSION=\"10.0.19041.0\" $_BASE_CMAKE_OPTIONS" >> $GITHUB_ENV
+          echo "SHELL=bash" >> $GITHUB_ENV
+        elif [ "${{ inputs.os }}" == "macos" ]; then
+          _ARCH_FLAG=""
+          if [ "${{ inputs.target-arch }}" == "x64" ]; then
+            _ARCH_FLAG="-DCMAKE_OSX_ARCHITECTURES=x86_64"
+          elif [ "${{ inputs.target-arch }}" == "aarch64" ]; then
+            _ARCH_FLAG="-DCMAKE_OSX_ARCHITECTURES=arm64"
+          elif [ "${{ inputs.target-arch }}" == "x86" ]; then
+             _ARCH_FLAG="-DCMAKE_OSX_ARCHITECTURES=i386"
+          fi
+
+          echo "CMAKE_OPTIONS=$_ARCH_FLAG -DCMAKE_OSX_DEPLOYMENT_TARGET=13 $_BASE_CMAKE_OPTIONS" >> $GITHUB_ENV
+          echo "SHELL=bash" >> $GITHUB_ENV
+        elif [ "${{ inputs.os }}" == "ios" ]; then
+          # Note: Basic iOS configuration. Assumes Xcode environment is set up correctly
+          # on the runner (especially for finding the correct SDK).
+          # Device vs Simulator builds might require CMAKE_OSX_SYSROOT or a specific CMake toolchain file
+          # for robust SDK and toolchain detection.
+          _ARCH_FLAG_VALUE=""
+          if [ "${{ inputs.target-arch }}" == "aarch64" ]; then
+             _ARCH_FLAG_VALUE="arm64" # For iOS devices or simulators on Apple Silicon
+          elif [ "${{ inputs.target-arch }}" == "x64" ]; then
+             _ARCH_FLAG_VALUE="x86_64" # For iOS simulators on Intel
+          # elif [ "${{ inputs.target-arch }}" == "x86" ]; then
+          #    _ARCH_FLAG_VALUE="i386" # For older iOS simulators (less common now)
+          fi
+
+          if [ -n "$_ARCH_FLAG_VALUE" ]; then
+            # Set CMake options required for iOS cross-compilation
+            echo "CMAKE_OPTIONS=-DCMAKE_SYSTEM_NAME=iOS -DCMAKE_OSX_ARCHITECTURES=$_ARCH_FLAG_VALUE -DCMAKE_OSX_DEPLOYMENT_TARGET=15.8 $_BASE_CMAKE_OPTIONS" >> $GITHUB_ENV
+          else
+            echo "Unsupported target architecture for iOS: ${{ inputs.target-arch }}"
+            exit 1
+          fi
+          echo "SHELL=bash" >> $GITHUB_ENV
+        elif [ "${{ inputs.os }}" == "android" ]; then
+          echo "CMAKE_OPTIONS=-DCMAKE_SYSTEM_NAME=Android -DCMAKE_SYSTEM_VERSION=31 -DCMAKE_ANDROID_ARCH_ABI=${{ inputs.target-arch }} $_BASE_CMAKE_OPTIONS" >> $GITHUB_ENV
+          echo "SHELL=bash" >> $GITHUB_ENV
+        else  # Linux
+          echo "CMAKE_OPTIONS=-DCMAKE_PREFIX_PATH=/tmp/install $_BASE_CMAKE_OPTIONS" >> $GITHUB_ENV
+          echo "SHELL=bash" >> $GITHUB_ENV
+        fi
+
+    - name: Configure CMake
+      shell: ${{ env.SHELL }}
+      run: |
+        cmake -B "${{ inputs.build-dir }}" -S "${{ inputs.source-dir }}" -DCMAKE_BUILD_TYPE="${{ env.BUILD_TYPE }}" ${{ env.CMAKE_OPTIONS }}
+
+    - name: Build Target
+      shell: ${{ env.SHELL }}
+      run: |
+        cmake --build "${{ inputs.build-dir }}" --config "${{ env.BUILD_TYPE }}" $([ -n "${{ env.PARALLEL_JOBS }}" ] && echo "--parallel ${{ env.PARALLEL_JOBS }}" || echo "--parallel")
+
+    - name: Install Target
+      if: inputs.install-prefix != ''
+      shell: ${{ env.SHELL }}
+      run: |
+        cmake --install "${{ inputs.build-dir }}" --prefix "${{ inputs.install-prefix }}"

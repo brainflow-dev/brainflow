@@ -1,0 +1,119 @@
+---
+title: Extras
+description: Additional information and resources for SimpleBLE.
+---
+
+## Building documentation
+
+The documentation for SimpleBLE is built using [Fumadocs](https://fumadocs.vercel.app/), a Next.js-based documentation framework.
+
+### Prerequisites
+
+- Node.js 18+ or Bun
+- npm, pnpm, or bun package manager
+
+### Installation
+
+First, install the dependencies:
+
+```bash
+cd <path-to-repository>/docs-new
+npm install
+# or
+bun install
+```
+
+### Development
+
+To run the documentation site in development mode with hot reload:
+
+```bash
+npm run dev
+# or
+bun dev
+```
+
+The documentation will be available at `http://localhost:3000`.
+
+### Building for Production
+
+To build the documentation for production:
+
+```bash
+npm run build
+# or
+bun run build
+```
+
+To preview the production build locally:
+
+```bash
+npm run start
+# or
+bun start
+```
+
+### Content Structure
+
+- **Content files**: Located in `docs-new/content/docs/`
+- **Components**: Located in `docs-new/src/components/`
+- **API documentation**: Generated using custom React components in `docs-new/src/components/api/`
+
+Documentation is written in MDX (Markdown with JSX), allowing you to use React components within your documentation.
+
+## Release checklist
+
+Before releasing a new version of the project, the following steps should be performed:
+
+1. Ensure content parity between all readmes and the documentation.
+
+   - `README.rst`
+   - `LICENSE.md`
+   - `simplepyble/README.rst`
+   - `simplersble/README.md`
+
+2. Review the version number in the following files, make sure they match:
+
+   - `VERSION`
+   - `Cargo.toml` (Remove the -dev1 suffix)
+   - `docs/content/docs/changelog.rst` (Add the release date)
+   - `simpleaible/pyproject.toml` (Remove the -dev1 suffix)
+
+3. Commit the changes to the repository.
+
+4. Tag the commit with the new version number.
+
+5. Push the commit and the tag to the remote repository.
+
+6. Create a new release on GitHub.
+
+7. Wait for `ci_release.yml` to finish.
+
+8. Advance the version number in the following files:
+
+   - `VERSION`
+   - `Cargo.toml` (and include a `-dev1` suffix)
+   - `docs/content/docs/changelog.rst`
+   - `simpleaible/pyproject.toml` (and include a `-dev1` suffix)
+
+9. Run `cargo build` to ensure that `Cargo.toml` is correct.
+
+10. Run `minion deploy` to deploy the documentation.
+
+11. TODO: SOCIAL MEDIA
+
+## Hardware In The Loop - Recommended Tests
+
+- Attempt connecting while already connected.
+- Attempt disconnecting while not connected.
+
+## Documentation Structure Guide
+
+When adding documentation for new components or language bindings, follow this standardized structure to ensure consistency and a high-quality onboarding experience:
+
+1.  **Usage**: Detail installation, system requirements, and how to include the library in a project (CMake, package managers, etc.).
+2.  **Platform Notes**: Document OS-specific behaviors, limitations, and quirks. This is critical for Bluetooth-related components.
+3.  **Tutorial**: Provide a narrative, step-by-step guide that takes the user from a basic "Hello World" (e.g., listing adapters) to more advanced interactions (scanning, connecting, reading/writing).
+4.  **API Reference**: Use the `<ApiSection>`, `<ApiClass>`, and `<ApiMethod>` components to provide technical details for every public class and method.
+5.  **Examples**: Provide a curated list of use-cases with descriptions and direct links to the source code in the repository.
+6.  **FAQ**: Address common questions, troubleshooting steps, and platform-specific nuances that don't fit in the tutorial.

@@ -1,0 +1,73 @@
+FROM dockcross/linux-x64:latest as build-dbus1
+
+# Set ARGs for versions (hashes) from GitHub Action
+ARG EXPAT_HASH=6d4ffe856df497ac2cae33537665c3fec7ec8a00
+ARG DBUS_HASH=958bf9db2100553bcd2fe2a854e1ebb42e886054
+
+# Set DEBIAN_FRONTEND to noninteractive to prevent interactive prompts
+ENV DEBIAN_FRONTEND=noninteractive
+
+# System updates and installation of build dependencies
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends \
+    git \
+    cmake \
+    build-essential \
+    pkg-config && \
+    # Attempt to remove libexpat1-dev as per the GitHub Action; ignore errors if not found.
+    (apt-get remove -y libexpat1-dev || true) && \
+    # Clean up apt cache to reduce image size
+    rm -rf /var/lib/apt/lists/*
+
+# Define a common installation prefix for built libraries
+ENV INSTALL_PREFIX=/artifacts
+# Create the installation directory
+RUN mkdir -p ${INSTALL_PREFIX}
+
+# Build Expat
+# Set working directory for Expat build
+WORKDIR /tmp/src/expat
+RUN git clone https://github.com/libexpat/libexpat.git . && \
+    # The CMakeLists.txt for expat is in the 'expat' subdirectory
+    cd expat && \
+    git checkout ${EXPAT_HASH} && \
+    cmake -B build \
+        -DCMAKE_INSTALL_PREFIX=${INSTALL_PREFIX} \
+        -DEXPAT_BUILD_DOCS=OFF \
+        -DEXPAT_BUILD_EXAMPLES=OFF \
+        -DEXPAT_BUILD_TESTS=OFF && \
+    cmake --build build --config Release --parallel $(nproc) && \
+    cmake --install build --prefix ${INSTALL_PREFIX} && \
+    # Clean up Expat source directory
+    rm -rf /tmp/src/expat
+
+# Build DBus
+# Set working directory for DBus build
+WORKDIR /tmp/src/dbus
+# Ensure pkg-config can find the custom-built expat.
+# CMAKE_PREFIX_PATH will also be set for the cmake command.
+ENV PKG_CONFIG_PATH=${INSTALL_PREFIX}/lib/pkgconfig:${INSTALL_PREFIX}/lib64/pkgconfig:${PKG_CONFIG_PATH}
+RUN git clone https://gitlab.freedesktop.org/dbus/dbus.git . && \
+    git checkout ${DBUS_HASH} && \
+    cmake -B build \
+        -DCMAKE_INSTALL_PREFIX=${INSTALL_PREFIX} \
+        -DCMAKE_PREFIX_PATH=${INSTALL_PREFIX} \
+        -DDBUS_SESSION_SOCKET_DIR=/usr/local/var/run/dbus/system_bus_socket \
+        -DDBUS_BUILD_TESTS=OFF && \
+    cmake --build build --config Release --parallel $(nproc) && \
+    cmake --install build --prefix ${INSTALL_PREFIX} && \
+    # Clean up DBus source directory
+    rm -rf /tmp/src/dbus
+
+# =========================================================================
+
+FROM dockcross/linux-x64:latest
+COPY --from=build-dbus1 /artifacts /tmp/install
+
+ENV RUSTUP_HOME=/usr/local/rustup \
+    CARGO_HOME=/usr/local/cargo \
+    PATH=/usr/local/cargo/bin:$PATH \
+    RUST_VERSION=1.87.0
+
+RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y --no-modify-path --profile minimal --default-toolchain $RUST_VERSION && \
+    chmod -R a+w $RUSTUP_HOME $CARGO_HOME;

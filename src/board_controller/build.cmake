@@ -113,7 +113,7 @@ if (BUILD_BLUETOOTH)
 endif (BUILD_BLUETOOTH)
 
 if (BUILD_BLE)
-    add_subdirectory (${CMAKE_CURRENT_SOURCE_DIR}/third_party/SimpleBLE/simpleble)
+    add_subdirectory (${CMAKE_CURRENT_SOURCE_DIR}/third_party/SimpleBLE/simplecble)
 endif (BUILD_BLE)
 
 add_library (
@@ -146,7 +146,7 @@ target_include_directories (
     ${CMAKE_CURRENT_SOURCE_DIR}/third_party/ant_neuro
     ${CMAKE_CURRENT_SOURCE_DIR}/src/board_controller/ant_neuro/inc
     ${CMAKE_CURRENT_SOURCE_DIR}/src/board_controller/enophone/inc
-    ${CMAKE_CURRENT_SOURCE_DIR}/third_party/SimpleBLE/simpleble/include
+    ${CMAKE_CURRENT_SOURCE_DIR}/third_party/SimpleBLE/simplecble/include
     ${CMAKE_CURRENT_SOURCE_DIR}/src/board_controller/brainalive/inc
     ${CMAKE_CURRENT_SOURCE_DIR}/src/board_controller/mentalab/inc
     ${CMAKE_CURRENT_SOURCE_DIR}/src/board_controller/emotibit/inc

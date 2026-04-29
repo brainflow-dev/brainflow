@@ -4,8 +4,10 @@
 _build
 _doxygen
 _skbuild
+.gradle
 
 /build_*
+/install_*
 /dist
 
 __pycache__
@@ -13,3 +15,11 @@ __pycache__
 wheelhouse
 
 target
+.cache
+
+.cursor
+.venv
+uv.lock
+
+node_modules/
+

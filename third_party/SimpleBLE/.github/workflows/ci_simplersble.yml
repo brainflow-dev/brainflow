@@ -1,0 +1,60 @@
+name: CI Build SimpleRsBLE
+
+on:
+  workflow_call:
+
+jobs:
+  build:
+    runs-on: ${{ matrix.config.runner-os || 'ubuntu-latest' }}
+    container: ${{ matrix.config.container-image }}
+    strategy:
+      fail-fast: false
+      matrix:
+        config:
+          # NOTE: Cross-compilation for non-standard architectures is not worth for testing purposes, as it's a PITA to work around `cc-rs` issues.
+          - { runner-os: ubuntu-22.04, os: linux, architecture: x64, container-image: dockcross/linux-x64 }
+          - { runner-os: ubuntu-22.04, os: linux, architecture: x86, container-image: dockcross/linux-x86 }
+          #- { runner-os: ubuntu-22.04, os: linux, architecture: aarch64, container-image: dockcross/linux-arm64 }
+          #- { runner-os: ubuntu-22.04, os: linux, architecture: armv6, container-image: dockcross/linux-armv6-lts }
+          - { runner-os: macos-14, os: macos, architecture: x64 } # Containers are not required.
+          - { runner-os: macos-14, os: macos, architecture: aarch64 } # Containers are not required.
+          - { runner-os: macos-14, os: ios, architecture: aarch64 } # Containers are not required.
+          - { runner-os: windows-2022, os: windows, architecture: x64 } # Containers are not required.
+          - { runner-os: windows-2022, os: windows, architecture: x86 } # Containers are not required.
+        build-type-cmd:
+          - ""
+          - "--release"
+
+    steps:
+      - name: Clone Repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          fetch-tags: true
+
+      - name: Setup Environment (Linux)
+        if: matrix.config.os == 'linux'
+        uses: ./.github/actions/build-dbus-full
+        with:
+          os: ${{ matrix.config.os }}
+          arch: ${{ matrix.config.architecture }}
+
+      - name: Setup Environment (Windows)
+        if: matrix.config.os == 'windows'
+        uses: microsoft/setup-msbuild@v1.1
+
+      - name: Setup CMake (macOS)
+        if: matrix.config.os == 'macos'
+        uses: ./.github/actions/setup-cmake
+
+      - name: Add Version Suffix
+        uses: ./.github/actions/setup-version
+
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Compile SimpleBLE
+        run: |
+          cargo install cargo-edit --bin cargo-set-version
+          cargo set-version ${{ env.VERSION }}
+          cargo build ${{ matrix.build-type-cmd }}

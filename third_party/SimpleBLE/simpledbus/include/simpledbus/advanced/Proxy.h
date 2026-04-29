@@ -1,8 +1,10 @@
 #pragma once
 
+#include <simpledbus/base/Connection.h>
+
 #include <simpledbus/advanced/Interface.h>
-#include <simpledbus/external/kvn_safe_callback.hpp>
 #include <simpledbus/base/Path.h>
+#include <kvn/kvn_safe_callback.hpp>
 
 #include <memory>
 #include <mutex>
@@ -10,13 +12,17 @@
 
 namespace SimpleDBus {
 
-class Proxy {
+class Interface;
+
+class Proxy : public std::enable_shared_from_this<Proxy> {
   public:
     Proxy(std::shared_ptr<Connection> conn, const std::string& bus_name, const std::string& path);
     virtual ~Proxy();
 
     bool valid() const;
+    void invalidate();
     std::string path() const;
+    std::string bus_name() const;
 
     bool path_exists(const std::string& path);
     std::shared_ptr<Proxy> path_get(const std::string& path);
@@ -27,13 +33,18 @@ class Proxy {
     const std::map<std::string, std::shared_ptr<Proxy>>& children();
     const std::map<std::string, std::shared_ptr<Interface>>& interfaces();
 
-    virtual std::shared_ptr<Interface> interfaces_create(const std::string& name);
     virtual std::shared_ptr<Proxy> path_create(const std::string& path);
 
     // ----- INTROSPECTION -----
+    // ! TODO: This should be moved to the Introspectable interface.
     std::string introspect();
 
     // ----- INTERFACE HANDLING -----
+    // // ! We are making the assumption that the Properties interface is always available.
+    // std::shared_ptr<Properties> properties() {
+    //     return std::dynamic_pointer_cast<Properties>(interface_get("org.freedesktop.DBus.Properties"));
+    // }
+
     size_t interfaces_count();
     bool interfaces_loaded();
     void interfaces_load(Holder managed_interfaces);
@@ -44,16 +55,21 @@ class Proxy {
     void path_add(const std::string& path, Holder managed_interfaces);
     bool path_remove(const std::string& path, Holder removed_interfaces);
     bool path_prune();
-    void path_append_child(const std::string& path, std::shared_ptr<Proxy> child);
+    Holder path_collect();
 
+    // ----- MANUAL CHILD HANDLING -----
+    // ! This function is used to manually add children to the proxy.
+    void path_append_child(const std::string& path, std::shared_ptr<Proxy> child);
+    void path_remove_child(const std::string& path);
     // ----- MESSAGE HANDLING -----
-    void message_forward(Message& msg);
+    void message_handle(Message& msg);
 
     // ----- CALLBACKS -----
     kvn::safe_callback<void(std::string)> on_child_created;
-    kvn::safe_callback<void(std::string)> on_child_signal_received;
+    kvn::safe_callback<void()> on_signal_received;
 
     // ----- TEMPLATE METHODS -----
+    // ! This method returns a Proxy descendant object.
     template <typename T>
     std::vector<std::shared_ptr<T>> children_casted() {
         std::vector<std::shared_ptr<T>> result;
@@ -64,18 +80,30 @@ class Proxy {
         return result;
     }
 
+    // ! This method returns a Proxy descendant object.
     template <typename T>
     std::vector<std::shared_ptr<T>> children_casted_with_prefix(const std::string& prefix) {
         std::vector<std::shared_ptr<T>> result;
         std::scoped_lock lock(_child_access_mutex);
         for (auto& [path, child] : _children) {
-            const std::string next_child = SimpleDBus::Path::next_child_strip(_path, path);
+            const std::string next_child = SimpleDBus::PathUtils::next_child_strip(_path, path);
             if (next_child.find(prefix) == 0) {
                 result.push_back(std::dynamic_pointer_cast<T>(child));
             }
         }
         return result;
     }
+
+    template <typename T>
+    static std::shared_ptr<T> create(std::shared_ptr<Connection> conn, const std::string& bus_name, const std::string& path) {
+        auto child = std::make_shared<T>(conn, bus_name, path);
+        child->on_registration();
+        child->register_object_path();
+        return std::dynamic_pointer_cast<T>(child);
+    }
+
+    // ----- INTERNAL CALLBACKS -----
+    virtual void on_registration();
 
   protected:
     bool _valid;
@@ -89,6 +117,12 @@ class Proxy {
 
     std::recursive_mutex _interface_access_mutex;
     std::recursive_mutex _child_access_mutex;
+
+  private:
+    // ----- PATH HANDLING -----
+    bool _registered;
+    void register_object_path();
+    void unregister_object_path();
 };
 
 }  // namespace SimpleDBus

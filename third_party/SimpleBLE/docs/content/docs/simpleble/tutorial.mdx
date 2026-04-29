@@ -1,0 +1,208 @@
+---
+title: Tutorial
+description: Get up and running with SimpleBLE.
+---
+
+In this page you'll find all the information you need to get up and running with SimpleBLE.
+
+## Getting started
+
+Your first step towards using SimpleBLE is to download and install the library following the instructions in the [usage](./usage) page. Once you have installed the library, you need to understand a few basic concepts about how SimpleBLE is organized.
+
+To access all classes provided by SimpleBLE, you can go the easy route and include everything with just one single header file:
+
+```cpp
+#include <simpleble/SimpleBLE.h>
+```
+
+In SimpleBLE, everything revolves around two main object types: A `SimpleBLE::Adapter` representing a physical Bluetooth adapter, and a `SimpleBLE::Peripheral` representing the Bluetooth device you are communicating with. If you wish to be more specific and only consume what you need, you have the following list of headers available. Take into account that each header file will automatically include the ones underneath in the list.
+
+```cpp
+#include <simpleble/Adapter.h>
+#include <simpleble/Peripheral.h>
+#include <simpleble/Service.h>
+#include <simpleble/Characteristic.h>
+#include <simpleble/Descriptor.h>
+```
+
+One you have the correct header files included, you have two functions that should act as a starting point for every program. The first one is `SimpleBLE::Adapter::bluetooth_enabled()`, which will let you know if Bluetooth is enabled and permissions have been given to the running app. The second one is `SimpleBLE::Adapter::get_adapters()`, which will provide a list of all available adapters that can be used. The following code snippet shows how to use these functions:
+
+```cpp
+#include <simpleble/SimpleBLE.h>
+#include <iostream>
+
+int main(int argc, char** argv) {
+   if (!SimpleBLE::Adapter::bluetooth_enabled()) {
+      std::cout << "Bluetooth is not enabled" << std::endl;
+      return 1;
+   }
+
+   auto adapters = SimpleBLE::Adapter::get_adapters();
+   if (adapters.empty()) {
+      std::cout << "No Bluetooth adapters found" << std::endl;
+      return 1;
+   }
+
+   // Use the first adapter
+   auto adapter = adapters[0];
+
+   // Do something with the adapter
+   std::cout << "Adapter identifier: " << adapter.identifier() << std::endl;
+   std::cout << "Adapter address: " << adapter.address() << std::endl;
+
+   return 0;
+}
+```
+
+The above code will print the identifier and address of the first adapter found using `SimpleBLE::Adapter::identifier()` and `SimpleBLE::Adapter::address()`, respectively. If you have more than one adapter, you can use the identifier to select the one you want to use. The identifier is a string that uniquely identifies the adapter within the operating system. The address is a string that represents the MAC address of the adapter.
+
+## Scanning for peripherals
+
+Once you have a list of available adapters, you can start scanning for peripherals. To do so, you need to create an `SimpleBLE::Adapter` object and call the `SimpleBLE::Adapter::scan_for()` method. This method will return a list of `SimpleBLE::Peripheral` objects that are in range of the adapter.
+
+```cpp
+// Get a list of all available adapters
+std::vector<SimpleBLE::Adapter> adapters = SimpleBLE::Adapter::get_adapters();
+
+// Get the first adapter
+SimpleBLE::Adapter adapter = adapters[0];
+
+// Scan for peripherals for 5000 milliseconds
+adapter.scan_for(5000);
+
+// Get the list of peripherals found
+std::vector<SimpleBLE::Peripheral> peripherals = adapter.scan_get_results();
+
+// Print the identifier of each peripheral
+for (auto peripheral : peripherals) {
+    std::cout << "Peripheral identifier: " << peripheral.identifier() << std::endl;
+    std::cout << "Peripheral address: " << peripheral.address() << std::endl;
+}
+```
+
+The above code will print the identifier and address of each peripheral found using `SimpleBLE::Peripheral::identifier()` and `SimpleBLE::Peripheral::address()`, respectively.
+
+Additionally, you can use `SimpleBLE::Adapter::scan_start()` and `SimpleBLE::Adapter::scan_stop()` to start and stop scanning asynchronously. This is useful if you want to scan for peripherals in the background while performing other tasks. For this use case you can supply callback functions to receive notifications for different scan-related events by calling `SimpleBLE::Adapter::set_callback_on_scan_start()`, `SimpleBLE::Adapter::set_callback_on_scan_stop()`, `SimpleBLE::Adapter::set_callback_on_scan_updated()` and `SimpleBLE::Adapter::set_callback_on_scan_found()`. The following code snippet shows how to use these functions:
+
+```cpp
+// Set the callback to be called when the scan starts
+adapter.set_callback_on_scan_start([]() {
+   std::cout << "Scan started" << std::endl;
+});
+
+// Set the callback to be called when the scan stops
+adapter.set_callback_on_scan_stop([]() {
+   std::cout << "Scan stopped" << std::endl;
+});
+
+// Set the callback to be called when the scan finds a new peripheral
+adapter.set_callback_on_scan_found([](SimpleBLE::Peripheral peripheral) {
+   std::cout << "Peripheral found: " << peripheral.identifier() << std::endl;
+});
+
+// Set the callback to be called when a peripheral property has changed
+adapter.set_callback_on_scan_updated([](SimpleBLE::Peripheral peripheral) {
+   std::cout << "Peripheral updated: " << peripheral.identifier() << std::endl;
+});
+
+// Start scanning for peripherals
+adapter.scan_start();
+
+// Wait for 5 seconds
+std::this_thread::sleep_for(std::chrono::seconds(5));
+
+// Stop scanning for peripherals
+adapter.scan_stop();
+```
+
+## Connecting to a peripheral
+
+Once you have a list of peripherals, you can connect to one of them. To do so, you need to create a `SimpleBLE::Peripheral` object and call the `SimpleBLE::Peripheral::connect()` method.
+
+```cpp
+// Scan for peripherals for 5000 milliseconds
+std::vector<SimpleBLE::Peripheral> peripherals = adapter.scan_for(5000);
+
+// Connect to the first peripheral
+SimpleBLE::Peripheral peripheral = peripherals[0];
+peripheral.connect();
+```
+
+## Interacting with peripherals
+
+Once you are connected to a peripheral, you can start interacting with it. The first thing you need to do is to explore the services and characteristics that the peripheral offers. To do so, you can use the `SimpleBLE::Peripheral::services()` method, which returns a list of `SimpleBLE::Service` objects. Each `SimpleBLE::Service` object contains a list of `SimpleBLE::Characteristic` objects, which in turn can contain a list of `SimpleBLE::Descriptor` objects.
+
+```cpp
+// Get the list of services
+std::vector<SimpleBLE::Service> services = peripheral.services();
+
+// Iterate over the services
+for (auto service : services) {
+    std::cout << "Service UUID: " << service.uuid() << std::endl;
+
+    // Iterate over the characteristics
+    for (auto characteristic : service.characteristics()) {
+        std::cout << "  Characteristic UUID: " << characteristic.uuid() << std::endl;
+        std::cout << "  Capabilities: ";
+        for (auto capability : characteristic.capabilities()) {
+            std::cout << capability << " ";
+        }
+        std::cout << std::endl;
+    }
+}
+```
+
+### Reading and Writing
+
+Once you have identified the service and characteristic you want to interact with, you can read and write values to it. To do so, you need the UUIDs of both the service and the characteristic.
+
+```cpp
+std::string service_uuid = "0000180f-0000-1000-8000-00805f9b34fb";
+std::string characteristic_uuid = "00002a19-0000-1000-8000-00805f9b34fb";
+
+// Read the value of a characteristic
+SimpleBLE::ByteArray data = peripheral.read(service_uuid, characteristic_uuid);
+std::cout << "Battery Level: " << (int)data[0] << "%" << std::endl;
+
+// Write a value to a characteristic
+std::string write_service_uuid = "0000180d-0000-1000-8000-00805f9b34fb";
+std::string write_characteristic_uuid = "00002a37-0000-1000-8000-00805f9b34fb";
+SimpleBLE::ByteArray write_data = "Hello World";
+peripheral.write_request(write_service_uuid, write_characteristic_uuid, write_data);
+```
+
+SimpleBLE supports both `write_request` and `write_command`. The difference between them is that `write_request` expects a response from the peripheral, while `write_command` does not. If you are unsure which one to use, check the capabilities of the characteristic.
+
+### Notifications and Indications
+
+If you want to receive updates from a characteristic without having to poll it constantly, you can use notifications and indications. To do so, you need to provide a callback function that will be called every time the characteristic value changes.
+
+```cpp
+// Subscribe to notifications
+peripheral.notify(service_uuid, characteristic_uuid, [](SimpleBLE::ByteArray data) {
+    std::cout << "Received data: " << data.toHex() << std::endl;
+});
+
+// Wait for 5 seconds to receive notifications
+std::this_thread::sleep_for(std::chrono::seconds(5));
+
+// Unsubscribe from notifications
+peripheral.unsubscribe(service_uuid, characteristic_uuid);
+```
+
+Similar to reading and writing, SimpleBLE supports both `notify` and `indicate`. The difference is that `indicate` requires the peripheral to acknowledge the receipt of the notification, while `notify` does not. Again, check the capabilities of the characteristic to know which one to use.
+
+## Unpairing
+
+If you are done with a peripheral and want to remove the bond, you can use the `SimpleBLE::Peripheral::unpair()` method.
+
+```cpp
+// Unpair the peripheral
+peripheral.unpair();
+```
+
+> **Note:** Unpairing is currently only supported on Windows, Linux and Android. On macOS and iOS, the OS manages the bonding process and does not allow applications to programmatically unpair devices.
+
+## Learn by example
+
+To learn how to use SimpleBLE, please refer to the [examples](./examples) page.

@@ -1,0 +1,179 @@
+---
+title: HTTP Server
+description: Comprehensive documentation for the SimpleAIBLE HTTP server API.
+---
+
+SimpleAIBLE includes a built-in HTTP server that allows you to control BLE devices using a REST API. This is particularly useful for controlling BLE devices remotely or for providing an interface for AI agents.
+
+## Installation
+
+Install the `simpleaible` package:
+
+```bash
+pip install simpleaible
+```
+
+## Running the Server
+
+Once the dependencies are installed, you can run the server using the following command:
+
+```bash
+python3 -m simpleaible.http --host 127.0.0.1 --port 8000
+```
+
+By default, the server runs on `http://127.0.0.1:8000`.
+
+## API Reference
+
+### General Endpoints
+
+#### `GET /`
+Check if the API is running and healthy.
+
+- **Response**: 
+  ```json
+  {"message": "SimpleAIBLE API is running"}
+  ```
+
+#### `GET /adapters`
+List all available Bluetooth adapters on the system.
+
+- **Response**: List of objects containing `identifier` and `address`.
+  ```json
+  [
+    {
+      "identifier": "hci0",
+      "address": "AA:BB:CC:DD:EE:FF"
+    }
+  ]
+  ```
+
+#### `POST /scan`
+Scan for nearby BLE devices.
+
+- **Parameters**: `timeout_ms` (query, default: `5000`) - Duration of the scan in milliseconds.
+- **Response**: List of found devices.
+    ```json
+    [
+      {
+        "identifier": "Nordic_HRM",
+        "address": "AA:BB:CC:DD:EE:FF",
+        "rssi": -55,
+        "connectable": true,
+        "manufacturer_data": {
+          "76": "0215..." 
+        }
+      }
+    ]
+    ```
+
+### Device Connection
+
+#### `POST /connect/{address}`
+Establish a connection to a specific device.
+
+- **Path Parameters**: `address` (Device MAC address or UUID).
+- **Response**: 
+  ```json
+  {"message": "Connected to Nordic_HRM", "address": "AA:BB:CC:DD:EE:FF"}
+  ```
+
+#### `POST /disconnect/{address}`
+Disconnect from a connected device.
+
+- **Path Parameters**: `address`
+- **Response**: 
+  ```json
+  {"message": "Disconnected from AA:BB:CC:DD:EE:FF"}
+  ```
+
+#### `GET /device/{address}`
+Retrieve detailed information about a connected device, including its services and characteristics.
+
+- **Path Parameters**: `address`
+- **Response**:
+    ```json
+    {
+      "identifier": "Nordic_HRM",
+      "address": "AA:BB:CC:DD:EE:FF",
+      "connected": true,
+      "mtu": 23,
+      "services": [
+        {
+          "uuid": "0000180d-0000-1000-8000-00805f9b34fb",
+          "characteristics": ["00002a37-0000-1000-8000-00805f9b34fb"]
+        }
+      ]
+    }
+    ```
+
+### Characteristic Interaction
+
+#### `POST /device/{address}/read/{service_uuid}/{char_uuid}`
+Read the current value of a characteristic.
+
+- **Path Parameters**: `address`, `service_uuid`, `char_uuid`
+- **Response**: 
+  ```json
+  {"data_hex": "00aabb", "data_utf8": "..."}
+  ```
+
+#### `POST /device/{address}/write/{service_uuid}/{char_uuid}`
+Write a value to a characteristic (Write with Response).
+
+- **Path Parameters**: `address`, `service_uuid`, `char_uuid`
+- **Body**: 
+  ```json
+  {"data": "001122"}
+  ```
+- **Response**: `{"message": "Write successful"}`
+
+#### `POST /device/{address}/write_command/{service_uuid}/{char_uuid}`
+Write a value to a characteristic without expecting a response (Write Command).
+
+- **Path Parameters**: `address`, `service_uuid`, `char_uuid`
+- **Body**: 
+  ```json
+  {"data": "001122"}
+  ```
+- **Response**: `{"message": "Write command successful"}`
+
+### Notifications and Indications
+
+#### `POST /device/{address}/notify/{service_uuid}/{char_uuid}`
+Subscribe to notifications for a specific characteristic.
+
+- **Response**: `{"message": "Subscribed to notifications"}`
+
+#### `POST /device/{address}/indicate/{service_uuid}/{char_uuid}`
+Subscribe to indications for a specific characteristic.
+
+- **Response**: `{"message": "Subscribed to indications"}`
+
+#### `POST /device/{address}/unsubscribe/{service_uuid}/{char_uuid}`
+Stop receiving notifications or indications for a characteristic.
+
+- **Response**: `{"message": "Unsubscribed from notifications"}`
+
+#### `GET /device/{address}/notifications`
+Retrieve all received notifications and indications for a device. **Note**: This call clears the internal notification buffer for that device.
+
+- **Response**: List of notification objects.
+    ```json
+    [
+      {
+        "service": "0000180d-0000-1000-8000-00805f9b34fb",
+        "characteristic": "00002a37-0000-1000-8000-00805f9b34fb",
+        "data_hex": "163c00",
+        "data_utf8": "...",
+        "type": "notification" 
+      }
+    ]
+    ```
+
+## Interactive Documentation
+
+One of the benefits of using FastAPI is the built-in interactive documentation. When the server is running, you can explore the API and test endpoints directly from your browser:
+
+- **Swagger UI**: `http://127.0.0.1:8000/docs`
+- **ReDoc**: `http://127.0.0.1:8000/redoc`

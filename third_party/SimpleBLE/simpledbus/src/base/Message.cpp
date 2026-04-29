@@ -125,64 +125,64 @@ bool Message::is_valid() const { return _msg != nullptr; }
 void Message::_append_argument(DBusMessageIter* iter, const Holder& argument, const std::string& signature) {
     switch (signature[0]) {
         case DBUS_TYPE_BYTE: {
-            uint8_t value = argument.get_byte();
+            uint8_t value = argument.get<uint8_t>();
             dbus_message_iter_append_basic(iter, DBUS_TYPE_BYTE, &value);
             break;
         }
         case DBUS_TYPE_BOOLEAN: {
-            uint32_t value = static_cast<uint32_t>(argument.get_boolean());
+            uint32_t value = static_cast<uint32_t>(argument.get<bool>());
             dbus_message_iter_append_basic(iter, DBUS_TYPE_BOOLEAN, &value);
             break;
         }
         case DBUS_TYPE_INT16: {
-            int16_t value = argument.get_int16();
+            int16_t value = argument.get<int16_t>();
             dbus_message_iter_append_basic(iter, DBUS_TYPE_INT16, &value);
             break;
         }
         case DBUS_TYPE_UINT16: {
-            uint16_t value = argument.get_uint16();
+            uint16_t value = argument.get<uint16_t>();
             dbus_message_iter_append_basic(iter, DBUS_TYPE_UINT16, &value);
             break;
         }
         case DBUS_TYPE_INT32: {
-            int32_t value = argument.get_int32();
+            int32_t value = argument.get<int32_t>();
             dbus_message_iter_append_basic(iter, DBUS_TYPE_INT32, &value);
             break;
         }
         case DBUS_TYPE_UINT32: {
-            uint32_t value = argument.get_uint32();
+            uint32_t value = argument.get<uint32_t>();
             dbus_message_iter_append_basic(iter, DBUS_TYPE_UINT32, &value);
             break;
         }
         case DBUS_TYPE_INT64: {
-            int64_t value = argument.get_int64();
+            int64_t value = argument.get<int64_t>();
             dbus_message_iter_append_basic(iter, DBUS_TYPE_INT64, &value);
             break;
         }
         case DBUS_TYPE_UINT64: {
-            uint64_t value = argument.get_uint64();
+            uint64_t value = argument.get<uint64_t>();
             dbus_message_iter_append_basic(iter, DBUS_TYPE_UINT64, &value);
             break;
         }
         case DBUS_TYPE_DOUBLE: {
-            double value = argument.get_double();
+            double value = argument.get<double>();
             dbus_message_iter_append_basic(iter, DBUS_TYPE_DOUBLE, &value);
             break;
         }
         case DBUS_TYPE_STRING: {
-            std::string value = argument.get_string();
+            std::string value = argument.get<std::string>();
             const char* p_value = value.c_str();
             dbus_message_iter_append_basic(iter, DBUS_TYPE_STRING, &p_value);
             break;
         }
         case DBUS_TYPE_OBJECT_PATH: {
-            std::string value = argument.get_object_path();
+            std::string value = argument.get<ObjectPath>();
             const char* p_value = value.c_str();
             dbus_message_iter_append_basic(iter, DBUS_TYPE_OBJECT_PATH, &p_value);
             break;
         }
         case DBUS_TYPE_SIGNATURE: {
-            std::string value = argument.get_signature();
+            std::string value = argument.get<Signature>();
             const char* p_value = value.c_str();
             dbus_message_iter_append_basic(iter, DBUS_TYPE_SIGNATURE, &p_value);
             break;
@@ -200,7 +200,7 @@ void Message::_append_argument(DBusMessageIter* iter, const Holder& argument, co
             DBusMessageIter sub_iter;
             dbus_message_iter_open_container(iter, DBUS_TYPE_ARRAY, sig_next.c_str(), &sub_iter);
             if (sig_next[0] != DBUS_DICT_ENTRY_BEGIN_CHAR) {
-                auto array_contents = argument.get_array();
+                auto array_contents = argument.get<std::vector<Holder>>();
                 for (auto elem : array_contents) {
                     _append_argument(&sub_iter, elem, sig_next);
                 }
@@ -211,52 +211,52 @@ void Message::_append_argument(DBusMessageIter* iter, const Holder& argument, co
 
                 switch (key_sig) {
                     case DBUS_TYPE_BYTE: {
-                        auto dict_contents = argument.get_dict_uint8();
+                        auto dict_contents = argument.get<std::map<uint8_t, Holder>>();
                         MESSAGE_DICT_APPEND_KEY_NUM(key_sig, dict_contents);
                         break;
                     }
                     case DBUS_TYPE_INT16: {
-                        auto dict_contents = argument.get_dict_int16();
+                        auto dict_contents = argument.get<std::map<int16_t, Holder>>();
                         MESSAGE_DICT_APPEND_KEY_NUM(key_sig, dict_contents);
                         break;
                     }
                     case DBUS_TYPE_UINT16: {
-                        auto dict_contents = argument.get_dict_uint16();
+                        auto dict_contents = argument.get<std::map<uint16_t, Holder>>();
                         MESSAGE_DICT_APPEND_KEY_NUM(key_sig, dict_contents);
                         break;
                     }
                     case DBUS_TYPE_INT32: {
-                        auto dict_contents = argument.get_dict_int32();
+                        auto dict_contents = argument.get<std::map<int32_t, Holder>>();
                         MESSAGE_DICT_APPEND_KEY_NUM(key_sig, dict_contents);
                         break;
                     }
                     case DBUS_TYPE_UINT32: {
-                        auto dict_contents = argument.get_dict_uint32();
+                        auto dict_contents = argument.get<std::map<uint32_t, Holder>>();
                         MESSAGE_DICT_APPEND_KEY_NUM(key_sig, dict_contents);
                         break;
                     }
                     case DBUS_TYPE_INT64: {
-                        auto dict_contents = argument.get_dict_int64();
+                        auto dict_contents = argument.get<std::map<int64_t, Holder>>();
                         MESSAGE_DICT_APPEND_KEY_NUM(key_sig, dict_contents);
                         break;
                     }
                     case DBUS_TYPE_UINT64: {
-                        auto dict_contents = argument.get_dict_uint64();
+                        auto dict_contents = argument.get<std::map<uint64_t, Holder>>();
                         MESSAGE_DICT_APPEND_KEY_NUM(key_sig, dict_contents);
                         break;
                     }
                     case DBUS_TYPE_STRING: {
-                        auto dict_contents = argument.get_dict_string();
+                        auto dict_contents = argument.get<std::map<std::string, Holder>>();
                         MESSAGE_DICT_APPEND_KEY_STR(key_sig, dict_contents);
                         break;
                     }
                     case DBUS_TYPE_OBJECT_PATH: {
-                        auto dict_contents = argument.get_dict_object_path();
+                        auto dict_contents = argument.get<std::map<ObjectPath, Holder>>();
                         MESSAGE_DICT_APPEND_KEY_STR(key_sig, dict_contents);
                         break;
                     }
                     case DBUS_TYPE_SIGNATURE: {
-                        auto dict_contents = argument.get_dict_signature();
+                        auto dict_contents = argument.get<std::map<Signature, Holder>>();
                         MESSAGE_DICT_APPEND_KEY_STR(key_sig, dict_contents);
                         break;
                     }
@@ -415,15 +415,15 @@ Holder Message::_extract_bytearray(DBusMessageIter* iter) {
     const unsigned char* bytes;
     int len;
     dbus_message_iter_get_fixed_array(iter, &bytes, &len);
-    Holder holder_array = Holder::create_array();
+    Holder holder_array = Holder::create<std::vector<Holder>>();
     for (int i = 0; i < len; i++) {
-        holder_array.array_append(Holder::create_byte(bytes[i]));
+        holder_array.array_append(Holder::create<uint8_t>(bytes[i]));
     }
     return holder_array;
 }
 
 Holder Message::_extract_array(DBusMessageIter* iter) {
-    Holder holder_array = Holder::create_array();
+    Holder holder_array = Holder::create<std::vector<Holder>>();
     _indent += 1;
     int current_type = dbus_message_iter_get_arg_type(iter);
     if (current_type == DBUS_TYPE_BYTE) {
@@ -460,7 +460,7 @@ Holder Message::_extract_dict(DBusMessageIter* iter) {
 
         // Add the data to the dictionary
         if (!holder_initialized) {
-            holder_dict = Holder::create_dict();
+            holder_dict = Holder::create<std::map<std::string, Holder>>();
             holder_initialized = true;
         }
 
@@ -478,62 +478,62 @@ Holder Message::_extract_generic(DBusMessageIter* iter) {
             case DBUS_TYPE_BYTE: {
                 uint8_t contents;
                 dbus_message_iter_get_basic(iter, &contents);
-                return Holder::create_byte(contents);
+                return Holder::create<uint8_t>(contents);
             }
             case DBUS_TYPE_BOOLEAN: {
                 bool contents;
                 dbus_message_iter_get_basic(iter, &contents);
-                return Holder::create_boolean(contents);
+                return Holder::create<bool>(contents);
             }
             case DBUS_TYPE_INT16: {
                 int16_t contents;
                 dbus_message_iter_get_basic(iter, &contents);
-                return Holder::create_int16(contents);
+                return Holder::create<int16_t>(contents);
             }
             case DBUS_TYPE_UINT16: {
                 uint16_t contents;
                 dbus_message_iter_get_basic(iter, &contents);
-                return Holder::create_uint16(contents);
+                return Holder::create<uint16_t>(contents);
             }
             case DBUS_TYPE_INT32: {
                 int32_t contents;
                 dbus_message_iter_get_basic(iter, &contents);
-                return Holder::create_int32(contents);
+                return Holder::create<int32_t>(contents);
             }
             case DBUS_TYPE_UINT32: {
                 uint32_t contents;
                 dbus_message_iter_get_basic(iter, &contents);
-                return Holder::create_uint32(contents);
+                return Holder::create<uint32_t>(contents);
             }
             case DBUS_TYPE_INT64: {
                 int64_t contents;
                 dbus_message_iter_get_basic(iter, &contents);
-                return Holder::create_int64(contents);
+                return Holder::create<int64_t>(contents);
             }
             case DBUS_TYPE_UINT64: {
                 uint64_t contents;
                 dbus_message_iter_get_basic(iter, &contents);
-                return Holder::create_uint64(contents);
+                return Holder::create<uint64_t>(contents);
             }
             case DBUS_TYPE_DOUBLE: {
                 double contents;
                 dbus_message_iter_get_basic(iter, &contents);
-                return Holder::create_double(contents);
+                return Holder::create<double>(contents);
             }
             case DBUS_TYPE_STRING: {
                 char* contents;
                 dbus_message_iter_get_basic(iter, &contents);
-                return Holder::create_string(contents);
+                return Holder::create<std::string>(contents);
             }
             case DBUS_TYPE_OBJECT_PATH: {
                 char* contents;
                 dbus_message_iter_get_basic(iter, &contents);
-                return Holder::create_object_path(contents);
+                return Holder::create<ObjectPath>(contents);
             }
             case DBUS_TYPE_SIGNATURE: {
                 char* contents;
                 dbus_message_iter_get_basic(iter, &contents);
-                return Holder::create_signature(contents);
+                return Holder::create<Signature>(contents);
             }
             case DBUS_TYPE_ARRAY: {
                 DBusMessageIter sub;

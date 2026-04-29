@@ -27,26 +27,26 @@ TEST_F(MessageTest, SendReceiveBooleanTrue) {
     Message msg = Message::create_method_call("simpledbus.tester.python", "/", "simpledbus.tester.message",
                                               "SendReceiveBoolean");
 
-    msg.append_argument(Holder::create_boolean(true), DBUS_TYPE_BOOLEAN_AS_STRING);
+    msg.append_argument(Holder::create<bool>(true), DBUS_TYPE_BOOLEAN_AS_STRING);
 
     Message reply = conn->send_with_reply_and_block(msg);
     Holder h_reply = reply.extract();
 
     EXPECT_EQ(h_reply.type(), Holder::Type::BOOLEAN);
-    EXPECT_EQ(h_reply.get_boolean(), true);
+    EXPECT_EQ(h_reply.get<bool>(), true);
 }
 
 TEST_F(MessageTest, SendReceiveBooleanFalse) {
     Message msg = Message::create_method_call("simpledbus.tester.python", "/", "simpledbus.tester.message",
                                               "SendReceiveBoolean");
 
-    msg.append_argument(Holder::create_boolean(false), DBUS_TYPE_BOOLEAN_AS_STRING);
+    msg.append_argument(Holder::create<bool>(false), DBUS_TYPE_BOOLEAN_AS_STRING);
 
     Message reply = conn->send_with_reply_and_block(msg);
     Holder h_reply = reply.extract();
 
     EXPECT_EQ(h_reply.type(), Holder::Type::BOOLEAN);
-    EXPECT_EQ(h_reply.get_boolean(), false);
+    EXPECT_EQ(h_reply.get<bool>(), false);
 }
 
 TEST_F(MessageTest, SendReceiveByte) {
@@ -54,13 +54,13 @@ TEST_F(MessageTest, SendReceiveByte) {
                                               "SendReceiveByte");
 
     uint8_t value = 0x42;
-    msg.append_argument(Holder::create_byte(value), DBUS_TYPE_BYTE_AS_STRING);
+    msg.append_argument(Holder::create<uint8_t>(value), DBUS_TYPE_BYTE_AS_STRING);
 
     Message reply = conn->send_with_reply_and_block(msg);
     Holder h_reply = reply.extract();
 
     EXPECT_EQ(h_reply.type(), Holder::Type::BYTE);
-    EXPECT_EQ(h_reply.get_byte(), value);
+    EXPECT_EQ(h_reply.get<uint8_t>(), value);
 }
 
 TEST_F(MessageTest, SendReceiveInt16) {
@@ -68,13 +68,13 @@ TEST_F(MessageTest, SendReceiveInt16) {
                                               "SendReceiveInt16");
 
     int16_t value = 0x1234;
-    msg.append_argument(Holder::create_int16(value), DBUS_TYPE_INT16_AS_STRING);
+    msg.append_argument(Holder::create<int16_t>(value), DBUS_TYPE_INT16_AS_STRING);
 
     Message reply = conn->send_with_reply_and_block(msg);
     Holder h_reply = reply.extract();
 
     EXPECT_EQ(h_reply.type(), Holder::Type::INT16);
-    EXPECT_EQ(h_reply.get_int16(), value);
+    EXPECT_EQ(h_reply.get<int16_t>(), value);
 }
 
 TEST_F(MessageTest, SendReceiveUint16) {
@@ -82,13 +82,13 @@ TEST_F(MessageTest, SendReceiveUint16) {
                                               "SendReceiveUint16");
 
     uint16_t value = 0x1234;
-    msg.append_argument(Holder::create_uint16(value), DBUS_TYPE_UINT16_AS_STRING);
+    msg.append_argument(Holder::create<uint16_t>(value), DBUS_TYPE_UINT16_AS_STRING);
 
     Message reply = conn->send_with_reply_and_block(msg);
     Holder h_reply = reply.extract();
 
     EXPECT_EQ(h_reply.type(), Holder::Type::UINT16);
-    EXPECT_EQ(h_reply.get_uint16(), value);
+    EXPECT_EQ(h_reply.get<uint16_t>(), value);
 }
 
 TEST_F(MessageTest, SendReceiveInt32) {
@@ -96,13 +96,13 @@ TEST_F(MessageTest, SendReceiveInt32) {
                                               "SendReceiveInt32");
 
     int32_t value = 0x12345678;
-    msg.append_argument(Holder::create_int32(value), DBUS_TYPE_INT32_AS_STRING);
+    msg.append_argument(Holder::create<int32_t>(value), DBUS_TYPE_INT32_AS_STRING);
 
     Message reply = conn->send_with_reply_and_block(msg);
     Holder h_reply = reply.extract();
 
     EXPECT_EQ(h_reply.type(), Holder::Type::INT32);
-    EXPECT_EQ(h_reply.get_int32(), value);
+    EXPECT_EQ(h_reply.get<int32_t>(), value);
 }
 
 TEST_F(MessageTest, SendReceiveUint32) {
@@ -110,13 +110,13 @@ TEST_F(MessageTest, SendReceiveUint32) {
                                               "SendReceiveUint32");
 
     uint32_t value = 0x12345678;
-    msg.append_argument(Holder::create_uint32(value), DBUS_TYPE_UINT32_AS_STRING);
+    msg.append_argument(Holder::create<uint32_t>(value), DBUS_TYPE_UINT32_AS_STRING);
 
     Message reply = conn->send_with_reply_and_block(msg);
     Holder h_reply = reply.extract();
 
     EXPECT_EQ(h_reply.type(), Holder::Type::UINT32);
-    EXPECT_EQ(h_reply.get_uint32(), value);
+    EXPECT_EQ(h_reply.get<uint32_t>(), value);
 }
 
 TEST_F(MessageTest, SendReceiveInt64) {
@@ -124,13 +124,13 @@ TEST_F(MessageTest, SendReceiveInt64) {
                                               "SendReceiveInt64");
 
     int64_t value = 0x1234567812345678;
-    msg.append_argument(Holder::create_int64(value), DBUS_TYPE_INT64_AS_STRING);
+    msg.append_argument(Holder::create<int64_t>(value), DBUS_TYPE_INT64_AS_STRING);
 
     Message reply = conn->send_with_reply_and_block(msg);
     Holder h_reply = reply.extract();
 
     EXPECT_EQ(h_reply.type(), Holder::Type::INT64);
-    EXPECT_EQ(h_reply.get_int64(), value);
+    EXPECT_EQ(h_reply.get<int64_t>(), value);
 }
 
 TEST_F(MessageTest, SendReceiveUint64) {
@@ -138,22 +138,22 @@ TEST_F(MessageTest, SendReceiveUint64) {
                                               "SendReceiveUint64");
 
     uint64_t value = 0x1234567812345678;
-    msg.append_argument(Holder::create_uint64(value), DBUS_TYPE_UINT64_AS_STRING);
+    msg.append_argument(Holder::create<uint64_t>(value), DBUS_TYPE_UINT64_AS_STRING);
 
     Message reply = conn->send_with_reply_and_block(msg);
     Holder h_reply = reply.extract();
 
     EXPECT_EQ(h_reply.type(), Holder::Type::UINT64);
-    EXPECT_EQ(h_reply.get_uint64(), value);
+    EXPECT_EQ(h_reply.get<uint64_t>(), value);
 }
 
 TEST_F(MessageTest, SendReceiveArrayInt32) {
     Message msg = Message::create_method_call("simpledbus.tester.python", "/", "simpledbus.tester.message",
                                               "SendReceiveArrayInt32");
 
-    Holder h_msg = Holder::create_array();
-    h_msg.array_append(Holder::create_int32(0x12345678));
-    h_msg.array_append(Holder::create_int32(0x87654321));
+    Holder h_msg = Holder::create<std::vector<Holder>>();
+    h_msg.array_append(Holder::create<int32_t>(0x12345678));
+    h_msg.array_append(Holder::create<int32_t>(0x87654321));
     msg.append_argument(h_msg, "ai");
 
     Message reply = conn->send_with_reply_and_block(msg);
@@ -161,24 +161,24 @@ TEST_F(MessageTest, SendReceiveArrayInt32) {
 
     EXPECT_EQ(h_reply.type(), Holder::Type::ARRAY);
 
-    std::vector<Holder> array = h_reply.get_array();
+    std::vector<Holder> array = h_reply.get<std::vector<Holder>>();
 
     ASSERT_EQ(array.size(), 2);
 
     EXPECT_EQ(array[0].type(), Holder::Type::INT32);
-    EXPECT_EQ(array[0].get_int32(), 0x12345678);
+    EXPECT_EQ(array[0].get<int32_t>(), 0x12345678);
 
     EXPECT_EQ(array[1].type(), Holder::Type::INT32);
-    EXPECT_EQ(array[1].get_int32(), 0x87654321);
+    EXPECT_EQ(array[1].get<int32_t>(), 0x87654321);
 }
 
 TEST_F(MessageTest, SendReceiveArrayString) {
     Message msg = Message::create_method_call("simpledbus.tester.python", "/", "simpledbus.tester.message",
                                               "SendReceiveArrayString");
 
-    Holder h_msg = Holder::create_array();
-    h_msg.array_append(Holder::create_string("Hello"));
-    h_msg.array_append(Holder::create_string("World"));
+    Holder h_msg = Holder::create<std::vector<Holder>>();
+    h_msg.array_append(Holder::create<std::string>("Hello"));
+    h_msg.array_append(Holder::create<std::string>("World"));
     msg.append_argument(h_msg, "as");
 
     Message reply = conn->send_with_reply_and_block(msg);
@@ -186,24 +186,24 @@ TEST_F(MessageTest, SendReceiveArrayString) {
 
     EXPECT_EQ(h_reply.type(), Holder::Type::ARRAY);
 
-    std::vector<Holder> array = h_reply.get_array();
+    std::vector<Holder> array = h_reply.get<std::vector<Holder>>();
 
     ASSERT_EQ(array.size(), 2);
 
     EXPECT_EQ(array[0].type(), Holder::Type::STRING);
-    EXPECT_EQ(array[0].get_string(), "Hello");
+    EXPECT_EQ(array[0].get<std::string>(), "Hello");
 
     EXPECT_EQ(array[1].type(), Holder::Type::STRING);
-    EXPECT_EQ(array[1].get_string(), "World");
+    EXPECT_EQ(array[1].get<std::string>(), "World");
 }
 
 TEST_F(MessageTest, SendReceiveDictInt32) {
     Message msg = Message::create_method_call("simpledbus.tester.python", "/", "simpledbus.tester.message",
                                               "SendReceiveDictInt32");
 
-    Holder h_msg = Holder::create_dict();
-    h_msg.dict_append(Holder::INT32, static_cast<int32_t>(0x12345678), Holder::create_int32(0x87654321));
-    h_msg.dict_append(Holder::INT32, static_cast<int32_t>(0x87654321), Holder::create_string("Hello"));
+    Holder h_msg = Holder::create<std::map<std::string, Holder>>();
+    h_msg.dict_append(Holder::INT32, static_cast<int32_t>(0x12345678), Holder::create<int32_t>(0x87654321));
+    h_msg.dict_append(Holder::INT32, static_cast<int32_t>(0x87654321), Holder::create<std::string>("Hello"));
     msg.append_argument(h_msg, "a{iv}");
 
     Message reply = conn->send_with_reply_and_block(msg);
@@ -211,26 +211,26 @@ TEST_F(MessageTest, SendReceiveDictInt32) {
 
     EXPECT_EQ(h_reply.type(), Holder::Type::DICT);
 
-    std::map<int32_t, Holder> dict = h_reply.get_dict_int32();
+    std::map<int32_t, Holder> dict = h_reply.get<std::map<int32_t, Holder>>();
 
     ASSERT_EQ(dict.size(), 2);
     ASSERT_EQ(dict.count(0x12345678), 1);
     ASSERT_EQ(dict.count(0x87654321), 1);
 
     EXPECT_EQ(dict[0x12345678].type(), Holder::Type::INT32);
-    EXPECT_EQ(dict[0x12345678].get_int32(), 0x87654321);
+    EXPECT_EQ(dict[0x12345678].get<int32_t>(), 0x87654321);
 
     EXPECT_EQ(dict[0x87654321].type(), Holder::Type::STRING);
-    EXPECT_EQ(dict[0x87654321].get_string(), "Hello");
+    EXPECT_EQ(dict[0x87654321].get<std::string>(), "Hello");
 }
 
 TEST_F(MessageTest, SendReceiveDictString) {
     Message msg = Message::create_method_call("simpledbus.tester.python", "/", "simpledbus.tester.message",
                                               "SendReceiveDictString");
 
-    Holder h_msg = Holder::create_dict();
-    h_msg.dict_append(Holder::STRING, "key1", Holder::create_int32(0x87654321));
-    h_msg.dict_append(Holder::STRING, "key2", Holder::create_string("Hello"));
+    Holder h_msg = Holder::create<std::map<std::string, Holder>>();
+    h_msg.dict_append(Holder::STRING, "key1", Holder::create<int32_t>(0x87654321));
+    h_msg.dict_append(Holder::STRING, "key2", Holder::create<std::string>("Hello"));
     msg.append_argument(h_msg, "a{sv}");
 
     Message reply = conn->send_with_reply_and_block(msg);
@@ -238,18 +238,21 @@ TEST_F(MessageTest, SendReceiveDictString) {
 
     EXPECT_EQ(h_reply.type(), Holder::Type::DICT);
 
-    std::map<std::string, Holder> dict = h_reply.get_dict_string();
+    std::map<std::string, Holder> dict = h_reply.get<std::map<std::string, Holder>>();
 
     ASSERT_EQ(dict.size(), 2);
     ASSERT_EQ(dict.count("key1"), 1);
     ASSERT_EQ(dict.count("key2"), 1);
 
     EXPECT_EQ(dict["key1"].type(), Holder::Type::INT32);
-    EXPECT_EQ(dict["key1"].get_int32(), 0x87654321);
+    EXPECT_EQ(dict["key1"].get<int32_t>(), 0x87654321);
 
     EXPECT_EQ(dict["key2"].type(), Holder::Type::STRING);
-    EXPECT_EQ(dict["key2"].get_string(), "Hello");
+    EXPECT_EQ(dict["key2"].get<std::string>(), "Hello");
 }
+
+/*
+TODO: Uncomment these tests when we have a way to test the message forwarding logic.
 
 TEST_F(MessageTest, ReceiveMethodCallSuccess) {
     Message msg = Message::create_method_call("simpledbus.tester.python", "/", "simpledbus.tester.message",
@@ -264,8 +267,8 @@ TEST_F(MessageTest, ReceiveMethodCallSuccess) {
 
     // Wait for the method call to be received
     bool method_called = false;
-    std::chrono::time_point<std::chrono::system_clock> end = std::chrono::system_clock::now() + std::chrono::seconds(1);
-    while (std::chrono::system_clock::now() < end) {
+    std::chrono::time_point<std::chrono::steady_clock> end = std::chrono::steady_clock::now() + std::chrono::seconds(1);
+    while (std::chrono::steady_clock::now() < end) {
         conn->read_write();
         auto method_call = conn->pop_message();
         if (method_call.is_valid()) {
@@ -300,8 +303,8 @@ TEST_F(MessageTest, ReceiveMethodCallFailure) {
 
     // Wait for the method call to be received
     bool method_called = false;
-    std::chrono::time_point<std::chrono::system_clock> end = std::chrono::system_clock::now() + std::chrono::seconds(1);
-    while (std::chrono::system_clock::now() < end) {
+    std::chrono::time_point<std::chrono::steady_clock> end = std::chrono::steady_clock::now() + std::chrono::seconds(1);
+    while (std::chrono::steady_clock::now() < end) {
         conn->read_write();
         auto method_call = conn->pop_message();
         if (method_call.is_valid()) {
@@ -321,11 +324,13 @@ TEST_F(MessageTest, ReceiveMethodCallFailure) {
     }
     EXPECT_TRUE(method_called);
 }
+*/
 
 TEST_F(MessageTest, CopyConstructor) {
     // Create an original message
-    Message original = Message::create_method_call("org.example.Bus", "/org/example/Path", "org.example.Interface", "ExampleMethod");
-    original.append_argument(Holder::create_string("Test argument"), "s");
+    Message original = Message::create_method_call("org.example.Bus", "/org/example/Path", "org.example.Interface",
+                                                   "ExampleMethod");
+    original.append_argument(Holder::create<std::string>("Test argument"), "s");
 
     // Test copy constructor
     Message copy_constructed(original);
@@ -344,8 +349,9 @@ TEST_F(MessageTest, CopyConstructor) {
 
 TEST_F(MessageTest, CopyAssignment) {
     // Create an original message
-    Message original = Message::create_method_call("org.example.Bus", "/org/example/Path", "org.example.Interface", "ExampleMethod");
-    original.append_argument(Holder::create_string("Test argument"), "s");
+    Message original = Message::create_method_call("org.example.Bus", "/org/example/Path", "org.example.Interface",
+                                                   "ExampleMethod");
+    original.append_argument(Holder::create<std::string>("Test argument"), "s");
 
     // Test copy assignment
     Message copy_assigned;
@@ -365,8 +371,9 @@ TEST_F(MessageTest, CopyAssignment) {
 
 TEST_F(MessageTest, MoveConstructor) {
     // Create an original message
-    Message original = Message::create_method_call("org.example.Bus", "/org/example/Path", "org.example.Interface", "ExampleMethod");
-    original.append_argument(Holder::create_string("Test argument"), "s");
+    Message original = Message::create_method_call("org.example.Bus", "/org/example/Path", "org.example.Interface",
+                                                   "ExampleMethod");
+    original.append_argument(Holder::create<std::string>("Test argument"), "s");
 
     // Test move constructor
     Message move_constructed(std::move(original));
@@ -379,8 +386,9 @@ TEST_F(MessageTest, MoveConstructor) {
 
 TEST_F(MessageTest, MoveAssignment) {
     // Create an original message
-    Message original = Message::create_method_call("org.example.Bus", "/org/example/Path", "org.example.Interface", "ExampleMethod");
-    original.append_argument(Holder::create_string("Test argument"), "s");
+    Message original = Message::create_method_call("org.example.Bus", "/org/example/Path", "org.example.Interface",
+                                                   "ExampleMethod");
+    original.append_argument(Holder::create<std::string>("Test argument"), "s");
 
     // Test move assignment
     Message move_assigned;

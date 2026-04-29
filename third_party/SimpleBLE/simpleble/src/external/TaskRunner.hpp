@@ -77,9 +77,9 @@ class TaskRunner {
                 continue;
             }
 
-            // NOTE: If a new task is added to the queue with a shorter delay than the current top task, the worker thread
-            // will not wake up until the top task's execution time is reached. This is not ideal, but it's good enough for
-            // this simple implementation.
+            // NOTE: If a new task is added to the queue with a shorter delay than the current top task, the worker
+            // thread will not wake up until the top task's execution time is reached. This is not ideal, but it's good
+            // enough for this simple implementation.
 
             auto now = Clock::now();
             if (taskQueue.top().executionTime > now) {

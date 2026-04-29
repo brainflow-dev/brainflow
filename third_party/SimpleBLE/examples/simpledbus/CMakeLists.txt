@@ -15,4 +15,6 @@ else()
     find_package(simpledbus CONFIG REQUIRED)
 endif()
 
-add_subdirectory(notification)
+message(STATUS "Configuring Notification Example")
+add_executable(example_notification notification.cpp)
+target_link_libraries(example_notification simpledbus::simpledbus)

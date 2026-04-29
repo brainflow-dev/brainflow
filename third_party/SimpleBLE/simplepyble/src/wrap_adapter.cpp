@@ -30,6 +30,18 @@ constexpr auto kDocsAdapterAddress = R"pbdoc(
     Address of the adapter
 )pbdoc";
 
+constexpr auto kDocsAdapterPowerOn = R"pbdoc(
+    Power on the adapter
+)pbdoc";
+
+constexpr auto kDocsAdapterPowerOff = R"pbdoc(
+    Power off the adapter
+)pbdoc";
+
+constexpr auto kDocsAdapterIsPowered = R"pbdoc(
+    Whether the adapter is powered
+)pbdoc";
+
 constexpr auto kDocsAdapterScanStart = R"pbdoc(
     Start scanning for peripherals
 )pbdoc";
@@ -66,8 +78,20 @@ constexpr auto kDocsAdapterSetCallbackOnScanUpdated = R"pbdoc(
     Set the callback to be called when a peripheral is updated
 )pbdoc";
 
+constexpr auto kDocsAdapterSetCallbackOnPowerOn = R"pbdoc(
+    Set the callback to be called when the adapter is powered on
+)pbdoc";
+
+constexpr auto kDocsAdapterSetCallbackOnPowerOff = R"pbdoc(
+    Set the callback to be called when the adapter is powered off
+)pbdoc";
+
 constexpr auto kDocsAdapterGetPairedPeripherals = R"pbdoc(
     Get all paired peripherals
+)pbdoc";
+
+constexpr auto kDocsAdapterGetConnectedPeripherals = R"pbdoc(
+    Get all connected peripherals
 )pbdoc";
 
 void wrap_adapter(py::module& m) {
@@ -78,6 +102,9 @@ void wrap_adapter(py::module& m) {
         .def("initialized", &SimpleBLE::Adapter::initialized, kDocsAdapterInitialized)
         .def("identifier", &SimpleBLE::Adapter::identifier, kDocsAdapterIdentifier)
         .def("address", &SimpleBLE::Adapter::address, kDocsAdapterAddress)
+        .def("power_on", &SimpleBLE::Adapter::power_on, kDocsAdapterPowerOn)
+        .def("power_off", &SimpleBLE::Adapter::power_off, kDocsAdapterPowerOff)
+        .def("is_powered", &SimpleBLE::Adapter::is_powered, kDocsAdapterIsPowered)
         .def("scan_start", &SimpleBLE::Adapter::scan_start, kDocsAdapterScanStart)
         .def("scan_stop", &SimpleBLE::Adapter::scan_stop, kDocsAdapterScanStop)
         .def("scan_is_active", &SimpleBLE::Adapter::scan_is_active, kDocsAdapterScanIsActive)
@@ -87,5 +114,8 @@ void wrap_adapter(py::module& m) {
         .def("set_callback_on_scan_stop", &SimpleBLE::Adapter::set_callback_on_scan_stop, py::keep_alive<1, 2>(), kDocsAdapterSetCallbackOnScanStop)
         .def("set_callback_on_scan_found", &SimpleBLE::Adapter::set_callback_on_scan_found, py::keep_alive<1, 2>(), kDocsAdapterSetCallbackOnScanFound)
         .def("set_callback_on_scan_updated", &SimpleBLE::Adapter::set_callback_on_scan_updated, py::keep_alive<1, 2>(), kDocsAdapterSetCallbackOnScanUpdated)
-        .def("get_paired_peripherals", &SimpleBLE::Adapter::get_paired_peripherals, kDocsAdapterGetPairedPeripherals);
+        .def("set_callback_on_power_on", &SimpleBLE::Adapter::set_callback_on_power_on, py::keep_alive<1, 2>(), kDocsAdapterSetCallbackOnPowerOn)
+        .def("set_callback_on_power_off", &SimpleBLE::Adapter::set_callback_on_power_off, py::keep_alive<1, 2>(), kDocsAdapterSetCallbackOnPowerOff)
+        .def("get_paired_peripherals", &SimpleBLE::Adapter::get_paired_peripherals, kDocsAdapterGetPairedPeripherals)
+        .def("get_connected_peripherals", &SimpleBLE::Adapter::get_connected_peripherals, kDocsAdapterGetConnectedPeripherals);
 }

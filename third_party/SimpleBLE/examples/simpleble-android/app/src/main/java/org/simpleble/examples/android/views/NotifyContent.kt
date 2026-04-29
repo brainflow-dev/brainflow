@@ -74,7 +74,9 @@ fun NotifyContent(bluetoothViewModel: BluetoothViewModel) {
                     Log.d("SimpleBLE", "Connected to ${peripheral.identifier} [${peripheral.address}]")
 
                     servicescharacteristics = peripheral.services().flatMap { service ->
-                        service.characteristics.map { characteristic ->
+                        service.characteristics
+                        .filter { characteristic -> characteristic.canNotify }
+                        .map { characteristic ->
                             Log.d("SimpleBLE", "Service: ${service.uuid} Characteristic: ${characteristic.uuid} [Notify: ${characteristic.canNotify} Indicate: ${characteristic.canIndicate} Read: ${characteristic.canRead} WriteCommand: ${characteristic.canWriteCommand} WriteRequest: ${characteristic.canWriteRequest}]")
                             Pair(BluetoothUUID(service.uuid), BluetoothUUID(characteristic.uuid))
                         }

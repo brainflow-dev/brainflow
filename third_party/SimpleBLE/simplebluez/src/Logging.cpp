@@ -1,5 +1,5 @@
 #include "Logging.h"
-#include <simpledbus/external/logfwd.hpp>
+#include "kvn/logfwd.hpp"
 
 #ifndef SIMPLEBLUEZ_LOG_LEVEL
 #warning "SIMPLEBLUEZ_LOG_LEVEL not defined, using default value: FATAL"
