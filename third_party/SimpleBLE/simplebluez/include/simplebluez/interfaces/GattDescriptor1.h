@@ -1,7 +1,7 @@
 #pragma once
 
 #include <simpledbus/advanced/Interface.h>
-#include <simpledbus/external/kvn_safe_callback.hpp>
+#include <simpledbus/advanced/InterfaceRegistry.h>
 
 #include <simplebluez/Types.h>
 
@@ -11,7 +11,7 @@ namespace SimpleBluez {
 
 class GattDescriptor1 : public SimpleDBus::Interface {
   public:
-    GattDescriptor1(std::shared_ptr<SimpleDBus::Connection> conn, std::string path);
+    GattDescriptor1(std::shared_ptr<SimpleDBus::Connection> conn, std::shared_ptr<SimpleDBus::Proxy> proxy);
     virtual ~GattDescriptor1();
 
     // ----- METHODS -----
@@ -19,18 +19,11 @@ class GattDescriptor1 : public SimpleDBus::Interface {
     ByteArray ReadValue();
 
     // ----- PROPERTIES -----
-    std::string UUID();
-    ByteArray Value();
+    Property<std::string>& UUID = property<std::string>("UUID");
+    Property<ByteArray>& Value = property<ByteArray>("Value");
 
-    // ----- CALLBACKS -----
-    kvn::safe_callback<void()> OnValueChanged;
-
-  protected:
-    void property_changed(std::string option_name) override;
-    void update_value(SimpleDBus::Holder& new_value);
-
-    std::string _uuid;
-    ByteArray _value;
+  private:
+    static const SimpleDBus::AutoRegisterInterface<GattDescriptor1> registry;
 };
 
 }  // namespace SimpleBluez

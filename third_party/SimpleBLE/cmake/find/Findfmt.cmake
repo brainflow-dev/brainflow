@@ -1,6 +1,9 @@
 # Read the documentation of FetchContent first!
 # https://cmake.org/cmake/help/latest/module/FetchContent.html
 
+# TODO: We need to upgrade to a newer version due to the following issue:
+# https://github.com/fmtlib/fmt/issues/3540
+
 include(FetchContent)
 
 if(LIBFMT_VENDORIZE)

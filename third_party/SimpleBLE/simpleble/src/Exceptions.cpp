@@ -20,6 +20,9 @@ DescriptorNotFound::DescriptorNotFound(BluetoothUUID uuid)
 
 OperationNotSupported::OperationNotSupported() : BaseException("The requested operation is not supported.") {}
 
+OperationNotSupported::OperationNotSupported(const std::string& operation, const BluetoothUUID& characteristic_uuid)
+    : BaseException(fmt::format("Operation '{}' is not supported on characteristic '{}'", operation, characteristic_uuid)) {}
+
 OperationFailed::OperationFailed() : BaseException("The requested operation has failed.") {}
 
 OperationFailed::OperationFailed(const std::string& err_msg) : BaseException("Operation Failed: " + err_msg) {}

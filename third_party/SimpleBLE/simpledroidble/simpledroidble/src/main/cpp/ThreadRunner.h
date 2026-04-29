@@ -1,17 +1,17 @@
 #pragma once
 
-#include <functional>
-#include <thread>
-#include <mutex>
-#include <condition_variable>
-#include <queue>
-#include <jni.h>
-#include "android_utils.h"
 #include <fmt/core.h>
+#include <jni.h>
+#include <condition_variable>
+#include <functional>
+#include <mutex>
 #include <optional>
+#include <queue>
+#include <thread>
+#include "android_utils.h"
 
 class ThreadRunner {
-public:
+  public:
     ThreadRunner() : _stop(false), _jvm(nullptr) {}
 
     ~ThreadRunner() {
@@ -25,9 +25,7 @@ public:
         }
     }
 
-    void set_jvm(JavaVM *jvm) {
-        _jvm = jvm;
-    }
+    void set_jvm(JavaVM* jvm) { _jvm = jvm; }
 
     void enqueue(std::function<void()> func) {
         {
@@ -41,7 +39,7 @@ public:
         _cv.notify_one();
     }
 
-private:
+  private:
     void threadFunc() {
         if (!_jvm) {
             log_error("No JVM provided");
@@ -49,7 +47,7 @@ private:
         }
 
         // Attach the thread to the JVM
-        JNIEnv *env;
+        JNIEnv* env;
         jint result = _jvm->AttachCurrentThread(&env, NULL);
         if (result != JNI_OK) {
             log_error("Failed to attach thread");
@@ -73,7 +71,7 @@ private:
 
             try {
                 func();
-            } catch (const std::exception &e) {
+            } catch (const std::exception& e) {
                 log_error(fmt::format("Exception in thread: {}", e.what()));
             }
         }
@@ -82,7 +80,7 @@ private:
         _jvm->DetachCurrentThread();
     }
 
-    JavaVM *_jvm;
+    JavaVM* _jvm;
     std::optional<std::thread> _thread;
     std::mutex _mutex;
     std::condition_variable _cv;

@@ -1,0 +1,289 @@
+---
+title: MCP Server
+description: Run and use the SimpleAIBLE MCP server.
+---
+
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
+import { Callout } from 'fumadocs-ui/components/callout';
+
+The SimpleAIBLE MCP server provides local BLE tools to MCP-capable clients. It is designed for development, debugging, and AI-assisted workflows that need direct access to BLE hardware on the host machine.
+
+<Callout type="info" title="Note">
+This server runs locally using STDIO transport. The local setup uses [uv](https://docs.astral.sh/uv/) (recommended) or Python/pip.
+</Callout>
+
+## Installation
+
+<Tabs items={["uv (recommended)", "Python / pip"]}>
+<Tab value="uv (recommended)">
+```bash
+uv tool install simpleaible
+```
+</Tab>
+<Tab value="Python / pip">
+```bash
+pip install simpleaible
+```
+
+On Python 3.11+ (most modern macOS and Linux systems), `pip install` may fail with an _"externally-managed-environment"_ error ([PEP 668](https://peps.python.org/pep-0668/)). Add the `--break-system-packages` flag:
+
+```bash
+pip install --break-system-packages simpleaible
+# or
+python3 -m pip install --break-system-packages simpleaible
+```
+
+</Tab>
+</Tabs>
+
+<details open>
+<summary><b>Install in Cursor</b></summary>
+
+Go to: `Settings` -> `Cursor Settings` -> `MCP` -> `Add new global MCP server`
+
+Pasting the following configuration into your Cursor `~/.cursor/mcp.json` file is the recommended approach. You may also install in a specific project by creating `.cursor/mcp.json` in your project folder. See [Cursor MCP docs](https://cursor.com/docs/context/mcp#installing-mcp-servers) for more info.
+
+#### Cursor Local Server Connection
+
+[![Install MCP Server](https://cursor.com/deeplink/mcp-install-dark.svg)](https://cursor.com/en/install-mcp?name=simpleaible&config=eyJjb21tYW5kIjoic2ltcGxlYWlibGUifQ==)
+
+```json
+{
+  "mcpServers": {
+    "simpleaible": {
+      "command": "simpleaible"
+    }
+  }
+}
+```
+
+</details>
+
+<details>
+<summary><b>Install in Claude Code</b></summary>
+
+Run this command. See [Claude Code MCP docs](https://code.claude.com/docs/en/mcp) for more info.
+
+#### Claude Code Local Server Connection
+
+```sh
+claude mcp add simpleaible -- simpleaible
+```
+
+</details>
+
+<details>
+<summary><b>Install in Opencode</b></summary>
+
+Add this to your Opencode configuration file. See [Opencode MCP docs](https://opencode.ai/docs/mcp-servers) for more info.
+
+#### Opencode Local Server Connection
+
+```json
+{
+  "mcp": {
+    "simpleaible": {
+      "type": "local",
+      "command": ["simpleaible"],
+      "enabled": true
+    }
+  }
+}
+```
+
+</details>
+
+## Tool catalog
+
+All tool inputs/outputs are JSON-serializable.
+
+### General Tools
+
+#### `bluetooth_enabled`
+Check if Bluetooth is enabled on the host system. By default, assume Bluetooth is enabled. Use this tool only when troubleshooting failed operations.
+
+- **Response**: 
+  ```json
+  {"enabled": true}
+  ```
+
+#### `get_adapters`
+List all available Bluetooth adapters on the system.
+
+- **Response**: List of objects containing `identifier` and `address`.
+  ```json
+  [
+    {
+      "identifier": "hci0",
+      "address": "AA:BB:CC:DD:EE:FF"
+    }
+  ]
+  ```
+
+#### `scan_for`
+Scan for nearby BLE devices using the first available adapter.
+
+- **Parameters**: `timeout_ms` (default: `5000`) - Duration of the scan in milliseconds.
+- **Response**: List of found devices.
+    ```json
+    [
+      {
+        "identifier": "Nordic_HRM",
+        "address": "AA:BB:CC:DD:EE:FF",
+        "rssi": -55,
+        "connectable": true,
+        "manufacturer_data": {"76": "0215..."}
+      }
+    ]
+    ```
+
+### Device Connection
+
+#### `connect`
+Establish a connection to a specific device found in the last scan.
+
+- **Parameters**: `address` - Device address (UUID on macOS, MAC on Linux/Windows).
+- **Response**: 
+  ```json
+  {"message": "Connected to Nordic_HRM", "address": "AA:BB:CC:DD:EE:FF"}
+  ```
+
+#### `disconnect`
+Disconnect from a connected device.
+
+- **Parameters**: `address`
+- **Response**: 
+  ```json
+  {"message": "Disconnected from AA:BB:CC:DD:EE:FF"}
+  ```
+
+#### `services`
+Retrieve services and characteristics for a connected device.
+
+- **Parameters**: `address`
+- **Response**:
+    ```json
+    {
+      "identifier": "Nordic_HRM",
+      "address": "AA:BB:CC:DD:EE:FF",
+      "connected": true,
+      "mtu": 23,
+      "services": [
+        {
+          "uuid": "0000180d-0000-1000-8000-00805f9b34fb",
+          "characteristics": ["00002a37-0000-1000-8000-00805f9b34fb"]
+        }
+      ]
+    }
+    ```
+
+### Characteristic Interaction
+
+#### `read`
+Read the current value of a characteristic.
+
+- **Parameters**: `address`, `service_uuid`, `char_uuid`
+- **Response**: 
+  ```json
+  {"service_uuid": "0000180d-0000-1000-8000-00805f9b34fb", "char_uuid": "00002a37-0000-1000-8000-00805f9b34fb", "data_hex": "00aabb", "data_utf8": "..."}
+  ```
+- **Note**: `data_utf8` is a convenience field. If the data is not valid UTF-8, invalid bytes are silently skipped, so it may be incomplete or empty for binary data. Use `data_hex` for reliable binary representation.
+
+#### `write_request`
+Write a value to a characteristic (Write with Response).
+
+- **Parameters**: `address`, `service_uuid`, `char_uuid`, `data` (hex string, e.g. `"001122"`)
+- **Response**: `{"message": "Write successful"}`
+
+#### `write_command`
+Write a value to a characteristic without expecting a response (Write Command).
+
+- **Parameters**: `address`, `service_uuid`, `char_uuid`, `data` (hex string, e.g. `"001122"`)
+- **Response**: `{"message": "Write command successful"}`
+
+### Notifications and Indications
+
+#### `notify`
+Subscribe to notifications for a specific characteristic. Data is buffered in the background.
+
+- **Parameters**: `address`, `service_uuid`, `char_uuid`
+- **Response**: `{"message": "Subscribed to notifications"}`
+
+#### `indicate`
+Subscribe to indications for a specific characteristic. Data is buffered in the background.
+
+- **Parameters**: `address`, `service_uuid`, `char_uuid`
+- **Response**: `{"message": "Subscribed to indications"}`
+
+#### `unsubscribe`
+Stop receiving notifications or indications for a characteristic.
+
+- **Parameters**: `address`, `service_uuid`, `char_uuid`
+- **Response**: `{"message": "Unsubscribed"}`
+
+#### `get_notifications`
+Retrieve all received notifications and indications for a device. This call clears the internal notification buffer for that device.
+
+- **Parameters**: `address`
+- **Response**: List of notification objects.
+    ```json
+    [
+      {
+        "service": "0000180d-0000-1000-8000-00805f9b34fb",
+        "characteristic": "00002a37-0000-1000-8000-00805f9b34fb",
+        "data_hex": "163c00",
+        "data_utf8": "...",
+        "type": "notification"
+      }
+    ]
+    ```
+- **Note**: `data_utf8` is a convenience field. If the data is not valid UTF-8, invalid bytes are silently skipped, so it may be incomplete or empty for binary data. Use `data_hex` for reliable binary representation.
+
+## Recommended flow
+
+1. `scan_for`
+2. `connect`
+3. `services`
+4. `read` or `write_request`/`write_command` for one-time operations, or `notify`/`indicate` + `get_notifications` + `unsubscribe` for streaming data
+5. `disconnect`
+
+`get_adapters` is only needed when you want to list available Bluetooth adapters, not as a prerequisite for other operations.
+
+## Platform notes
+
+- On macOS/iOS, device `address` is a randomized UUID (e.g., `5E2A...`) instead of a hardware MAC address. These UUIDs are temporary and may change between sessions or device restarts. On Linux/Windows, standard MAC addresses are used (e.g., `AA:BB:CC:DD:EE:FF`).
+- Advertisement fields (RSSI, manufacturer data, service UUIDs) can vary by OS and device.
+- Some characteristics require pairing or may be restricted by the OS.
+
+## MCP client example (FastMCP via HTTP)
+
+If you are running the server manually using the HTTP transport (`simpleaible --transport http`), you can connect to it using a FastMCP client:
+
+```python
+import asyncio
+from fastmcp import Client
+
+async def main():
+    # Connect to the server running on the default port 8000
+    async with Client("http://127.0.0.1:8000/mcp") as client:
+        adapters = await client.call_tool("get_adapters", {})
+        # ...
+```
+
+Note: FastMCP returns structured results under `structured_content` rather than `data` for some tool outputs.
+
+## Running the server manually
+
+While MCP clients handle starting the server automatically, you can also run it manually for testing.
+
+**STDIO Transport (Default):**
+
+```bash
+simpleaible
+```
+
+**HTTP Transport:**
+
+```bash
+simpleaible --transport http --host 127.0.0.1 --port 8000
+```

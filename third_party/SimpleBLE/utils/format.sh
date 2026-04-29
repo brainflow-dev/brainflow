@@ -4,7 +4,7 @@
 # only for files that have changes.
 #
 # Dry run:
-# >./format.sh 
+# >./format.sh
 #
 # Apply changes:
 # >./format.sh apply
@@ -12,9 +12,9 @@
 
 CLANG_FORMAT="clang-format"
 
-CLANG_FORMAT_VERSION=$($CLANG_FORMAT --version | sed 's/.*version \([1-9][0-9]*\)\..*/\1/')
-if [ "$CLANG_FORMAT_VERSION" != "14" ]; then
-    echo "CI/CD uses clang-format version 14. Local version is $CLANG_FORMAT_VERSION"
+# Check if clang-format exists
+if ! command -v $CLANG_FORMAT &> /dev/null; then
+    echo "clang-format is required but not installed. Please install it and run the script again."
     exit 1
 fi
 
@@ -24,6 +24,10 @@ if ! command -v colordiff &> /dev/null; then
     exit 1
 fi
 
+CLANG_FORMAT_VERSION=$($CLANG_FORMAT --version | sed 's/.*version \([1-9][0-9]*\)\..*/\1/')
+if [ "$CLANG_FORMAT_VERSION" != "19" ]; then
+    echo "CI/CD uses clang-format version 19. Local version is $CLANG_FORMAT_VERSION"
+fi
 
 APPLY=false
 # Check if the 'apply' argument is provided
@@ -49,9 +53,11 @@ echo "Running clang-format..."
 # Excluded paths
 EXCLUDED_PATHS=(
     "./simplepyble/*"
+    "./simpledroidble/*"
     "*CMakeFiles*"
     "*_deps*"
-    "*build*"
+    "./build*"
+    "./target*"
 )
 
 FIND_CMD="find . -type f \( -name \"*.h\" -o -name \"*.hpp\" -o -name \"*.cpp\" -o -name \"*.c\" \)"

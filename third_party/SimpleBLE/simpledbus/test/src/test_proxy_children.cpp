@@ -46,7 +46,7 @@ TEST(ProxyChildren, RemoveSelf) {
     Proxy p = Proxy(nullptr, "", "/");
 
     // Should notify that the proxy can be safely deleted, as nothing worth keeping is left
-    ASSERT_TRUE(p.path_remove("/", Holder::create_array()));
+    ASSERT_TRUE(p.path_remove("/", Holder::create<std::vector<Holder>>()));
 
     // Add a child path without any interfaces
     p.path_add("/a", Holder());
@@ -55,12 +55,12 @@ TEST(ProxyChildren, RemoveSelf) {
     {
         std::shared_ptr<Proxy> p_a = std::dynamic_pointer_cast<Proxy>(p.children().at("/a"));
         // As there is another copy of the child, the proxy should not be deleted
-        ASSERT_FALSE(p.path_remove("/", Holder::create_array()));
+        ASSERT_FALSE(p.path_remove("/", Holder::create<std::vector<Holder>>()));
         ASSERT_EQ(1, p.children().size());
     }
 
     // Should notify that the proxy can be safely deleted, as nothing worth keeping is left
-    ASSERT_TRUE(p.path_remove("/", Holder::create_array()));
+    ASSERT_TRUE(p.path_remove("/", Holder::create<std::vector<Holder>>()));
     ASSERT_EQ(0, p.children().size());
 }
 
@@ -72,25 +72,25 @@ TEST(ProxyChildren, RemoveChildNoInterfaces) {
     {
         std::shared_ptr<Proxy> p_a = std::dynamic_pointer_cast<Proxy>(p.children().at("/a"));
         // As there is another copy of the child, the proxy should not be deleted
-        ASSERT_FALSE(p.path_remove("/a", Holder::create_array()));
+        ASSERT_FALSE(p.path_remove("/a", Holder::create<std::vector<Holder>>()));
         ASSERT_EQ(1, p.children().size());
     }
 
     // As only the child was removed, the main proxy should not be deleted.
-    ASSERT_FALSE(p.path_remove("/a", Holder::create_array()));
+    ASSERT_FALSE(p.path_remove("/a", Holder::create<std::vector<Holder>>()));
     ASSERT_EQ(0, p.children().size());
 }
 
 TEST(ProxyChildren, RemoveChildWithInterfaces) {
     Proxy p = Proxy(nullptr, "", "/");
 
-    Holder managed_interfaces = Holder::create_dict();
+    Holder managed_interfaces = Holder::create<std::map<std::string, Holder>>();
     managed_interfaces.dict_append(Holder::STRING, "i.1", Holder());
     managed_interfaces.dict_append(Holder::STRING, "i.2", Holder());
     p.path_add("/a", managed_interfaces);
 
-    Holder removed_interfaces = Holder::create_array();
-    removed_interfaces.array_append(Holder::create_string("i.2"));
+    Holder removed_interfaces = Holder::create<std::vector<Holder>>();
+    removed_interfaces.array_append(Holder::create<std::string>("i.2"));
     p.path_remove("/a", removed_interfaces);
 
     // Because /a has one interface still, it should still be in the children map.
@@ -102,8 +102,8 @@ TEST(ProxyChildren, RemoveChildWithInterfaces) {
     }
 
     // Remove the second interface
-    removed_interfaces = Holder::create_array();
-    removed_interfaces.array_append(Holder::create_string("i.1"));
+    removed_interfaces = Holder::create<std::vector<Holder>>();
+    removed_interfaces.array_append(Holder::create<std::string>("i.1"));
     p.path_remove("/a", removed_interfaces);
     ASSERT_EQ(0, p.children().size());
 }

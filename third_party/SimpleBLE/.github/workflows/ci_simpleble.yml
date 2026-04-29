@@ -1,0 +1,158 @@
+name: Build SimpleBLE
+
+on:
+  workflow_call:
+
+jobs:
+  build-lib:
+    runs-on: ${{ matrix.config.runner-os || 'ubuntu-latest' }}
+    container: ${{ matrix.config.container-image }}
+    strategy:
+      fail-fast: false
+      matrix:
+        config:
+          - { runner-os: ubuntu-22.04, os: linux, architecture: x64, container-image: dockcross/linux-x64 }
+          - { runner-os: ubuntu-22.04, os: linux, architecture: x86, container-image: dockcross/linux-x86 }
+          - { runner-os: ubuntu-22.04, os: linux, architecture: aarch64, container-image: dockcross/linux-arm64 }
+          - { runner-os: ubuntu-22.04, os: linux, architecture: armv6, container-image: dockcross/linux-armv6-lts }
+          - { runner-os: macos-14, os: macos, architecture: x64 } # Containers are not required.
+          - { runner-os: macos-14, os: macos, architecture: aarch64 } # Containers are not required.
+          - { runner-os: macos-14, os: ios, architecture: aarch64 } # Containers are not required.
+          - { runner-os: windows-2022, os: windows, architecture: x64 } # Containers are not required.
+          - { runner-os: windows-2022, os: windows, architecture: x86 } # Containers are not required.
+          - { runner-os: ubuntu-22.04, os: android, architecture: armeabi-v7a }
+          - { runner-os: ubuntu-22.04, os: android, architecture: arm64-v8a }
+          - { runner-os: ubuntu-22.04, os: android, architecture: x86 }
+          - { runner-os: ubuntu-22.04, os: android, architecture: x86_64 }
+    steps:
+      - name: Clone Repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          fetch-tags: true
+
+      - name: Add Version Suffix
+        uses: ./.github/actions/setup-version
+
+      - name: Build SimpleBLE Library (Static)
+        uses: ./.github/actions/build-native
+        with:
+          source-dir: "$GITHUB_WORKSPACE/simpleble"
+          build-dir: "$GITHUB_WORKSPACE/build_simpleble_static"
+          install-prefix: "$GITHUB_WORKSPACE/install_simpleble/static"
+          build-config: "Release"
+          os: "${{ matrix.config.os }}"
+          target-arch: "${{ matrix.config.architecture }}"
+          cmake-options: "-DBUILD_SHARED_LIBS=OFF"
+
+      - name: Build SimpleBLE Library (Shared)
+        uses: ./.github/actions/build-native
+        with:
+          source-dir: "$GITHUB_WORKSPACE/simpleble"
+          build-dir: "$GITHUB_WORKSPACE/build_simpleble_shared"
+          install-prefix: "$GITHUB_WORKSPACE/install_simpleble/shared"
+          build-config: "Release"
+          os: "${{ matrix.config.os }}"
+          target-arch: "${{ matrix.config.architecture }}"
+          cmake-options: "-DBUILD_SHARED_LIBS=ON"
+
+      - name: Package SimpleBLE Artifact
+        uses: ./.github/actions/package-native
+        with:
+          source-dir: $GITHUB_WORKSPACE/install_simpleble
+          output-dir: $GITHUB_WORKSPACE/artifacts
+          archive-name: libsimpleble_${{ matrix.config.os }}-${{ matrix.config.architecture }}
+          os: "${{ matrix.config.os }}"
+
+      - name: Upload Binaries
+        uses: actions/upload-artifact@v4
+        with:
+          name: libsimpleble_${{ matrix.config.os }}-${{ matrix.config.architecture }}
+          path: artifacts/libsimpleble_${{ matrix.config.os }}-${{ matrix.config.architecture }}.zip
+
+  build-plugins:
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Clone Repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          fetch-tags: true
+
+      - name: Add Version Suffix
+        uses: ./.github/actions/setup-version
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: "17"
+          distribution: "temurin"
+
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v4
+
+      - name: Build simplebledroidbridge AAR
+        run: gradle :bundleReleaseAar -p ./simpledroidbridge --no-daemon -Dorg.gradle.project.buildDir="$GITHUB_WORKSPACE/build_simpledroidbridge"
+
+      - name: Package Artifact
+        uses: ./.github/actions/package-native
+        with:
+          source-dir: $GITHUB_WORKSPACE/build_simpledroidbridge/outputs/aar
+          output-dir: $GITHUB_WORKSPACE/artifacts
+          archive-name: libsimpleble_android_plugins
+          os: linux
+
+      - name: Upload Binaries
+        uses: actions/upload-artifact@v4
+        with:
+          name: libsimpleble_android_plugins
+          path: artifacts/libsimpleble_android_plugins.zip
+
+  build-examples:
+    runs-on: ${{ matrix.config.runner-os || 'ubuntu-latest' }}
+    container: ${{ matrix.config.container-image }}
+    strategy:
+      fail-fast: false
+      matrix:
+        config:
+          - { runner-os: ubuntu-22.04, os: linux, architecture: x64, container-image: dockcross/linux-x64 }
+          - { runner-os: macos-14, os: macos, architecture: x64 } # Containers are not required.
+          # - { runner-os: windows-2022, os: windows, architecture: x64 } # Containers are not required. # FIXME: Some issue with lib installation is messing with the build.
+
+    steps:
+      - name: Clone Repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          fetch-tags: true
+
+      - name: Add Version Suffix
+        uses: ./.github/actions/setup-version
+
+      - name: Build SimpleBLE Examples
+        uses: ./.github/actions/build-native
+        with:
+          source-dir: "$GITHUB_WORKSPACE/examples/simpleble"
+          build-dir: "$GITHUB_WORKSPACE/build_simpleble_examples"
+          install-prefix: "$GITHUB_WORKSPACE/install_simpleble_examples"
+          build-config: "Debug"
+          os: "${{ matrix.config.os }}"
+          target-arch: "${{ matrix.config.architecture }}"
+          cmake-options: "-DBUILD_SHARED_LIBS=OFF"
+
+      - name: Package SimpleBLE Artifact
+        uses: ./.github/actions/package-native
+        with:
+          source-dir: $GITHUB_WORKSPACE/install_simpleble_examples/bin
+          output-dir: $GITHUB_WORKSPACE/artifacts
+          archive-name: libsimpleble_examples_${{ matrix.config.os }}-${{ matrix.config.architecture }}
+          os: "${{ matrix.config.os }}"
+
+      - name: Upload Binaries
+        uses: actions/upload-artifact@v4
+        with:
+          name: libsimpleble_examples_${{ matrix.config.os }}-${{ matrix.config.architecture }}
+          path: artifacts/libsimpleble_examples_${{ matrix.config.os }}-${{ matrix.config.architecture }}.zip

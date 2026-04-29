@@ -1,0 +1,48 @@
+---
+title: Bluetooth LE Basics
+description: A brief introduction to Bluetooth Low Energy concepts.
+---
+
+SimpleBLE abstracts away much of the complexity of Bluetooth Low Energy (BLE), but having a basic understanding of how BLE works will help you use the library more effectively.
+
+## Device Roles
+
+In BLE, there are two primary roles when two devices are communicating:
+
+*   **Central:** Typically a smartphone or computer (like the one running SimpleBLE). The Central scans for advertisements and initiates connections.
+*   **Peripheral:** Typically a small, low-power device (like a heart rate monitor or a smart bulb). The Peripheral advertises its presence and waits for a Central to connect.
+
+## Advertising and Scanning
+
+Peripherals send out small packets of data called **Advertisements** to announce their presence. These packets can contain:
+*   The device name.
+*   List of supported services.
+*   Manufacturer-specific data.
+*   TX Power level.
+
+Centrals perform **Scanning** to listen for these advertisements. Once a Central finds a Peripheral it's interested in, it can initiate a **Connection**.
+
+## Services and Characteristics (GATT)
+
+Once connected, devices communicate using the **Generic Attribute Profile (GATT)**. Data is organized into a hierarchy:
+
+### Services
+A **Service** is a collection of data and associated behaviors to accomplish a particular function. For example, a "Heart Rate Service" would group together all the features related to heart rate monitoring.
+
+### Characteristics
+A **Characteristic** is the smallest logical unit of data within a service. It contains a single value and any number of **Descriptors** that describe the characteristic's value. 
+Characteristics can have different properties, such as:
+*   **Read:** The Central can read the value from the Peripheral.
+*   **Write:** The Central can write a new value to the Peripheral.
+*   **Notify/Indicate:** The Peripheral can push updates to the Central when the value changes.
+
+### UUIDs
+Every Service and Characteristic is identified by a **Universally Unique Identifier (UUID)**. 
+*   Standardized UUIDs (defined by the Bluetooth SIG) are 16-bit (e.g., `0x180D` for Heart Rate Service).
+*   Custom UUIDs are 128-bit (e.g., `00001234-0000-1000-8000-00805f9b34fb`).
+
+## Connections and Pairing
+
+*   **Connection:** A state where two devices are synchronized and can exchange data.
+*   **Pairing:** The process of exchanging security keys to encrypt the connection.
+*   **Bonding:** The process of storing those keys for future use, so the devices don't have to pair again next time they connect.

@@ -1,0 +1,50 @@
+---
+title: Agent Skills
+description: Extend your AI agent's capabilities with SimpleAIBLE skills.
+---
+
+SimpleAIBLE provides a set of **Agent Skills** that teach your AI assistant (Cursor, Claude Code, Windsurf, etc.) how to effectively use the SimpleAIBLE MCP server and debug Bluetooth Low Energy connections.
+
+## What are Agent Skills?
+
+Agent skills are reusable instruction sets that provide domain-specific knowledge to your AI. The `simpleaible` skill includes**:**
+
+- **Recommended Workflows**: Step-by-step guidance on scanning, connecting, and interacting with devices.
+- **Platform Knowledge**: Awareness of differences between macOS UUIDs and Linux MAC addresses.
+- **Debugging Patterns**: Pre-defined strategies for troubleshooting connection and discovery issues.
+
+## Installation
+
+You can install the SimpleAIBLE skill using the `skills` CLI. This works across multiple agents including Cursor, Claude Code, and others.
+
+### Using npx (Recommended)
+
+Run the following command in your terminal:
+
+```bash
+npx skills add https://github.com/simpleble/simpleble --skill simpleaible
+```
+
+### Options
+
+- **Target specific agents**: Use `-a` or `--agent` (e.g., `-a cursor -a claude-code`).
+- **Global installation**: Use `-g` or `--global` to make the skill available across all your projects.
+
+## Usage in Agents
+
+Once installed, your agent will automatically "activate" the skill when it detects you are working on Bluetooth-related tasks. You can trigger it by asking questions like:
+
+- *"I'm debugging my peripheral, please ensure it is connectable and I can read some data."*
+- *"I'm not finding any device, please see if you can find any BLE device."*
+- *"Read the firmware version from the device at address AA:BB:CC:DD:EE:FF."*
+
+## Supported Agents
+
+The skill follows the [Agent Skills specification](https://agentskills.io) and is compatible with:
+
+- **Cursor**
+- **Claude Code**
+- **Windsurf**
+- **Cline**
+- **Roo Code**
+- ... and many more.

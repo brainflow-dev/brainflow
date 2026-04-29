@@ -24,6 +24,7 @@ pybind11_add_module(
     src/wrap_characteristic.cpp
     src/wrap_descriptor.cpp
     src/wrap_types.cpp
+    src/wrap_config.cpp
 )
 
 target_link_libraries(_simplepyble PRIVATE simpleble::simpleble)

@@ -20,11 +20,11 @@ jobs:
     - name: Add msbuild to PATH
       uses: microsoft/setup-msbuild@v1.0.2
     # compile and prepare everything
-    # need to build SimpleBLE outside from BrainFlow because they have different Windows System Versions
-    - name: Compile SimpleBLE ${{ matrix.build_type }} ${{ matrix.arch }} with MSVC runtime ${{ matrix.msvc_runtime }}
+    # need to build SimpleCBLE outside from BrainFlow because they have different Windows System Versions
+    - name: Compile SimpleCBLE ${{ matrix.build_type }} ${{ matrix.arch }} with MSVC runtime ${{ matrix.msvc_runtime }}
       run: |
-        mkdir %GITHUB_WORKSPACE%\third_party\SimpleBLE\simpleble\%BUILD%_%RUNTIME%_%ARCH%
-        cd %GITHUB_WORKSPACE%\third_party\SimpleBLE\simpleble\%BUILD%_%RUNTIME%_%ARCH%
+        mkdir %GITHUB_WORKSPACE%\third_party\SimpleBLE\simplecble\%BUILD%_%RUNTIME%_%ARCH%
+        cd %GITHUB_WORKSPACE%\third_party\SimpleBLE\simplecble\%BUILD%_%RUNTIME%_%ARCH%
         cmake -G "Visual Studio 17 2022" -A %ARCH% -DMSVC_RUNTIME=%RUNTIME% -DCMAKE_SYSTEM_VERSION=10.0.19041.0 -DCMAKE_INSTALL_PREFIX=%GITHUB_WORKSPACE%\artifacts\%ARCH%_%BUILD%_%RUNTIME%\ ..
         cmake --build . --target install --config %BUILD% -j 2 --parallel 2
       shell: cmd
@@ -75,12 +75,12 @@ jobs:
           brew install ninja
         fi
         ninja --version
-    # build simpleble outside from brainflow because of different deployment targets
-    - name: Compile SimpleBLE MacOS
+    # build SimpleCBLE outside from brainflow because of different deployment targets
+    - name: Compile SimpleCBLE MacOS
       if: (matrix.os == 'macos-14')
       run: |
-        mkdir $GITHUB_WORKSPACE/third_party/SimpleBLE/simpleble/build
-        cd $GITHUB_WORKSPACE/third_party/SimpleBLE/simpleble/build
+        mkdir $GITHUB_WORKSPACE/third_party/SimpleBLE/simplecble/build
+        cd $GITHUB_WORKSPACE/third_party/SimpleBLE/simplecble/build
         cmake -G Ninja -DCMAKE_OSX_ARCHITECTURES="arm64;x86_64" -DCMAKE_OSX_DEPLOYMENT_TARGET=10.15 -DCMAKE_INSTALL_PREFIX=$GITHUB_WORKSPACE/artifacts/macos_$BUILD -DCMAKE_BUILD_TYPE=$BUILD ..
         ninja
         ninja install

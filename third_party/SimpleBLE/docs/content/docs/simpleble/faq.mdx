@@ -1,0 +1,74 @@
+---
+title: FAQ
+description: Frequently asked questions about SimpleBLE.
+---
+
+import { Accordion, Accordions } from 'fumadocs-ui/components/accordion';
+
+Right now, the best way to have your questions answered is on our [Discord](https://discord.gg/N9HqNEcvP3) server. More information will be made available here soon.
+
+<Accordions type="multiple">
+
+<Accordion title="What platforms are supported by SimpleBLE?" id="platforms">
+
+SimpleBLE supports Windows 10+, Linux (Ubuntu 20.04+ and other distros using Bluez), MacOS 13.0+ (Ventura and newer), iOS 15.0+, and Android API 31+.
+
+Please check the overview page on more information about platform-specific limitations.
+
+</Accordion>
+
+<Accordion title="When should I set configuration values?" id="configuration">
+
+All configuration values must be set prior to any other interaction with a SimpleBLE component. This includes calling `SimpleBLE::Adapter::get_adapters()` or any other function that interacts with the underlying Bluetooth stack. Changes made after initialization may not take effect or could lead to undefined behavior.
+
+</Accordion>
+
+<Accordion title="Why do I get UUIDs for the peripheral address on MacOS?" id="macos-uuid">
+
+MacOS has a policy of not allowing applications to access the Bluetooth address of peripherals. Instead, it provides a UUID that is unique to the peripheral. This UUID is not persistent across reboots, so you should not use it to identify a peripheral. Instead, you should use the name of the peripheral, which is persistent across reboots.
+
+</Accordion>
+
+<Accordion title="Why does connecting take longer on Linux?" id="linux-connection">
+
+On Linux (BlueZ), SimpleBLE waits until all services have been fully resolved before considering the device "connected". This ensures that when `connect()` returns, the device is fully ready for interaction, but it adds the time required for service discovery to the connection process.
+
+</Accordion>
+
+<Accordion title="Why is address_type() returning unknown on Android?" id="android-address-type">
+
+Retrieving the address type of a peripheral is only supported on Android API level 35 and newer. On older versions of Android, the OS does not expose this information to applications.
+
+</Accordion>
+
+<Accordion title="I get a 'Bluetooth not enabled' warning on Windows, despite Bluetooth being enabled." id="windows-warning">
+
+This is a known issue when running a version of SimpleBLE built for a 32-bit architecture on a 64-bit Windows machine. The issue is that the underlying Windows API will not allow us to query the state of the Bluetooth adapter when running in 32-bit mode. The solution is to consume a 64-bit version of SimpleBLE instead.
+
+</Accordion>
+
+<Accordion title="What is the purpose behind the plain interface?" id="plain-interface">
+
+Building SimpleBLE with the plain-flavored interface allows you to use a version of the library that is independent of the operating system, which is achieved by hardcoding all behaviors and responses. This is useful for testing and debugging, especially when you don't need to deal with operating-system shenanigans and just want to test the API.
+
+</Accordion>
+
+<Accordion title="What is the correct approach to memory management of SimpleBLE objects in the C-API?" id="memory-management">
+
+Coming soon.
+
+</Accordion>
+
+<Accordion title="How are vectors supposed to be handled in the C-API?" id="vectors">
+
+Coming soon.
+
+</Accordion>
+
+<Accordion title="What is the default behavior of functions that are not supported by a specific backend?" id="unsupported-functions">
+
+Successfully calling a function that is not supported by a specific backend will result in a no-op.
+
+</Accordion>
+
+</Accordions>

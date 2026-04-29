@@ -1,0 +1,11 @@
+{
+  "title": "SimpleBLE",
+  "pages": [
+    "usage",
+    "platform_notes",
+    "tutorial",
+    "api",
+    "examples",
+    "faq"
+  ]
+}

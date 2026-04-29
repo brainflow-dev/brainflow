@@ -1,33 +1,39 @@
 #pragma once
 
 #include <simpledbus/advanced/Proxy.h>
-#include <simpledbus/interfaces/ObjectManager.h>
 
-#include <simplebluez/Adapter.h>
-#include <simplebluez/Agent.h>
-
+#include <simplebluez/standard/Adapter.h>
+#include <simplebluez/standard/Agent.h>
+#include <simplebluez/standard/BluezRoot.h>
+#include <simplebluez/standard/CustomRoot.h>
 #include <vector>
 
 namespace SimpleBluez {
 
-class Bluez : public SimpleDBus::Proxy {
+class Bluez {
   public:
     Bluez();
     virtual ~Bluez();
 
+    // Delete copy and move operations
+    Bluez(const Bluez&) = delete;
+    Bluez& operator=(const Bluez&) = delete;
+    Bluez(Bluez&&) = delete;
+    Bluez& operator=(Bluez&&) = delete;
+
     void init();
     void run_async();
 
+    std::shared_ptr<CustomRoot> root_custom();
+    std::shared_ptr<BluezRoot> root_bluez();
+
     std::vector<std::shared_ptr<Adapter>> get_adapters();
-    std::shared_ptr<Agent> get_agent();
-    void register_agent();
+    void register_agent(std::shared_ptr<Agent> agent);
 
   private:
-    std::shared_ptr<SimpleDBus::Proxy> path_create(const std::string& path) override;
-
-    std::shared_ptr<SimpleDBus::ObjectManager> object_manager();
-
-    std::shared_ptr<Agent> _agent;
+    std::shared_ptr<SimpleDBus::Connection> _conn;
+    std::shared_ptr<SimpleBluez::BluezRoot> _bluez_root;
+    std::shared_ptr<SimpleBluez::CustomRoot> _custom_root;
 };
 
 }  // namespace SimpleBluez

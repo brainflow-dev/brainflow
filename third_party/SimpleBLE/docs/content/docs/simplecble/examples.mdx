@@ -1,0 +1,19 @@
+---
+title: Examples
+description: Example code for SimpleCBLE.
+---
+
+You can find the official examples in the `examples/simplecble` directory of the repository.
+
+- [Scan](https://github.com/simpleble/simpleble/blob/main/examples/simplecble/c/scan.c): Scans for peripherals and prints their details.
+- [Connect](https://github.com/simpleble/simpleble/blob/main/examples/simplecble/c/connect.c): Connects to a selected peripheral and lists its services.
+- [Notify](https://github.com/simpleble/simpleble/blob/main/examples/simplecble/c/notify.c): Subscribes to notifications from a characteristic.
+
+## Building Examples
+
+To build the examples:
+
+```bash
+cmake -S examples/simplecble/c -B build_examples
+cmake --build build_examples
+```

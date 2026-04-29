@@ -1,0 +1,81 @@
+name: 'Build DBus'
+description: 'Clone and build DBus'
+
+inputs:
+  os:
+    description: "Runner OS"
+    default: ''
+    required: true
+  arch:
+    description: "Platform architecture"
+    default: ''
+    required: true
+
+runs:
+  using: "composite"
+  steps:
+    - name: Install Dependencies
+      shell: bash
+      env:
+          DEBIAN_FRONTEND: noninteractive
+      run: |
+        if [[ "${{ inputs.arch }}" == "x86" ]]; then
+          sudo -H apt-get remove -y libexpat1-dev:i386
+        else
+          sudo -H apt-get remove -y libexpat1-dev
+        fi
+
+    - name: Generate Hashes
+      id: hashes
+      shell: bash
+      # NOTE: Pinning libexpat to 2.7.0 as the exact version is not important.
+      # NOTE: Pinning DBus to 1.16.2 as the exact version is not important.
+      run: |
+        EXPAT_HASH=6d4ffe856df497ac2cae33537665c3fec7ec8a00
+        DBUS_HASH=958bf9db2100553bcd2fe2a854e1ebb42e886054
+        COMBINED_HASH="$EXPAT_HASH-$DBUS_HASH"
+        echo "expat_hash=$EXPAT_HASH" >> $GITHUB_OUTPUT
+        echo "dbus_hash=$DBUS_HASH" >> $GITHUB_OUTPUT
+        echo "combined_hash=$COMBINED_HASH" >> $GITHUB_OUTPUT
+
+    - name: Cache Linux Dependencies
+      id: cache-simpleble-linux-deps
+      uses: actions/cache@v4
+      with:
+        path: /tmp/install
+        key: expat-dbus-${{ inputs.os }}-${{ inputs.arch }}-${{ steps.hashes.outputs.combined_hash }}
+
+    - name: Build Expat
+      if: steps.cache-simpleble-linux-deps.outputs.cache-hit != 'true'
+      shell: bash
+      run: |
+        if [[ -d "/tmp/expat" ]]; then
+          echo "/tmp/expat already exists, skipping clone and build."
+          exit 0
+        fi
+        git clone https://github.com/libexpat/libexpat.git /tmp/expat
+        cd /tmp/expat/expat
+        git checkout ${{ steps.hashes.outputs.expat_hash }}
+        cmake -B build -DEXPAT_BUILD_DOCS=OFF -DEXPAT_BUILD_EXAMPLES=OFF -DEXPAT_BUILD_TESTS=OFF
+        cmake --build build --config Release --parallel 4
+        cmake --install build --prefix /tmp/install
+
+    - name: Build DBus
+      if: steps.cache-simpleble-linux-deps.outputs.cache-hit != 'true'
+      shell: bash
+      run: |
+        if [[ -d "/tmp/dbus" ]]; then
+          echo "/tmp/dbus already exists, skipping clone and build."
+          exit 0
+        fi
+        git clone https://gitlab.freedesktop.org/dbus/dbus.git /tmp/dbus
+        cd /tmp/dbus
+        git checkout ${{ steps.hashes.outputs.dbus_hash }}
+        cmake -B build -DDBUS_SESSION_SOCKET_DIR=/usr/local/var/run/dbus/system_bus_socket -DDBUS_BUILD_TESTS=OFF -DCMAKE_INSTALL_PREFIX=/tmp/install -DCMAKE_PREFIX_PATH=/tmp/install
+        cmake --build build --config Release --parallel 4
+        cmake --install build --prefix /tmp/install
+
+    - name: Export Environment Variables
+      shell: bash
+      run: |
+        echo "CMAKE_PREFIX_PATH=/tmp/install" >> $GITHUB_ENV
