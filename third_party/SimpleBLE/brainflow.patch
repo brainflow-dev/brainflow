@@ -1,0 +1,260 @@
+diff --git a/cmake/epilogue.cmake b/cmake/epilogue.cmake
+index 2ff3dfd..f520d6f 100644
+--- a/cmake/epilogue.cmake
++++ b/cmake/epilogue.cmake
+@@ -9,14 +9,52 @@ if(PROJECT_IS_TOP_LEVEL)
+     file(WRITE ${CMAKE_BINARY_DIR}/.gitignore "*")
+ endif()
+ 
+-if(CMAKE_GENERATOR_PLATFORM MATCHES "^[Ww][Ii][Nn]32$")
+-    set(WINDOWS_TARGET_ARCH x86)
+-elseif(CMAKE_GENERATOR_PLATFORM MATCHES "^[Xx]64$")
+-    set(WINDOWS_TARGET_ARCH x64)
+-endif()
+-
+-macro(apply_build_options
+-    TARGET
++if(CMAKE_GENERATOR_PLATFORM MATCHES "^[Ww][Ii][Nn]32$")
++    set(WINDOWS_TARGET_ARCH x86)
++elseif(CMAKE_GENERATOR_PLATFORM MATCHES "^[Xx]64$")
++    set(WINDOWS_TARGET_ARCH x64)
++endif()
++
++if(MSVC)
++    add_definitions(-D_CRT_SECURE_NO_WARNINGS -D_SILENCE_TR1_NAMESPACE_DEPRECATION_WARNING -D_CRT_NONSTDC_NO_DEPRECATE)
++
++    if("${MSVC_RUNTIME}" STREQUAL "")
++        set(MSVC_RUNTIME "static")
++    endif()
++
++    set(MSVC_RUNTIME_VARIABLES
++        CMAKE_C_FLAGS_DEBUG
++        CMAKE_C_FLAGS_MINSIZEREL
++        CMAKE_C_FLAGS_RELEASE
++        CMAKE_C_FLAGS_RELWITHDEBINFO
++        CMAKE_CXX_FLAGS_DEBUG
++        CMAKE_CXX_FLAGS_MINSIZEREL
++        CMAKE_CXX_FLAGS_RELEASE
++        CMAKE_CXX_FLAGS_RELWITHDEBINFO)
++
++    if("${MSVC_RUNTIME}" STREQUAL "static")
++        message(STATUS "MSVC -> forcing use of statically-linked runtime.")
++        set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
++        foreach(variable ${MSVC_RUNTIME_VARIABLES})
++            if("${${variable}}" MATCHES "/MD")
++                string(REGEX REPLACE "/MD" "/MT" ${variable} "${${variable}}")
++            endif()
++        endforeach()
++    elseif("${MSVC_RUNTIME}" STREQUAL "dynamic")
++        message(STATUS "MSVC -> forcing use of dynamically-linked runtime.")
++        set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>DLL")
++        foreach(variable ${MSVC_RUNTIME_VARIABLES})
++            if("${${variable}}" MATCHES "/MT")
++                string(REGEX REPLACE "/MT" "/MD" ${variable} "${${variable}}")
++            endif()
++        endforeach()
++    else()
++        message(FATAL_ERROR "Unsupported MSVC_RUNTIME value '${MSVC_RUNTIME}', expected 'static' or 'dynamic'.")
++    endif()
++endif()
++
++macro(apply_build_options
++    TARGET
+     PRIVATE_COMPILE_DEFINITIONS
+     PRIVATE_COMPILE_OPTIONS
+     PRIVATE_LINK_OPTIONS
+@@ -78,4 +116,4 @@ endmacro()
+ # Define the list of source files with relative paths
+ set(SIMPLEJNI_SOURCES
+     "${CMAKE_CURRENT_LIST_DIR}/../dependencies/internal/src/simplejni/Common.cpp"
+-)
+\ No newline at end of file
++)
+diff --git a/cmake/prelude.cmake b/cmake/prelude.cmake
+index 7770668..f20899b 100644
+--- a/cmake/prelude.cmake
++++ b/cmake/prelude.cmake
+@@ -1,8 +1,12 @@
+-cmake_minimum_required(VERSION 3.21)
+-
+-# Common configuration used by all projects in this repository
+-set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+-list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_LIST_DIR}/find)
++cmake_minimum_required(VERSION 3.21)
++
++if(POLICY CMP0091)
++    cmake_policy(SET CMP0091 NEW)
++endif()
++
++# Common configuration used by all projects in this repository
++set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
++list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_LIST_DIR}/find)
+ 
+ include(${CMAKE_CURRENT_LIST_DIR}/parse_version.cmake)
+ parse_version(${CMAKE_CURRENT_LIST_DIR}/../VERSION SIMPLEBLE)
+diff --git a/simpleble/CMakeLists.txt b/simpleble/CMakeLists.txt
+index 1e851e0..144a99c 100644
+--- a/simpleble/CMakeLists.txt
++++ b/simpleble/CMakeLists.txt
+@@ -324,11 +324,9 @@ elseif(SIMPLEBLE_BACKEND_WINDOWS)
+         list(APPEND PRIVATE_COMPILE_OPTIONS "/Gd")
+         # /EHsc -> Use the standard C++ exception handling model. https://learn.microsoft.com/en-us/cpp/build/reference/eh-exception-handling-model
+         list(APPEND PRIVATE_COMPILE_OPTIONS "/EHsc")
+-        # /WX -> Treats all warnings as errors.
+-        list(APPEND PRIVATE_COMPILE_OPTIONS "/WX")
+-        # /W1 -> Use the lowest level of warnings, as there are some unsafe functions that MSVC doesn't like.
+-        # TODO: This should be removed once the warnings are fixed.
+-        list(APPEND PRIVATE_COMPILE_OPTIONS "/W1")
++        # /W1 -> Use the lowest level of warnings, as there are some unsafe functions that MSVC doesn't like.
++        # TODO: This should be removed once the warnings are fixed.
++        list(APPEND PRIVATE_COMPILE_OPTIONS "/W1")
+     endif()
+ 
+     target_sources(simpleble PRIVATE
+diff --git a/simplecble/CMakeLists.txt b/simplecble/CMakeLists.txt
+index d1b3590..4a964dd 100644
+--- a/simplecble/CMakeLists.txt
++++ b/simplecble/CMakeLists.txt
+@@ -12,13 +12,29 @@ project(
+ 
+ include(${CMAKE_CURRENT_SOURCE_DIR}/../cmake/epilogue.cmake)
+ 
+-include(GenerateExportHeader)
+-include(GNUInstallDirs)
+-
+-if(SIMPLECBLE_TEST)
+-    message(STATUS "Building tests requires plain version of SimpleBLE")
+-    set(SIMPLEBLE_PLAIN ON)
+-endif()
++include(GenerateExportHeader)
++include(GNUInstallDirs)
++
++if(APPLE)
++    set(SIMPLECBLE_OUTPUT_NAME "simpleble-c")
++    set(SIMPLECBLE_FILE_NAME "libsimpleble-c.dylib")
++elseif(UNIX)
++    set(SIMPLECBLE_OUTPUT_NAME "simpleble-c")
++    set(SIMPLECBLE_FILE_NAME "libsimpleble-c.so")
++else()
++    if(CMAKE_SIZEOF_VOID_P EQUAL 8)
++        set(SIMPLECBLE_OUTPUT_NAME "simpleble-c")
++        set(SIMPLECBLE_FILE_NAME "simpleble-c.dll")
++    else()
++        set(SIMPLECBLE_OUTPUT_NAME "simpleble-c32")
++        set(SIMPLECBLE_FILE_NAME "simpleble-c32.dll")
++    endif()
++endif()
++
++if(SIMPLECBLE_TEST)
++    message(STATUS "Building tests requires plain version of SimpleBLE")
++    set(SIMPLEBLE_PLAIN ON)
++endif()
+ 
+ add_subdirectory(${CMAKE_CURRENT_LIST_DIR}/../simpleble ${CMAKE_BINARY_DIR}/simpleble)
+ 
+@@ -29,8 +45,8 @@ set(SIMPLEBLE_C_SRC
+     ${CMAKE_CURRENT_SOURCE_DIR}/src/logging.cpp
+     ${CMAKE_CURRENT_SOURCE_DIR}/src/utils.cpp)
+ 
+-add_library(simplecble ${SIMPLEBLE_C_SRC})
+-add_library(simplecble::simplecble ALIAS simplecble)
++add_library(simplecble SHARED ${SIMPLEBLE_C_SRC})
++add_library(simplecble::simplecble ALIAS simplecble)
+ 
+ # NOTE: This is a temporary alias to ensure backwards compatibility with the old C bindings.
+ add_library(simpleble-c ALIAS simplecble)
+@@ -43,15 +59,18 @@ set_target_properties(simplecble PROPERTIES
+     CXX_STANDARD_REQUIRED YES
+     CXX_EXTENSIONS NO
+     POSITION_INDEPENDENT_CODE ON
+-    DEFINE_SYMBOL simpleble_EXPORTS
+-    VERSION "${PROJECT_VERSION}"
+-    SOVERSION "${PROJECT_VERSION_MAJOR}"
+-    EXPORT_NAME simplecble
+-    OUTPUT_NAME simplecble
+-    RELEASE_POSTFIX ""
+-    RELWITHDEBINFO_POSTFIX "-relwithdebinfo"
+-    MINSIZEREL_POSTFIX "-minsizerel"
+-    DEBUG_POSTFIX "-debug")
++    DEFINE_SYMBOL simpleble_EXPORTS
++    VERSION "${PROJECT_VERSION}"
++    SOVERSION "${PROJECT_VERSION_MAJOR}"
++    EXPORT_NAME simplecble
++    OUTPUT_NAME ${SIMPLECBLE_OUTPUT_NAME}
++    ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/../../../compiled
++    LIBRARY_OUTPUT_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/../../../compiled
++    RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/../../../compiled
++    RELEASE_POSTFIX ""
++    RELWITHDEBINFO_POSTFIX "-relwithdebinfo"
++    MINSIZEREL_POSTFIX "-minsizerel"
++    DEBUG_POSTFIX "")
+ 
+ # TODO: We need to migrate everything internally to use the new export header.
+ generate_export_header(
+@@ -72,12 +91,12 @@ target_include_directories(simplecble SYSTEM PUBLIC
+ target_link_libraries(simplecble PRIVATE simpleble::simpleble)
+ target_compile_definitions(simplecble PRIVATE SIMPLEBLE_VERSION="${PROJECT_VERSION}")
+ 
+-# Apply OS-specific settings for simplecble
+-if(SIMPLEBLE_BACKEND_LINUX)
+-    set_property(TARGET simplecble PROPERTY INSTALL_RPATH $ORIGIN)
+-elseif(SIMPLEBLE_BACKEND_MACOS)
+-    set_property(TARGET simplecble PROPERTY INSTALL_RPATH @loader_path)
+-endif()
++# Apply OS-specific settings for simplecble
++if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
++    set_property(TARGET simplecble PROPERTY INSTALL_RPATH $ORIGIN)
++elseif(CMAKE_SYSTEM_NAME STREQUAL "Darwin")
++    set_property(TARGET simplecble PROPERTY INSTALL_RPATH @loader_path)
++endif()
+ 
+ apply_build_options(simplecble
+     "${PRIVATE_COMPILE_DEFINITIONS}"
+@@ -85,15 +104,38 @@ apply_build_options(simplecble
+     "${PRIVATE_LINK_OPTIONS}"
+     "${PUBLIC_LINK_OPTIONS}")
+ 
+-install(
+-    TARGETS simplecble
+-    EXPORT simplecble-config
+-    ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
+-    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+-    RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
+-
+-install(
+-    DIRECTORY ${CMAKE_CURRENT_LIST_DIR}/include/simplecble/
++install(
++    TARGETS simplecble
++    EXPORT simplecble-config
++    ARCHIVE DESTINATION lib
++    LIBRARY DESTINATION lib
++    RUNTIME DESTINATION lib)
++
++if(MSVC)
++    add_custom_command(TARGET simplecble POST_BUILD
++        COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/../../../compiled/$<CONFIG>/${SIMPLECBLE_FILE_NAME}" "${CMAKE_CURRENT_SOURCE_DIR}/../../../python_package/brainflow/lib/${SIMPLECBLE_FILE_NAME}"
++        COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/../../../compiled/$<CONFIG>/${SIMPLECBLE_FILE_NAME}" "${CMAKE_CURRENT_SOURCE_DIR}/../../../java_package/brainflow/src/main/resources/${SIMPLECBLE_FILE_NAME}"
++        COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/../../../compiled/$<CONFIG>/${SIMPLECBLE_FILE_NAME}" "${CMAKE_CURRENT_SOURCE_DIR}/../../../csharp_package/brainflow/brainflow/lib/${SIMPLECBLE_FILE_NAME}"
++        COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/../../../compiled/$<CONFIG>/${SIMPLECBLE_FILE_NAME}" "${CMAKE_CURRENT_SOURCE_DIR}/../../../matlab_package/brainflow/lib/${SIMPLECBLE_FILE_NAME}"
++        COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/../../../compiled/$<CONFIG>/${SIMPLECBLE_FILE_NAME}" "${CMAKE_CURRENT_SOURCE_DIR}/../../../julia_package/brainflow/lib/${SIMPLECBLE_FILE_NAME}"
++        COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/../../../compiled/$<CONFIG>/${SIMPLECBLE_FILE_NAME}" "${CMAKE_CURRENT_SOURCE_DIR}/../../../rust_package/brainflow/lib/${SIMPLECBLE_FILE_NAME}"
++        COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/../../../compiled/$<CONFIG>/${SIMPLECBLE_FILE_NAME}" "${CMAKE_CURRENT_SOURCE_DIR}/../../../nodejs_package/brainflow/lib/${SIMPLECBLE_FILE_NAME}"
++    )
++endif()
++if(UNIX AND NOT ANDROID)
++    add_custom_command(TARGET simplecble POST_BUILD
++        COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/../../../compiled/${SIMPLECBLE_FILE_NAME}" "${CMAKE_CURRENT_SOURCE_DIR}/../../../python_package/brainflow/lib/${SIMPLECBLE_FILE_NAME}"
++        COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/../../../compiled/${SIMPLECBLE_FILE_NAME}" "${CMAKE_CURRENT_SOURCE_DIR}/../../../julia_package/brainflow/lib/${SIMPLECBLE_FILE_NAME}"
++        COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/../../../compiled/${SIMPLECBLE_FILE_NAME}" "${CMAKE_CURRENT_SOURCE_DIR}/../../../java_package/brainflow/src/main/resources/${SIMPLECBLE_FILE_NAME}"
++        COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/../../../compiled/${SIMPLECBLE_FILE_NAME}" "${CMAKE_CURRENT_SOURCE_DIR}/../../../csharp_package/brainflow/brainflow/lib/${SIMPLECBLE_FILE_NAME}"
++        COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/../../../compiled/${SIMPLECBLE_FILE_NAME}" "${CMAKE_CURRENT_SOURCE_DIR}/../../../matlab_package/brainflow/lib/${SIMPLECBLE_FILE_NAME}"
++        COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/../../../compiled/${SIMPLECBLE_FILE_NAME}" "${CMAKE_CURRENT_SOURCE_DIR}/../../../rust_package/brainflow/lib/${SIMPLECBLE_FILE_NAME}"
++        COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/../../../compiled/${SIMPLECBLE_FILE_NAME}" "${CMAKE_CURRENT_SOURCE_DIR}/../../../nodejs_package/brainflow/lib/${SIMPLECBLE_FILE_NAME}"
++    )
++endif()
++
++install(
++    DIRECTORY ${CMAKE_CURRENT_LIST_DIR}/include/simplecble/
+     DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/simplecble)
+ 
+ if(SIMPLECBLE_TEST)

@@ -1,12 +1,26 @@
 #include <simpleble/Service.h>
 
+#include "BuildVec.h"
 #include "ServiceBase.h"
-#include "ServiceBuilder.h"
 
 using namespace SimpleBLE;
 
-BluetoothUUID Service::uuid() { return internal_->uuid(); }
+bool Service::initialized() const { return internal_ != nullptr; }
 
-ByteArray Service::data() { return internal_->data(); }
+ServiceBase* Service::operator->() {
+    if (!initialized()) throw Exception::NotInitialized();
 
-std::vector<Characteristic> Service::characteristics() { return internal_->characteristics(); }
+    return internal_.get();
+}
+
+const ServiceBase* Service::operator->() const {
+    if (!initialized()) throw Exception::NotInitialized();
+
+    return internal_.get();
+}
+
+BluetoothUUID Service::uuid() { return (*this)->uuid(); }
+
+ByteArray Service::data() { return (*this)->data(); }
+
+std::vector<Characteristic> Service::characteristics() { return Factory::vector((*this)->characteristics()); }

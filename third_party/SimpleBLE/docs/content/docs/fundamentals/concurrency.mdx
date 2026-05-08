@@ -1,0 +1,30 @@
+---
+title: Concurrency within SimpleBLE
+description: Understanding how SimpleBLE handles threading and concurrency.
+---
+
+When designing your application using SimpleBLE, concurrency is a key aspect that needs to be taken into account. 
+
+## Internal Threading
+
+Internally, SimpleBLE relies on a thread pool to handle asynchronous operations and poll the operating system's Bluetooth stack. This design allows the library to provide a responsive API without blocking your main application thread for long-running operations like scanning or connecting.
+
+However, this means that:
+1.  **Callbacks are executed on internal threads:** When you set a callback (e.g., `set_callback_on_scan_found`), that function will be called from one of SimpleBLE's internal threads, not your main thread.
+2.  **Thread Safety:** You must ensure that any data accessed or modified within these callbacks is handled in a thread-safe manner (e.g., using mutexes or atomic variables).
+
+## UI Applications and Event Loops
+
+Using SimpleBLE with UI frameworks (such as WxWidgets, Qt, or Unity) requires special care. Most UI frameworks are not thread-safe and require all UI updates to happen on the "Main" or "UI" thread.
+
+If you attempt to update a UI element directly from a SimpleBLE callback, your application might crash or freeze. Instead, you should:
+*   Use the UI framework's message passing or "invoke on main thread" mechanism.
+*   Signal an event that the main thread's loop will pick up and process.
+
+## Contention and Performance
+
+Because SimpleBLE shares a limited number of threads for all Bluetooth operations, performing heavy computations or blocking operations inside a callback can cause contention. This can lead to:
+*   Delayed notifications.
+*   Application instability.
+
+**Rule of thumb:** Keep your callbacks as lightweight as possible. If you need to perform significant processing on received data, offload that work to a separate worker thread.

@@ -1,0 +1,45 @@
+name: CI Docs
+
+on:
+  workflow_dispatch:
+  workflow_call:
+
+jobs:
+  build-docs:
+    runs-on: ubuntu-22.04
+
+    steps:
+      - name: Clone Repository
+        uses: actions/checkout@v4
+
+      - name: Install OS Dependencies
+        run: |
+          sudo -H apt-get update -y
+          sudo -H apt-get install -y doxygen libdbus-1-dev
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: 3.12
+          cache: "pip"
+
+      - name: Install dependencies
+        run: pip install -r docs/requirements.txt
+
+      - name: Build Docs
+        working-directory: docs
+        run: make html
+
+      - name: Package Docs Artifact
+        uses: ./.github/actions/package-native
+        with:
+          source-dir: $GITHUB_WORKSPACE/docs
+          output-dir: $GITHUB_WORKSPACE/artifacts
+          archive-name: simpleble-docs
+          os: "linux"
+
+      - name: Upload Binaries
+        uses: actions/upload-artifact@v4
+        with:
+          name: simpleble-docs
+          path: artifacts/simpleble-docs.zip

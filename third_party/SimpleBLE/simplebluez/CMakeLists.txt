@@ -9,7 +9,7 @@ include(${CMAKE_CURRENT_SOURCE_DIR}/../cmake/prelude.cmake)
 
 project(
     simplebluez
-    VERSION ${SIMPLEBLE_VERSION}
+    VERSION ${SIMPLEBLE_VERSION_BASE}
     DESCRIPTION "A simple C++ wrapper around Bluez with a commercially-friendly licence."
     HOMEPAGE_URL "https://github.com/OpenBluetoothToolbox/SimpleBluez"
     LANGUAGES CXX
@@ -18,10 +18,7 @@ project(
 # Run prelude script to set up environment
 include(${CMAKE_CURRENT_SOURCE_DIR}/../cmake/epilogue.cmake)
 
-option(LIBFMT_VENDORIZE "Enable vendorized libfmt" ON)
-
-find_package(fmt REQUIRED)
-set_target_properties(fmt PROPERTIES EXCLUDE_FROM_ALL TRUE)
+include(GNUInstallDirs)
 
 find_package(DBus1 REQUIRED)
 
@@ -41,20 +38,25 @@ endif()
 set(SIMPLEBLUEZ_INCLUDE
     ${CMAKE_CURRENT_SOURCE_DIR}/include
     ${CMAKE_CURRENT_SOURCE_DIR}/../simpledbus/include
-    ${CMAKE_CURRENT_SOURCE_DIR}/../external/include)
+    ${CMAKE_CURRENT_SOURCE_DIR}/../dependencies/external)
 
 set(SIMPLEBLUEZ_SRC
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/ProxyOrg.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/Logging.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/Agent.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/Device.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/Characteristic.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/Bluez.cpp    
     ${CMAKE_CURRENT_SOURCE_DIR}/src/Exceptions.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/ProxyOrgBluez.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/Service.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/Adapter.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/Bluez.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/Descriptor.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/Config.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/Logging.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/standard/Agent.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/standard/Advertisement.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/standard/ServiceManager.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/standard/CustomRoot.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/standard/Device.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/standard/Characteristic.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/standard/Service.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/standard/Adapter.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/standard/BluezRoot.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/standard/BluezOrg.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/standard/BluezOrgBluez.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/standard/Descriptor.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/interfaces/Adapter1.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/interfaces/Agent1.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/interfaces/GattDescriptor1.cpp
@@ -63,6 +65,9 @@ set(SIMPLEBLUEZ_SRC
     ${CMAKE_CURRENT_SOURCE_DIR}/src/interfaces/Device1.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/interfaces/Battery1.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/interfaces/AgentManager1.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/interfaces/GattManager1.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/interfaces/LEAdvertisement1.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/interfaces/LEAdvertisingManager1.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/../simpledbus/src/advanced/Interface.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/../simpledbus/src/advanced/Proxy.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/../simpledbus/src/base/Connection.cpp
@@ -72,6 +77,8 @@ set(SIMPLEBLUEZ_SRC
     ${CMAKE_CURRENT_SOURCE_DIR}/../simpledbus/src/base/Message.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/../simpledbus/src/base/Path.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/../simpledbus/src/interfaces/ObjectManager.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/../simpledbus/src/interfaces/Properties.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/../simpledbus/src/Config.cpp
 )
 
 # Configure the build targets
@@ -94,17 +101,16 @@ set_target_properties(
 list(APPEND PRIVATE_COMPILE_DEFINITIONS SIMPLEDBUS_LOG_LEVEL=${SIMPLEDBUS_LOG_LEVEL})
 list(APPEND PRIVATE_COMPILE_DEFINITIONS SIMPLEBLUEZ_LOG_LEVEL=${SIMPLEBLUEZ_LOG_LEVEL})
 
-if(SIMPLEBLUEZ_USE_SESSION_DBUS)
-    list(APPEND PRIVATE_COMPILE_DEFINITIONS SIMPLEBLUEZ_USE_SESSION_DBUS)
-endif()
+list(APPEND PRIVATE_COMPILE_DEFINITIONS FMT_HEADER_ONLY)
 
 target_link_libraries(simplebluez PUBLIC ${DBus1_LIBRARIES})
-target_link_libraries(simplebluez PRIVATE $<BUILD_INTERFACE:fmt::fmt-header-only>)
 
 target_include_directories(simplebluez PRIVATE ${SIMPLEBLUEZ_INCLUDE})
+target_include_directories(simplebluez PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/../dependencies/external)
+target_include_directories(simplebluez PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/../dependencies/internal/include)
 target_include_directories(simplebluez INTERFACE
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
-    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../external/include>
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../dependencies/external>
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../simpledbus/include>
     $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
     $<INSTALL_INTERFACE:${DBus1_INCLUDE_DIR}>
@@ -117,8 +123,6 @@ apply_build_options(simplebluez
     "${PRIVATE_COMPILE_OPTIONS}"
     "${PRIVATE_LINK_OPTIONS}"
     "${PUBLIC_LINK_OPTIONS}")
-
-include(GNUInstallDirs)
 
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/cmake/simplebluez.pc.in
             ${CMAKE_CURRENT_BINARY_DIR}/simplebluez.pc @ONLY)
@@ -140,12 +144,18 @@ install(
     DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/simplebluez)
 
 install(
-    DIRECTORY ${CMAKE_CURRENT_LIST_DIR}/../external/include/
+    DIRECTORY ${CMAKE_CURRENT_LIST_DIR}/../dependencies/external/
     DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/simplebluez)
 
 install(
     DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/../simpledbus/include/simpledbus/
     DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/simpledbus)
+
+install(
+    FILES
+        ${CMAKE_CURRENT_LIST_DIR}/../dependencies/external/kvn/kvn_safe_callback.hpp
+        ${CMAKE_CURRENT_LIST_DIR}/../dependencies/external/kvn/logfwd.hpp
+    DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/kvn)
 
 install(
     FILES ${CMAKE_CURRENT_BINARY_DIR}/simplebluez.pc
@@ -158,6 +168,10 @@ if(SIMPLEBLUEZ_TEST)
     add_executable(simplebluez_test
         ${CMAKE_CURRENT_SOURCE_DIR}/test/src/main.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/test/src/helpers/PythonRunner.cpp)
+
+    target_compile_definitions(simplebluez_test PRIVATE FMT_HEADER_ONLY)
+    target_include_directories(simplebluez_test PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/../dependencies/external)
+    target_include_directories(simplebluez_test PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/../dependencies/internal/include)
 
     set_target_properties(simplebluez_test PROPERTIES
         CXX_VISIBILITY_PRESET hidden

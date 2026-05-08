@@ -10,6 +10,10 @@ constexpr auto kDocsService = R"pbdoc(
     Service
 )pbdoc";
 
+constexpr auto kDocsServiceInitialized = R"pbdoc(
+    Whether the service is initialized
+)pbdoc";
+
 constexpr auto kDocsServiceUuid = R"pbdoc(
     UUID of the service
 )pbdoc";
@@ -25,6 +29,7 @@ constexpr auto kDocsServiceCharacteristics = R"pbdoc(
 void wrap_service(py::module& m) {
     // TODO: Add __str__ and __repr__ methods
     py::class_<SimpleBLE::Service>(m, "Service", kDocsService)
+        .def("initialized", &SimpleBLE::Service::initialized, kDocsServiceInitialized)
         .def("uuid", &SimpleBLE::Service::uuid, kDocsServiceUuid)
         .def(
             "data", [](SimpleBLE::Service& s) { return py::bytes(s.data()); }, kDocsServiceData)

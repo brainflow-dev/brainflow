@@ -1,12 +1,13 @@
 #include <simpleble/Characteristic.h>
 
 #include "CharacteristicBase.h"
-#include "CharacteristicBuilder.h"
+#include "CommonUtils.h"
+#include "DescriptorBase.h"
 
 using namespace SimpleBLE;
 
-CharacteristicBase::CharacteristicBase(const BluetoothUUID& uuid, std::vector<Descriptor>& descriptors, bool can_read,
-                                       bool can_write_request, bool can_write_command, bool can_notify,
+CharacteristicBase::CharacteristicBase(const BluetoothUUID& uuid, SharedPtrVector<DescriptorBase> descriptors,
+                                       bool can_read, bool can_write_request, bool can_write_command, bool can_notify,
                                        bool can_indicate)
     : uuid_(uuid),
       descriptors_(descriptors),
@@ -18,7 +19,7 @@ CharacteristicBase::CharacteristicBase(const BluetoothUUID& uuid, std::vector<De
 
 BluetoothUUID CharacteristicBase::uuid() { return uuid_; }
 
-std::vector<Descriptor> CharacteristicBase::descriptors() { return descriptors_; }
+SharedPtrVector<DescriptorBase> CharacteristicBase::descriptors() { return descriptors_; }
 
 bool CharacteristicBase::can_read() { return can_read_; }
 bool CharacteristicBase::can_write_request() { return can_write_request_; }

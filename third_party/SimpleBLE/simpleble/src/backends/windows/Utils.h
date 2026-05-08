@@ -28,6 +28,8 @@ std::string guid_to_uuid(const winrt::guid& guid);
 ByteArray ibuffer_to_bytearray(const IBuffer& buffer);
 IBuffer bytearray_to_ibuffer(const ByteArray& array);
 
+std::string hresult_to_string(winrt::hresult hr);
+
 template <typename async_t>
 static auto async_get(async_t const& async) {
     if (async.Status() == Foundation::AsyncStatus::Started) {

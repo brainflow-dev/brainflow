@@ -1,16 +1,14 @@
 #pragma once
 
-#include <functional>
-#include <thread>
-#include <mutex>
 #include <condition_variable>
+#include <functional>
+#include <mutex>
 #include <queue>
+#include <thread>
 
 class ThreadRunner {
-public:
-    ThreadRunner() : _stop(false) {
-        _thread = std::thread(&ThreadRunner::threadFunc, this);
-    }
+  public:
+    ThreadRunner() : _stop(false) { _thread = std::thread(&ThreadRunner::threadFunc, this); }
 
     ~ThreadRunner() {
         {
@@ -29,7 +27,7 @@ public:
         }
     }
 
-private:
+  private:
     void threadFunc() {
         while (true) {
             std::function<void()> func;

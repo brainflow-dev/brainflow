@@ -10,11 +10,11 @@ fn compile_simpleble() {
     let cargo_manifest_dir = env::var("CARGO_MANIFEST_DIR").unwrap();
     let simplersble_source_path = Path::new(&cargo_manifest_dir).join("simplersble");
 
-    println!("cargo:warning=CWD: {}", env::current_dir().unwrap().display());
-    println!("cargo:warning=ENV: {} - {}", "OUT_DIR", env::var("OUT_DIR").unwrap());
-    println!("cargo:warning=ENV: {} - {}", "CARGO_MANIFEST_DIR", env::var("CARGO_MANIFEST_DIR").unwrap());
-    println!("cargo:warning=ENV: {} - {}", "CARGO_PKG_NAME", env::var("CARGO_PKG_NAME").unwrap());
-    println!("cargo:warning=ENV: {} - {}", "CARGO_PKG_VERSION", env::var("CARGO_PKG_VERSION").unwrap());
+    // println!("cargo:warning=All Environment Variables:");
+    // println!("cargo:warning=CWD: {}", env::current_dir().unwrap().display());
+    // for (key, value) in env::vars() {
+    //     println!("cargo:warning=ENV: {} - {}", key, value);
+    // }
 
     // The simpleble library name depends if we're building in debug more or not.
     let simpleble_library_name = if build_debug {"simpleble-debug"} else {"simpleble"};

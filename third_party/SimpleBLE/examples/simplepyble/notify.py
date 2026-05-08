@@ -51,9 +51,10 @@ if __name__ == "__main__":
     choice = int(input("Enter choice: "))
     service_uuid, characteristic_uuid = service_characteristic_pair[choice]
 
-    # Write the content to the characteristic
-    contents = peripheral.notify(service_uuid, characteristic_uuid, lambda data: print(f"Notification: {data}"))
-    
+    peripheral.notify(service_uuid, characteristic_uuid, lambda data: print(f"Notification: {data}"))
     time.sleep(5)
+
+    peripheral.unsubscribe(service_uuid, characteristic_uuid)
+    time.sleep(1)
 
     peripheral.disconnect()

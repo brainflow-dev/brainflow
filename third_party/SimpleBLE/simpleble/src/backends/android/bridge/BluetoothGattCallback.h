@@ -3,9 +3,11 @@
 #include <atomic>
 #include <condition_variable>
 #include <kvn_safe_callback.hpp>
+#include <kvn_safe_map.hpp>
 #include <map>
 #include <mutex>
-#include "jni/Common.hpp"
+#include "simplejni/Common.hpp"
+#include "simplejni/Registry.hpp"
 
 namespace SimpleBLE {
 namespace Android {
@@ -15,30 +17,30 @@ class BluetoothGattCallback {
   public:
     BluetoothGattCallback();
     virtual ~BluetoothGattCallback();
-    jobject get() { return _obj.get(); }  // TODO: Remove once nothing uses this
+    jobject get() const { return _obj.get(); }  // TODO: Remove once nothing uses this
 
     void set_callback_onConnectionStateChange(std::function<void(bool)> callback);
     void set_callback_onServicesDiscovered(std::function<void(void)> callback);
 
-    void set_callback_onCharacteristicChanged(JNI::Object characteristic,
+    void set_callback_onCharacteristicChanged(SimpleJNI::Object<SimpleJNI::GlobalRef, jobject> characteristic,
                                               std::function<void(std::vector<uint8_t> value)> callback);
-    void clear_callback_onCharacteristicChanged(JNI::Object characteristic);
+    void clear_callback_onCharacteristicChanged(SimpleJNI::Object<SimpleJNI::GlobalRef, jobject> characteristic);
 
-    void set_flag_characteristicWritePending(JNI::Object characteristic);
-    void clear_flag_characteristicWritePending(JNI::Object characteristic);
-    void wait_flag_characteristicWritePending(JNI::Object characteristic);
+    void set_flag_characteristicWritePending(SimpleJNI::Object<SimpleJNI::GlobalRef, jobject> characteristic);
+    void clear_flag_characteristicWritePending(SimpleJNI::Object<SimpleJNI::GlobalRef, jobject> characteristic);
+    void wait_flag_characteristicWritePending(SimpleJNI::Object<SimpleJNI::GlobalRef, jobject> characteristic);
 
-    void set_flag_characteristicReadPending(JNI::Object characteristic);
-    void clear_flag_characteristicReadPending(JNI::Object characteristic, std::vector<uint8_t> value);
-    std::vector<uint8_t> wait_flag_characteristicReadPending(JNI::Object characteristic);
+    void set_flag_characteristicReadPending(SimpleJNI::Object<SimpleJNI::GlobalRef, jobject> characteristic);
+    void clear_flag_characteristicReadPending(SimpleJNI::Object<SimpleJNI::GlobalRef, jobject> characteristic, std::vector<uint8_t> value);
+    std::vector<uint8_t> wait_flag_characteristicReadPending(SimpleJNI::Object<SimpleJNI::GlobalRef, jobject> characteristic);
 
-    void set_flag_descriptorWritePending(JNI::Object descriptor);
-    void clear_flag_descriptorWritePending(JNI::Object descriptor);
-    void wait_flag_descriptorWritePending(JNI::Object descriptor);
+    void set_flag_descriptorWritePending(SimpleJNI::Object<SimpleJNI::GlobalRef, jobject> descriptor);
+    void clear_flag_descriptorWritePending(SimpleJNI::Object<SimpleJNI::GlobalRef, jobject> descriptor);
+    void wait_flag_descriptorWritePending(SimpleJNI::Object<SimpleJNI::GlobalRef, jobject> descriptor);
 
-    void set_flag_descriptorReadPending(JNI::Object descriptor);
-    void clear_flag_descriptorReadPending(JNI::Object descriptor, std::vector<uint8_t> value);
-    std::vector<uint8_t> wait_flag_descriptorReadPending(JNI::Object descriptor);
+    void set_flag_descriptorReadPending(SimpleJNI::Object<SimpleJNI::GlobalRef, jobject> descriptor);
+    void clear_flag_descriptorReadPending(SimpleJNI::Object<SimpleJNI::GlobalRef, jobject> descriptor, std::vector<uint8_t> value);
+    std::vector<uint8_t> wait_flag_descriptorReadPending(SimpleJNI::Object<SimpleJNI::GlobalRef, jobject> descriptor);
 
     bool connected;
     bool services_discovered;
@@ -46,22 +48,22 @@ class BluetoothGattCallback {
 
     // Not for public use
     // clang-format off
-    static void jni_onConnectionStateChangeCallback(JNIEnv *env, jobject thiz, jobject gatt, jint status, jint new_state);
-    static void jni_onServicesDiscoveredCallback(JNIEnv *env, jobject thiz, jobject gatt, jint status);
-    static void jni_onServiceChangedCallback(JNIEnv *env, jobject thiz, jobject gatt);
+    static void jni_onConnectionStateChangeCallback(SimpleJNI::Object<SimpleJNI::GlobalRef, jobject> thiz_obj, jint status, jint new_state);
+    static void jni_onServicesDiscoveredCallback(SimpleJNI::Object<SimpleJNI::GlobalRef, jobject> thiz_obj, jint status);
+    static void jni_onServiceChangedCallback(SimpleJNI::Object<SimpleJNI::GlobalRef, jobject> thiz_obj);
 
-    static void jni_onCharacteristicChangedCallback(JNIEnv *env, jobject thiz, jobject gatt, jobject characteristic, jbyteArray value);
-    static void jni_onCharacteristicReadCallback(JNIEnv *env, jobject thiz, jobject gatt, jobject characteristic, jbyteArray value, jint status);
-    static void jni_onCharacteristicWriteCallback(JNIEnv *env, jobject thiz, jobject gatt, jobject characteristic, jint status);
+    static void jni_onCharacteristicChangedCallback(SimpleJNI::Object<SimpleJNI::GlobalRef, jobject> thiz_obj, SimpleJNI::Object<SimpleJNI::GlobalRef, jobject> characteristic_obj, SimpleJNI::ByteArray<SimpleJNI::GlobalRef> value);
+    static void jni_onCharacteristicReadCallback(SimpleJNI::Object<SimpleJNI::GlobalRef, jobject> thiz_obj, SimpleJNI::Object<SimpleJNI::GlobalRef, jobject> characteristic_obj, SimpleJNI::ByteArray<SimpleJNI::GlobalRef> value, jint status);
+    static void jni_onCharacteristicWriteCallback(SimpleJNI::Object<SimpleJNI::GlobalRef, jobject> thiz_obj, SimpleJNI::Object<SimpleJNI::GlobalRef, jobject> characteristic_obj, jint status);
 
-    static void jni_onDescriptorReadCallback(JNIEnv *env, jobject thiz, jobject gatt, jobject descriptor, jbyteArray value, jint status);
-    static void jni_onDescriptorWriteCallback(JNIEnv *env, jobject thiz, jobject gatt, jobject descriptor, jint status);
+    static void jni_onDescriptorReadCallback(SimpleJNI::Object<SimpleJNI::GlobalRef, jobject> thiz_obj, SimpleJNI::Object<SimpleJNI::GlobalRef, jobject> descriptor_obj, SimpleJNI::ByteArray<SimpleJNI::GlobalRef> value, jint status);
+    static void jni_onDescriptorWriteCallback(SimpleJNI::Object<SimpleJNI::GlobalRef, jobject> thiz_obj, SimpleJNI::Object<SimpleJNI::GlobalRef, jobject> descriptor_obj, jint status);
 
-    static void jni_onMtuChangedCallback(JNIEnv *env, jobject thiz, jobject gatt, jint mtu, jint status);
-    static void jni_onPhyReadCallback(JNIEnv *env, jobject thiz, jobject gatt, jint txPhy, jint rxPhy, jint status);
-    static void jni_onPhyUpdateCallback(JNIEnv *env, jobject thiz, jobject gatt, jint txPhy, jint rxPhy, jint status);
-    static void jni_onReadRemoteRssiCallback(JNIEnv *env, jobject thiz, jobject gatt, jint rssi, jint status);
-    static void jni_onReliableWriteCompletedCallback(JNIEnv *env, jobject thiz, jobject gatt, jint status);
+    static void jni_onMtuChangedCallback(SimpleJNI::Object<SimpleJNI::GlobalRef, jobject> thiz_obj, jint mtu, jint status);
+    static void jni_onPhyReadCallback(SimpleJNI::Object<SimpleJNI::GlobalRef, jobject> thiz_obj, jint txPhy, jint rxPhy, jint status);
+    static void jni_onPhyUpdateCallback(SimpleJNI::Object<SimpleJNI::GlobalRef, jobject> thiz_obj, jint txPhy, jint rxPhy, jint status);
+    static void jni_onReadRemoteRssiCallback(SimpleJNI::Object<SimpleJNI::GlobalRef, jobject> thiz_obj, jint rssi, jint status);
+    static void jni_onReliableWriteCompletedCallback(SimpleJNI::Object<SimpleJNI::GlobalRef, jobject> thiz_obj, jint status);
     // clang-format on
 
   private:
@@ -72,22 +74,27 @@ class BluetoothGattCallback {
         std::vector<uint8_t> value;
     };
 
-    static JNI::Class _cls;
-    static std::map<jobject, BluetoothGattCallback*, JNI::JObjectComparator> _map;
-    static void initialize();
+    static SimpleJNI::GlobalRef<jclass> _cls;
+    static jmethodID _constructor;
 
-    JNI::Object _obj;
+    static kvn::safe_map<SimpleJNI::Object<SimpleJNI::GlobalRef, jobject>, BluetoothGattCallback*, SimpleJNI::ObjectComparator<SimpleJNI::GlobalRef, jobject>> _map;
+
+    SimpleJNI::Object<SimpleJNI::GlobalRef, jobject> _obj;
 
     kvn::safe_callback<void(bool)> _callback_onConnectionStateChange;
     kvn::safe_callback<void()> _callback_onServicesDiscovered;
 
-    std::map<JNI::Object, kvn::safe_callback<void(std::vector<uint8_t>)>, JNI::JniObjectComparator>
+    kvn::safe_map<SimpleJNI::Object<SimpleJNI::GlobalRef, jobject>, kvn::safe_callback<void(std::vector<uint8_t>)>, SimpleJNI::ObjectComparator<SimpleJNI::GlobalRef, jobject>>
         _callback_onCharacteristicChanged;
 
-    std::map<JNI::Object, FlagData, JNI::JniObjectComparator> _flag_characteristicWritePending;
-    std::map<JNI::Object, FlagData, JNI::JniObjectComparator> _flag_characteristicReadPending;
-    std::map<JNI::Object, FlagData, JNI::JniObjectComparator> _flag_descriptorWritePending;
-    std::map<JNI::Object, FlagData, JNI::JniObjectComparator> _flag_descriptorReadPending;
+    kvn::safe_map<SimpleJNI::Object<SimpleJNI::GlobalRef, jobject>, FlagData, SimpleJNI::ObjectComparator<SimpleJNI::GlobalRef, jobject>> _flag_characteristicWritePending;
+    kvn::safe_map<SimpleJNI::Object<SimpleJNI::GlobalRef, jobject>, FlagData, SimpleJNI::ObjectComparator<SimpleJNI::GlobalRef, jobject>> _flag_characteristicReadPending;
+    kvn::safe_map<SimpleJNI::Object<SimpleJNI::GlobalRef, jobject>, FlagData, SimpleJNI::ObjectComparator<SimpleJNI::GlobalRef, jobject>> _flag_descriptorWritePending;
+    kvn::safe_map<SimpleJNI::Object<SimpleJNI::GlobalRef, jobject>, FlagData, SimpleJNI::ObjectComparator<SimpleJNI::GlobalRef, jobject>> _flag_descriptorReadPending;
+
+    // Static JNI resources managed by Registrar
+    static const SimpleJNI::JNIDescriptor descriptor;
+    static const SimpleJNI::AutoRegister<BluetoothGattCallback> registrar;
 };
 
 }  // namespace Bridge

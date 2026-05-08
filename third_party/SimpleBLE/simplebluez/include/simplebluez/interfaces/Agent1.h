@@ -1,7 +1,9 @@
 #pragma once
 
 #include <simpledbus/advanced/Interface.h>
-#include <simpledbus/external/kvn_safe_callback.hpp>
+#include <simpledbus/advanced/InterfaceRegistry.h>
+
+#include "kvn/kvn_safe_callback.hpp"
 
 #include <cstdint>
 #include <string>
@@ -10,14 +12,20 @@ namespace SimpleBluez {
 
 class Agent1 : public SimpleDBus::Interface {
   public:
-    Agent1(std::shared_ptr<SimpleDBus::Connection> conn, std::string path);
-    virtual ~Agent1() = default;
+    Agent1(std::shared_ptr<SimpleDBus::Connection> conn, std::shared_ptr<SimpleDBus::Proxy> proxy);
+    virtual ~Agent1();
 
     // ----- METHODS -----
 
     // ----- PROPERTIES -----
 
     // ----- CALLBACKS -----
+
+    /**
+     * @brief This method gets called when the service daemon
+     *        needs to release the agent.
+     */
+    kvn::safe_callback<void()> OnRelease;
 
     /**
      * @brief This method gets called when the service daemon
@@ -28,7 +36,7 @@ class Agent1 : public SimpleDBus::Interface {
      * @note: Invalid values will cause a rejection of the request
      *        be returned.
      */
-    kvn::safe_callback<std::string()> OnRequestPinCode;
+    kvn::safe_callback<std::string(const std::string& device_path)> OnRequestPinCode;
 
     /**
      * @brief This method gets called when the service daemon
@@ -38,7 +46,7 @@ class Agent1 : public SimpleDBus::Interface {
      *
      * @return false if the request should be rejected.
      */
-    kvn::safe_callback<bool(const std::string&)> OnDisplayPinCode;
+    kvn::safe_callback<bool(const std::string& device_path, const std::string& pin_code)> OnDisplayPinCode;
 
     /**
      * @brief This method gets called when the service daemon
@@ -49,7 +57,7 @@ class Agent1 : public SimpleDBus::Interface {
      * @note: Invalid values will cause a rejection of the request
      *        be returned.
      */
-    kvn::safe_callback<int32_t()> OnRequestPasskey;
+    kvn::safe_callback<int32_t(const std::string& device_path)> OnRequestPasskey;
 
     /**
      * @brief This method gets called when the service daemon
@@ -57,7 +65,7 @@ class Agent1 : public SimpleDBus::Interface {
      *        The entered parameter indicates the number of already
      *        typed keys on the remote side.
      */
-    kvn::safe_callback<void(uint32_t, uint16_t)> OnDisplayPasskey;
+    kvn::safe_callback<void(const std::string& device_path, uint32_t passkey, uint16_t entered)> OnDisplayPasskey;
 
     /**
      * @brief This method gets called when the service daemon
@@ -65,7 +73,7 @@ class Agent1 : public SimpleDBus::Interface {
      *
      * @return false if the request should be rejected.
      */
-    kvn::safe_callback<bool(uint32_t)> OnRequestConfirmation;
+    kvn::safe_callback<bool(const std::string& device_path, uint32_t passkey)> OnRequestConfirmation;
 
     /**
      * @brief This method gets called to request the user to
@@ -76,7 +84,7 @@ class Agent1 : public SimpleDBus::Interface {
      *
      * @return false if the request should be rejected.
      */
-    kvn::safe_callback<bool()> OnRequestAuthorization;
+    kvn::safe_callback<bool(const std::string& device_path)> OnRequestAuthorization;
 
     /**
      * @brief This method gets called when the service daemon
@@ -84,12 +92,21 @@ class Agent1 : public SimpleDBus::Interface {
      *
      * @return false if the request should be rejected.
      */
-    kvn::safe_callback<bool(const std::string&)> OnAuthorizeService;
+    kvn::safe_callback<bool(const std::string& device_path, const std::string& uuid)> OnAuthorizeService;
+
+    /**
+     * @brief This method gets called when the service daemon
+     *        needs to cancel an ongoing request.
+     */
+    kvn::safe_callback<void()> OnCancel;
 
   protected:
     void message_handle(SimpleDBus::Message& msg) override;
 
     void reply_error(SimpleDBus::Message& msg, const std::string& error_name, const std::string& error_message);
+
+  private:
+    static const SimpleDBus::AutoRegisterInterface<Agent1> registry;
 };
 
 }  // namespace SimpleBluez

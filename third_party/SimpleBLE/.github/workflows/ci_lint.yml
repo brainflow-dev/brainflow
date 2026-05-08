@@ -2,7 +2,7 @@ name: CI Lint
 
 on:
   workflow_dispatch:
-  workflow_call:  # This allows it to be called from ci_main.yml
+  workflow_call:
 
 jobs:
   clang-format:
@@ -12,12 +12,13 @@ jobs:
       - name: Clone Repository
         uses: actions/checkout@v4
       - name: Run clang-format
-        uses: DoozyX/clang-format-lint-action@v0.14
+        uses: DoozyX/clang-format-lint-action@v0.18.1
+        continue-on-error: true
         with:
           source: '.'
-          exclude: './simplepyble'
+          exclude: './simplepyble ./simpledroidble'
           extensions: 'h,hpp,cpp,c'
-          clangFormatVersion: 14
+          clangFormatVersion: 18
           inplace: False
 
   cppcheck:
@@ -34,8 +35,7 @@ jobs:
         env:
           DEBIAN_FRONTEND: noninteractive
       - name: Run Cppcheck
-        # TODO: Fix the suppressed file.
-        run: cppcheck --suppress=objectIndex:simpleble/src/backends/windows/Utils.cpp --std=c++17 --error-exitcode=1 --xml --xml-version=2 --force . 2>cppcheck_res.xml
+        run: cppcheck --std=c++17 --error-exitcode=1 --xml --xml-version=2 --force . 2>cppcheck_res.xml
       - name: Generate Report
         if: ${{ failure() }}
         run: cppcheck-htmlreport --title=SimpleBLE --file=cppcheck_res.xml --report-dir=report

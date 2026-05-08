@@ -1,0 +1,152 @@
+name: CI Linux
+
+on:
+  workflow_dispatch:
+  workflow_call:
+    inputs:
+      libraries:
+        description: "Build libraries"
+        type: string
+        default: '["simpledbus","simplebluez"]'
+        required: false
+
+jobs:
+  # tests:
+  #   runs-on: ubuntu-22.04
+  #   strategy:
+  #     fail-fast: false
+  #     matrix:
+  #       library: ${{ fromJSON(inputs.libraries || '["simpledbus","simplebluez"]') }}
+  #       variant:
+  #         - { name: 'unit', config: 'Release', library_suffix: '_TEST=ON', run_extra: '' }
+  #         - { name: 'asan', config: 'Debug', library_suffix: '_SANITIZE=Address _TEST=ON', run_extra: 'PYTHONMALLOC=malloc' }
+  #         - { name: 'tsan', config: 'Debug', library_suffix: '_SANITIZE=Thread _TEST=ON', run_extra: '' }
+
+  #   steps:
+  #   - name: Clone Repository
+  #     uses: actions/checkout@v4
+  #   - name: Install Dependencies
+  #     env:
+  #       DEBIAN_FRONTEND: noninteractive
+  #     run: |
+  #       sudo -H apt-get update -y
+  #       sudo -H apt-get install -y dbus libdbus-1-dev python3-dev
+  #       sudo -H pip3 install -r $(pwd)/simpledbus/test/requirements.txt
+  #       echo "Running for libraries: ${{ inputs.libraries }}"
+
+  #   - name: Setup gtest
+  #     uses: ./.github/actions/setup-gtest
+  #   - name: Start DBus
+  #     run: |
+  #       echo "DBUS_SESSION_BUS_ADDRESS=$(dbus-daemon --config-file=/usr/share/dbus-1/session.conf --print-address --fork | cut -d, -f1)" >> $GITHUB_ENV
+
+  #   - name: Build and Test ${{ matrix.library }} (${{ matrix.variant.name }})
+  #     uses: ./.github/actions/build-native
+  #     with:
+  #       os: 'linux'
+  #       source-dir: '$(pwd)/${{ matrix.library }}'
+  #       build-dir: '$(pwd)/build_${{ matrix.variant.name }}_${{ matrix.library }}'
+  #       install-prefix: '$(pwd)/build_${{ matrix.variant.name }}_${{ matrix.library }}/install'
+  #       build-config: '${{ matrix.variant.config }}'
+  #       cmake-options: >-
+  #         -DGTEST_ROOT=$(pwd)/googletest/install
+  #         -DBUILD_SHARED_LIBS=OFF
+  #         ${{ matrix.variant.name == 'unit' && format('-D{0}_TEST=ON', matrix.library == 'simpledbus' && 'SIMPLEDBUS' || 'SIMPLEBLUEZ') || '' }}
+  #         ${{ matrix.variant.name == 'asan' && format('-D{0}_SANITIZE=Address -D{0}_TEST=ON', matrix.library == 'simpledbus' && 'SIMPLEDBUS' || 'SIMPLEBLUEZ') || '' }}
+  #         ${{ matrix.variant.name == 'tsan' && format('-D{0}_SANITIZE=Thread -D{0}_TEST=ON', matrix.library == 'simpledbus' && 'SIMPLEDBUS' || 'SIMPLEBLUEZ') || '' }}
+  #       parallel-jobs: '4'
+  #       linux-use-system-dbus: 'true'
+  #   - name: Run ${{ matrix.library }} Tests (${{ matrix.variant.name }})
+  #     id: test_setup
+  #     run: |
+  #       # Set log type variable based on variant name
+  #       if [[ "${{ matrix.variant.name }}" == "asan" ]]; then
+  #         echo "log_type=asan" >> $GITHUB_OUTPUT
+  #         echo "log_type_upper=ASAN" >> $GITHUB_OUTPUT
+  #       else
+  #         echo "log_type=tsan" >> $GITHUB_OUTPUT
+  #         echo "log_type_upper=TSAN" >> $GITHUB_OUTPUT
+  #       fi
+
+  #       # Run the actual test
+  #       ${{ matrix.variant.run_extra }} $(pwd)/build_${{ matrix.variant.name }}_${{ matrix.library }}/bin/${{ matrix.library }}_test
+
+  #       # Process logs if needed
+  #       if [[ "${{ matrix.variant.name }}" == "asan" || "${{ matrix.variant.name }}" == "tsan" ]]; then
+  #         cp "$(ls ${{ steps.test_setup.outputs.log_type }}_log.txt.* | head -1)" ${{ matrix.variant.name }}_log.txt || true
+  #         (test ! -f ${{ matrix.variant.name }}_log.txt && echo "No ${{ steps.test_setup.outputs.log_type_upper }} log found") || (cat ${{ matrix.variant.name }}_log.txt && exit 1)
+  #       fi
+
+  examples:
+    runs-on: ubuntu-22.04
+    if: ${{ inputs.libraries != '[]' && inputs.libraries != '' }}
+    strategy:
+      fail-fast: false
+      matrix:
+        library: ${{ fromJSON(inputs.libraries || '["simpledbus","simplebluez"]') }}
+
+    steps:
+    - name: Clone Repository
+      uses: actions/checkout@v4
+    - name: Install Dependencies
+      env:
+        DEBIAN_FRONTEND: noninteractive
+      run: |
+        sudo -H apt-get update -y
+        sudo -H apt-get install -y libdbus-1-dev
+    - name: Compile ${{ matrix.library }} Examples
+      uses: ./.github/actions/build-native
+      with:
+        os: 'linux'
+        source-dir: '$(pwd)/examples/${{ matrix.library }}'
+        build-dir: '$(pwd)/build_${{ matrix.library }}_examples'
+        install-prefix: '$(pwd)/build_${{ matrix.library }}_examples/install'
+        build-config: 'Release'
+        cmake-options: '-DBUILD_SHARED_LIBS=OFF'
+        parallel-jobs: '4'
+        linux-use-system-dbus: 'true'
+
+  build:
+    runs-on: ubuntu-22.04
+    needs: [examples]
+    if: ${{ inputs.libraries != '[]' && inputs.libraries != '' }}
+    strategy:
+      fail-fast: false
+      max-parallel: 4
+      matrix:
+        options:
+          - {container: dockcross/linux-x64, target: linux-x64}
+          - {container: dockcross/linux-x86, target: linux-x86}
+          - {container: dockcross/linux-armv6-lts, target: linux-armv6}
+        library: ${{ fromJSON(inputs.libraries || '["simpledbus","simplebluez"]') }}
+    container:
+      image: ${{ matrix.options.container }}
+    steps:
+      - name: Clone Repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          fetch-tags: true
+
+      - name: Add Version Suffix
+        uses: ./.github/actions/setup-version
+
+      - name: Build ${{ matrix.library }}
+        uses: ./.github/actions/build-native
+        with:
+          os: 'linux'
+          source-dir: '$GITHUB_WORKSPACE/${{ matrix.library }}'
+          build-dir: '$GITHUB_WORKSPACE/build_${{ matrix.library }}'
+          install-prefix: '$GITHUB_WORKSPACE/build_${{ matrix.library }}/install'
+          build-config: 'Release'
+          cmake-options: '-DBUILD_SHARED_LIBS=OFF'
+      # - name: Package and Upload
+      #   shell: bash
+      #   run: |
+      #     mkdir -p $(pwd)/artifacts
+      #     zip -r $(pwd)/artifacts/${{ matrix.library }}_${{ matrix.type }}_${{ matrix.options.target }}.zip $(pwd)/build_${{ matrix.library }}/install
+      # - name: Upload binaries to job
+      #   uses: actions/upload-artifact@v4
+      #   with:
+      #     name: ${{ matrix.library }}_${{ matrix.type }}_${{ matrix.options.target }}
+      #     path: artifacts/${{ matrix.library }}_${{ matrix.type }}_${{ matrix.options.target }}.zip

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "external/kvn_bytearray.h"
+#include "kvn/kvn_bytearray.h"
 
 namespace SimpleBluez {
 

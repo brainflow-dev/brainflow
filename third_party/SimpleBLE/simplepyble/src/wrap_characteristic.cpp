@@ -10,6 +10,10 @@ constexpr auto kDocsCharacteristic = R"pbdoc(
     Characteristic
 )pbdoc";
 
+constexpr auto kDocsCharacteristicInitialized = R"pbdoc(
+    Whether the characteristic is initialized
+)pbdoc";
+
 constexpr auto kDocsCharacteristicUuid = R"pbdoc(
     UUID of the characteristic
 )pbdoc";
@@ -45,6 +49,7 @@ constexpr auto kDocsCharacteristicCanIndicate = R"pbdoc(
 void wrap_characteristic(py::module& m) {
     // TODO: Add __str__ and __repr__ methods
     py::class_<SimpleBLE::Characteristic>(m, "Characteristic", kDocsCharacteristic)
+        .def("initialized", &SimpleBLE::Characteristic::initialized, kDocsCharacteristicInitialized)
         .def("uuid", &SimpleBLE::Characteristic::uuid, kDocsCharacteristicUuid)
         .def("descriptors", &SimpleBLE::Characteristic::descriptors, kDocsCharacteristicDescriptors)
         .def("capabilities", &SimpleBLE::Characteristic::capabilities, kDocsCharacteristicCapabilities)

@@ -17,64 +17,90 @@ rust::Vec<Bindings::RustyAdapterWrapper> Bindings::RustyAdapter_get_adapters() {
 
 bool Bindings::RustyAdapter_bluetooth_enabled() { return SimpleBLE::Adapter::bluetooth_enabled(); }
 
-// Adapter Bindings
+// InnerAdapter Bindings
 
-void Bindings::RustyAdapter::link(SimpleRsBLE::Adapter& target) const {
+void Bindings::RustyAdapter::link(SimpleRsBLE::InnerAdapter& target) const {
     // Time to explain the weird shenanigan we're doing here:
-    // The TL;DR is that we're making the Adapter(Rust) and the RustyAdapter(C++)
+    // The TL;DR is that we're making the InnerAdapter(Rust) and the RustyAdapter(C++)
     // point to each other in a safe way.
-    // To achieve this, the Adapter(Rust) owns a RustyAdapter(C++) via a UniquePtr,
+    // To achieve this, the InnerAdapter(Rust) owns a RustyAdapter(C++) via a UniquePtr,
     // which ensures that calls will always be made to a valid C++ object.
-    // We now give the RustyAdapter(C++) a pointer back to the Adapter(Rust),
+    // We now give the RustyAdapter(C++) a pointer back to the InnerAdapter(Rust),
     // so that callbacks can be forwarded back to the Rust domain.
-    // In order to ensure that the Adapter(Rust) is always valid (given
+    // In order to ensure that the InnerAdapter(Rust) is always valid (given
     // that Rust is keen on moving stuff around) the object is created as a
     // Pin<Box<T>>
 
     // `_adapter` is a pointer to a pointer, allowing us to manipulate the contents within const functions.
-    *_adapter = &target;  // THIS LINE IS SUPER IMPORTANT
+    std::lock_guard<std::mutex> lock(_adapter_mutex);
+    _adapter = &target;  // THIS LINE IS SUPER IMPORTANT
 
     _internal->set_callback_on_scan_start([this]() {
-        SimpleRsBLE::Adapter* p_adapter = *this->_adapter;
-        if (p_adapter == nullptr) return;
+        if (this->_adapter == nullptr) return;
 
-        p_adapter->on_callback_scan_start();
+        this->_adapter->on_callback_scan_start();
     });
 
     _internal->set_callback_on_scan_stop([this]() {
-        SimpleRsBLE::Adapter* p_adapter = *this->_adapter;
-        if (p_adapter == nullptr) return;
+        if (this->_adapter == nullptr) return;
 
-        p_adapter->on_callback_scan_stop();
+        this->_adapter->on_callback_scan_stop();
     });
 
     _internal->set_callback_on_scan_found([this](SimpleBLE::Peripheral peripheral) {
-        SimpleRsBLE::Adapter* p_adapter = *this->_adapter;
-        if (p_adapter == nullptr) return;
+        if (this->_adapter == nullptr) return;
 
         Bindings::RustyPeripheralWrapper wrapper;
         wrapper.internal = std::make_unique<Bindings::RustyPeripheral>(peripheral);
-        p_adapter->on_callback_scan_found(wrapper);
+        this->_adapter->on_callback_scan_found(wrapper);
     });
 
     _internal->set_callback_on_scan_updated([this](SimpleBLE::Peripheral peripheral) {
-        SimpleRsBLE::Adapter* p_adapter = *this->_adapter;
-        if (p_adapter == nullptr) return;
+        if (this->_adapter == nullptr) return;
 
         Bindings::RustyPeripheralWrapper wrapper;
         wrapper.internal = std::make_unique<Bindings::RustyPeripheral>(peripheral);
-        p_adapter->on_callback_scan_updated(wrapper);
+        this->_adapter->on_callback_scan_updated(wrapper);
+    });
+
+    _internal->set_callback_on_power_on([this]() {
+        if (this->_adapter == nullptr) return;
+
+        this->_adapter->on_callback_power_on();
+    });
+
+    _internal->set_callback_on_power_off([this]() {
+        if (this->_adapter == nullptr) return;
+
+        this->_adapter->on_callback_power_off();
     });
 }
 
 void Bindings::RustyAdapter::unlink() const {
+    // Clear all callbacks
+    _internal->set_callback_on_scan_start(nullptr);
+    _internal->set_callback_on_scan_stop(nullptr);
+    _internal->set_callback_on_scan_found(nullptr);
+    _internal->set_callback_on_scan_updated(nullptr);
+    _internal->set_callback_on_power_on(nullptr);
+    _internal->set_callback_on_power_off(nullptr);
+
     // `_adapter` is a pointer to a pointer.
-    *_adapter = nullptr;
+    std::lock_guard<std::mutex> lock(_adapter_mutex);
+    _adapter = nullptr;
 }
+
+bool Bindings::RustyAdapter::initialized() const { return _internal->initialized(); }
 
 rust::String Bindings::RustyAdapter::identifier() const { return rust::String(_internal->identifier()); }
 
 rust::String Bindings::RustyAdapter::address() const { return rust::String(_internal->address()); }
+
+void Bindings::RustyAdapter::power_on() const { _internal->power_on(); }
+
+void Bindings::RustyAdapter::power_off() const { _internal->power_off(); }
+
+bool Bindings::RustyAdapter::is_powered() const { return _internal->is_powered(); }
 
 void Bindings::RustyAdapter::scan_start() const { _internal->scan_start(); }
 
@@ -108,46 +134,63 @@ rust::Vec<Bindings::RustyPeripheralWrapper> Bindings::RustyAdapter::get_paired_p
     return result;
 }
 
-// Peripheral Bindings
+rust::Vec<Bindings::RustyPeripheralWrapper> Bindings::RustyAdapter::get_connected_peripherals() const {
+    rust::Vec<Bindings::RustyPeripheralWrapper> result;
 
-void Bindings::RustyPeripheral::link(SimpleRsBLE::Peripheral& target) const {
+    for (auto& peripheral : _internal->get_connected_peripherals()) {
+        Bindings::RustyPeripheralWrapper wrapper;
+        wrapper.internal = std::make_unique<Bindings::RustyPeripheral>(peripheral);
+        result.push_back(std::move(wrapper));
+    }
+
+    return result;
+}
+
+// InnerPeripheral Bindings
+
+void Bindings::RustyPeripheral::link(SimpleRsBLE::InnerPeripheral& target) const {
     // Time to explain the weird shenanigan we're doing here:
-    // The TL;DR is that we're making the Peripheral(Rust) and the RustyPeripheral(C++)
+    // The TL;DR is that we're making the InnerPeripheral(Rust) and the RustyPeripheral(C++)
     // point to each other in a safe way.
-    // To achieve this, the Peripheral(Rust) owns a RustyPeripheral(C++) via a UniquePtr,
+    // To achieve this, the InnerPeripheral(Rust) owns a RustyPeripheral(C++) via a UniquePtr,
     // which ensures that calls will always be made to a valid C++ object.
-    // We now give the RustyPeripheral(C++) a pointer back to the Peripheral(Rust),
+    // We now give the RustyPeripheral(C++) a pointer back to the InnerPeripheral(Rust),
     // so that callbacks can be forwarded back to the Rust domain.
-    // In order to ensure that the Peripheral(Rust) is always valid (given
+    // In order to ensure that the InnerPeripheral(Rust) is always valid (given
     // that Rust is keen on moving stuff around) the object is created as a
     // Pin<Box<T>>
 
     // `_peripheral` is a pointer to a pointer, allowing us to manipulate the contents within const functions.
-    *_peripheral = &target;  // THIS LINE IS SUPER IMPORTANT
+    _peripheral = &target;  // THIS LINE IS SUPER IMPORTANT
 
     _internal->set_callback_on_connected([this]() {
-        SimpleRsBLE::Peripheral* p_peripheral = *this->_peripheral;
-        if (p_peripheral == nullptr) return;
+        if (this->_peripheral == nullptr) return;
 
-        p_peripheral->on_callback_connected();
+        this->_peripheral->on_callback_connected();
     });
 
     _internal->set_callback_on_disconnected([this]() {
-        SimpleRsBLE::Peripheral* p_peripheral = *this->_peripheral;
-        if (p_peripheral == nullptr) return;
+        if (this->_peripheral == nullptr) return;
 
-        p_peripheral->on_callback_disconnected();
+        this->_peripheral->on_callback_disconnected();
     });
 }
 
 void Bindings::RustyPeripheral::unlink() const {
+    // Clear all callbacks
+    _internal->set_callback_on_connected(nullptr);
+    _internal->set_callback_on_disconnected(nullptr);
+
     // `_peripheral` is a pointer to a pointer.
-    *_peripheral = nullptr;
+    _peripheral = nullptr;
 }
+
+bool Bindings::RustyPeripheral::initialized() const { return _internal->initialized(); }
 
 rust::String Bindings::RustyPeripheral::identifier() const { return rust::String(_internal->identifier()); }
 
 rust::String Bindings::RustyPeripheral::address() const { return rust::String(_internal->address()); }
+
 
 SimpleBLE::BluetoothAddressType Bindings::RustyPeripheral::address_type() const { return _internal->address_type(); }
 
@@ -233,15 +276,17 @@ void Bindings::RustyPeripheral::notify(rust::String const& service_rs, rust::Str
     std::string characteristic(characteristic_rs);
 
     _internal->notify(service, characteristic, [this, service_rs, characteristic_rs](std::string data) {
-        SimpleRsBLE::Peripheral* p_peripheral = *this->_peripheral;
-        if (p_peripheral == nullptr) return;
+        // NOTE: In this two cases we need to lock the mutex to ensure thread safety, as
+        // the callback cannot be cleared in the unlink() function.
+        std::lock_guard<std::mutex> lock(_peripheral_mutex);
+        if (this->_peripheral == nullptr) return;
 
         rust::Vec<uint8_t> data_vec;
         for (auto& byte : data) {
             data_vec.push_back(byte);
         }
 
-        p_peripheral->on_callback_characteristic_updated(service_rs, characteristic_rs, data_vec);
+        this->_peripheral->on_callback_characteristic_updated(service_rs, characteristic_rs, data_vec);
     });
 }
 
@@ -250,15 +295,17 @@ void Bindings::RustyPeripheral::indicate(rust::String const& service_rs, rust::S
     std::string characteristic(characteristic_rs);
 
     _internal->indicate(service, characteristic, [this, service_rs, characteristic_rs](std::string data) {
-        SimpleRsBLE::Peripheral* p_peripheral = *this->_peripheral;
-        if (p_peripheral == nullptr) return;
+        // NOTE: In this two cases we need to lock the mutex to ensure thread safety, as
+        // the callback cannot be cleared in the unlink() function.
+        std::lock_guard<std::mutex> lock(_peripheral_mutex);
+        if (this->_peripheral == nullptr) return;
 
         rust::Vec<uint8_t> data_vec;
         for (auto& byte : data) {
             data_vec.push_back(byte);
         }
 
-        p_peripheral->on_callback_characteristic_updated(service_rs, characteristic_rs, data_vec);
+        this->_peripheral->on_callback_characteristic_updated(service_rs, characteristic_rs, data_vec);
     });
 }
 
@@ -322,6 +369,16 @@ rust::Vec<Bindings::RustyDescriptorWrapper> Bindings::RustyCharacteristic::descr
         Bindings::RustyDescriptorWrapper wrapper;
         wrapper.internal = std::make_unique<Bindings::RustyDescriptor>(descriptor);
         result.push_back(std::move(wrapper));
+    }
+
+    return result;
+}
+
+rust::Vec<rust::String> Bindings::RustyCharacteristic::capabilities() const {
+    rust::Vec<rust::String> result;
+
+    for (auto& capability : _internal->capabilities()) {
+        result.push_back(rust::String(capability));
     }
 
     return result;

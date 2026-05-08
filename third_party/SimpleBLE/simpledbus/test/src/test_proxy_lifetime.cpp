@@ -11,7 +11,7 @@ TEST(ProxyLifetime, Validity) {
     ASSERT_TRUE(p.valid());
 
     // Should notify that the proxy can be safely deleted, as nothing worth keeping is left
-    ASSERT_TRUE(p.path_remove("/", Holder::create_array()));
+    ASSERT_TRUE(p.path_remove("/", Holder::create<std::vector<Holder>>()));
 
     // A proxy that has been removed is no longer valid.
     ASSERT_FALSE(p.valid());

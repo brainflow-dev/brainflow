@@ -1,0 +1,80 @@
+---
+title: Usage
+description: Build and include SimpleCBLE in your C project.
+---
+
+SimpleCBLE is the C interface for SimpleBLE, allowing you to use the library in pure C environments or bind it to other languages.
+
+## System Requirements
+
+Since SimpleCBLE is a wrapper around SimpleBLE, it shares the same system requirements. Please refer to the [SimpleBLE Usage](../simpleble/usage#system-requirements) page for a detailed list of requirements for your operating system.
+
+## Building SimpleCBLE
+
+SimpleCBLE is built as part of the SimpleBLE project using CMake.
+
+```bash
+# Clone the repository (if you haven't already)
+git clone https://github.com/simpleble/simpleble.git
+cd simpleble
+
+# Build SimpleCBLE
+cmake -S simplecble -B build_simplecble
+cmake --build build_simplecble
+```
+
+This will produce the `simplecble` library (and `simpleble` which it depends on).
+
+### Build Options
+
+- `BUILD_SHARED_LIBS`: Set to `TRUE` to build shared libraries (default is usually static).
+- `SIMPLEBLE_LOG_LEVEL`: Set the log level (`VERBOSE`, `DEBUG`, `INFO`, `WARN`, `ERROR`, `FATAL`).
+
+Example:
+
+```bash
+cmake -S simplecble -B build_simplecble -DBUILD_SHARED_LIBS=TRUE -DSIMPLEBLE_LOG_LEVEL=DEBUG
+```
+
+## Installing SimpleCBLE
+
+To install the library:
+
+```bash
+sudo cmake --install build_simplecble
+```
+
+This will install the headers to your system's include directory (e.g., `/usr/local/include/simplecble`) and the libraries to the lib directory.
+
+## Usage in your Project
+
+### Using CMake
+
+If you are using CMake, you can use `find_package` to locate SimpleCBLE.
+
+```cmake
+find_package(simplecble REQUIRED)
+target_link_libraries(your_target PRIVATE simplecble::simplecble)
+```
+
+### Using pkg-config
+
+(Note: Check if pkg-config files are generated. If not, maybe skip this or say "Manual linking")
+
+### Manual Linking
+
+If you are not using CMake, you need to link against `simplecble` and `simpleble`. You also need to link against the necessary system libraries (e.g., `dbus-1` on Linux, `CoreBluetooth` on macOS).
+
+**Linux Example:**
+
+```bash
+gcc main.c -o main -lsimplecble -lsimpleble $(pkg-config --libs --cflags dbus-1) -lstdc++
+```
+
+(Note: Since SimpleBLE is C++, you need to link with the C++ standard library usually, or use `g++` to link even if compiling C source).
+
+**MacOS Example:**
+
+```bash
+clang main.c -o main -lsimplecble -lsimpleble -framework CoreBluetooth -framework Foundation -lc++
+```

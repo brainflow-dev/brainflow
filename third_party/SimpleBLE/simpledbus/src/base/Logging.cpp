@@ -1,5 +1,5 @@
-#include "Logging.h"
-#include <simpledbus/external/logfwd.hpp>
+#include <simpledbus/base/Logging.h>
+#include "kvn/logfwd.hpp"
 
 #ifndef SIMPLEDBUS_LOG_LEVEL
 #warning "SIMPLEDBUS_LOG_LEVEL not defined, using default value: ERROR"

@@ -7,6 +7,8 @@
 #include <string>
 #include <vector>
 
+#include <simpleble/export.h>
+
 #include <simpleble/Exceptions.h>
 #include <simpleble/Service.h>
 #include <simpleble/Types.h>
@@ -15,7 +17,7 @@ namespace SimpleBLE {
 
 class PeripheralBase;
 
-class Peripheral {
+class SIMPLEBLE_EXPORT Peripheral {
   public:
     Peripheral() = default;
     virtual ~Peripheral() = default;
@@ -53,6 +55,8 @@ class Peripheral {
     std::vector<Service> services();
     std::map<uint16_t, ByteArray> manufacturer_data();
 
+    /* Calling any of the methods below when the device is not connected will throw
+       Exception::NotConnected */
     // clang-format off
     ByteArray read(BluetoothUUID const& service, BluetoothUUID const& characteristic);
     void write_request(BluetoothUUID const& service, BluetoothUUID const& characteristic, ByteArray const& data);
@@ -69,6 +73,9 @@ class Peripheral {
     void set_callback_on_disconnected(std::function<void()> on_disconnected);
 
   protected:
+    PeripheralBase* operator->();
+    const PeripheralBase* operator->() const;
+
     std::shared_ptr<PeripheralBase> internal_;
 };
 

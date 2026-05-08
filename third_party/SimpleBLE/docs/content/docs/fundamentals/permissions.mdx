@@ -1,0 +1,67 @@
+---
+title: Bluetooth Permissions
+description: Understanding platform-specific permissions for Bluetooth.
+---
+
+Bluetooth is a sensitive capability that requires explicit permissions from the operating system and, in many cases, the user. SimpleBLE attempts to simplify this, but you still need to configure your application correctly.
+
+## Desktop Platforms
+
+### Windows
+Generally, Windows doesn't require special manifest entries for Bluetooth if you're building a standard Win32 application. However, users must have Bluetooth enabled in the system settings.
+
+Note that if you attempt to pair with a device, Windows will typically show a system notification or pop-up asking the user to confirm the pairing request.
+
+### macOS
+Starting with macOS 10.15 (Catalina), applications must include the `NSBluetoothAlwaysUsageDescription` key in their `Info.plist` file. This key should contain a string explaining why the app needs Bluetooth access.
+
+```xml
+<key>NSBluetoothAlwaysUsageDescription</key>
+<string>This app needs Bluetooth access to connect to your smart device.</string>
+```
+
+The first time your application attempts to use Bluetooth, the operating system will automatically prompt the user to grant access using the description provided above.
+
+If your app targets older versions of macOS, you might also need `NSBluetoothPeripheralUsageDescription`.
+
+Similar to Windows, any pairing requests will trigger a macOS system UI that the user must interact with to complete the process.
+
+### Linux
+On Linux, permissions are usually handled by the `bluetooth` group or via D-Bus policies. Users might need to be part of the `lp` or `bluetooth` group depending on the distribution.
+
+## Mobile Platforms
+
+### Android
+Android has the most complex permission model for Bluetooth. Depending on the API level, you need different permissions in your `AndroidManifest.xml`:
+
+**For all versions:**
+```xml
+<uses-permission android:name="android.permission.BLUETOOTH" />
+<uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
+```
+
+**For Android 12 (API 31) and above:**
+```xml
+<uses-permission android:name="android.permission.BLUETOOTH_SCAN" />
+<uses-permission android:name="android.permission.BLUETOOTH_CONNECT" />
+<uses-permission android:name="android.permission.BLUETOOTH_ADVERTISE" />
+```
+
+Additionally, you must **request these permissions at runtime**. SimpleDroidBLE provides helpers for this.
+
+**Note on Location:** On many Android versions, `ACCESS_FINE_LOCATION` or `ACCESS_COARSE_LOCATION` is required to perform Bluetooth scans because beacons can be used to infer the user's location.
+
+### iOS
+Similar to macOS, iOS requires the `NSBluetoothAlwaysUsageDescription` in the `Info.plist`. You must also request permission at runtime, which typically happens automatically the first time you try to use the Bluetooth adapter.
+
+## Checking Permission State
+
+In SimpleBLE, you can check if Bluetooth is available and permissions are granted using:
+
+```cpp
+if (!SimpleBLE::Adapter::bluetooth_enabled()) {
+    // Bluetooth is off or permissions are missing
+}
+```
+
+On Android, you should use the platform-specific helpers to request permissions before calling any SimpleBLE functions.

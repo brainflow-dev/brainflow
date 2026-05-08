@@ -1,0 +1,118 @@
+name: Build SimpleCBLE
+
+on:
+  workflow_call:
+
+jobs:
+  build-lib:
+    runs-on: ${{ matrix.config.runner-os || 'ubuntu-latest' }}
+    container: ${{ matrix.config.container-image }}
+    strategy:
+      fail-fast: false
+      matrix:
+        config:
+          - { runner-os: ubuntu-22.04, os: linux, architecture: x64, container-image: dockcross/linux-x64 }
+          - { runner-os: ubuntu-22.04, os: linux, architecture: x86, container-image: dockcross/linux-x86 }
+          - { runner-os: ubuntu-22.04, os: linux, architecture: aarch64, container-image: dockcross/linux-arm64 }
+          - { runner-os: ubuntu-22.04, os: linux, architecture: armv6, container-image: dockcross/linux-armv6-lts }
+          - { runner-os: macos-14, os: macos, architecture: x64 } # Containers are not required.
+          - { runner-os: macos-14, os: macos, architecture: aarch64 } # Containers are not required.
+          - { runner-os: macos-14, os: ios, architecture: aarch64 } # Containers are not required.
+          - { runner-os: windows-2022, os: windows, architecture: x64 } # Containers are not required.
+          - { runner-os: windows-2022, os: windows, architecture: x86 } # Containers are not required.
+          - { runner-os: ubuntu-22.04, os: android, architecture: armeabi-v7a }
+          - { runner-os: ubuntu-22.04, os: android, architecture: arm64-v8a }
+          - { runner-os: ubuntu-22.04, os: android, architecture: x86 }
+          - { runner-os: ubuntu-22.04, os: android, architecture: x86_64 }
+
+    steps:
+      - name: Clone Repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          fetch-tags: true
+
+      - name: Add Version Suffix
+        uses: ./.github/actions/setup-version
+
+      - name: Build SimpleCBLE Library (Static)
+        uses: ./.github/actions/build-native
+        with:
+          source-dir: "$GITHUB_WORKSPACE/simplecble"
+          build-dir: "$GITHUB_WORKSPACE/build_simplecble_static"
+          install-prefix: "$GITHUB_WORKSPACE/install_simplecble/static"
+          build-config: "Release"
+          os: "${{ matrix.config.os }}"
+          target-arch: "${{ matrix.config.architecture }}"
+          cmake-options: "-DBUILD_SHARED_LIBS=OFF"
+
+      - name: Build SimpleCBLE Library (Shared)
+        uses: ./.github/actions/build-native
+        with:
+          source-dir: "$GITHUB_WORKSPACE/simplecble"
+          build-dir: "$GITHUB_WORKSPACE/build_simplecble_shared"
+          install-prefix: "$GITHUB_WORKSPACE/install_simplecble/shared"
+          build-config: "Release"
+          os: "${{ matrix.config.os }}"
+          target-arch: "${{ matrix.config.architecture }}"
+          cmake-options: "-DBUILD_SHARED_LIBS=ON"
+
+      - name: Package SimpleCBLE Artifact
+        uses: ./.github/actions/package-native
+        with:
+          source-dir: $GITHUB_WORKSPACE/install_simplecble
+          output-dir: $GITHUB_WORKSPACE/artifacts
+          archive-name: libsimplecble_${{ matrix.config.os }}-${{ matrix.config.architecture }}
+          os: "${{ matrix.config.os }}"
+
+      - name: Upload Binaries
+        uses: actions/upload-artifact@v4
+        with:
+          name: libsimplecble_${{ matrix.config.os }}-${{ matrix.config.architecture }}
+          path: artifacts/libsimplecble_${{ matrix.config.os }}-${{ matrix.config.architecture }}.zip
+
+  build-examples:
+    runs-on: ${{ matrix.config.runner-os || 'ubuntu-latest' }}
+    container: ${{ matrix.config.container-image }}
+    strategy:
+      fail-fast: false
+      matrix:
+        config:
+          - { runner-os: ubuntu-22.04, os: linux, architecture: x64, container-image: dockcross/linux-x64 }
+          - { runner-os: macos-14, os: macos, architecture: x64 } # Containers are not required.
+          # - { runner-os: windows-2022, os: windows, architecture: x64 } # Containers are not required. # FIXME: Some issue with lib installation is messing with the build.
+
+    steps:
+      - name: Clone Repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          fetch-tags: true
+
+      - name: Add Version Suffix
+        uses: ./.github/actions/setup-version
+
+      - name: Build SimpleCBLE Examples
+        uses: ./.github/actions/build-native
+        with:
+          source-dir: "$GITHUB_WORKSPACE/examples/simplecble"
+          build-dir: "$GITHUB_WORKSPACE/build_simplecble_examples"
+          install-prefix: "$GITHUB_WORKSPACE/install_simplecble_examples"
+          build-config: "Debug"
+          os: "${{ matrix.config.os }}"
+          target-arch: "${{ matrix.config.architecture }}"
+          cmake-options: "-DBUILD_SHARED_LIBS=OFF"
+
+      - name: Package SimpleCBLE Artifact
+        uses: ./.github/actions/package-native
+        with:
+          source-dir: $GITHUB_WORKSPACE/install_simplecble_examples/bin
+          output-dir: $GITHUB_WORKSPACE/artifacts
+          archive-name: libsimplecble_examples_${{ matrix.config.os }}-${{ matrix.config.architecture }}
+          os: "${{ matrix.config.os }}"
+
+      - name: Upload Binaries
+        uses: actions/upload-artifact@v4
+        with:
+          name: libsimplecble_examples_${{ matrix.config.os }}-${{ matrix.config.architecture }}
+          path: artifacts/libsimplecble_examples_${{ matrix.config.os }}-${{ matrix.config.architecture }}.zip

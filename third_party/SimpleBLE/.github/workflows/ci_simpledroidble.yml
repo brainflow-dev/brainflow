@@ -1,0 +1,89 @@
+name: Build SimpleDroidBLE
+
+on:
+  workflow_dispatch:
+  workflow_call:
+
+jobs:
+
+  build-lib:
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Clone Repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          fetch-tags: true
+
+      - name: Add Version Suffix
+        uses: ./.github/actions/setup-version
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: "17"
+          distribution: "temurin"
+
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v4
+
+      - name: Build simplebledroidble AAR
+        run: gradle build -p ./simpledroidble --no-daemon
+
+      - name: Package Artifact
+        uses: ./.github/actions/package-native
+        with:
+          source-dir: simpledroidble/simpledroidble/build/outputs/aar
+          output-dir: $GITHUB_WORKSPACE/artifacts
+          archive-name: simpledroidble
+          os: linux
+
+      - name: Upload Binaries
+        uses: actions/upload-artifact@v4
+        with:
+          name: simpledroidble
+          path: artifacts/simpledroidble.zip
+
+  build-examples:
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Clone Repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          fetch-tags: true
+
+      - name: Add Version Suffix
+        uses: ./.github/actions/setup-version
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: "17"
+          distribution: "temurin"
+
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v4
+
+      - name: Build simplebledroidble examples AAR
+        run: gradle build -p ./examples/simpleble-android --no-daemon
+
+      # - name: Package Artifact
+      #   uses: ./.github/actions/package-native
+      #   with:
+      #     source-dir: examples/simpleble-android/app/build/outputs/aar
+      #     output-dir: $GITHUB_WORKSPACE/artifacts
+      #     archive-name: simpledroidble_examples
+      #     os: linux
+
+      # - name: Upload Binaries
+      #   uses: actions/upload-artifact@v4
+      #   with:
+      #     name: simpledroidble_examples
+      #     path: artifacts/simpledroidble_examples.zip

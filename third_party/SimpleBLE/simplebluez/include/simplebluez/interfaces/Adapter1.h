@@ -1,6 +1,7 @@
 #pragma once
 
 #include <simpledbus/advanced/Interface.h>
+#include <simpledbus/advanced/InterfaceRegistry.h>
 
 #include <optional>
 #include <string>
@@ -23,8 +24,8 @@ class Adapter1 : public SimpleDBus::Interface {
     };
 
     // ----- CONSTRUCTORS -----
-    Adapter1(std::shared_ptr<SimpleDBus::Connection> conn, std::string path);
-    virtual ~Adapter1() = default;
+    Adapter1(std::shared_ptr<SimpleDBus::Connection> conn, std::shared_ptr<SimpleDBus::Proxy> proxy);
+    virtual ~Adapter1();
 
     // ----- METHODS -----
     void RemoveDevice(std::string device_path);
@@ -34,12 +35,13 @@ class Adapter1 : public SimpleDBus::Interface {
     SimpleDBus::Holder GetDiscoveryFilters();
 
     // ----- PROPERTIES -----
-    bool Discovering(bool refresh = true);
-    bool Powered(bool refresh = true);
-    std::string Address();
+    Property<std::string>& Alias = property<std::string>("Alias");
+    Property<bool>& Discovering = property<bool>("Discovering");
+    Property<bool>& Powered = property<bool>("Powered");
+    Property<std::string>& Address = property<std::string>("Address");
 
-  protected:
-    void property_changed(std::string option_name) override;
+  private:
+    static const SimpleDBus::AutoRegisterInterface<Adapter1> registry;
 };
 
 }  // namespace SimpleBluez

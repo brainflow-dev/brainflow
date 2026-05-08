@@ -1,0 +1,4 @@
+This folder is intended to contain external and internal dependencies for the project.
+Initially we expect to have header only dependencies.
+External dependencies will be bundled as part of the install directory.
+Internal dependencies are only consumed internally and don't affect any public API.

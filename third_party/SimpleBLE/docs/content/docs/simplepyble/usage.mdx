@@ -1,0 +1,57 @@
+---
+title: Usage
+description: Build and run SimplePyBLE in your specific environment.
+---
+
+SimpleBLE works on Windows, Linux and MacOS. Please follow the instructions below to build and run SimplePyBLE in your specific environment.
+
+## Installing from PyPI
+
+The fastest way to get going with SimplePyBLE is to install it from PyPI:
+
+```bash
+pip install simplepyble
+```
+
+Please take into consideration that when using this library on Linux, you will need to have the following dependencies installed:
+
+```bash
+sudo apt-get install libdbus-1-dev
+```
+
+## Installing locally
+
+If you wish to install SimplePyBLE locally, either for development purposes or to access the latest features, you can do so by cloning the repository and installing it with pip:
+
+```bash
+cd <path-to-simpleble>/simplepyble
+pip install .
+```
+
+## Asynchronous API
+
+SimplePyBLE provides an asynchronous API via the `simplepyble.aio` module. This module is designed to work with `asyncio` and provides a more idiomatic way to handle asynchronous operations in Python.
+
+To use the asynchronous API, simply import from `simplepyble.aio`:
+
+```python
+import asyncio
+from simplepyble.aio import Adapter
+
+async def main():
+    adapters = Adapter.get_adapters()
+    if not adapters:
+        return
+
+    adapter = adapters[0]
+    async with adapter:
+        await adapter.scan_for(5000)
+        peripherals = adapter.scan_get_results()
+        for peripheral in peripherals:
+            print(f"Found: {peripheral.identifier()} [{peripheral.address()}]")
+
+if __name__ == "__main__":
+    asyncio.run(main())
+```
+
+All blocking calls from the synchronous API are available as coroutines in the `aio` module, and callbacks can be either regular functions or coroutines. For more examples, check out the [Examples](./examples) section.

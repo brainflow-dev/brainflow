@@ -3,64 +3,67 @@
 #include <stdexcept>
 #include <string>
 
+#include <simpleble/export.h>
+
 #include "Types.h"
 
 namespace SimpleBLE {
 
 namespace Exception {
 
-class BaseException : public std::runtime_error {
+class SIMPLEBLE_EXPORT BaseException : public std::runtime_error {
   public:
     BaseException(const std::string& __arg) : std::runtime_error(__arg) {}
 };
 
-class NotInitialized : public BaseException {
+class SIMPLEBLE_EXPORT NotInitialized : public BaseException {
   public:
     NotInitialized();
 };
 
-class NotConnected : public BaseException {
+class SIMPLEBLE_EXPORT NotConnected : public BaseException {
   public:
     NotConnected();
 };
 
-class InvalidReference : public BaseException {
+class SIMPLEBLE_EXPORT InvalidReference : public BaseException {
   public:
     InvalidReference();
 };
 
-class ServiceNotFound : public BaseException {
+class SIMPLEBLE_EXPORT ServiceNotFound : public BaseException {
   public:
     ServiceNotFound(BluetoothUUID uuid);
 };
 
-class CharacteristicNotFound : public BaseException {
+class SIMPLEBLE_EXPORT CharacteristicNotFound : public BaseException {
   public:
     CharacteristicNotFound(BluetoothUUID uuid);
 };
 
-class DescriptorNotFound : public BaseException {
+class SIMPLEBLE_EXPORT DescriptorNotFound : public BaseException {
   public:
     DescriptorNotFound(BluetoothUUID uuid);
 };
 
-class OperationNotSupported : public BaseException {
+class SIMPLEBLE_EXPORT OperationNotSupported : public BaseException {
   public:
     OperationNotSupported();
+    OperationNotSupported(const std::string& operation, const BluetoothUUID& characteristic_uuid);
 };
 
-class OperationFailed : public BaseException {
+class SIMPLEBLE_EXPORT OperationFailed : public BaseException {
   public:
     OperationFailed();
     OperationFailed(const std::string& err_msg);
 };
 
-class WinRTException : public BaseException {
+class SIMPLEBLE_EXPORT WinRTException : public BaseException {
   public:
     WinRTException(int32_t err_code, const std::string& err_msg);
 };
 
-class CoreBluetoothException : public BaseException {
+class SIMPLEBLE_EXPORT CoreBluetoothException : public BaseException {
   public:
     CoreBluetoothException(const std::string& err_msg);
 };

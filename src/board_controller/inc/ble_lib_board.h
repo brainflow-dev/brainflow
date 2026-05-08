@@ -5,7 +5,7 @@
 #include "board.h"
 #include "board_controller.h"
 #include "runtime_dll_loader.h"
-#include "simpleble_c/types.h"
+#include "simplecble/types.h"
 
 
 class BLELibBoard : public Board

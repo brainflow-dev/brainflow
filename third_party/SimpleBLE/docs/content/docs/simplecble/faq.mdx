@@ -1,0 +1,38 @@
+---
+title: FAQ
+description: Frequently asked questions about SimpleCBLE.
+---
+
+import { Accordion, Accordions } from 'fumadocs-ui/components/accordion';
+
+<Accordions type="multiple">
+
+<Accordion title="What is the correct approach to memory management of SimpleBLE objects in the C-API?" id="memory-management">
+
+In the C API (SimpleCBLE), you are responsible for freeing memory allocated by the library.
+
+1.  **Handles**: Objects like `simpleble_adapter_t` and `simpleble_peripheral_t` are handles. When you obtain one (e.g., via `simpleble_adapter_get_handle` or `simpleble_adapter_scan_get_results_handle`), you *must* release it when you are done using `simpleble_adapter_release_handle` or `simpleble_peripheral_release_handle`.
+2.  **Strings**: Functions that return `char*` (e.g., `simpleble_adapter_identifier`) allocate memory. You *must* free this memory using `simpleble_free()`.
+3.  **Data Buffers**: Data buffers passed to callbacks are usually owned by the library and valid only for the duration of the callback. If you need to keep the data, copy it.
+
+</Accordion>
+
+<Accordion title="How are vectors supposed to be handled in the C-API?" id="vectors">
+
+The C API does not use vectors directly. Instead, it uses a count/get pattern.
+
+1.  Call `_count()` to get the number of items.
+2.  Loop from `0` to `count - 1`.
+3.  Call `_get_handle(index)` or `_get(index, &struct)` to retrieve the item.
+
+For example, `simpleble_adapter_scan_get_results_count` and `simpleble_adapter_scan_get_results_handle`.
+
+</Accordion>
+
+<Accordion title="What platforms are supported?" id="platforms">
+
+SimpleCBLE supports the same platforms as SimpleBLE: Windows 10+, Linux (BlueZ), MacOS 13+, iOS 15+, and Android API 31+.
+
+</Accordion>
+
+</Accordions>

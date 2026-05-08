@@ -1,0 +1,116 @@
+name: Build SimplePyBLE
+
+on:
+  workflow_call:
+
+jobs:
+
+  build-sdist:
+    runs-on: ubuntu-22.04
+
+    steps:
+      - name: Clone Repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          fetch-tags: true
+
+      - name: Add Version Suffix
+        uses: ./.github/actions/setup-version
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: 3.12
+          cache: "pip"
+
+      - name: Install dependencies
+        run: pip install build
+
+      - name: Build source distribution
+        run: python3 -m build --sdist
+
+      - name: Upload files
+        uses: actions/upload-artifact@v4
+        with:
+          name: simplepyble-sdist
+          path: dist/*.tar.gz
+
+
+  build-wheels:
+    runs-on: ${{ matrix.config.runner-os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        config:
+          - { runner-os: ubuntu-22.04, os: linux, arch: x86_64 }
+          - { runner-os: ubuntu-22.04, os: linux, arch: i686 }
+          - { runner-os: ubuntu-22.04-arm, os: linux, arch: aarch64 }
+          - { runner-os: macos-14, os: macos, arch: x86_64 }
+          - { runner-os: macos-14, os: macos, arch: universal2 }
+          - { runner-os: macos-14, os: macos, arch: arm64 }
+          - { runner-os: windows-2022, os: windows, arch: AMD64 }
+          - { runner-os: windows-2022, os: windows, arch: x86 }
+          - { runner-os: windows-11-arm, os: windows, arch: ARM64 }
+
+    steps:
+      - name: Clone Repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          fetch-tags: true
+
+      - name: Add Version Suffix
+        uses: ./.github/actions/setup-version
+
+      - name: Set up QEMU
+        if: matrix.config.os == 'linux'
+        uses: docker/setup-qemu-action@v2
+        with:
+          platforms: arm64
+
+      - name: Build wheel
+        uses: pypa/cibuildwheel@v3.3.1
+        env:
+          CIBW_BUILD_VERBOSITY: 1
+          CIBW_BEFORE_ALL_LINUX: "yum update -y && yum group install -y \"Development Tools\" && yum install -y dbus-devel"
+          CIBW_ARCHS: ${{ matrix.config.arch }}
+          CIBW_SKIP: "*musllinux_* pp* cp314t*" 
+          CIBW_TEST_SKIP: "*"
+          MACOSX_DEPLOYMENT_TARGET: "13.0"
+
+      - name: Upload wheels
+        uses: actions/upload-artifact@v4
+        with:
+          name: simplepyble-${{ matrix.config.os }}-${{ matrix.config.arch }}
+          path: wheelhouse/*.whl
+
+
+  # tests:
+  #   runs-on: ubuntu-22.04
+
+  #   steps:
+  #     - name: Clone Repository
+  #       uses: actions/checkout@v4
+  #       with:
+  #         fetch-depth: 0
+  #         fetch-tags: true
+
+  #     - name: Add Version Suffix
+  #       uses: ./.github/actions/setup-version
+
+  #     - name: Set up Python
+  #       uses: actions/setup-python@v5
+  #       with:
+  #         python-version: 3.11
+  #         cache: "pip"
+
+  #     - name: Install dependencies
+  #       run: pip install -r simplepyble/requirements.txt
+
+  #     - name: Install SimplePyBLE with Plain flavor
+  #       run: python setup.py install --plain
+
+  #     - name: Run PyTest
+  #       run: pytest
+  #       working-directory: ./simplepyble/test

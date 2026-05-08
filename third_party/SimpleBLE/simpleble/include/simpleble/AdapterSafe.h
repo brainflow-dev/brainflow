@@ -1,15 +1,28 @@
 #pragma once
 
+#include <simpleble/export.h>
+
 #include <simpleble/Adapter.h>
 #include <simpleble/PeripheralSafe.h>
+#include <memory>
+#include <optional>
+#include <vector>
 
 namespace SimpleBLE {
 
 namespace Safe {
 
-class Adapter : public SimpleBLE::Adapter {
+/**
+ * Wrapper around the Adapter class that provides a noexcept interface.
+ *
+ * We use instances of this class directly and not through shared_ptr because
+ * this is just a wrapper around the Adapter class, which is already managed by
+ * shared_ptr.
+ */
+class SIMPLEBLE_EXPORT Adapter {
   public:
     Adapter(SimpleBLE::Adapter& adapter);
+    Adapter(SimpleBLE::Adapter&& adapter);
     virtual ~Adapter() = default;
 
     std::optional<std::string> identifier() noexcept;
@@ -30,6 +43,14 @@ class Adapter : public SimpleBLE::Adapter {
 
     static std::optional<bool> bluetooth_enabled() noexcept;
     static std::optional<std::vector<SimpleBLE::Safe::Adapter>> get_adapters() noexcept;
+
+    /**
+     * Cast to the underlying adapter object.
+     */
+    operator SimpleBLE::Adapter() const noexcept;
+
+  protected:
+    SimpleBLE::Adapter internal_;
 };
 
 }  // namespace Safe

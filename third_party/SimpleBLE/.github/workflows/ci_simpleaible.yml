@@ -1,0 +1,46 @@
+name: Build SimpleAIBLE
+
+on:
+  workflow_call:
+
+jobs:
+  build:
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Clone Repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          fetch-tags: true
+
+      - name: Add Version Suffix
+        uses: ./.github/actions/setup-version
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: 3.12
+          cache: "pip"
+
+      - name: Install dependencies
+        run: pip install build
+
+      - name: Update pyproject.toml version
+        run: |
+          sed -i 's/^version = .*/version = "'"$VERSION"'"/' simpleaible/pyproject.toml
+          grep "^version =" simpleaible/pyproject.toml
+
+      - name: Build
+        run: python3 -m build simpleaible
+
+      - name: Upload sdist
+        uses: actions/upload-artifact@v4
+        with:
+          name: simpleaible-sdist
+          path: simpleaible/dist/*.tar.gz
+
+      - name: Upload wheel
+        uses: actions/upload-artifact@v4
+        with:
+          name: simpleaible-wheel
+          path: simpleaible/dist/*.whl

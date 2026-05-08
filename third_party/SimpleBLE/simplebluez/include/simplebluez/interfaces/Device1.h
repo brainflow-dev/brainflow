@@ -1,7 +1,7 @@
 #pragma once
 
 #include <simpledbus/advanced/Interface.h>
-#include <simpledbus/external/kvn_safe_callback.hpp>
+#include <simpledbus/advanced/InterfaceRegistry.h>
 
 #include <string>
 
@@ -11,7 +11,7 @@ namespace SimpleBluez {
 
 class Device1 : public SimpleDBus::Interface {
   public:
-    Device1(std::shared_ptr<SimpleDBus::Connection> conn, std::string path);
+    Device1(std::shared_ptr<SimpleDBus::Connection> conn, std::shared_ptr<SimpleDBus::Proxy> proxy);
     virtual ~Device1();
 
     // ----- METHODS -----
@@ -21,37 +21,24 @@ class Device1 : public SimpleDBus::Interface {
     void CancelPairing();
 
     // ----- PROPERTIES -----
-    int16_t RSSI();
-    int16_t TxPower();
-    uint16_t Appearance();  // On Bluez 5.53, this always returns 0.
-    std::string Address();
-    std::string AddressType();
-    std::string Alias();
-    std::string Name();
-    std::vector<std::string> UUIDs();
-    std::map<uint16_t, ByteArray> ManufacturerData(bool refresh = true);
-    std::map<std::string, ByteArray> ServiceData(bool refresh = true);
-    bool Paired(bool refresh = true);
-    bool Connected(bool refresh = true);
-    bool ServicesResolved(bool refresh = true);
+    Property<int16_t>& RSSI = property<int16_t>("RSSI");
+    Property<int16_t>& TxPower = property<int16_t>("TxPower");
+    Property<uint16_t>& Appearance = property<uint16_t>("Appearance");
+    Property<std::string>& Address = property<std::string>("Address");
+    Property<std::string>& AddressType = property<std::string>("AddressType");
+    Property<std::string>& Alias = property<std::string>("Alias");
+    Property<std::string>& Name = property<std::string>("Name");
+    Property<std::vector<std::string>>& UUIDs = property<std::vector<std::string>>("UUIDs");
+    Property<std::map<uint16_t, ByteArray>>& ManufacturerData = property<std::map<uint16_t, ByteArray>>("ManufacturerData");
+    Property<std::map<std::string, ByteArray>>& ServiceData = property<std::map<std::string, ByteArray>>("ServiceData");
+    Property<bool>& Paired = property<bool>("Paired");
+    Property<bool>& Bonded = property<bool>("Bonded");
+    Property<bool>& Trusted = property<bool>("Trusted");
+    Property<bool>& Connected = property<bool>("Connected");
+    Property<bool>& ServicesResolved = property<bool>("ServicesResolved");
 
-    // ----- CALLBACKS -----
-    kvn::safe_callback<void()> OnServicesResolved;
-    kvn::safe_callback<void()> OnDisconnected;
-
-  protected:
-    void property_changed(std::string option_name) override;
-
-    int16_t _rssi = INT16_MIN;
-    int16_t _tx_power = INT16_MIN;
-    std::string _name;
-    std::string _alias;
-    std::string _address;
-    std::string _address_type;
-    bool _connected;
-    bool _services_resolved;
-    std::map<uint16_t, ByteArray> _manufacturer_data;
-    std::map<std::string, ByteArray> _service_data;
+  private:
+    static const SimpleDBus::AutoRegisterInterface<Device1> registry;
 };
 
 }  // namespace SimpleBluez

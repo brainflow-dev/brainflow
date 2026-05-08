@@ -1,0 +1,740 @@
+---
+title: API Reference
+description: Architecture overview and API documentation for SimpleBLE.
+---
+
+import { ApiClass, ApiMethod, ApiSection } from "@/components/api";
+
+The following notes provide an overview of the architecture of some of the higher-level classes in the library, as to facilitate their understanding.
+
+<ApiSection title="Standard API" id="standard-api">
+
+## SimpleBLE::Adapter [#simpleble-adapter] [toc]
+
+<ApiClass name="SimpleBLE::Adapter" detailed="Bluetooth [Adapter](#simpleble-adapter).  A default-constructed [Adapter](#simpleble-adapter) object is not initialized. Calling any method other than `initialized()` on an uninitialized [Adapter](#simpleble-adapter) will throw an exception of type `SimpleBLE::NotInitialized`.">
+
+<Callout type="info" title="Note">
+This class is intended to be used by the user only. Library developers should use shared pointers to `AdapterBase` instead.
+</Callout>
+
+### Public Functions [!toc]
+
+<ApiMethod
+  signature="Adapter()=default"
+/>
+
+<ApiMethod
+  signature="virtual ~Adapter()=default"
+/>
+
+<ApiMethod
+  signature="bool initialized() const"
+/>
+
+<ApiMethod
+  signature="void * underlying() const"
+  detailed="Retrieve the underlying OS object/handle.  For certain compatibility with external libraries, we sometimes need to expose the actual OS handle to the user. This is particularly important for MacOS right now."
+/>
+
+<ApiMethod
+  signature="std::string identifier()"
+/>
+
+<ApiMethod
+  signature="BluetoothAddress address()"
+/>
+
+<ApiMethod
+  signature="void power_on()"
+  detailed="Control the power state of the adapter."
+  notes={[
+    {
+      content: "The power on/off functionality is only supported on Windows and Linux. On other platforms, this method will do nothing.",
+      type: "warn"
+    },
+    {
+      content: "Callbacks are currently a placeholder for future implementation.",
+      type: "info"
+    }
+  ]}
+/>
+
+<ApiMethod
+  signature="void power_off()"
+/>
+
+<ApiMethod
+  signature="bool is_powered()"
+/>
+
+<ApiMethod
+  signature="void set_callback_on_power_on(std::function< void()> on_power_on)"
+  parameters={[{"name":"on_power_on","type":"std::function< void()>"}]}
+/>
+
+<ApiMethod
+  signature="void set_callback_on_power_off(std::function< void()> on_power_off)"
+  parameters={[{"name":"on_power_off","type":"std::function< void()>"}]}
+/>
+
+<ApiMethod
+  signature="void scan_start()"
+/>
+
+<ApiMethod
+  signature="void scan_stop()"
+/>
+
+<ApiMethod
+  signature="void scan_for(int timeout_ms)"
+  parameters={[{"name":"timeout_ms","type":"int"}]}
+/>
+
+<ApiMethod
+  signature="bool scan_is_active()"
+/>
+
+<ApiMethod
+  signature="std::vector< Peripheral > scan_get_results()"
+/>
+
+<ApiMethod
+  signature="void set_callback_on_scan_start(std::function< void()> on_scan_start)"
+  parameters={[{"name":"on_scan_start","type":"std::function< void()>"}]}
+/>
+
+<ApiMethod
+  signature="void set_callback_on_scan_stop(std::function< void()> on_scan_stop)"
+  parameters={[{"name":"on_scan_stop","type":"std::function< void()>"}]}
+/>
+
+<ApiMethod
+  signature="void set_callback_on_scan_updated(std::function< void(Peripheral)> on_scan_updated)"
+  parameters={[{"name":"on_scan_updated","type":"std::function< void([Peripheral](#simpleble-peripheral))>"}]}
+/>
+
+<ApiMethod
+  signature="void set_callback_on_scan_found(std::function< void(Peripheral)> on_scan_found)"
+  parameters={[{"name":"on_scan_found","type":"std::function< void([Peripheral](#simpleble-peripheral))>"}]}
+/>
+
+<ApiMethod
+  signature="std::vector< Peripheral > get_paired_peripherals()"
+  detailed="Retrieve a list of all paired peripherals."
+  note="This method is currently only supported by the Linux, Windows and Android backends."
+/>
+
+<ApiMethod
+  signature="std::vector< Peripheral > get_connected_peripherals()"
+  detailed="Retrieve a list of all connected peripherals."
+  note="This method is currently only supported by the Windows backend. (More backends coming soon.)"
+/>
+
+### Public Static Functions [!toc]
+
+<ApiMethod
+  signature="static bool bluetooth_enabled()"
+/>
+
+<ApiMethod
+  signature="static std::vector< Adapter > get_adapters()"
+  detailed="Fetches a list of all available adapters from all available backends.  This will cause backends to be instantiated/initialized and adapters too."
+  notes={[{ content: "All configuration values must be set prior to calling this function. Please refer to the SimpleBLE::Config documentation for more details.", type: "info" }]}
+/>
+
+</ApiClass>
+
+## SimpleBLE::Peripheral [#simpleble-peripheral] [toc]
+
+<ApiClass name="SimpleBLE::Peripheral">
+
+### Public Functions [!toc]
+
+<ApiMethod
+  signature="Peripheral()=default"
+/>
+
+<ApiMethod
+  signature="virtual ~Peripheral()=default"
+/>
+
+<ApiMethod
+  signature="bool initialized() const"
+/>
+
+<ApiMethod
+  signature="void * underlying() const"
+/>
+
+<ApiMethod
+  signature="std::string identifier()"
+/>
+
+<ApiMethod
+  signature="BluetoothAddress address()"
+/>
+
+<ApiMethod
+  signature="BluetoothAddressType address_type()"
+/>
+
+<ApiMethod
+  signature="int16_t rssi()"
+/>
+
+<ApiMethod
+  signature="int16_t tx_power()"
+  brief="Provides the advertised transmit power in dBm."
+  notes={[{ content: "If the field has not been advertised by the peripheral, the returned value will be -32768.", type: "info" }]}
+/>
+
+<ApiMethod
+  signature="uint16_t mtu()"
+/>
+
+<ApiMethod
+  signature="void connect()"
+/>
+
+<ApiMethod
+  signature="void disconnect()"
+/>
+
+<ApiMethod
+  signature="bool is_connected()"
+/>
+
+<ApiMethod
+  signature="bool is_connectable()"
+/>
+
+<ApiMethod
+  signature="bool is_paired()"
+/>
+
+<ApiMethod
+  signature="void unpair()"
+/>
+
+<ApiMethod
+  signature="std::vector< Service > services()"
+  brief="Provides a list of all services that are available on the peripheral."
+  notes={[{ content: "If the peripheral is not connected, it will return a list of services that were advertised by the device.", type: "info" }]}
+/>
+
+<ApiMethod
+  signature="std::map< uint16_t, ByteArray > manufacturer_data()"
+/>
+
+<ApiMethod
+  signature="ByteArray read(BluetoothUUID const &service, BluetoothUUID const &characteristic)"
+  parameters={[{"name":"service","type":"BluetoothUUID const &"},{"name":"characteristic","type":"BluetoothUUID const &"}]}
+/>
+
+<ApiMethod
+  signature="void write_request(BluetoothUUID const &service, BluetoothUUID const &characteristic, ByteArray const &data)"
+  parameters={[{"name":"service","type":"BluetoothUUID const &"},{"name":"characteristic","type":"BluetoothUUID const &"},{"name":"data","type":"ByteArray const &"}]}
+/>
+
+<ApiMethod
+  signature="void write_command(BluetoothUUID const &service, BluetoothUUID const &characteristic, ByteArray const &data)"
+  parameters={[{"name":"service","type":"BluetoothUUID const &"},{"name":"characteristic","type":"BluetoothUUID const &"},{"name":"data","type":"ByteArray const &"}]}
+/>
+
+<ApiMethod
+  signature="void notify(BluetoothUUID const &service, BluetoothUUID const &characteristic, std::function< void(ByteArray payload)> callback)"
+  parameters={[{"name":"service","type":"BluetoothUUID const &"},{"name":"characteristic","type":"BluetoothUUID const &"},{"name":"callback","type":"std::function< void(ByteArray payload)>"}]}
+/>
+
+<ApiMethod
+  signature="void indicate(BluetoothUUID const &service, BluetoothUUID const &characteristic, std::function< void(ByteArray payload)> callback)"
+  parameters={[{"name":"service","type":"BluetoothUUID const &"},{"name":"characteristic","type":"BluetoothUUID const &"},{"name":"callback","type":"std::function< void(ByteArray payload)>"}]}
+/>
+
+<ApiMethod
+  signature="void unsubscribe(BluetoothUUID const &service, BluetoothUUID const &characteristic)"
+  parameters={[{"name":"service","type":"BluetoothUUID const &"},{"name":"characteristic","type":"BluetoothUUID const &"}]}
+/>
+
+<ApiMethod
+  signature="ByteArray read(BluetoothUUID const &service, BluetoothUUID const &characteristic, BluetoothUUID const &descriptor)"
+  parameters={[{"name":"service","type":"BluetoothUUID const &"},{"name":"characteristic","type":"BluetoothUUID const &"},{"name":"descriptor","type":"BluetoothUUID const &"}]}
+/>
+
+<ApiMethod
+  signature="void write(BluetoothUUID const &service, BluetoothUUID const &characteristic, BluetoothUUID const &descriptor, ByteArray const &data)"
+  parameters={[{"name":"service","type":"BluetoothUUID const &"},{"name":"characteristic","type":"BluetoothUUID const &"},{"name":"descriptor","type":"BluetoothUUID const &"},{"name":"data","type":"ByteArray const &"}]}
+/>
+
+<ApiMethod
+  signature="void set_callback_on_connected(std::function< void()> on_connected)"
+  parameters={[{"name":"on_connected","type":"std::function< void()>"}]}
+/>
+
+<ApiMethod
+  signature="void set_callback_on_disconnected(std::function< void()> on_disconnected)"
+  parameters={[{"name":"on_disconnected","type":"std::function< void()>"}]}
+/>
+
+</ApiClass>
+
+## SimpleBLE::Service [#simpleble-service] [toc]
+
+<ApiClass name="SimpleBLE::Service">
+
+### Public Functions [!toc]
+
+<ApiMethod
+  signature="Service()=default"
+/>
+
+<ApiMethod
+  signature="virtual ~Service()=default"
+/>
+
+<ApiMethod
+  signature="bool initialized() const"
+/>
+
+<ApiMethod
+  signature="BluetoothUUID uuid()"
+/>
+
+<ApiMethod
+  signature="ByteArray data()"
+/>
+
+<ApiMethod
+  signature="std::vector< Characteristic > characteristics()"
+/>
+
+</ApiClass>
+
+## SimpleBLE::Characteristic [#simpleble-characteristic] [toc]
+
+<ApiClass name="SimpleBLE::Characteristic">
+
+### Public Functions [!toc]
+
+<ApiMethod
+  signature="Characteristic()=default"
+/>
+
+<ApiMethod
+  signature="virtual ~Characteristic()=default"
+/>
+
+<ApiMethod
+  signature="bool initialized() const"
+/>
+
+<ApiMethod
+  signature="BluetoothUUID uuid()"
+/>
+
+<ApiMethod
+  signature="std::vector< Descriptor > descriptors()"
+/>
+
+<ApiMethod
+  signature="std::vector< std::string > capabilities()"
+/>
+
+<ApiMethod
+  signature="bool can_read()"
+/>
+
+<ApiMethod
+  signature="bool can_write_request()"
+/>
+
+<ApiMethod
+  signature="bool can_write_command()"
+/>
+
+<ApiMethod
+  signature="bool can_notify()"
+/>
+
+<ApiMethod
+  signature="bool can_indicate()"
+/>
+
+</ApiClass>
+
+## SimpleBLE::Descriptor [#simpleble-descriptor] [toc]
+
+<ApiClass name="SimpleBLE::Descriptor">
+
+### Public Functions [!toc]
+
+<ApiMethod
+  signature="Descriptor()=default"
+/>
+
+<ApiMethod
+  signature="virtual ~Descriptor()=default"
+/>
+
+<ApiMethod
+  signature="bool initialized() const"
+/>
+
+<ApiMethod
+  signature="BluetoothUUID uuid()"
+/>
+
+</ApiClass>
+
+</ApiSection>
+
+<ApiSection title="Safe API" id="safe-api">
+
+## SimpleBLE::Safe::Adapter [#simpleble-safe-adapter] [toc]
+
+<ApiClass name="SimpleBLE::Safe::Adapter" detailed="Wrapper around the [Adapter](#simpleble-safe-adapter) class that provides a noexcept interface.  We use instances of this class directly and not through shared_ptr because this is just a wrapper around the [Adapter](#simpleble-safe-adapter) class, which is already managed by shared_ptr.">
+
+### Public Functions [!toc]
+
+<ApiMethod
+  signature="Adapter(SimpleBLE::Adapter &adapter)"
+  parameters={[{"name":"adapter","type":"[SimpleBLE::Adapter](#simpleble-adapter) &"}]}
+/>
+
+<ApiMethod
+  signature="Adapter(SimpleBLE::Adapter &&adapter)"
+  parameters={[{"name":"adapter","type":"[SimpleBLE::Adapter](#simpleble-adapter) &&"}]}
+/>
+
+<ApiMethod
+  signature="virtual ~Adapter()=default"
+/>
+
+<ApiMethod
+  signature="std::optional< std::string > identifier() noexcept"
+/>
+
+<ApiMethod
+  signature="std::optional< BluetoothAddress > address() noexcept"
+/>
+
+<ApiMethod
+  signature="bool scan_start() noexcept"
+/>
+
+<ApiMethod
+  signature="bool scan_stop() noexcept"
+/>
+
+<ApiMethod
+  signature="bool scan_for(int timeout_ms) noexcept"
+  parameters={[{"name":"timeout_ms","type":"int"}]}
+/>
+
+<ApiMethod
+  signature="std::optional< bool > scan_is_active() noexcept"
+/>
+
+<ApiMethod
+  signature="std::optional< std::vector< SimpleBLE::Safe::Peripheral > > scan_get_results() noexcept"
+/>
+
+<ApiMethod
+  signature="bool set_callback_on_scan_start(std::function< void()> on_scan_start) noexcept"
+  parameters={[{"name":"on_scan_start","type":"std::function< void()>"}]}
+/>
+
+<ApiMethod
+  signature="bool set_callback_on_scan_stop(std::function< void()> on_scan_stop) noexcept"
+  parameters={[{"name":"on_scan_stop","type":"std::function< void()>"}]}
+/>
+
+<ApiMethod
+  signature="bool set_callback_on_scan_updated(std::function< void(SimpleBLE::Safe::Peripheral)> on_scan_updated) noexcept"
+  parameters={[{"name":"on_scan_updated","type":"std::function< void([SimpleBLE::Safe::Peripheral](#simpleble-safe-peripheral))>"}]}
+/>
+
+<ApiMethod
+  signature="bool set_callback_on_scan_found(std::function< void(SimpleBLE::Safe::Peripheral)> on_scan_found) noexcept"
+  parameters={[{"name":"on_scan_found","type":"std::function< void([SimpleBLE::Safe::Peripheral](#simpleble-safe-peripheral))>"}]}
+/>
+
+<ApiMethod
+  signature="std::optional< std::vector< SimpleBLE::Safe::Peripheral > > get_paired_peripherals() noexcept"
+/>
+
+<ApiMethod
+  signature="operator SimpleBLE::Adapter() const noexcept"
+  detailed="Cast to the underlying adapter object."
+/>
+
+### Public Static Functions [!toc]
+
+<ApiMethod
+  signature="static std::optional< bool > bluetooth_enabled() noexcept"
+/>
+
+<ApiMethod
+  signature="static std::optional< std::vector< SimpleBLE::Safe::Adapter > > get_adapters() noexcept"
+/>
+
+</ApiClass>
+
+## SimpleBLE::Safe::Peripheral [#simpleble-safe-peripheral] [toc]
+
+<ApiClass name="SimpleBLE::Safe::Peripheral">
+
+### Public Functions [!toc]
+
+<ApiMethod
+  signature="Peripheral(SimpleBLE::Peripheral &peripheral)"
+  parameters={[{"name":"peripheral","type":"[SimpleBLE::Peripheral](#simpleble-peripheral) &"}]}
+/>
+
+<ApiMethod
+  signature="Peripheral(SimpleBLE::Peripheral &&peripheral)"
+  parameters={[{"name":"peripheral","type":"[SimpleBLE::Peripheral](#simpleble-peripheral) &&"}]}
+/>
+
+<ApiMethod
+  signature="virtual ~Peripheral()=default"
+/>
+
+<ApiMethod
+  signature="std::optional< std::string > identifier() noexcept"
+/>
+
+<ApiMethod
+  signature="std::optional< BluetoothAddress > address() noexcept"
+/>
+
+<ApiMethod
+  signature="std::optional< BluetoothAddressType > address_type() noexcept"
+/>
+
+<ApiMethod
+  signature="std::optional< int16_t > rssi() noexcept"
+/>
+
+<ApiMethod
+  signature="std::optional< int16_t > tx_power() noexcept"
+/>
+
+<ApiMethod
+  signature="std::optional< uint16_t > mtu() noexcept"
+/>
+
+<ApiMethod
+  signature="bool connect() noexcept"
+/>
+
+<ApiMethod
+  signature="bool disconnect() noexcept"
+/>
+
+<ApiMethod
+  signature="std::optional< bool > is_connected() noexcept"
+/>
+
+<ApiMethod
+  signature="std::optional< bool > is_connectable() noexcept"
+/>
+
+<ApiMethod
+  signature="std::optional< bool > is_paired() noexcept"
+/>
+
+<ApiMethod
+  signature="bool unpair() noexcept"
+/>
+
+<ApiMethod
+  signature="std::optional< std::vector< Service > > services() noexcept"
+/>
+
+<ApiMethod
+  signature="std::optional< std::map< uint16_t, ByteArray > > manufacturer_data() noexcept"
+/>
+
+<ApiMethod
+  signature="std::optional< ByteArray > read(BluetoothUUID const &service, BluetoothUUID const &characteristic) noexcept"
+  parameters={[{"name":"service","type":"BluetoothUUID const &"},{"name":"characteristic","type":"BluetoothUUID const &"}]}
+/>
+
+<ApiMethod
+  signature="bool write_request(BluetoothUUID const &service, BluetoothUUID const &characteristic, ByteArray const &data) noexcept"
+  parameters={[{"name":"service","type":"BluetoothUUID const &"},{"name":"characteristic","type":"BluetoothUUID const &"},{"name":"data","type":"ByteArray const &"}]}
+/>
+
+<ApiMethod
+  signature="bool write_command(BluetoothUUID const &service, BluetoothUUID const &characteristic, ByteArray const &data) noexcept"
+  parameters={[{"name":"service","type":"BluetoothUUID const &"},{"name":"characteristic","type":"BluetoothUUID const &"},{"name":"data","type":"ByteArray const &"}]}
+/>
+
+<ApiMethod
+  signature="bool notify(BluetoothUUID const &service, BluetoothUUID const &characteristic, std::function< void(ByteArray payload)> callback) noexcept"
+  parameters={[{"name":"service","type":"BluetoothUUID const &"},{"name":"characteristic","type":"BluetoothUUID const &"},{"name":"callback","type":"std::function< void(ByteArray payload)>"}]}
+/>
+
+<ApiMethod
+  signature="bool indicate(BluetoothUUID const &service, BluetoothUUID const &characteristic, std::function< void(ByteArray payload)> callback) noexcept"
+  parameters={[{"name":"service","type":"BluetoothUUID const &"},{"name":"characteristic","type":"BluetoothUUID const &"},{"name":"callback","type":"std::function< void(ByteArray payload)>"}]}
+/>
+
+<ApiMethod
+  signature="bool unsubscribe(BluetoothUUID const &service, BluetoothUUID const &characteristic) noexcept"
+  parameters={[{"name":"service","type":"BluetoothUUID const &"},{"name":"characteristic","type":"BluetoothUUID const &"}]}
+/>
+
+<ApiMethod
+  signature="std::optional< ByteArray > read(BluetoothUUID const &service, BluetoothUUID const &characteristic, BluetoothUUID const &descriptor) noexcept"
+  parameters={[{"name":"service","type":"BluetoothUUID const &"},{"name":"characteristic","type":"BluetoothUUID const &"},{"name":"descriptor","type":"BluetoothUUID const &"}]}
+/>
+
+<ApiMethod
+  signature="bool write(BluetoothUUID const &service, BluetoothUUID const &characteristic, BluetoothUUID const &descriptor, ByteArray const &data) noexcept"
+  parameters={[{"name":"service","type":"BluetoothUUID const &"},{"name":"characteristic","type":"BluetoothUUID const &"},{"name":"descriptor","type":"BluetoothUUID const &"},{"name":"data","type":"ByteArray const &"}]}
+/>
+
+<ApiMethod
+  signature="bool set_callback_on_connected(std::function< void()> on_connected) noexcept"
+  parameters={[{"name":"on_connected","type":"std::function< void()>"}]}
+/>
+
+<ApiMethod
+  signature="bool set_callback_on_disconnected(std::function< void()> on_disconnected) noexcept"
+  parameters={[{"name":"on_disconnected","type":"std::function< void()>"}]}
+/>
+
+<ApiMethod
+  signature="operator SimpleBLE::Peripheral() const noexcept"
+  detailed="Get the underlying peripheral object."
+/>
+
+</ApiClass>
+
+</ApiSection>
+
+<ApiSection title="External API" id="external-api">
+
+## kvn::bytearray [#kvn-bytearray] [toc]
+
+<ApiClass name="kvn::bytearray" brief="A class to handle byte arrays and their conversion from/to hex strings.">
+
+### Public Functions [!toc]
+
+<ApiMethod
+  signature="bytearray()=default"
+  brief="Default constructor."
+/>
+
+<ApiMethod
+  signature="bytearray(const std::vector< uint8_t > &vec)"
+  brief="Constructs byte array from a vector of uint8_t."
+  parameters={[{"name":"vec","type":"const std::vector< uint8_t > &"}]}
+/>
+
+<ApiMethod
+  signature="bytearray(std::initializer_list< uint8_t > list)"
+  brief="Constructs byte array from an initializer list of uint8_t."
+  parameters={[{"name":"list","type":"std::initializer_list< uint8_t >"}]}
+/>
+
+<ApiMethod
+  signature="bytearray(const uint8_t *ptr, size_t size)"
+  brief="Constructs byte array from a raw pointer and size."
+  parameters={[{"name":"ptr","type":"const uint8_t *"},{"name":"size","type":"size_t"}]}
+/>
+
+<ApiMethod
+  signature="bytearray(InputIt first, InputIt last)"
+  brief="Constructs byte array from iterators."
+  parameters={[{"name":"first","type":"InputIt"},{"name":"last","type":"InputIt"}]}
+/>
+
+<ApiMethod
+  signature="bytearray(const std::string &byteArr)"
+  brief="Constructs byte array from a std::string."
+  parameters={[{"name":"byteArr","type":"const std::string &"}]}
+/>
+
+<ApiMethod
+  signature="bytearray(const char *byteArr, size_t size)"
+  brief="Constructs byte array from a C-style string and size."
+  parameters={[{"name":"byteArr","type":"const char *"},{"name":"size","type":"size_t"}]}
+/>
+
+<ApiMethod
+  signature="bytearray(const char *byteArr)"
+  brief="Constructs byte array from a C-style string."
+  parameters={[{"name":"byteArr","type":"const char *"}]}
+/>
+
+<ApiMethod
+  signature="bytearray(size_t size)"
+  brief="Constructs a byte array of specified size, initialized with zeros."
+  parameters={[{"name":"size","type":"size_t"}]}
+/>
+
+<ApiMethod
+  signature="std::string toHex(bool spacing=false) const"
+  brief="Converts the byte array to a lowercase hex string without '0x' prefix."
+  parameters={[{"name":"spacing","type":"bool"}]}
+/>
+
+<ApiMethod
+  signature="bytearray slice(size_t start, size_t end) const"
+  brief="Slices the byte array from a specified start index to an end index."
+  detailed="This method creates a new byte array containing bytes from the specified range. The start index is inclusive, while the end index is exclusive."
+  parameters={[{"name":"start","type":"size_t"},{"name":"end","type":"size_t"}]}
+/>
+
+<ApiMethod
+  signature="bytearray slice_from(size_t start) const"
+  brief="Slices the byte array from a specified start index to the end of the array."
+  detailed="This method creates a new byte array containing all bytes from the specified start index to the end of the byte array."
+  parameters={[{"name":"start","type":"size_t"}]}
+/>
+
+<ApiMethod
+  signature="bytearray slice_to(size_t end) const"
+  brief="Slices the byte array from the beginning to a specified end index."
+  detailed="This method creates a new byte array containing all bytes from the beginning of the byte array to the specified end index."
+  parameters={[{"name":"end","type":"size_t"}]}
+/>
+
+<ApiMethod
+  signature="operator std::string() const"
+  brief="Conversion operator to convert byte array to std::string."
+  notes={[{ content: "This is provided to support code that relies on byte array being representd as a string.", type: "info" }]}
+/>
+
+<ApiMethod
+  signature="operator std::vector< uint8_t >() const"
+  brief="Conversion operator to convert byte array to std::vector<uint8_t>."
+/>
+
+### Public Static Functions [!toc]
+
+<ApiMethod
+  signature="static bytearray fromHex(const std::string &hexStr)"
+  brief="Creates a ByteArray from a hex string."
+  detailed="Case is ignored and the string may have a '0x' hex prefix or not."
+  parameters={[{"name":"hexStr","type":"const std::string &"}]}
+/>
+
+<ApiMethod
+  signature="static bytearray fromHex(const char *byteArr)"
+  detailed="This is an overloaded member function, provided for convenience. It differs from the above function only in what argument(s) it accepts."
+  parameters={[{"name":"byteArr","type":"const char *"}]}
+/>
+
+<ApiMethod
+  signature="static bytearray fromHex(const char *byteArr, size_t size)"
+  detailed="This is an overloaded member function, provided for convenience. It differs from the above function only in what argument(s) it accepts."
+  parameters={[{"name":"byteArr","type":"const char *"},{"name":"size","type":"size_t"}]}
+/>
+
+</ApiClass>
+
+</ApiSection>

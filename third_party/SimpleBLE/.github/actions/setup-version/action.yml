@@ -1,0 +1,34 @@
+name: 'Add Version Suffix'
+description: 'Adds a version suffix to the VERSION file'
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Update VERSION file
+      shell: bash
+      run: |
+        # Configure Git to trust this repository
+        git config --global --add safe.directory $GITHUB_WORKSPACE
+
+        # Read the base version from the VERSION file
+        version_str=$(cat VERSION | tr -d ' \t\n\r')
+
+        # Check if the current commit is tagged
+        if ! git describe --exact-match --tags HEAD >/dev/null 2>&1; then
+          # Get the number of commits since the last version bump
+          latest_tag=$(git describe --tags --abbrev=0 HEAD^ 2>/dev/null || echo "")
+          if [ -n "$latest_tag" ]; then
+            commits=$(git rev-list --count "${latest_tag}"..HEAD)
+            # Since HEAD is not tagged and latest_tag exists, commits > 0. Append the dev suffix.
+            version_str="${version_str}-dev${commits}"
+          else
+            # If no tags found, exit with error
+            echo "Error: No tags found in the repository history." >&2
+            exit 1
+          fi
+        fi
+
+        # Update the VERSION file
+        echo "$version_str" > VERSION
+        echo "Updated VERSION file to: $version_str"
+        echo "VERSION=$version_str" >> $GITHUB_ENV

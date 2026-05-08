@@ -111,7 +111,7 @@ void Logger::log_default_file(const std::string path) {
 
 #if defined(__linux__) || defined(__APPLE__)
 // For Linux and MacOS, implement a strong definition of the logfwd receive library.
-#include "external/logfwd.hpp"
+#include "kvn/logfwd.hpp"
 
 // clang-format off
 void logfwd::receive(

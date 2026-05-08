@@ -1,112 +1,113 @@
 #include <simpleble/Adapter.h>
+#include "Backend.h"
 
-#include "AdapterBase.h"
-#include "AdapterBuilder.h"
+#include "BuildVec.h"
 #include "LoggingInternal.h"
+#include "backends/common/AdapterBase.h"
 
 using namespace SimpleBLE;
 
 std::vector<Adapter> Adapter::get_adapters() {
-    std::vector<Adapter> available_adapters;
-    auto internal_adapters = AdapterBase::get_adapters();
-
-    for (auto& internal_adapter : internal_adapters) {
-        AdapterBuilder adapter(internal_adapter);
-        available_adapters.push_back(adapter);
+    std::vector<Adapter> adapter_list;
+    for (auto& backend : Backend::get_backends()) {
+        for (auto& adapter : backend.get_adapters()) {
+            adapter_list.push_back(adapter);
+        }
     }
 
-    return available_adapters;
+    return adapter_list;
 }
 
-bool Adapter::bluetooth_enabled() { return AdapterBase::bluetooth_enabled(); }
+// TODO: this should be the implementation of the per-backend bluetooth_enabled() function
+// bool Adapter::bluetooth_enabled() { return (*this)->bluetooth_enabled(); }
+
+bool Adapter::bluetooth_enabled() { return get_enabled_backend().bluetooth_enabled(); }
 
 bool Adapter::initialized() const { return internal_ != nullptr; }
 
-void* Adapter::underlying() const {
-    if (!initialized()) throw Exception::NotInitialized();
+void* Adapter::underlying() const { return (*this)->underlying(); }
 
-    return internal_->underlying();
+/**
+ * Return the adapter implementation if it is initialized.
+ *
+ * @throws SimpleBLE::NotInitialized if the adapter is not initialized.
+ */
+AdapterBase* Adapter::operator->() {
+    if (!internal_) {
+        throw Exception::NotInitialized();
+    }
+    return internal_.get();
 }
 
-std::string Adapter::identifier() {
-    if (!initialized()) throw Exception::NotInitialized();
-
-    return internal_->identifier();
+const AdapterBase* Adapter::operator->() const {
+    if (!internal_) {
+        throw Exception::NotInitialized();
+    }
+    return internal_.get();
 }
 
-BluetoothAddress Adapter::address() {
-    if (!initialized()) throw Exception::NotInitialized();
+std::string Adapter::identifier() { return (*this)->identifier(); }
 
-    return internal_->address();
+BluetoothAddress Adapter::address() { return (*this)->address(); }
+
+void Adapter::power_on() { (*this)->power_on(); }
+
+void Adapter::power_off() { (*this)->power_off(); }
+
+bool Adapter::is_powered() { return (*this)->is_powered(); }
+
+void Adapter::set_callback_on_power_on(std::function<void()> on_power_on) {
+    (*this)->set_callback_on_power_on(std::move(on_power_on));
+}
+
+void Adapter::set_callback_on_power_off(std::function<void()> on_power_off) {
+    (*this)->set_callback_on_power_off(std::move(on_power_off));
 }
 
 void Adapter::scan_start() {
-    if (!initialized()) throw Exception::NotInitialized();
     if (!bluetooth_enabled()) {
         SIMPLEBLE_LOG_WARN(fmt::format("Bluetooth is not enabled."));
-#if defined(_WIN32) && !defined(_WIN64)
         return;
-#endif
     }
-    internal_->scan_start();
+    (*this)->scan_start();
 }
 
 void Adapter::scan_stop() {
-    if (!initialized()) throw Exception::NotInitialized();
     if (!bluetooth_enabled()) {
         SIMPLEBLE_LOG_WARN(fmt::format("Bluetooth is not enabled."));
         return;
     }
-    internal_->scan_stop();
+    (*this)->scan_stop();
 }
 
 void Adapter::scan_for(int timeout_ms) {
-    if (!initialized()) throw Exception::NotInitialized();
     if (!bluetooth_enabled()) {
         SIMPLEBLE_LOG_WARN(fmt::format("Bluetooth is not enabled."));
         return;
     }
-    internal_->scan_for(timeout_ms);
+    (*this)->scan_for(timeout_ms);
 }
 
-bool Adapter::scan_is_active() {
-    if (!initialized()) throw Exception::NotInitialized();
+bool Adapter::scan_is_active() { return (*this)->scan_is_active(); }
 
-    return internal_->scan_is_active();
-}
+std::vector<Peripheral> Adapter::scan_get_results() { return Factory::vector((*this)->scan_get_results()); }
 
-std::vector<Peripheral> Adapter::scan_get_results() {
-    if (!initialized()) throw Exception::NotInitialized();
+std::vector<Peripheral> Adapter::get_paired_peripherals() { return Factory::vector((*this)->get_paired_peripherals()); }
 
-    return internal_->scan_get_results();
-}
-
-std::vector<Peripheral> Adapter::get_paired_peripherals() {
-    if (!initialized()) throw Exception::NotInitialized();
-
-    return internal_->get_paired_peripherals();
-}
+std::vector<Peripheral> Adapter::get_connected_peripherals() { return Factory::vector((*this)->get_connected_peripherals()); }
 
 void Adapter::set_callback_on_scan_start(std::function<void()> on_scan_start) {
-    if (!initialized()) throw Exception::NotInitialized();
-
-    internal_->set_callback_on_scan_start(std::move(on_scan_start));
+    (*this)->set_callback_on_scan_start(std::move(on_scan_start));
 }
 
 void Adapter::set_callback_on_scan_stop(std::function<void()> on_scan_stop) {
-    if (!initialized()) throw Exception::NotInitialized();
-
-    internal_->set_callback_on_scan_stop(std::move(on_scan_stop));
+    (*this)->set_callback_on_scan_stop(std::move(on_scan_stop));
 }
 
 void Adapter::set_callback_on_scan_updated(std::function<void(Peripheral)> on_scan_updated) {
-    if (!initialized()) throw Exception::NotInitialized();
-
-    internal_->set_callback_on_scan_updated(std::move(on_scan_updated));
+    (*this)->set_callback_on_scan_updated(std::move(on_scan_updated));
 }
 
 void Adapter::set_callback_on_scan_found(std::function<void(Peripheral)> on_scan_found) {
-    if (!initialized()) throw Exception::NotInitialized();
-
-    internal_->set_callback_on_scan_found(std::move(on_scan_found));
+    (*this)->set_callback_on_scan_found(std::move(on_scan_found));
 }

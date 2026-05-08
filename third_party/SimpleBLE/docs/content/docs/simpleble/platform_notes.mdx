@@ -1,0 +1,41 @@
+---
+title: Platform Notes
+description: Specific behaviors and limitations for each supported operating system.
+---
+
+SimpleBLE aims to provide a unified API across all platforms, but due to differences in the underlying operating system Bluetooth stacks, there are some platform-specific behaviors and limitations you should be aware of.
+
+## Windows
+
+### Architecture Mismatch
+If you are running a 32-bit application on a 64-bit Windows machine, you might encounter issues where `SimpleBLE::Adapter::bluetooth_enabled()` returns false even if Bluetooth is enabled. This is a known limitation of the Windows API. It is recommended to build and run your application as 64-bit on 64-bit systems.
+
+### Adapter Selection
+The Windows implementation currently has a limitation where `initialized()` might return true if *any* adapter is enabled, not necessarily the specific instance you are inspecting. This is a known issue being tracked.
+
+## MacOS / iOS
+
+### Peripheral Identifiers (UUIDs)
+On macOS and iOS, the operating system does not expose the raw MAC address of Bluetooth peripherals to applications. Instead, it assigns a unique UUID to each peripheral.
+*   **Persistent UUIDs:** These UUIDs are generally persistent for a given device on a given host, meaning if you restart your app, the UUID for a specific peripheral should remain the same.
+*   **Not Global:** The UUID for a specific peripheral will be different on different macOS/iOS devices. You cannot use this UUID to identify a peripheral across different host devices.
+
+### Connection Management
+macOS and iOS manage Bluetooth connections at the OS level.
+*   **Unpairing:** Applications cannot programmatically "unpair" or "forget" a device. This must be done by the user in the system settings.
+*   **Connection State:** The OS might keep a connection alive even if your application disconnects, especially if other apps or the system itself are using the device.
+
+## Linux (BlueZ)
+
+### Scanning Delays
+When calling `scan_stop()`, there might be a slight delay (a few seconds) before the underlying adapter actually reports that discovery has stopped. This is a behavior of the BlueZ stack.
+
+## Android
+
+### API Level Limitations
+Android's Bluetooth API has evolved significantly over time, leading to some version-specific limitations:
+*   **Address Type:** The `address_type()` method is only available on devices running Android API level 35 or newer. On older devices, this may return an unspecified or default value.
+*   **Bluetooth Enable/Disable:** Programmatically enabling or disabling Bluetooth (e.g., `power_on()`, `power_off()`) uses APIs that were deprecated in API level 33. These functions may not work or might throw exceptions on newer Android versions.
+
+### Bond Management
+Similar to iOS, Android (especially newer versions) restricts the ability of applications to remove bonds (unpair) programmatically. While SimpleBLE attempts to use hidden APIs to achieve this where possible, it is not guaranteed to work on all devices or future Android versions.

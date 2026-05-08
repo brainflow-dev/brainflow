@@ -3,6 +3,8 @@ name: CI Main
 on:
   push:
   pull_request:
+  release:
+    types: [published]
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref || github.run_id }}
@@ -25,8 +27,11 @@ jobs:
         id: skip_check
         uses: fkirc/skip-duplicate-actions@v5.3.1
         with:
-          concurrent_skipping: 'same_content_newer'
-          skip_after_successful_duplicate: 'true'
+          concurrent_skipping: ${{ github.event_name == 'release' && 'never' || 'same_content_newer' }}
+          skip_after_successful_duplicate: ${{ github.event_name != 'release' }}
+      - name: Print skip reason
+        run: |
+          echo "Skip reason: ${{ steps.skip_check.outputs.skip_reason }}"
       - name: Clone Repository
         uses: actions/checkout@v4
         with:
@@ -36,76 +41,8 @@ jobs:
         run: |
           ./scripts/check_version.sh
 
-  # This job detects changes in the diff and set some ouput variables accordingly.
-  # It is use to conditionaly run different jobs and steps of the pipeline
-  changes:
-    needs: pre_job
-    if: needs.pre_job.outputs.should_skip != 'true'
-    runs-on: ubuntu-22.04
-    permissions:
-      pull-requests: read
-    outputs:
-      common: ${{ steps.filter.outputs.common }}
-      linux: ${{ steps.filter.outputs.linux }}
-      windows: ${{ steps.filter.outputs.windows }}
-      macos: ${{ steps.filter.outputs.macos }}
-      python: ${{ steps.filter.outputs.python }}
-      rust: ${{ steps.filter.outputs.rust }}
-      docs: ${{ steps.filter.outputs.docs }}
-      miscs: ${{ steps.filter.outputs.miscs }}
-      changes: ${{ steps.filter.outputs.changes }}
-    steps:
-      - name: Clone Repository
-        uses: actions/checkout@v4
-      - name: Detect file changes
-        uses: dorny/paths-filter@v3
-        id: filter
-        with:
-          list-files: shell
-          filters: |
-            miscs:
-              - '.github/workflows/**'
-              - '.github/actions/**'
-              - 'examples/simpleble/**'
-              - 'cmake/**'
-            common: &common
-              - 'simpleble/include/**'
-              - 'simpleble/src/builders/**'
-              - 'simpleble/src/external/**'
-              - 'simpleble/src/frontends/**'
-              - 'simpleble/src/backends/common/**'
-              - 'external/**'
-            windows: &windows
-              - *common
-              - 'simpleble/src/backends/windows/**'
-            linux: &linux
-              - *common
-              - 'simpleble/src/backends/linux/**'
-              - 'simpledbus/**'
-              - 'examples/simpledbus/**'
-              - 'simplebluez/**'
-              - 'examples/simplebluez/**'
-            macos: &macos
-              - *common
-              - 'simpleble/src/backends/macos/**'
-            python:
-              - 'simpleble/src/backends/plain/**'
-              - 'simpleble/src/frontends/**'
-              - 'simplepyble/**'
-              - 'setup.py'
-            rust:
-              - *linux
-              - *macos
-              - 'simplersble/**'
-              - 'Cargo.lock'
-              - 'Cargo.toml'
-            docs:
-              - 'docs/**'
-              - '**/*.md'
-              - '**/*.rst'
-
-  # This job is used to dynamically generate the build matrix of 'build' job in 'ci_linux.yml'.
-  # The output variable 'values' is a list of strings: 'simpledbus', 'simplebluez' and 'simpleble'.
+  # This job is used to dynamically generate the build matrix of 'build' job in 'ci_linux_internals.yml'.
+  # The output variable 'values' is a list of strings: 'simpledbus', 'simplebluez'.
   # This is not inside pre-job because 'changes' variable is set by dorny/paths-filter to ALL the filters
   # that match, so we need to have a job with only these three filters.
   # Note that the filters are defined in a way that makes each of them depend on the previous one.
@@ -117,7 +54,7 @@ jobs:
     permissions:
       pull-requests: read
     outputs:
-      values: ${{ github.ref == 'refs/heads/main' && '["simpledbus","simplebluez","simpleble"]' || steps.filter.outputs.changes }}
+      values: ${{ github.ref == 'refs/heads/main' && '["simpledbus","simplebluez"]' || steps.filter.outputs.changes }}
     steps:
       - name: Clone Repository
         uses: actions/checkout@v4
@@ -131,73 +68,184 @@ jobs:
             simplebluez: &simplebluez
               - *simpledbus
               - 'simplebluez/**'
-            simpleble: &simpleble
-              - *simplebluez
-              - 'simpleble/**'
 
   lint:
-    needs: pre_job
-    if:  |
-      needs.pre_job.outputs.should_skip != 'true'
+    needs: [pre_job]
+    if: needs.pre_job.outputs.should_skip != 'true'
     uses: ./.github/workflows/ci_lint.yml
 
-  docs:
-    needs: [pre_job, changes]
-    if:  |
-      needs.pre_job.outputs.should_skip != 'true' &&
-      (needs.changes.outputs.docs == 'true' || github.ref == 'refs/heads/main')
-    uses: ./.github/workflows/ci_docs.yml
+  # docs:
+  #   needs: [pre_job]
+  #   if: needs.pre_job.outputs.should_skip != 'true'
+  #   uses: ./.github/workflows/ci_docs.yml
 
-  windows:
-    needs: [pre_job, changes]
-    if: |
-      needs.pre_job.outputs.should_skip != 'true' &&
-      (needs.changes.outputs.windows == 'true' ||
-      needs.changes.outputs.miscs == 'true' ||
-      github.ref == 'refs/heads/main')
-    uses: ./.github/workflows/ci_windows.yml
+  smoketest:
+    needs: [pre_job]
+    if: needs.pre_job.outputs.should_skip != 'true'
+    uses: ./.github/workflows/ci_smoketest.yml
 
-  linux:
-    needs: [pre_job, changes, libraries]
-    if: |
-      needs.pre_job.outputs.should_skip != 'true' &&
-      (needs.changes.outputs.linux == 'true' ||
-      needs.changes.outputs.miscs == 'true' ||
-      github.ref == 'refs/heads/main')
-    uses: ./.github/workflows/ci_linux.yml
+  simpleble:
+    needs: [smoketest]
+    uses: ./.github/workflows/ci_simpleble.yml
+
+  simplepyble:
+    needs: [smoketest]
+    uses: ./.github/workflows/ci_simplepyble.yml
+
+  simpleaible:
+    needs: [smoketest]
+    uses: ./.github/workflows/ci_simpleaible.yml
+
+  simplejavable:
+    needs: [smoketest]
+    uses: ./.github/workflows/ci_simplejavable.yml
+
+  simpledroidble:
+    needs: [smoketest]
+    uses: ./.github/workflows/ci_simpledroidble.yml
+
+  simplecble:
+    needs: [smoketest]
+    uses: ./.github/workflows/ci_simplecble.yml
+
+  simplersble:
+    needs: [smoketest]
+    uses: ./.github/workflows/ci_simplersble.yml
+
+  linux-internals:
+    needs: [smoketest, libraries]
+    if: ${{ needs.libraries.outputs.values != '[]' && needs.libraries.outputs.values != '' }}
+    uses: ./.github/workflows/ci_linux_internals.yml
     with:
       libraries: ${{ needs.libraries.outputs.values }}
 
-  macos:
-    needs: [pre_job, changes]
-    if: |
-      needs.pre_job.outputs.should_skip != 'true' &&
-      (needs.changes.outputs.macos == 'true' ||
-      needs.changes.outputs.miscs == 'true' ||
-      github.ref == 'refs/heads/main')
-    uses: ./.github/workflows/ci_macos.yml
+  publish-release:
+    needs: [simpleble, simplepyble, simpleaible, simplejavable, simpledroidble, simplecble, simplersble]
+    if: github.ref == 'refs/heads/main' || github.event_name == 'release'
+    runs-on: ubuntu-22.04
+    steps:
 
-  python:
-    needs: [pre_job, changes]
-    if:  |
-      needs.pre_job.outputs.should_skip != 'true' &&
-      (needs.changes.outputs.python == 'true' || github.ref == 'refs/heads/main')
-    uses: ./.github/workflows/ci_python.yml
-    secrets: inherit
+      - name: "Download all artifacts"
+        uses: actions/download-artifact@v4
+        with:
+          pattern: "*"
+          path: artifacts
+          merge-multiple: true
 
-  release-python:
-    needs: [pre_job, changes, windows, linux, macos, python]
-    # Note that Python is released on every commit in main branch with relevant
-    # changes (python, linux, windows, or macos filters). While cpp binaries are
-    # only published on manual releases.
-    if: |
-      needs.pre_job.outputs.should_skip != 'true' &&
-      (needs.changes.outputs.python == 'true' ||
-      needs.changes.outputs.windows == 'true' ||
-      needs.changes.outputs.linux == 'true' ||
-      needs.changes.outputs.macos == 'true') &&
-      github.ref == 'refs/heads/main'
-    uses: ./.github/workflows/ci_python_publish.yml
-    with:
-      tag: ${{ github.ref }}
-    secrets: inherit
+      - name: List all artifacts
+        run: find artifacts -type f -ls | sort
+
+      - name: Upload artifacts to release
+        uses: svenstaro/upload-release-action@v2
+        if: github.event_name == 'release'
+        with:
+          file: artifacts/**/*
+          tag: ${{ github.ref }}
+          overwrite: true
+          file_glob: true
+
+  publish-simplepyble:
+    needs: [publish-release]
+    if: github.ref == 'refs/heads/main' || github.event_name == 'release'
+    runs-on: ubuntu-22.04
+    permissions:
+      id-token: write
+    steps:
+
+      - name: Install dependencies
+        run: pip install twine
+
+      - name: "Download Python Wheels"
+        uses: actions/download-artifact@v4
+        with:
+          pattern: simplepyble-*-*
+          path: wheels
+          merge-multiple: true
+
+      - name: "Download Python source distribution"
+        uses: actions/download-artifact@v4
+        with:
+          name: simplepyble-sdist
+          path: sdist
+
+      - name: Check packages
+        run: twine check wheels/*.whl
+
+      - name: Check source distribution
+        run: twine check sdist/simplepyble*.tar.gz
+
+      - name: Publish wheels to PyPI
+        uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          packages-dir: wheels
+          skip-existing: true
+          attestations: false # Broken, see: https://github.com/pypa/gh-action-pypi-publish/issues/166
+
+      - name: Publish wheels to PyPI
+        uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          packages-dir: sdist
+          skip-existing: true
+          attestations: false # Broken, see: https://github.com/pypa/gh-action-pypi-publish/issues/166
+
+  publish-simpleaible:
+    needs: [publish-release]
+    if: github.ref == 'refs/heads/main' || github.event_name == 'release'
+    runs-on: ubuntu-22.04
+    permissions:
+      id-token: write
+    steps:
+
+      - name: Install dependencies
+        run: pip install twine
+
+      - name: "Download SimpleAIBLE artifacts"
+        uses: actions/download-artifact@v4
+        with:
+          pattern: simpleaible-*
+          path: dist
+          merge-multiple: true
+
+      - name: Check packages
+        run: twine check dist/*
+
+      - name: Publish to PyPI
+        uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          packages-dir: dist
+          skip-existing: true
+          attestations: false
+
+  publish-rust:
+    needs: [publish-release]
+    if: github.ref == 'refs/heads/main' || github.event_name == 'release'
+    runs-on: ubuntu-22.04
+
+    steps:
+      - name: Clone Repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          fetch-tags: true
+
+      - name: Setup Environment (Linux)
+        run: |
+          sudo -H apt-get update -y
+          sudo -H apt-get install -y libdbus-1-dev
+
+      - name: Add Version Suffix
+        uses: ./.github/actions/setup-version
+
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Fix crate version
+        run: |
+          cargo install cargo-edit --bin cargo-set-version
+          cargo set-version ${{ env.VERSION }}
+
+      - name: Publish to crates.io
+        env:
+          CARGO_REGISTRY_TOKEN: ${{ secrets.CARGO_REGISTRY_TOKEN }}
+        run: |
+          cargo publish --allow-dirty

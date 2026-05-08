@@ -2,108 +2,101 @@
 
 using namespace SimpleBluez;
 
-GattCharacteristic1::GattCharacteristic1(std::shared_ptr<SimpleDBus::Connection> conn, std::string path)
-    : SimpleDBus::Interface(conn, "org.bluez", path, "org.bluez.GattCharacteristic1") {}
+const SimpleDBus::AutoRegisterInterface<GattCharacteristic1> GattCharacteristic1::registry{
+    "org.bluez.GattCharacteristic1",
+    // clang-format off
+    [](std::shared_ptr<SimpleDBus::Connection> conn, std::shared_ptr<SimpleDBus::Proxy> proxy) -> std::shared_ptr<SimpleDBus::Interface> {
+        return std::static_pointer_cast<SimpleDBus::Interface>(std::make_shared<GattCharacteristic1>(conn, proxy));
+    }
+    // clang-format on
+};
 
-GattCharacteristic1::~GattCharacteristic1() { OnValueChanged.unload(); }
+GattCharacteristic1::GattCharacteristic1(std::shared_ptr<SimpleDBus::Connection> conn,
+                                         std::shared_ptr<SimpleDBus::Proxy> proxy)
+    : SimpleDBus::Interface(conn, proxy, "org.bluez.GattCharacteristic1") {}
+
+// IMPORTANT: The destructor is defined here (instead of inline) to anchor the vtable to this object file.
+// This prevents the linker from stripping this translation unit and ensures the static 'registry' variable is
+// initialized at startup.
+GattCharacteristic1::~GattCharacteristic1() = default;
 
 void GattCharacteristic1::StartNotify() {
     auto msg = create_method_call("StartNotify");
-    _conn->send_with_reply_and_block(msg);
+    _conn->send_with_reply(msg);
 }
 
 void GattCharacteristic1::StopNotify() {
     auto msg = create_method_call("StopNotify");
-    _conn->send_with_reply_and_block(msg);
+    _conn->send_with_reply(msg);
 }
 
 void GattCharacteristic1::WriteValue(const ByteArray& value, WriteType type) {
-    SimpleDBus::Holder value_data = SimpleDBus::Holder::create_array();
+    SimpleDBus::Holder value_data = SimpleDBus::Holder::create<std::vector<SimpleDBus::Holder>>();
     for (size_t i = 0; i < value.size(); i++) {
-        value_data.array_append(SimpleDBus::Holder::create_byte(value[i]));
+        value_data.array_append(SimpleDBus::Holder::create<uint8_t>(value[i]));
     }
 
-    SimpleDBus::Holder options = SimpleDBus::Holder::create_dict();
+    SimpleDBus::Holder options = SimpleDBus::Holder::create<std::map<std::string, SimpleDBus::Holder>>();
     if (type == WriteType::REQUEST) {
-        options.dict_append(SimpleDBus::Holder::Type::STRING, "type", SimpleDBus::Holder::create_string("request"));
+        options.dict_append(SimpleDBus::Holder::Type::STRING, "type",
+                            SimpleDBus::Holder::create<std::string>("request"));
     } else if (type == WriteType::COMMAND) {
-        options.dict_append(SimpleDBus::Holder::Type::STRING, "type", SimpleDBus::Holder::create_string("command"));
+        options.dict_append(SimpleDBus::Holder::Type::STRING, "type",
+                            SimpleDBus::Holder::create<std::string>("command"));
     }
 
     auto msg = create_method_call("WriteValue");
     msg.append_argument(value_data, "ay");
     msg.append_argument(options, "a{sv}");
-    _conn->send_with_reply_and_block(msg);
+    _conn->send_with_reply(msg);
 }
 
 ByteArray GattCharacteristic1::ReadValue() {
     auto msg = create_method_call("ReadValue");
 
     // NOTE: ReadValue requires an additional argument, which currently is not supported
-    SimpleDBus::Holder options = SimpleDBus::Holder::create_dict();
+    SimpleDBus::Holder options = SimpleDBus::Holder::create<std::map<std::string, SimpleDBus::Holder>>();
     msg.append_argument(options, "a{sv}");
 
-    SimpleDBus::Message reply_msg = _conn->send_with_reply_and_block(msg);
+    SimpleDBus::Message reply_msg = _conn->send_with_reply(msg);
     SimpleDBus::Holder value = reply_msg.extract();
-    update_value(value);
 
+    Value.set(value);
     return Value();
 }
 
-std::string GattCharacteristic1::UUID() {
-    // As the UUID property doesn't change, we can cache it
-    std::scoped_lock lock(_property_update_mutex);
-    return _uuid;
-}
+void GattCharacteristic1::message_handle(SimpleDBus::Message& msg) {
+    if (msg.is_method_call(_interface_name, "ReadValue")) {
+        SimpleDBus::Holder options = msg.extract();
 
-ByteArray GattCharacteristic1::Value() {
-    std::scoped_lock lock(_property_update_mutex);
-    return _value;
-}
+        OnReadValue();
 
-std::vector<std::string> GattCharacteristic1::Flags() {
-    std::scoped_lock lock(_property_update_mutex);
+        SimpleDBus::Message reply = SimpleDBus::Message::create_method_return(msg);
+        reply.append_argument(_properties["Value"]->get(), "ay");
+        _conn->send(reply);
+    } else if (msg.is_method_call(_interface_name, "WriteValue")) {
+        SimpleDBus::Holder value = msg.extract();
+        msg.extract_next();
+        SimpleDBus::Holder options = msg.extract();
 
-    std::vector<std::string> flags;
-    for (SimpleDBus::Holder& flag : _properties["Flags"].get_array()) {
-        flags.push_back(flag.get_string());
+        Value.set(value);
+        SimpleDBus::Message reply = SimpleDBus::Message::create_method_return(msg);
+        _conn->send(reply);
+
+        OnWriteValue(Value.get());
+    } else if (msg.is_method_call(_interface_name, "StartNotify")) {
+        SimpleDBus::Message reply = SimpleDBus::Message::create_method_return(msg);
+        _conn->send(reply);
+
+        Notifying.set(true).emit();
+
+        OnStartNotify();
+    } else if (msg.is_method_call(_interface_name, "StopNotify")) {
+        SimpleDBus::Message reply = SimpleDBus::Message::create_method_return(msg);
+        _conn->send(reply);
+
+        Notifying.set(false).emit();
+
+        OnStopNotify();
     }
-
-    return flags;
-}
-
-uint16_t GattCharacteristic1::MTU() {
-    std::scoped_lock lock(_property_update_mutex);
-    return _properties["MTU"].get_uint16();
-}
-
-bool GattCharacteristic1::Notifying(bool refresh) {
-    if (refresh) {
-        property_refresh("Notifying");
-    }
-
-    std::scoped_lock lock(_property_update_mutex);
-    return _properties["Notifying"].get_boolean();
-}
-
-void GattCharacteristic1::property_changed(std::string option_name) {
-    if (option_name == "UUID") {
-        std::scoped_lock lock(_property_update_mutex);
-        _uuid = _properties["UUID"].get_string();
-    } else if (option_name == "Value") {
-        update_value(_properties["Value"]);
-        OnValueChanged();
-    }
-}
-
-void GattCharacteristic1::update_value(SimpleDBus::Holder& new_value) {
-    std::scoped_lock lock(_property_update_mutex);
-    auto value_array = new_value.get_array();
-
-    char* value_data = new char[value_array.size()];
-    for (std::size_t i = 0; i < value_array.size(); i++) {
-        value_data[i] = value_array[i].get_byte();
-    }
-    _value = ByteArray(value_data, value_array.size());
-    delete[] value_data;
 }

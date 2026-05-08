@@ -1,0 +1,87 @@
+name: 'Build Python Wheels'
+description: 'Builds Python wheels for the current project using cibuildwheel'
+
+inputs:
+  os:
+    description: 'Operating system to build wheels for (e.g., ubuntu-latest, windows-latest, macos-latest)'
+    required: true
+  python-version:
+    description: 'Python version to use for building'
+    required: false
+    default: '3.11'
+  requirements-file:
+    description: 'Path to requirements.txt file'
+    required: false
+    default: 'simplepyble/requirements.txt'
+  publish-to-testpypi:
+    description: 'Whether to publish the built wheels to TestPyPI'
+    required: false
+    default: 'false'
+  cibw-build-verbosity:
+    description: 'Verbosity level for cibuildwheel'
+    required: false
+    default: '3'
+  macosx-deployment-target:
+    description: 'Minimum macOS version to target'
+    required: false
+    default: '13.0'
+  cibw-skip:
+    description: 'Patterns for skipping certain builds'
+    required: false
+    default: '*musllinux_* pp* cp36-* cp37-*'
+
+outputs:
+  wheels-path:
+    description: 'Path where the wheels are stored after building'
+    value: 'wheelhouse'
+
+runs:
+  using: "composite"
+  steps:
+    - name: Set up QEMU
+      if: runner.os == 'Linux'
+      uses: docker/setup-qemu-action@v2
+      with:
+        platforms: arm64
+
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: ${{ inputs.python-version }}
+        cache: "pip"
+
+    - name: Install dependencies
+      shell: bash
+      run: |
+        pip install -r ${{ inputs.requirements-file }}
+        pip install twine
+
+    - name: Build wheel
+      uses: pypa/cibuildwheel@v2.19.2
+      env:
+        CIBW_BUILD_VERBOSITY: ${{ inputs.cibw-build-verbosity }}
+        CIBW_BEFORE_ALL_LINUX: "yum update -y && yum group install -y \"Development Tools\" && yum install -y dbus-devel"
+        CIBW_ARCHS_LINUX: x86_64 i686 aarch64
+        CIBW_ARCHS_MACOS: x86_64 universal2 arm64
+        CIBW_ARCHS_WINDOWS: AMD64 x86
+        CIBW_SKIP: ${{ inputs.cibw-skip }}
+        MACOSX_DEPLOYMENT_TARGET: ${{ inputs.macosx-deployment-target }}
+
+    - name: Check Packages
+      shell: bash
+      run: twine check wheelhouse/*.whl
+
+    - name: Publish packages to TestPyPI
+      if: inputs.publish-to-testpypi == 'true'
+      shell: bash
+      run: |
+        # Check if TestPyPI credentials are available
+        if [[ -n "$TEST_PYPI_USER" && -n "$TEST_PYPI_PASSWORD" ]]; then
+          twine upload --repository testpypi --skip-existing wheelhouse/*.whl --verbose
+          echo "Published packages to TestPyPI"
+        else
+          echo "TestPyPI credentials not available, skipping upload"
+        fi
+      env:
+        TEST_PYPI_USER: ${{ github.event.inputs.test_pypi_user || '' }}
+        TEST_PYPI_PASSWORD: ${{ github.event.inputs.test_pypi_password || '' }}

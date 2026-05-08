@@ -9,7 +9,7 @@ include(${CMAKE_CURRENT_SOURCE_DIR}/../cmake/prelude.cmake)
 
 project(
     simpledbus
-    VERSION ${SIMPLEBLE_VERSION}
+    VERSION ${SIMPLEBLE_VERSION_BASE}
     DESCRIPTION "A simple C++ wrapper around DBus with a commercially-friendly licence."
     HOMEPAGE_URL "https://github.com/OpenBluetoothToolbox/SimpleDBus"
     LANGUAGES CXX
@@ -18,10 +18,7 @@ project(
 # Run prelude script to set up environment
 include(${CMAKE_CURRENT_SOURCE_DIR}/../cmake/epilogue.cmake)
 
-option(LIBFMT_VENDORIZE "Enable vendorized libfmt" ON)
-
-find_package(fmt REQUIRED)
-set_target_properties(fmt PROPERTIES EXCLUDE_FROM_ALL TRUE)
+include(GNUInstallDirs)
 
 find_package(DBus1 REQUIRED)
 
@@ -29,8 +26,6 @@ find_package(DBus1 REQUIRED)
 if(NOT SIMPLEDBUS_LOG_LEVEL)
     set(SIMPLEDBUS_LOG_LEVEL "FATAL")
 endif()
-
-set(SIMPLEDBUS_INCLUDE ${CMAKE_CURRENT_SOURCE_DIR}/include)
 
 set(SIMPLEDBUS_SRC
     ${CMAKE_CURRENT_SOURCE_DIR}/src/advanced/Interface.cpp
@@ -41,7 +36,9 @@ set(SIMPLEDBUS_SRC
     ${CMAKE_CURRENT_SOURCE_DIR}/src/base/Logging.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/base/Message.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/base/Path.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/interfaces/ObjectManager.cpp)
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/interfaces/ObjectManager.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/interfaces/Properties.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/Config.cpp)
 
 # Configure the build targets
 
@@ -62,25 +59,29 @@ set_target_properties(
 
 list(APPEND PRIVATE_COMPILE_DEFINITIONS SIMPLEDBUS_LOG_LEVEL=${SIMPLEDBUS_LOG_LEVEL})
 
+target_compile_definitions(simpledbus PRIVATE FMT_HEADER_ONLY)
+
 target_link_libraries(simpledbus PUBLIC ${DBus1_LIBRARIES})
-target_link_libraries(simpledbus PRIVATE $<BUILD_INTERFACE:fmt::fmt-header-only>)
 
 target_include_directories(simpledbus PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/include)
+target_include_directories(simpledbus PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/../dependencies/external)
+target_include_directories(simpledbus PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/../dependencies/internal/include)
 target_include_directories(simpledbus INTERFACE
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../dependencies/external>
     $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
     $<INSTALL_INTERFACE:${DBus1_INCLUDE_DIR}>
     $<INSTALL_INTERFACE:${DBus1_ARCH_INCLUDE_DIR}>)
 
 append_sanitize_options("${SIMPLEDBUS_SANITIZE}")
 
+set_property(TARGET simpledbus PROPERTY INSTALL_RPATH $ORIGIN)
+
 apply_build_options(simpledbus
     "${PRIVATE_COMPILE_DEFINITIONS}"
     "${PRIVATE_COMPILE_OPTIONS}"
     "${PRIVATE_LINK_OPTIONS}"
     "${PUBLIC_LINK_OPTIONS}")
-
-include(GNUInstallDirs)
 
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/cmake/simpledbus.pc.in
             ${CMAKE_CURRENT_BINARY_DIR}/simpledbus.pc @ONLY)
@@ -102,6 +103,12 @@ install(
     DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/simpledbus)
 
 install(
+    FILES
+        ${CMAKE_CURRENT_LIST_DIR}/../dependencies/external/kvn/kvn_safe_callback.hpp
+        ${CMAKE_CURRENT_LIST_DIR}/../dependencies/external/kvn/logfwd.hpp
+    DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/simpledbus/kvn)
+
+install(
     FILES ${CMAKE_CURRENT_BINARY_DIR}/simpledbus.pc
     DESTINATION ${CMAKE_INSTALL_LIBDIR}/pkgconfig)
 
@@ -119,6 +126,10 @@ if(SIMPLEDBUS_TEST)
         ${CMAKE_CURRENT_SOURCE_DIR}/test/src/test_proxy_lifetime.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/test/src/test_path.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/test/src/helpers/PythonRunner.cpp)
+
+    target_compile_definitions(simpledbus_test PRIVATE FMT_HEADER_ONLY)
+    target_include_directories(simpledbus_test PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/../dependencies/external)
+    target_include_directories(simpledbus_test PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/../dependencies/internal/include)
 
     set_target_properties(simpledbus_test PROPERTIES
         CXX_VISIBILITY_PRESET hidden

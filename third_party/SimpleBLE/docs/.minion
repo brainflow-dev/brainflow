@@ -1,0 +1,5 @@
+APP_NAME=docs-simpleble-new
+APP_PORT=3000
+APP_URL=docs.simpleble.org
+APP_VOLUMES=
+VPS_HOST=167.99.231.125

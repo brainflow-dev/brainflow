@@ -1,6 +1,9 @@
 #pragma once
 
+#include <memory>
 #include <optional>
+
+#include <simpleble/export.h>
 
 #include <simpleble/Peripheral.h>
 #include <simpleble/Service.h>
@@ -9,9 +12,10 @@ namespace SimpleBLE {
 
 namespace Safe {
 
-class Peripheral : public SimpleBLE::Peripheral {
+class SIMPLEBLE_EXPORT Peripheral {
   public:
     Peripheral(SimpleBLE::Peripheral& peripheral);
+    Peripheral(SimpleBLE::Peripheral&& peripheral);
     virtual ~Peripheral() = default;
 
     std::optional<std::string> identifier() noexcept;
@@ -45,6 +49,14 @@ class Peripheral : public SimpleBLE::Peripheral {
 
     bool set_callback_on_connected(std::function<void()> on_connected) noexcept;
     bool set_callback_on_disconnected(std::function<void()> on_disconnected) noexcept;
+
+    /**
+     * Get the underlying peripheral object.
+     */
+    operator SimpleBLE::Peripheral() const noexcept;
+
+  protected:
+    SimpleBLE::Peripheral internal_;
 };
 
 }  // namespace Safe

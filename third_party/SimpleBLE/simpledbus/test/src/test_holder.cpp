@@ -5,13 +5,12 @@
 #include <any>
 #include <map>
 #include <string>
-#include <variant>
 
 using namespace SimpleDBus;
 
 TEST(Holder, Boolean) {
-    Holder h = Holder::create_boolean(true);
-    EXPECT_EQ(h.get_boolean(), true);
+    Holder h = Holder::create<bool>(true);
+    EXPECT_EQ(h.get<bool>(), true);
 
     EXPECT_EQ(h.type(), Holder::Type::BOOLEAN);
 
@@ -21,8 +20,8 @@ TEST(Holder, Boolean) {
 }
 
 TEST(Holder, Byte) {
-    Holder h = Holder::create_byte(0x12);
-    EXPECT_EQ(h.get_byte(), 0x12);
+    Holder h = Holder::create<uint8_t>(0x12);
+    EXPECT_EQ(h.get<uint8_t>(), 0x12);
 
     EXPECT_EQ(h.type(), Holder::Type::BYTE);
 
@@ -32,8 +31,8 @@ TEST(Holder, Byte) {
 }
 
 TEST(Holder, Int16) {
-    Holder h = Holder::create_int16(0x1234);
-    EXPECT_EQ(h.get_int16(), 0x1234);
+    Holder h = Holder::create<int16_t>(0x1234);
+    EXPECT_EQ(h.get<int16_t>(), 0x1234);
 
     EXPECT_EQ(h.type(), Holder::Type::INT16);
 
@@ -43,8 +42,8 @@ TEST(Holder, Int16) {
 }
 
 TEST(Holder, Int32) {
-    Holder h = Holder::create_int32(0x12345678);
-    EXPECT_EQ(h.get_int32(), 0x12345678);
+    Holder h = Holder::create<int32_t>(0x12345678);
+    EXPECT_EQ(h.get<int32_t>(), 0x12345678);
 
     EXPECT_EQ(h.type(), Holder::Type::INT32);
 
@@ -54,8 +53,8 @@ TEST(Holder, Int32) {
 }
 
 TEST(Holder, Int64) {
-    Holder h = Holder::create_int64(0x123456789abcdef0);
-    EXPECT_EQ(h.get_int64(), 0x123456789abcdef0);
+    Holder h = Holder::create<int64_t>(0x123456789abcdef0);
+    EXPECT_EQ(h.get<int64_t>(), 0x123456789abcdef0);
 
     EXPECT_EQ(h.type(), Holder::Type::INT64);
 
@@ -65,8 +64,8 @@ TEST(Holder, Int64) {
 }
 
 TEST(Holder, Double) {
-    Holder h = Holder::create_double(3.14);
-    EXPECT_EQ(h.get_double(), 3.14);
+    Holder h = Holder::create<double>(3.14);
+    EXPECT_EQ(h.get<double>(), 3.14);
 
     EXPECT_EQ(h.type(), Holder::Type::DOUBLE);
 
@@ -76,8 +75,8 @@ TEST(Holder, Double) {
 }
 
 TEST(Holder, String) {
-    Holder h = Holder::create_string("Hello, world!");
-    EXPECT_EQ(h.get_string(), "Hello, world!");
+    Holder h = Holder::create<std::string>("Hello, world!");
+    EXPECT_EQ(h.get<std::string>(), "Hello, world!");
 
     EXPECT_EQ(h.type(), Holder::Type::STRING);
 
@@ -87,8 +86,8 @@ TEST(Holder, String) {
 }
 
 TEST(Holder, ObjectPath) {
-    Holder h = Holder::create_object_path("/foo/bar");
-    EXPECT_EQ(h.get_object_path(), "/foo/bar");
+    Holder h = Holder::create<ObjectPath>("/foo/bar");
+    EXPECT_EQ(h.get<ObjectPath>(), ObjectPath("/foo/bar"));
 
     EXPECT_EQ(h.type(), Holder::Type::OBJ_PATH);
 
@@ -98,8 +97,8 @@ TEST(Holder, ObjectPath) {
 }
 
 TEST(Holder, Signature) {
-    Holder h = Holder::create_signature("s");
-    EXPECT_EQ(h.get_signature(), "s");
+    Holder h = Holder::create<Signature>("s");
+    EXPECT_EQ(h.get<Signature>(), Signature("s"));
 
     EXPECT_EQ(h.type(), Holder::Type::SIGNATURE);
 
@@ -109,11 +108,11 @@ TEST(Holder, Signature) {
 }
 
 TEST(Holder, ArrayHomogeneous) {
-    Holder h = Holder::create_array();
-    h.array_append(Holder::create_int32(42));
+    Holder h = Holder::create<std::vector<Holder>>();
+    h.array_append(Holder::create<int32_t>(42));
 
-    EXPECT_EQ(h.get_array().size(), 1);
-    EXPECT_EQ(h.get_array()[0].get_int32(), 42);
+    EXPECT_EQ(h.get<std::vector<Holder>>().size(), 1);
+    EXPECT_EQ(h.get<std::vector<Holder>>()[0].get<int32_t>(), 42);
 
     EXPECT_EQ(h.type(), Holder::Type::ARRAY);
 
@@ -123,11 +122,11 @@ TEST(Holder, ArrayHomogeneous) {
 }
 
 TEST(Holder, ArrayHeterogeneous) {
-    Holder h = Holder::create_array();
-    h.array_append(Holder::create_int32(42));
-    h.array_append(Holder::create_string("Hello, world!"));
+    Holder h = Holder::create<std::vector<Holder>>();
+    h.array_append(Holder::create<int32_t>(42));
+    h.array_append(Holder::create<std::string>("Hello, world!"));
 
-    EXPECT_EQ(h.get_array().size(), 2);
+    EXPECT_EQ(h.get<std::vector<Holder>>().size(), 2);
 
     EXPECT_EQ(h.type(), Holder::Type::ARRAY);
 
@@ -137,12 +136,12 @@ TEST(Holder, ArrayHeterogeneous) {
 }
 
 TEST(Holder, DictionaryHomogeneousString) {
-    Holder h = Holder::create_dict();
+    Holder h = Holder::create<std::map<std::string, Holder>>();
 
     // Add three objects with string keys to the dictionary.
-    h.dict_append(Holder::Type::STRING, "string_key1", Holder::create_string("value1"));
-    h.dict_append(Holder::Type::STRING, "string_key2", Holder::create_string("value2"));
-    h.dict_append(Holder::Type::STRING, "string_key3", Holder::create_string("value3"));
+    h.dict_append(Holder::Type::STRING, "string_key1", Holder::create<std::string>("value1"));
+    h.dict_append(Holder::Type::STRING, "string_key2", Holder::create<std::string>("value2"));
+    h.dict_append(Holder::Type::STRING, "string_key3", Holder::create<std::string>("value3"));
 
     EXPECT_EQ(h.type(), Holder::Type::DICT);
 
@@ -152,7 +151,7 @@ TEST(Holder, DictionaryHomogeneousString) {
 }
 
 TEST(Holder, DictionaryHeterogeneous) {
-    Holder h = Holder::create_dict();
+    Holder h = Holder::create<std::map<std::string, Holder>>();
 
     // Add three objects with string keys to the dictionary.
     h.dict_append(Holder::Type::STRING, "string_key1", Holder());
@@ -165,14 +164,14 @@ TEST(Holder, DictionaryHeterogeneous) {
     h.dict_append(Holder::Type::INT32, static_cast<int32_t>(789), Holder());
 
     // Check that all objects with string keys are returned.
-    auto dict_string = h.get_dict_string();
+    auto dict_string = h.get<std::map<std::string, Holder>>();
     EXPECT_EQ(dict_string.size(), 3);
     EXPECT_EQ(dict_string.count("string_key1"), 1);
     EXPECT_EQ(dict_string.count("string_key2"), 1);
     EXPECT_EQ(dict_string.count("string_key3"), 1);
 
     // Check that all objects with int32 keys are returned.
-    auto dict_int32 = h.get_dict_int32();
+    auto dict_int32 = h.get<std::map<int32_t, Holder>>();
     EXPECT_EQ(dict_int32.size(), 3);
     EXPECT_EQ(dict_int32.count(123), 1);
     EXPECT_EQ(dict_int32.count(456), 1);

@@ -5,7 +5,7 @@ plugins {
 
 android {
     namespace = "org.simpleble.android"
-    compileSdk = 34
+    compileSdk = 35
 
     defaultConfig {
         minSdk = 31
@@ -46,7 +46,5 @@ dependencies {
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)
     implementation(libs.material)
-
-    //noinspection UseTomlInstead
-    implementation("org.simpleble.android.bridge:simpleble-bridge")
+    implementation(libs.simpledroidbridge)
 }

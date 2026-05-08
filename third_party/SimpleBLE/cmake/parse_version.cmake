@@ -36,6 +36,9 @@ function(parse_version FILE PROJECT)
         set("${PROJECT}_VERSION"
             "${CMAKE_MATCH_1}.${CMAKE_MATCH_2}.${CMAKE_MATCH_3}${CMAKE_MATCH_4}"
             PARENT_SCOPE)
+        set("${PROJECT}_VERSION_BASE"
+            "${CMAKE_MATCH_1}.${CMAKE_MATCH_2}.${CMAKE_MATCH_3}"
+            PARENT_SCOPE)
     else()
         message(FATAL_ERROR "Unable to parse version from '${FILE}'")
     endif()

@@ -10,6 +10,10 @@ constexpr auto kDocsDescriptor = R"pbdoc(
     Descriptor
 )pbdoc";
 
+constexpr auto kDocsDescriptorInitialized = R"pbdoc(
+    Whether the descriptor is initialized
+)pbdoc";
+
 constexpr auto kDocsDescriptorUuid = R"pbdoc(
     UUID of the descriptor
 )pbdoc";
@@ -17,5 +21,6 @@ constexpr auto kDocsDescriptorUuid = R"pbdoc(
 void wrap_descriptor(py::module& m) {
     // TODO: Add __str__ and __repr__ methods
     py::class_<SimpleBLE::Descriptor>(m, "Descriptor", kDocsDescriptor)
+        .def("initialized", &SimpleBLE::Descriptor::initialized, kDocsDescriptorInitialized)
         .def("uuid", &SimpleBLE::Descriptor::uuid, kDocsDescriptorUuid);
 }

@@ -4,8 +4,8 @@
 #include <iostream>
 #include <sstream>
 
+#include <roapi.h>
 #include <sdkddkver.h>
-#include "../winrt/roapi.h"
 
 #include "LoggingInternal.h"
 
@@ -22,15 +22,15 @@ namespace SimpleBLE {
 
 void initialize_winrt() {
     static bool initialized = false;
-
     if (initialized) return;
     initialized = true;
 
-    int32_t cotype, qualifier, get_apartment_result;
+    int32_t cotype = APTTYPE_NA;
+    int32_t qualifier = APTTYPEQUALIFIER_NONE;
+    winrt::hresult get_apartment_result = WINRT_IMPL_CoGetApartmentType(&cotype, &qualifier);
 
-    get_apartment_result = WINRT_IMPL_CoGetApartmentType(&cotype, &qualifier);
-    SIMPLEBLE_LOG_INFO(fmt::format("CoGetApartmentType: cotype={}, qualifier={}, result={:X}", cotype, qualifier,
-                                   (uint32_t)get_apartment_result));
+    SIMPLEBLE_LOG_DEBUG(fmt::format("CoGetApartmentType: cotype={}, qualifier={}, result={:X}", cotype, qualifier,
+                                    (uint32_t)get_apartment_result));
 
     if (cotype == APTTYPE_STA || cotype == APTTYPE_MAINSTA) {
         SIMPLEBLE_LOG_WARN("Single-threaded apartment detected, uninitializing.");
@@ -38,7 +38,10 @@ void initialize_winrt() {
     }
 
     winrt::hresult result = RoInitialize(RO_INIT_MULTITHREADED);
-    SIMPLEBLE_LOG_INFO(fmt::format("RoInitialize: result={:X}", (uint32_t)result));
+    std::string result_str = hresult_to_string(result);
+    if (FAILED(result)) {
+        SIMPLEBLE_LOG_ERROR(fmt::format("RoInitialize failed: {}", result_str));
+    }
 }
 
 std::string _mac_address_to_str(uint64_t mac_address) {
@@ -116,6 +119,28 @@ IBuffer bytearray_to_ibuffer(const ByteArray& array) {
         writer.WriteByte(byte);
     }
     return writer.DetachBuffer();
+}
+
+std::string hresult_to_string(winrt::hresult hr) {
+    if (SUCCEEDED(hr)) {
+        if (hr == S_OK) return "S_OK";
+        if (hr == S_FALSE) return "S_FALSE";
+        // Other success codes are possible but less common here.
+        return fmt::format("Success ({:#08x})", (uint32_t)hr);
+    } else {
+        try {
+            // Attempt to get the system message for the error.
+            winrt::check_hresult(hr);
+        } catch (const winrt::hresult_error& e) {
+            // Use fmt::format for consistent formatting
+            return fmt::format("Error ({:#08x}): {}", (uint32_t)hr, winrt::to_string(e.message()));
+        } catch (...) {
+            // Fallback for unexpected exceptions during error handling
+            return fmt::format("Unknown Error ({:#08x})", (uint32_t)hr);
+        }
+        // Should not be reached if hr is an error and check_hresult behaved as expected
+        return fmt::format("Error ({:#08x})", (uint32_t)hr);
+    }
 }
 
 }  // namespace SimpleBLE

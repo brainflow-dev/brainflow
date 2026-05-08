@@ -1,0 +1,38 @@
+---
+title: Examples
+description: Code examples for SimpleBLE.
+---
+
+To learn how to use SimpleBLE, please refer to the [examples](https://github.com/simpleble/simpleble/tree/main/examples/simpleble) provided in the repository. Those examples with a `_safe` suffix use the _noexcept_ version of the library.
+
+The following list briefly describes each example provided:
+
+## List Adapters
+[list_adapters](https://github.com/simpleble/simpleble/blob/main/examples/simpleble/src/list_adapters.cpp)
+
+This example shows how to list all available Bluetooth adapters on the system. It prints the identifier and MAC address of each adapter.
+
+## Scan
+[scan](https://github.com/simpleble/simpleble/blob/main/examples/simpleble/src/scan.cpp)
+
+This example demonstrates how to scan for nearby BLE devices. It sets up callbacks to print information about devices as they are found and updated.
+
+## Connect
+[connect](https://github.com/simpleble/simpleble/blob/main/examples/simpleble/src/connect.cpp) & [connect_safe](https://github.com/simpleble/simpleble/blob/main/examples/simpleble/src/connect_safe.cpp)
+
+This example connects to a specific BLE device (or the first one found) and lists its services and characteristics. It demonstrates the complete flow of scanning, connecting, and service discovery.
+
+## Read
+[read](https://github.com/simpleble/simpleble/blob/main/examples/simpleble/src/read.cpp)
+
+This example shows how to read the value of a specific characteristic.
+
+## Write
+[write](https://github.com/simpleble/simpleble/blob/main/examples/simpleble/src/write.cpp)
+
+This example shows how to write a value to a specific characteristic.
+
+## Notify
+[notify](https://github.com/simpleble/simpleble/blob/main/examples/simpleble/src/notify.cpp)
+
+This example demonstrates how to subscribe to notifications on a characteristic and receive updates asynchronously.
