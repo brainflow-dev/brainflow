@@ -14,6 +14,7 @@ author: andrey_parfenov
 * Add `get_board_sampling_rate`, an instance method for the actual sampling rate of a prepared board session.
 * Improve `config_board` response handling in native and high level bindings.
 * Add Python examples for recording all Muse S Anthena presets, recording optical data, and analyzing pulse from optical recordings.
+* BLED boards are deprecated, users are expected to switch to native BLE without BLED112 dongle.
 
 ### Muse S Anthena
 
@@ -226,3 +227,20 @@ optical_rate = board.get_board_sampling_rate(BrainFlowPresets.ANCILLARY_PRESET)
 ```
 
 This keeps code which handles both static boards and dynamically configured boards on the same API path.
+
+### Deprecation of BLED112 dongle
+
+BLED112 dongle has been used so far for devices such as Ganglion from OpenBCI and a few more.
+BGLIB(library which we used for this dongle) is not well maintained and implementation we had was insufficient and had known issues.
+In addition to that BLED112 is not available anymore and deprecated by it's vendor.
+
+Finally, all devices we originally supported via BLED112 dongle now also have native BLE support.
+
+* BoardIds.GANGLION_BOARD -> BoardIds.GANGLION_NATIVE_BOARD should be used instead
+* BoardIds.BRAINBIT_BLED_BOARD -> BoardIds.BRAINBIT_BOARD should be used instead 
+* BoardIds.MUSE_S_BLED_BOARD -> BoardIds.MUSE_S_BOARD should be used instead
+* BoardIds.MUSE_2_BLED_BOARD -> BoardIds.MUSE_2_BOARD should be used instead 
+* BoardIds.MUSE_2016_BLED_BOARD -> BoardIds.MUSE_2016_BOARD should be used instead
+
+Currently these BLED boards are deprecated and removed from docs, but code to run them is still present.
+In the future releases it will be removed also.
