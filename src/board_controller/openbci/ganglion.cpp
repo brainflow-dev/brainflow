@@ -107,6 +107,10 @@ int Ganglion::prepare_session ()
         return (int)BrainFlowExitCodes::STATUS_OK;
     }
 
+    safe_logger (spdlog::level::warn,
+        "BoardIds::GANGLION_BOARD uses deprecated BLED112/bglib support and will be removed "
+        "in a future release. Use BoardIds::GANGLION_NATIVE_BOARD instead.");
+
     if (!is_valid)
     {
         safe_logger (spdlog::level::info, "only one ganglion per process is supported");

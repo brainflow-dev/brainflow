@@ -69,6 +69,10 @@ std::string BrainBitBLED::get_lib_name ()
 
 int BrainBitBLED::prepare_session ()
 {
+    safe_logger (spdlog::level::warn,
+        "BoardIds::BRAINBIT_BLED_BOARD uses deprecated BLED112/bglib support and will be "
+        "removed in a future release. Use BoardIds::BRAINBIT_BOARD instead.");
+
     if (!is_valid)
     {
         safe_logger (spdlog::level::info, "only one BrainBitBLED per process is allowed");
