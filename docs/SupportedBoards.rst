@@ -256,9 +256,7 @@ Ganglion Native
 
 `Ganglion Getting Started Guide from OpenBCI <https://docs.openbci.com/GettingStarted/Boards/GanglionGS/>`_
 
-This board uses native BLE support, so you need to have BLE support on your device in order to use it.
-
-**Breaking change in 5.21.x, by default Ganglion board will use `FW version 3 <https://openbci.com/forum/index.php?p=/discussion/3721/ganglion-firmware-upgrade>`_, if you have FW version 2, you can force it using BrainFlowInputParams.**
+**Breaking change in 5.21.x,** by default Ganglion board will use `FW version 3 <https://openbci.com/forum/index.php?p=/discussion/3721/ganglion-firmware-upgrade>`_ , if you have FW version 2, you can force it using BrainFlowInputParams.
 
 To create such board you need to specify the following board ID and fields of BrainFlowInputParams object:
 
