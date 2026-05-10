@@ -47,7 +47,7 @@
 #include "knight.h"
 #include "knight_imu.h"
 #include "muse.h"
-#include "muse_anthena.h"
+#include "muse_athena.h"
 #include "muse_bled.h"
 #include "notion_osc.h"
 #include "ntl_wifi.h"
@@ -57,6 +57,10 @@
 #include "synchroni_board.h"
 #include "synthetic_board.h"
 #include "unicorn_board.h"
+
+#if defined(__ANDROID__) && defined(BRAINFLOW_BUILD_BLE)
+#include "simplecble/android.h"
+#endif
 
 using json = nlohmann::json;
 
@@ -238,8 +242,8 @@ int prepare_session (int board_id, const char *json_brainflow_input_params)
         case BoardIds::MUSE_S_BOARD:
             board = std::shared_ptr<Board> (new Muse (board_id, params));
             break;
-        case BoardIds::MUSE_S_ANTHENA_BOARD:
-            board = std::shared_ptr<Board> (new MuseAnthena (board_id, params));
+        case BoardIds::MUSE_S_ATHENA_BOARD:
+            board = std::shared_ptr<Board> (new MuseAthena (board_id, params));
             break;
         case BoardIds::BRAINALIVE_BOARD:
             board = std::shared_ptr<Board> (new BrainAlive (params));
@@ -510,6 +514,16 @@ int set_log_file_board_controller (const char *log_file)
 int java_set_jnienv (JNIEnv *java_jnienv)
 {
     Board::java_jnienv = java_jnienv;
+#if defined(__ANDROID__) && defined(BRAINFLOW_BUILD_BLE)
+    if (java_jnienv != NULL)
+    {
+        JavaVM *java_vm = NULL;
+        if ((java_jnienv->GetJavaVM (&java_vm) == JNI_OK) && (java_vm != NULL))
+        {
+            simpleble_android_set_jvm (java_vm);
+        }
+    }
+#endif
     return (int)BrainFlowExitCodes::STATUS_OK;
 }
 

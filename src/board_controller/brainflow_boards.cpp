@@ -1166,7 +1166,7 @@ BrainFlowBoards::BrainFlowBoards()
     };
     brainflow_boards_json["boards"]["67"]["default"] =
     {
-        {"name", "MuseAnthena"},
+        {"name", "MuseAthena"},
         {"sampling_rate", 256},
         {"timestamp_channel", 9},
         {"marker_channel", 10},
@@ -1178,7 +1178,7 @@ BrainFlowBoards::BrainFlowBoards()
     };
     brainflow_boards_json["boards"]["67"]["auxiliary"] =
     {
-        {"name", "MuseAnthenaAux"},
+        {"name", "MuseAthenaAux"},
         {"sampling_rate", 52},
         {"timestamp_channel", 7},
         {"marker_channel", 8},
@@ -1189,7 +1189,7 @@ BrainFlowBoards::BrainFlowBoards()
     };
     brainflow_boards_json["boards"]["67"]["ancillary"] =
     {
-        {"name", "MuseAnthenaAnc"},
+        {"name", "MuseAthenaAnc"},
         {"sampling_rate", 64},
         {"timestamp_channel", 18},
         {"marker_channel", 19},

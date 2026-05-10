@@ -1,4 +1,4 @@
-#include "muse_anthena.h"
+#include "muse_athena.h"
 
 #include <chrono>
 #include <cstdint>
@@ -9,12 +9,12 @@
 #include <vector>
 
 #include "custom_cast.h"
-#include "muse_anthena_constants.h"
+#include "muse_athena_constants.h"
 #include "muse_options.h"
 #include "timestamp.h"
 
 
-MuseAnthena::SensorConfig::SensorConfig ()
+MuseAthena::SensorConfig::SensorConfig ()
     : type (SensorType::UNKNOWN)
     , n_channels (0)
     , n_samples (0)
@@ -24,7 +24,7 @@ MuseAnthena::SensorConfig::SensorConfig ()
 {
 }
 
-MuseAnthena::SensorConfig::SensorConfig (SensorType type, int n_channels, int n_samples,
+MuseAthena::SensorConfig::SensorConfig (SensorType type, int n_channels, int n_samples,
     double sampling_rate, size_t data_len, bool variable_length)
     : type (type)
     , n_channels (n_channels)
@@ -36,7 +36,7 @@ MuseAnthena::SensorConfig::SensorConfig (SensorType type, int n_channels, int n_
 }
 
 
-bool MuseAnthena::get_sensor_config (uint8_t tag, SensorConfig &config)
+bool MuseAthena::get_sensor_config (uint8_t tag, SensorConfig &config)
 {
     switch (tag)
     {
@@ -60,7 +60,7 @@ bool MuseAnthena::get_sensor_config (uint8_t tag, SensorConfig &config)
             return true;
         case 0x53:
             // DRL/REF: 2 channels, 6 samples at 32 Hz. BrainFlow does not expose it for
-            // Muse Anthena, but the fixed length is needed to skip the block correctly.
+            // Muse Athena, but the fixed length is needed to skip the block correctly.
             config = SensorConfig (SensorType::UNKNOWN, 2, 6, 32.0, 24);
             return true;
         case 0x88:
@@ -74,7 +74,7 @@ bool MuseAnthena::get_sensor_config (uint8_t tag, SensorConfig &config)
     }
 }
 
-int MuseAnthena::get_optics_canonical_index (uint8_t tag, int channel)
+int MuseAthena::get_optics_canonical_index (uint8_t tag, int channel)
 {
     int num_channels = 0;
     if (tag == 0x34)
@@ -97,36 +97,36 @@ int MuseAnthena::get_optics_canonical_index (uint8_t tag, int channel)
     return -1;
 }
 
-std::string MuseAnthena::trim_string (const std::string &value)
+std::string MuseAthena::trim_string (const std::string &value)
 {
     return MuseOptions::trim_string (value);
 }
 
-std::string MuseAnthena::to_lower (const std::string &value)
+std::string MuseAthena::to_lower (const std::string &value)
 {
     return MuseOptions::to_lower (value);
 }
 
-bool MuseAnthena::is_valid_muse_preset (const std::string &preset)
+bool MuseAthena::is_valid_muse_preset (const std::string &preset)
 {
-    return MuseOptions::is_valid_anthena_preset (preset);
+    return MuseOptions::is_valid_athena_preset (preset);
 }
 
-bool MuseAnthena::parse_bool_option (const std::string &value, bool &parsed)
+bool MuseAthena::parse_bool_option (const std::string &value, bool &parsed)
 {
     return MuseOptions::parse_bool_option (value, parsed);
 }
 
-int MuseAnthena::parse_muse_options ()
+int MuseAthena::parse_muse_options ()
 {
     muse_preset = "p1041";
     enable_low_latency = true;
 
     std::string parse_error;
     if (!MuseOptions::parse_preset_options (params.other_info, board_id,
-            MuseOptions::PresetFamily::Anthena, true, muse_preset, enable_low_latency, parse_error))
+            MuseOptions::PresetFamily::Athena, true, muse_preset, enable_low_latency, parse_error))
     {
-        safe_logger (spdlog::level::err, "Invalid MuseAnthena other_info: {}", parse_error);
+        safe_logger (spdlog::level::err, "Invalid MuseAthena other_info: {}", parse_error);
         return (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR;
     }
 
@@ -134,26 +134,26 @@ int MuseAnthena::parse_muse_options ()
 }
 
 
-void anthena_adapter_on_scan_found (
+void athena_adapter_on_scan_found (
     simpleble_adapter_t adapter, simpleble_peripheral_t peripheral, void *board)
 {
-    ((MuseAnthena *)(board))->adapter_on_scan_found (adapter, peripheral);
+    ((MuseAthena *)(board))->adapter_on_scan_found (adapter, peripheral);
 }
 
-void anthena_peripheral_on_data (simpleble_peripheral_t peripheral, simpleble_uuid_t service,
+void athena_peripheral_on_data (simpleble_peripheral_t peripheral, simpleble_uuid_t service,
     simpleble_uuid_t characteristic, const uint8_t *data, size_t size, void *board)
 {
-    ((MuseAnthena *)(board))->peripheral_on_data (peripheral, service, characteristic, data, size);
+    ((MuseAthena *)(board))->peripheral_on_data (peripheral, service, characteristic, data, size);
 }
 
-void anthena_peripheral_on_status (simpleble_peripheral_t peripheral, simpleble_uuid_t service,
+void athena_peripheral_on_status (simpleble_peripheral_t peripheral, simpleble_uuid_t service,
     simpleble_uuid_t characteristic, const uint8_t *data, size_t size, void *board)
 {
-    ((MuseAnthena *)(board))
+    ((MuseAthena *)(board))
         ->peripheral_on_status (peripheral, service, characteristic, data, size);
 }
 
-MuseAnthena::MuseAnthena (int board_id, struct BrainFlowInputParams params)
+MuseAthena::MuseAthena (int board_id, struct BrainFlowInputParams params)
     : BLELibBoard (board_id, params)
 {
     initialized = false;
@@ -166,13 +166,13 @@ MuseAnthena::MuseAnthena (int board_id, struct BrainFlowInputParams params)
     enable_low_latency = true;
 }
 
-MuseAnthena::~MuseAnthena ()
+MuseAthena::~MuseAthena ()
 {
     skip_logs = true;
     release_session ();
 }
 
-int MuseAnthena::prepare_session ()
+int MuseAthena::prepare_session ()
 {
     if (initialized)
     {
@@ -184,7 +184,7 @@ int MuseAnthena::prepare_session ()
     {
         return res;
     }
-    safe_logger (spdlog::level::info, "Use MuseAnthena preset {} and low_latency {}", muse_preset,
+    safe_logger (spdlog::level::info, "Use MuseAthena preset {} and low_latency {}", muse_preset,
         enable_low_latency);
     if (params.timeout < 1)
     {
@@ -213,7 +213,7 @@ int MuseAnthena::prepare_session ()
     }
 
     simpleble_adapter_set_callback_on_scan_found (
-        muse_adapter, ::anthena_adapter_on_scan_found, (void *)this);
+        muse_adapter, ::athena_adapter_on_scan_found, (void *)this);
 
     if (!simpleble_adapter_is_bluetooth_enabled ())
     {
@@ -227,11 +227,11 @@ int MuseAnthena::prepare_session ()
     auto sec = std::chrono::seconds (1);
     if (cv.wait_for (lk, params.timeout * sec, [this] { return this->muse_peripheral != NULL; }))
     {
-        safe_logger (spdlog::level::info, "Found MuseAnthena device");
+        safe_logger (spdlog::level::info, "Found MuseAthena device");
     }
     else
     {
-        safe_logger (spdlog::level::err, "Failed to find MuseAnthena Device");
+        safe_logger (spdlog::level::err, "Failed to find MuseAthena Device");
         res = (int)BrainFlowExitCodes::BOARD_NOT_READY_ERROR;
     }
     simpleble_adapter_scan_stop (muse_adapter);
@@ -242,14 +242,14 @@ int MuseAnthena::prepare_session ()
         {
             if (simpleble_peripheral_connect (muse_peripheral) == SIMPLEBLE_SUCCESS)
             {
-                safe_logger (spdlog::level::info, "Connected to MuseAnthena Device");
+                safe_logger (spdlog::level::info, "Connected to MuseAthena Device");
                 res = (int)BrainFlowExitCodes::STATUS_OK;
                 break;
             }
             else
             {
                 safe_logger (
-                    spdlog::level::warn, "Failed to connect to MuseAnthena Device: {}/3", i);
+                    spdlog::level::warn, "Failed to connect to MuseAthena Device: {}/3", i);
                 res = (int)BrainFlowExitCodes::BOARD_NOT_READY_ERROR;
                 std::this_thread::sleep_for (std::chrono::seconds (1));
             }
@@ -281,14 +281,14 @@ int MuseAnthena::prepare_session ()
                     service.characteristics[j].uuid.value);
 
                 if (strcmp (service.characteristics[j].uuid.value,
-                        MUSE_ANTHENA_GATT_ATTR_STREAM_TOGGLE) == 0)
+                        MUSE_ATHENA_GATT_ATTR_STREAM_TOGGLE) == 0)
                 {
                     control_characteristics = std::pair<simpleble_uuid_t, simpleble_uuid_t> (
                         service.uuid, service.characteristics[j].uuid);
                     control_characteristics_found = true;
                     safe_logger (spdlog::level::info, "found control characteristic");
                     if (simpleble_peripheral_notify (muse_peripheral, service.uuid,
-                            service.characteristics[j].uuid, ::anthena_peripheral_on_status,
+                            service.characteristics[j].uuid, ::athena_peripheral_on_status,
                             (void *)this) == SIMPLEBLE_SUCCESS)
                     {
                         notified_characteristics.push_back (
@@ -302,14 +302,14 @@ int MuseAnthena::prepare_session ()
                     }
                 }
 
-                if ((strcmp (service.characteristics[j].uuid.value, MUSE_ANTHENA_GATT_DATA_1) ==
+                if ((strcmp (service.characteristics[j].uuid.value, MUSE_ATHENA_GATT_DATA_1) ==
                         0) ||
-                    (strcmp (service.characteristics[j].uuid.value, MUSE_ANTHENA_GATT_DATA_2) == 0))
+                    (strcmp (service.characteristics[j].uuid.value, MUSE_ATHENA_GATT_DATA_2) == 0))
                 {
                     // Athena multiplexes EEG, IMU, optics, and battery packets across data
                     // characteristics; use one parser intentionally and route by packet tag.
                     if (simpleble_peripheral_notify (muse_peripheral, service.uuid,
-                            service.characteristics[j].uuid, ::anthena_peripheral_on_data,
+                            service.characteristics[j].uuid, ::athena_peripheral_on_data,
                             (void *)this) == SIMPLEBLE_SUCCESS)
                     {
                         notified_characteristics.push_back (
@@ -370,7 +370,7 @@ int MuseAnthena::prepare_session ()
     return res;
 }
 
-int MuseAnthena::start_stream (int buffer_size, const char *streamer_params)
+int MuseAthena::start_stream (int buffer_size, const char *streamer_params)
 {
     if (!initialized)
     {
@@ -399,7 +399,7 @@ int MuseAnthena::start_stream (int buffer_size, const char *streamer_params)
         int l1_res = config_board ("L1");
         if (l1_res != (int)BrainFlowExitCodes::STATUS_OK)
         {
-            safe_logger (spdlog::level::warn, "Failed to enable MuseAnthena low latency mode");
+            safe_logger (spdlog::level::warn, "Failed to enable MuseAthena low latency mode");
         }
     }
     if (res == (int)BrainFlowExitCodes::STATUS_OK)
@@ -408,7 +408,7 @@ int MuseAnthena::start_stream (int buffer_size, const char *streamer_params)
         int status_res = config_board ("s");
         if (status_res != (int)BrainFlowExitCodes::STATUS_OK)
         {
-            safe_logger (spdlog::level::warn, "Failed to request MuseAnthena status after start");
+            safe_logger (spdlog::level::warn, "Failed to request MuseAthena status after start");
         }
         std::this_thread::sleep_for (std::chrono::milliseconds (200));
     }
@@ -420,7 +420,7 @@ int MuseAnthena::start_stream (int buffer_size, const char *streamer_params)
     return res;
 }
 
-int MuseAnthena::stop_stream ()
+int MuseAthena::stop_stream ()
 {
     if (muse_peripheral == NULL)
     {
@@ -438,7 +438,7 @@ int MuseAnthena::stop_stream ()
                 (!is_connected))
             {
                 safe_logger (spdlog::level::warn,
-                    "MuseAnthena device is already disconnected during stop_stream");
+                    "MuseAthena device is already disconnected during stop_stream");
                 res = (int)BrainFlowExitCodes::STATUS_OK;
             }
         }
@@ -452,7 +452,7 @@ int MuseAnthena::stop_stream ()
     return res;
 }
 
-int MuseAnthena::release_session ()
+int MuseAthena::release_session ()
 {
     if (initialized)
     {
@@ -511,12 +511,12 @@ int MuseAnthena::release_session ()
     return (int)BrainFlowExitCodes::STATUS_OK;
 }
 
-int MuseAnthena::config_board (std::string config, std::string &response)
+int MuseAthena::config_board (std::string config, std::string &response)
 {
     return config_board (config);
 }
 
-int MuseAnthena::config_board (std::string config)
+int MuseAthena::config_board (std::string config)
 {
     if (!initialized)
     {
@@ -546,7 +546,7 @@ int MuseAnthena::config_board (std::string config)
     return (int)BrainFlowExitCodes::STATUS_OK;
 }
 
-void MuseAnthena::adapter_on_scan_found (
+void MuseAthena::adapter_on_scan_found (
     simpleble_adapter_t adapter, simpleble_peripheral_t peripheral)
 {
     (void)adapter;
@@ -597,7 +597,7 @@ void MuseAnthena::adapter_on_scan_found (
     }
 }
 
-void MuseAnthena::peripheral_on_data (simpleble_peripheral_t peripheral, simpleble_uuid_t service,
+void MuseAthena::peripheral_on_data (simpleble_peripheral_t peripheral, simpleble_uuid_t service,
     simpleble_uuid_t characteristic, const uint8_t *data, size_t size)
 {
     (void)peripheral;
@@ -606,7 +606,7 @@ void MuseAnthena::peripheral_on_data (simpleble_peripheral_t peripheral, simpleb
     handle_data_notification (data, size);
 }
 
-void MuseAnthena::peripheral_on_status (simpleble_peripheral_t peripheral, simpleble_uuid_t service,
+void MuseAthena::peripheral_on_status (simpleble_peripheral_t peripheral, simpleble_uuid_t service,
     simpleble_uuid_t characteristic, const uint8_t *data, size_t size)
 {
     (void)peripheral;
@@ -615,7 +615,7 @@ void MuseAnthena::peripheral_on_status (simpleble_peripheral_t peripheral, simpl
     safe_logger (spdlog::level::debug, "Status packet: {}", bytes_to_string (data, size));
 }
 
-void MuseAnthena::handle_data_notification (const uint8_t *data, size_t size)
+void MuseAthena::handle_data_notification (const uint8_t *data, size_t size)
 {
     std::lock_guard<std::mutex> callback_guard (callback_lock);
 
@@ -704,7 +704,7 @@ void MuseAnthena::handle_data_notification (const uint8_t *data, size_t size)
     }
 }
 
-void MuseAnthena::parse_sensor_payload (
+void MuseAthena::parse_sensor_payload (
     uint8_t tag, uint32_t package_num, double host_timestamp, const uint8_t *data, size_t size)
 {
     SensorConfig config;
@@ -726,7 +726,7 @@ void MuseAnthena::parse_sensor_payload (
         {
             last_battery =
                 (double)cast_16bit_to_uint16_little_endian ((const unsigned char *)data) *
-                MUSE_ANTHENA_BATTERY_PERCENT_SCALE_FACTOR;
+                MUSE_ATHENA_BATTERY_PERCENT_SCALE_FACTOR;
         }
         return;
     }
@@ -757,7 +757,7 @@ void MuseAnthena::parse_sensor_payload (
                 if ((size_t)channel < eeg_channels.size ())
                 {
                     package[(size_t)eeg_channels[(size_t)channel]] =
-                        (double)raw * MUSE_ANTHENA_EEG_SCALE_FACTOR;
+                        (double)raw * MUSE_ATHENA_EEG_SCALE_FACTOR;
                 }
                 else
                 {
@@ -765,7 +765,7 @@ void MuseAnthena::parse_sensor_payload (
                     if (other_channel < other_channels.size ())
                     {
                         package[(size_t)other_channels[other_channel]] =
-                            (double)raw * MUSE_ANTHENA_EEG_SCALE_FACTOR;
+                            (double)raw * MUSE_ATHENA_EEG_SCALE_FACTOR;
                     }
                 }
             }
@@ -796,7 +796,7 @@ void MuseAnthena::parse_sensor_payload (
                 if ((size_t)channel < accel_channels.size ())
                 {
                     package[(size_t)accel_channels[(size_t)channel]] =
-                        (double)raw * MUSE_ANTHENA_ACCELEROMETER_SCALE_FACTOR;
+                        (double)raw * MUSE_ATHENA_ACCELEROMETER_SCALE_FACTOR;
                 }
             }
             for (int channel = 0; channel < 3; channel++)
@@ -806,7 +806,7 @@ void MuseAnthena::parse_sensor_payload (
                 if ((size_t)channel < gyro_channels.size ())
                 {
                     package[(size_t)gyro_channels[(size_t)channel]] =
-                        (double)raw * MUSE_ANTHENA_GYRO_SCALE_FACTOR;
+                        (double)raw * MUSE_ATHENA_GYRO_SCALE_FACTOR;
                 }
             }
             package[(size_t)timestamp_channel] = get_sample_timestamp (
@@ -838,7 +838,7 @@ void MuseAnthena::parse_sensor_payload (
                 int canonical_index = get_optics_canonical_index (tag, channel);
                 if ((canonical_index >= 0) && (canonical_index < 16))
                 {
-                    double value = (double)raw * MUSE_ANTHENA_OPTICS_SCALE_FACTOR;
+                    double value = (double)raw * MUSE_ATHENA_OPTICS_SCALE_FACTOR;
                     if ((size_t)canonical_index < optical_channels.size ())
                     {
                         package[(size_t)optical_channels[(size_t)canonical_index]] = value;
@@ -854,14 +854,14 @@ void MuseAnthena::parse_sensor_payload (
     }
 }
 
-void MuseAnthena::reset_timestamps ()
+void MuseAthena::reset_timestamps ()
 {
     last_eeg_timestamp = -1.0;
     last_aux_timestamp = -1.0;
     last_anc_timestamp = -1.0;
 }
 
-double MuseAnthena::get_sample_timestamp (double last_timestamp, double current_timestamp,
+double MuseAthena::get_sample_timestamp (double last_timestamp, double current_timestamp,
     int sample_index, int n_samples, double sampling_rate)
 {
     if ((n_samples <= 0) || (sampling_rate <= 0.0))
@@ -889,7 +889,7 @@ double MuseAnthena::get_sample_timestamp (double last_timestamp, double current_
     return last_timestamp + step * (double)(sample_index + 1);
 }
 
-std::string MuseAnthena::bytes_to_string (const uint8_t *data, size_t size)
+std::string MuseAthena::bytes_to_string (const uint8_t *data, size_t size)
 {
     std::ostringstream oss;
     for (size_t i = 0; i < size; i++)

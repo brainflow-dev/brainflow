@@ -202,7 +202,7 @@ def save_spectrum_plot(freqs, power, spectrum_bpm, output_file):
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument('--input-file', type=str, required=False, default='muse_anthena_optics_recording.csv')
+    parser.add_argument('--input-file', type=str, required=False, default='muse_athena_optics_recording.csv')
     parser.add_argument('--output-prefix', type=str, required=False, default='')
     parser.add_argument('--discard-seconds', type=float, required=False, default=5.0)
     parser.add_argument('--low-cut', type=float, required=False, default=0.7)
@@ -212,7 +212,7 @@ def main():
     args = parser.parse_args()
 
     data = DataFilter.read_file(args.input_file)
-    board_id = BoardIds.MUSE_S_ANTHENA_BOARD.value
+    board_id = BoardIds.MUSE_S_ATHENA_BOARD.value
     preset = BrainFlowPresets.ANCILLARY_PRESET
     optical_channels = BoardShim.get_optical_channels(board_id, preset)
     timestamp_channel = BoardShim.get_timestamp_channel(board_id, preset)

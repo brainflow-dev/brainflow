@@ -76,7 +76,7 @@ export enum BoardIds {
     BIOLISTENER_BOARD = 64,
     IRONBCI_32_BOARD = 65,
     NEUROPAWN_KNIGHT_BOARD_IMU = 66,
-    MUSE_S_ANTHENA_BOARD = 67
+    MUSE_S_ATHENA_BOARD = 67
 }
 
 export enum IpProtocolTypes {

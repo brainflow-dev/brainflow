@@ -28,6 +28,10 @@ option (BUILD_ONNX "BUILD_ONNX" OFF)
 option (BUILD_TESTS "BUILD_TESTS" OFF)
 option (BUILD_PERIPHERY "BUILD_PERIPHERY" OFF)
 
+if (ANDROID)
+    set (BUILD_BLE ON CACHE BOOL "BUILD_BLE" FORCE)
+endif (ANDROID)
+
 include (${CMAKE_CURRENT_SOURCE_DIR}/cmake/macros.cmake)
 configure_msvc_runtime ()
 

@@ -9,10 +9,10 @@
 #include <vector>
 
 #include "ble_lib_board.h"
-#include "muse_anthena_types.h"
+#include "muse_athena_types.h"
 
 
-class MuseAnthena : public BLELibBoard
+class MuseAthena : public BLELibBoard
 {
 
 protected:
@@ -65,8 +65,8 @@ protected:
         int sample_index, int n_samples, double sampling_rate);
 
 public:
-    MuseAnthena (int board_id, struct BrainFlowInputParams params);
-    ~MuseAnthena () override;
+    MuseAthena (int board_id, struct BrainFlowInputParams params);
+    ~MuseAthena () override;
 
     int prepare_session () override;
     int start_stream (int buffer_size, const char *streamer_params) override;

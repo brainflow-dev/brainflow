@@ -40,6 +40,7 @@ add_subdirectory(${CMAKE_CURRENT_LIST_DIR}/../simpleble ${CMAKE_BINARY_DIR}/simp
 
 set(SIMPLEBLE_C_SRC
     ${CMAKE_CURRENT_SOURCE_DIR}/src/simplecble.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/android.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/adapter.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/peripheral.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/logging.cpp

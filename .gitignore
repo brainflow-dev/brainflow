@@ -367,6 +367,11 @@ rust_package/brainflow/lib/
 rust_package/brainflow/inc/
 src/ml/train/data/
 src/ml/train/data/*.onnx
+tools/brainflow-android.aar
+build_android_aar/
+tools/simpleble-bridge.jar
+tools/simpleble-bridge-classes/
+tools/simpleble-bridge-sources.txt
 
 # CMake & GNU Make
 CMakeCache.txt
