@@ -13,7 +13,6 @@
 #include "muse_options.h"
 #include "timestamp.h"
 
-
 MuseAthena::SensorConfig::SensorConfig ()
     : type (SensorType::UNKNOWN)
     , n_channels (0)
@@ -234,6 +233,7 @@ int MuseAthena::prepare_session ()
         res = (int)BrainFlowExitCodes::BOARD_NOT_READY_ERROR;
     }
     simpleble_adapter_scan_stop (muse_adapter);
+    simpleble_adapter_set_callback_on_scan_found (muse_adapter, NULL, NULL);
     if (res == (int)BrainFlowExitCodes::STATUS_OK)
     {
         // for safety
@@ -570,7 +570,9 @@ void MuseAthena::adapter_on_scan_found (
         }
         else
         {
-            if (strncmp (peripheral_identified, "MuseS", 5) == 0)
+            if ((strncmp (peripheral_identified, "MuseS", 5) == 0) ||
+                (strncmp (peripheral_identified, "MuseAthena", 10) == 0) ||
+                (strncmp (peripheral_identified, "Muse Athena", 11) == 0))
             {
                 found = true;
             }

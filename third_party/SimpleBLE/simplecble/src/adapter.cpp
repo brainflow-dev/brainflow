@@ -372,12 +372,16 @@ simpleble_err_t simpleble_adapter_set_callback_on_scan_updated(
 
 simpleble_err_t simpleble_adapter_set_callback_on_scan_found(
     simpleble_adapter_t handle, void (*callback)(simpleble_adapter_t, simpleble_peripheral_t, void*), void* userdata) {
-    if (handle == nullptr || callback == nullptr) {
+    if (handle == nullptr) {
         return SIMPLEBLE_FAILURE;
     }
 
     SimpleBLE::Adapter* adapter = (SimpleBLE::Adapter*)handle;
     try {
+        if (callback == nullptr) {
+            adapter->set_callback_on_scan_found(nullptr);
+            return SIMPLEBLE_SUCCESS;
+        }
         adapter->set_callback_on_scan_found([=](SimpleBLE::Peripheral peripheral) {
             SimpleBLE::Peripheral* peripheral_handle = new SimpleBLE::Peripheral(peripheral);
             callback(handle, (simpleble_peripheral_t)peripheral_handle, userdata);

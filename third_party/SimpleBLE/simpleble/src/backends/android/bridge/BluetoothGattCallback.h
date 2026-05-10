@@ -21,6 +21,7 @@ class BluetoothGattCallback {
 
     void set_callback_onConnectionStateChange(std::function<void(bool)> callback);
     void set_callback_onServicesDiscovered(std::function<void(void)> callback);
+    void set_callback_onMtuChanged(std::function<void(void)> callback);
 
     void set_callback_onCharacteristicChanged(SimpleJNI::Object<SimpleJNI::GlobalRef, jobject> characteristic,
                                               std::function<void(std::vector<uint8_t> value)> callback);
@@ -31,15 +32,18 @@ class BluetoothGattCallback {
     void wait_flag_characteristicWritePending(SimpleJNI::Object<SimpleJNI::GlobalRef, jobject> characteristic);
 
     void set_flag_characteristicReadPending(SimpleJNI::Object<SimpleJNI::GlobalRef, jobject> characteristic);
-    void clear_flag_characteristicReadPending(SimpleJNI::Object<SimpleJNI::GlobalRef, jobject> characteristic, std::vector<uint8_t> value);
-    std::vector<uint8_t> wait_flag_characteristicReadPending(SimpleJNI::Object<SimpleJNI::GlobalRef, jobject> characteristic);
+    void clear_flag_characteristicReadPending(SimpleJNI::Object<SimpleJNI::GlobalRef, jobject> characteristic,
+                                              std::vector<uint8_t> value);
+    std::vector<uint8_t> wait_flag_characteristicReadPending(
+        SimpleJNI::Object<SimpleJNI::GlobalRef, jobject> characteristic);
 
     void set_flag_descriptorWritePending(SimpleJNI::Object<SimpleJNI::GlobalRef, jobject> descriptor);
     void clear_flag_descriptorWritePending(SimpleJNI::Object<SimpleJNI::GlobalRef, jobject> descriptor);
     void wait_flag_descriptorWritePending(SimpleJNI::Object<SimpleJNI::GlobalRef, jobject> descriptor);
 
     void set_flag_descriptorReadPending(SimpleJNI::Object<SimpleJNI::GlobalRef, jobject> descriptor);
-    void clear_flag_descriptorReadPending(SimpleJNI::Object<SimpleJNI::GlobalRef, jobject> descriptor, std::vector<uint8_t> value);
+    void clear_flag_descriptorReadPending(SimpleJNI::Object<SimpleJNI::GlobalRef, jobject> descriptor,
+                                          std::vector<uint8_t> value);
     std::vector<uint8_t> wait_flag_descriptorReadPending(SimpleJNI::Object<SimpleJNI::GlobalRef, jobject> descriptor);
 
     bool connected;
@@ -77,20 +81,32 @@ class BluetoothGattCallback {
     static SimpleJNI::GlobalRef<jclass> _cls;
     static jmethodID _constructor;
 
-    static kvn::safe_map<SimpleJNI::Object<SimpleJNI::GlobalRef, jobject>, BluetoothGattCallback*, SimpleJNI::ObjectComparator<SimpleJNI::GlobalRef, jobject>> _map;
+    static kvn::safe_map<SimpleJNI::Object<SimpleJNI::GlobalRef, jobject>, BluetoothGattCallback*,
+                         SimpleJNI::ObjectComparator<SimpleJNI::GlobalRef, jobject>>
+        _map;
 
     SimpleJNI::Object<SimpleJNI::GlobalRef, jobject> _obj;
 
     kvn::safe_callback<void(bool)> _callback_onConnectionStateChange;
     kvn::safe_callback<void()> _callback_onServicesDiscovered;
+    kvn::safe_callback<void()> _callback_onMtuChanged;
 
-    kvn::safe_map<SimpleJNI::Object<SimpleJNI::GlobalRef, jobject>, kvn::safe_callback<void(std::vector<uint8_t>)>, SimpleJNI::ObjectComparator<SimpleJNI::GlobalRef, jobject>>
+    kvn::safe_map<SimpleJNI::Object<SimpleJNI::GlobalRef, jobject>, kvn::safe_callback<void(std::vector<uint8_t>)>,
+                  SimpleJNI::ObjectComparator<SimpleJNI::GlobalRef, jobject>>
         _callback_onCharacteristicChanged;
 
-    kvn::safe_map<SimpleJNI::Object<SimpleJNI::GlobalRef, jobject>, FlagData, SimpleJNI::ObjectComparator<SimpleJNI::GlobalRef, jobject>> _flag_characteristicWritePending;
-    kvn::safe_map<SimpleJNI::Object<SimpleJNI::GlobalRef, jobject>, FlagData, SimpleJNI::ObjectComparator<SimpleJNI::GlobalRef, jobject>> _flag_characteristicReadPending;
-    kvn::safe_map<SimpleJNI::Object<SimpleJNI::GlobalRef, jobject>, FlagData, SimpleJNI::ObjectComparator<SimpleJNI::GlobalRef, jobject>> _flag_descriptorWritePending;
-    kvn::safe_map<SimpleJNI::Object<SimpleJNI::GlobalRef, jobject>, FlagData, SimpleJNI::ObjectComparator<SimpleJNI::GlobalRef, jobject>> _flag_descriptorReadPending;
+    kvn::safe_map<SimpleJNI::Object<SimpleJNI::GlobalRef, jobject>, FlagData,
+                  SimpleJNI::ObjectComparator<SimpleJNI::GlobalRef, jobject>>
+        _flag_characteristicWritePending;
+    kvn::safe_map<SimpleJNI::Object<SimpleJNI::GlobalRef, jobject>, FlagData,
+                  SimpleJNI::ObjectComparator<SimpleJNI::GlobalRef, jobject>>
+        _flag_characteristicReadPending;
+    kvn::safe_map<SimpleJNI::Object<SimpleJNI::GlobalRef, jobject>, FlagData,
+                  SimpleJNI::ObjectComparator<SimpleJNI::GlobalRef, jobject>>
+        _flag_descriptorWritePending;
+    kvn::safe_map<SimpleJNI::Object<SimpleJNI::GlobalRef, jobject>, FlagData,
+                  SimpleJNI::ObjectComparator<SimpleJNI::GlobalRef, jobject>>
+        _flag_descriptorReadPending;
 
     // Static JNI resources managed by Registrar
     static const SimpleJNI::JNIDescriptor descriptor;

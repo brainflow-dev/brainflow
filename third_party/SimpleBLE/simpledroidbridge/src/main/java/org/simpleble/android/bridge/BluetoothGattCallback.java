@@ -11,31 +11,29 @@ public class BluetoothGattCallback extends android.bluetooth.BluetoothGattCallba
 
     @Override
     public void onCharacteristicChanged(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic) {
-        // NOTE: This method has been deprecated on API 33, but we're still using API 31, so we need to support this.
+        // NOTE: This method is deprecated on API 33, but older Android versions still call it.
         super.onCharacteristicChanged(gatt, characteristic);
         onCharacteristicChangedCallback(gatt, characteristic, characteristic.getValue());
     }
 
-    // @Override
-    // public void onCharacteristicChanged(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic, byte[] value) {
-    //     // NOTE: This method is only available from API 33 onwards.
-    //     super.onCharacteristicChanged(gatt, characteristic, value);
-    //     onCharacteristicChangedCallback(gatt, characteristic, value);
-    // }
+    @Override
+    public void onCharacteristicChanged(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic, byte[] value) {
+        // The API 33 default implementation forwards to the deprecated overload.
+        onCharacteristicChangedCallback(gatt, characteristic, value);
+    }
 
     @Override
     public void onCharacteristicRead(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic, int status) {
-        // NOTE: This method has been deprecated on API 33, but we're still using API 31, so we need to support this.
+        // NOTE: This method is deprecated on API 33, but older Android versions still call it.
         super.onCharacteristicRead(gatt, characteristic, status);
         onCharacteristicReadCallback(gatt, characteristic, characteristic.getValue(), status);
     }
 
-    // @Override
-    // public void onCharacteristicRead(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic, byte[] value, int status) {
-    //     // NOTE: This method is only available from API 33 onwards.
-    //     super.onCharacteristicRead(gatt, characteristic, value, status);
-    //     onCharacteristicReadCallback(gatt, characteristic, value, status);
-    // }
+    @Override
+    public void onCharacteristicRead(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic, byte[] value, int status) {
+        // The API 33 default implementation forwards to the deprecated overload.
+        onCharacteristicReadCallback(gatt, characteristic, value, status);
+    }
 
     @Override
     public void onCharacteristicWrite(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic, int status) {
@@ -49,20 +47,18 @@ public class BluetoothGattCallback extends android.bluetooth.BluetoothGattCallba
         onConnectionStateChangeCallback(gatt, status, newState);
     }
 
-    // NOTE: This method is only available from API 33 onwards
     @Override
     public void onDescriptorRead(BluetoothGatt gatt, BluetoothGattDescriptor descriptor, int status) {
-        // NOTE: This method has been deprecated on API 33, but we're still using API 31, so we need to support this.
+        // NOTE: This method is deprecated on API 33, but older Android versions still call it.
         super.onDescriptorRead(gatt, descriptor, status);
         onDescriptorReadCallback(gatt, descriptor, descriptor.getValue(), status);
     }
 
-    // @Override
-    // public void onDescriptorRead(BluetoothGatt gatt, BluetoothGattDescriptor descriptor, int status, byte[] value) {
-    //     // NOTE: This method is only available from API 33 onwards.
-    //     super.onDescriptorRead(gatt, descriptor, status, value);
-    //     onDescriptorReadCallback(gatt, descriptor, value, status);
-    // }
+    @Override
+    public void onDescriptorRead(BluetoothGatt gatt, BluetoothGattDescriptor descriptor, int status, byte[] value) {
+        // The API 33 default implementation forwards to the deprecated overload.
+        onDescriptorReadCallback(gatt, descriptor, value, status);
+    }
 
     @Override
     public void onDescriptorWrite(BluetoothGatt gatt, BluetoothGattDescriptor descriptor, int status) {

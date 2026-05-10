@@ -18,6 +18,10 @@ bool AdapterAndroid::bluetooth_enabled() { return BackendAndroid::get()->bluetoo
 
 AdapterAndroid::AdapterAndroid() {
     _btScanCallback.set_callback_onScanResult([this](Android::ScanResult scan_result) {
+        if (!this->scanning_) {
+            return;
+        }
+
         std::string address = scan_result.getDevice().getAddress();
 
         if (this->peripherals_.count(address) == 0) {
@@ -68,14 +72,14 @@ bool AdapterAndroid::is_powered() { return _btAdapter.isEnabled(); }
 
 void AdapterAndroid::scan_start() {
     seen_peripherals_.clear();
-    _btScanner.startScan(_btScanCallback);
     scanning_ = true;
+    _btScanner.startScan(_btScanCallback);
     SAFE_CALLBACK_CALL(this->_callback_on_scan_start);
 }
 
 void AdapterAndroid::scan_stop() {
-    _btScanner.stopScan(_btScanCallback);
     scanning_ = false;
+    _btScanner.stopScan(_btScanCallback);
     SAFE_CALLBACK_CALL(this->_callback_on_scan_stop);
 }
 

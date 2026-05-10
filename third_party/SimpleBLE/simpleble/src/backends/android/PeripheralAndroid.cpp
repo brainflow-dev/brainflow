@@ -6,8 +6,8 @@
 #include "DescriptorBase.h"
 #include "ServiceBase.h"
 
-#include <simpleble/Exceptions.h>
 #include <simpleble/Config.h>
+#include <simpleble/Exceptions.h>
 #include <algorithm>
 #include "CommonUtils.h"
 #include "LoggingInternal.h"
@@ -16,6 +16,10 @@
 using namespace SimpleBLE;
 using namespace std::chrono_literals;
 
+namespace {
+constexpr int ANDROID_REQUESTED_MTU = 517;
+}
+
 PeripheralAndroid::PeripheralAndroid(Android::BluetoothDevice device) : _device(device) {
     _btGattCallback.set_callback_onConnectionStateChange([this](bool connected) {
         if (connected) {
@@ -23,8 +27,10 @@ PeripheralAndroid::PeripheralAndroid(Android::BluetoothDevice device) : _device(
                 _gatt.requestConnectionPriority(static_cast<int>(Config::Android::connection_priority_request));
             }
 
-            // If a connection has been established, request service discovery.
-            _gatt.discoverServices();
+            if (!_gatt.requestMtu(ANDROID_REQUESTED_MTU)) {
+                SIMPLEBLE_LOG_WARN("Failed to request Android GATT MTU");
+                _gatt.discoverServices();
+            }
         } else {
             // If a connection has been lost, close the GATT object.
             _gatt.close();
@@ -32,6 +38,8 @@ PeripheralAndroid::PeripheralAndroid(Android::BluetoothDevice device) : _device(
             _disconnection_cv.notify_all();
         }
     });
+
+    _btGattCallback.set_callback_onMtuChanged([this]() { _gatt.discoverServices(); });
 
     _btGattCallback.set_callback_onServicesDiscovered([this]() {
         // Once services have been discovered, store them and notify the user.

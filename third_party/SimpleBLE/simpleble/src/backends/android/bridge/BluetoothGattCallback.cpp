@@ -1,8 +1,8 @@
 #include "BluetoothGattCallback.h"
 #include <CommonUtils.h>
 
-#include <simplejni/Common.hpp>
 #include <climits>
+#include <simplejni/Common.hpp>
 #include "LoggingInternal.h"
 
 namespace SimpleBLE {
@@ -11,14 +11,17 @@ namespace Bridge {
 
 SimpleJNI::GlobalRef<jclass> BluetoothGattCallback::_cls;
 jmethodID BluetoothGattCallback::_constructor = nullptr;
-kvn::safe_map<SimpleJNI::Object<SimpleJNI::GlobalRef, jobject>, BluetoothGattCallback*, SimpleJNI::ObjectComparator<SimpleJNI::GlobalRef, jobject>> BluetoothGattCallback::_map;
+kvn::safe_map<SimpleJNI::Object<SimpleJNI::GlobalRef, jobject>, BluetoothGattCallback*,
+              SimpleJNI::ObjectComparator<SimpleJNI::GlobalRef, jobject>>
+    BluetoothGattCallback::_map;
 
 // Define the JNI descriptor
 const SimpleJNI::JNIDescriptor BluetoothGattCallback::descriptor{
-    "org/simpleble/android/bridge/BluetoothGattCallback", // Java class name
-    &_cls,                                                // Where to store the jclass
-    {                                                     // Methods to preload
-     {"<init>", "()V", &_constructor}                     // Constructor
+    "org/simpleble/android/bridge/BluetoothGattCallback",  // Java class name
+    &_cls,                                                 // Where to store the jclass
+    {
+        // Methods to preload
+        {"<init>", "()V", &_constructor}  // Constructor
     }};
 
 const SimpleJNI::AutoRegister<BluetoothGattCallback> BluetoothGattCallback::registrar{&descriptor};
@@ -35,7 +38,8 @@ const SimpleJNI::AutoRegister<BluetoothGattCallback> BluetoothGattCallback::regi
 
 BluetoothGattCallback::BluetoothGattCallback() : connected(false), services_discovered(false), mtu(UINT16_MAX) {
     if (!_cls.get()) {
-        throw std::runtime_error("BluetoothGattCallback JNI resources not preloaded. Ensure SimpleJNI::Registrar::preload() is called.");
+        throw std::runtime_error(
+            "BluetoothGattCallback JNI resources not preloaded. Ensure SimpleJNI::Registrar::preload() is called.");
     }
 
     SimpleJNI::Env env;
@@ -68,8 +72,17 @@ void BluetoothGattCallback::set_callback_onServicesDiscovered(std::function<void
     }
 }
 
-void BluetoothGattCallback::set_callback_onCharacteristicChanged(SimpleJNI::Object<SimpleJNI::GlobalRef, jobject> characteristic,
-                                                                 std::function<void(std::vector<uint8_t>)> callback) {
+void BluetoothGattCallback::set_callback_onMtuChanged(std::function<void(void)> callback) {
+    if (callback) {
+        _callback_onMtuChanged.load(callback);
+    } else {
+        _callback_onMtuChanged.unload();
+    }
+}
+
+void BluetoothGattCallback::set_callback_onCharacteristicChanged(
+    SimpleJNI::Object<SimpleJNI::GlobalRef, jobject> characteristic,
+    std::function<void(std::vector<uint8_t>)> callback) {
     if (callback) {
         _callback_onCharacteristicChanged[characteristic].load(callback);
     } else {
@@ -77,18 +90,21 @@ void BluetoothGattCallback::set_callback_onCharacteristicChanged(SimpleJNI::Obje
     }
 }
 
-void BluetoothGattCallback::clear_callback_onCharacteristicChanged(SimpleJNI::Object<SimpleJNI::GlobalRef, jobject> characteristic) {
+void BluetoothGattCallback::clear_callback_onCharacteristicChanged(
+    SimpleJNI::Object<SimpleJNI::GlobalRef, jobject> characteristic) {
     _callback_onCharacteristicChanged[characteristic].unload();
 }
 
-void BluetoothGattCallback::set_flag_characteristicWritePending(SimpleJNI::Object<SimpleJNI::GlobalRef, jobject> characteristic) {
+void BluetoothGattCallback::set_flag_characteristicWritePending(
+    SimpleJNI::Object<SimpleJNI::GlobalRef, jobject> characteristic) {
     auto& flag_data = _flag_characteristicWritePending[characteristic];
 
     std::lock_guard<std::mutex> lock(flag_data.mtx);
     flag_data.flag = true;
 }
 
-void BluetoothGattCallback::clear_flag_characteristicWritePending(SimpleJNI::Object<SimpleJNI::GlobalRef, jobject> characteristic) {
+void BluetoothGattCallback::clear_flag_characteristicWritePending(
+    SimpleJNI::Object<SimpleJNI::GlobalRef, jobject> characteristic) {
     auto& flag_data = _flag_characteristicWritePending[characteristic];
     {
         std::lock_guard<std::mutex> lock(flag_data.mtx);
@@ -97,7 +113,8 @@ void BluetoothGattCallback::clear_flag_characteristicWritePending(SimpleJNI::Obj
     flag_data.cv.notify_all();
 }
 
-void BluetoothGattCallback::wait_flag_characteristicWritePending(SimpleJNI::Object<SimpleJNI::GlobalRef, jobject> characteristic) {
+void BluetoothGattCallback::wait_flag_characteristicWritePending(
+    SimpleJNI::Object<SimpleJNI::GlobalRef, jobject> characteristic) {
     auto& flag_data = _flag_characteristicWritePending[characteristic];
     std::unique_lock<std::mutex> lock(flag_data.mtx);
     flag_data.cv.wait_for(lock, std::chrono::seconds(5), [&flag_data] { return !flag_data.flag; });
@@ -108,15 +125,16 @@ void BluetoothGattCallback::wait_flag_characteristicWritePending(SimpleJNI::Obje
     }
 }
 
-void BluetoothGattCallback::set_flag_characteristicReadPending(SimpleJNI::Object<SimpleJNI::GlobalRef, jobject> characteristic) {
+void BluetoothGattCallback::set_flag_characteristicReadPending(
+    SimpleJNI::Object<SimpleJNI::GlobalRef, jobject> characteristic) {
     auto& flag_data = _flag_characteristicReadPending[characteristic];
 
     std::lock_guard<std::mutex> lock(flag_data.mtx);
     flag_data.flag = true;
 }
 
-void BluetoothGattCallback::clear_flag_characteristicReadPending(SimpleJNI::Object<SimpleJNI::GlobalRef, jobject> characteristic,
-                                                                 std::vector<uint8_t> value) {
+void BluetoothGattCallback::clear_flag_characteristicReadPending(
+    SimpleJNI::Object<SimpleJNI::GlobalRef, jobject> characteristic, std::vector<uint8_t> value) {
     auto& flag_data = _flag_characteristicReadPending[characteristic];
     {
         std::lock_guard<std::mutex> lock(flag_data.mtx);
@@ -126,7 +144,8 @@ void BluetoothGattCallback::clear_flag_characteristicReadPending(SimpleJNI::Obje
     flag_data.cv.notify_all();
 }
 
-std::vector<uint8_t> BluetoothGattCallback::wait_flag_characteristicReadPending(SimpleJNI::Object<SimpleJNI::GlobalRef, jobject> characteristic) {
+std::vector<uint8_t> BluetoothGattCallback::wait_flag_characteristicReadPending(
+    SimpleJNI::Object<SimpleJNI::GlobalRef, jobject> characteristic) {
     auto& flag_data = _flag_characteristicReadPending[characteristic];
     std::unique_lock<std::mutex> lock(flag_data.mtx);
     flag_data.cv.wait_for(lock, std::chrono::seconds(5), [&flag_data] { return !flag_data.flag; });
@@ -139,14 +158,16 @@ std::vector<uint8_t> BluetoothGattCallback::wait_flag_characteristicReadPending(
     return flag_data.value;
 }
 
-void BluetoothGattCallback::set_flag_descriptorWritePending(SimpleJNI::Object<SimpleJNI::GlobalRef, jobject> descriptor) {
+void BluetoothGattCallback::set_flag_descriptorWritePending(
+    SimpleJNI::Object<SimpleJNI::GlobalRef, jobject> descriptor) {
     auto& flag_data = _flag_descriptorWritePending[descriptor];
 
     std::lock_guard<std::mutex> lock(flag_data.mtx);
     flag_data.flag = true;
 }
 
-void BluetoothGattCallback::clear_flag_descriptorWritePending(SimpleJNI::Object<SimpleJNI::GlobalRef, jobject> descriptor) {
+void BluetoothGattCallback::clear_flag_descriptorWritePending(
+    SimpleJNI::Object<SimpleJNI::GlobalRef, jobject> descriptor) {
     auto& flag_data = _flag_descriptorWritePending[descriptor];
     {
         std::lock_guard<std::mutex> lock(flag_data.mtx);
@@ -155,7 +176,8 @@ void BluetoothGattCallback::clear_flag_descriptorWritePending(SimpleJNI::Object<
     flag_data.cv.notify_all();
 }
 
-void BluetoothGattCallback::wait_flag_descriptorWritePending(SimpleJNI::Object<SimpleJNI::GlobalRef, jobject> descriptor) {
+void BluetoothGattCallback::wait_flag_descriptorWritePending(
+    SimpleJNI::Object<SimpleJNI::GlobalRef, jobject> descriptor) {
     auto& flag_data = _flag_descriptorWritePending[descriptor];
     std::unique_lock<std::mutex> lock(flag_data.mtx);
     flag_data.cv.wait_for(lock, std::chrono::seconds(5), [&flag_data] { return !flag_data.flag; });
@@ -166,14 +188,16 @@ void BluetoothGattCallback::wait_flag_descriptorWritePending(SimpleJNI::Object<S
     }
 }
 
-void BluetoothGattCallback::set_flag_descriptorReadPending(SimpleJNI::Object<SimpleJNI::GlobalRef, jobject> descriptor) {
+void BluetoothGattCallback::set_flag_descriptorReadPending(
+    SimpleJNI::Object<SimpleJNI::GlobalRef, jobject> descriptor) {
     auto& flag_data = _flag_descriptorReadPending[descriptor];
 
     std::lock_guard<std::mutex> lock(flag_data.mtx);
     flag_data.flag = true;
 }
 
-void BluetoothGattCallback::clear_flag_descriptorReadPending(SimpleJNI::Object<SimpleJNI::GlobalRef, jobject> descriptor, std::vector<uint8_t> value) {
+void BluetoothGattCallback::clear_flag_descriptorReadPending(
+    SimpleJNI::Object<SimpleJNI::GlobalRef, jobject> descriptor, std::vector<uint8_t> value) {
     auto& flag_data = _flag_descriptorReadPending[descriptor];
     {
         std::lock_guard<std::mutex> lock(flag_data.mtx);
@@ -183,7 +207,8 @@ void BluetoothGattCallback::clear_flag_descriptorReadPending(SimpleJNI::Object<S
     flag_data.cv.notify_all();
 }
 
-std::vector<uint8_t> BluetoothGattCallback::wait_flag_descriptorReadPending(SimpleJNI::Object<SimpleJNI::GlobalRef, jobject> descriptor) {
+std::vector<uint8_t> BluetoothGattCallback::wait_flag_descriptorReadPending(
+    SimpleJNI::Object<SimpleJNI::GlobalRef, jobject> descriptor) {
     auto& flag_data = _flag_descriptorReadPending[descriptor];
     std::unique_lock<std::mutex> lock(flag_data.mtx);
     flag_data.cv.wait_for(lock, std::chrono::seconds(5), [&flag_data] { return !flag_data.flag; });
@@ -198,7 +223,8 @@ std::vector<uint8_t> BluetoothGattCallback::wait_flag_descriptorReadPending(Simp
 
 // JNI Callbacks
 
-void BluetoothGattCallback::jni_onConnectionStateChangeCallback(SimpleJNI::Object<SimpleJNI::GlobalRef, jobject> thiz_obj, jint status, jint new_state) {
+void BluetoothGattCallback::jni_onConnectionStateChangeCallback(
+    SimpleJNI::Object<SimpleJNI::GlobalRef, jobject> thiz_obj, jint status, jint new_state) {
     auto msg = fmt::format("onConnectionStateChangeCallback status: {} new_state: {}", status, new_state);
     SIMPLEBLE_LOG_INFO(msg);
 
@@ -208,7 +234,8 @@ void BluetoothGattCallback::jni_onConnectionStateChangeCallback(SimpleJNI::Objec
     SAFE_CALLBACK_CALL(obj->_callback_onConnectionStateChange, connected);
 }
 
-void BluetoothGattCallback::jni_onServicesDiscoveredCallback(SimpleJNI::Object<SimpleJNI::GlobalRef, jobject> thiz_obj, jint status) {
+void BluetoothGattCallback::jni_onServicesDiscoveredCallback(SimpleJNI::Object<SimpleJNI::GlobalRef, jobject> thiz_obj,
+                                                             jint status) {
     auto msg = "onServicesDiscoveredCallback";
     SIMPLEBLE_LOG_INFO(msg);
 
@@ -225,8 +252,10 @@ void BluetoothGattCallback::jni_onServiceChangedCallback(SimpleJNI::Object<Simpl
     BluetoothGattCallback* obj = GET_CALLBACK_OBJECT_OR_RETURN(thiz_obj);
 }
 
-void BluetoothGattCallback::jni_onCharacteristicChangedCallback(SimpleJNI::Object<SimpleJNI::GlobalRef, jobject> thiz_obj, SimpleJNI::Object<SimpleJNI::GlobalRef, jobject> characteristic_obj,
-                                                                SimpleJNI::ByteArray<SimpleJNI::GlobalRef> value) {
+void BluetoothGattCallback::jni_onCharacteristicChangedCallback(
+    SimpleJNI::Object<SimpleJNI::GlobalRef, jobject> thiz_obj,
+    SimpleJNI::Object<SimpleJNI::GlobalRef, jobject> characteristic_obj,
+    SimpleJNI::ByteArray<SimpleJNI::GlobalRef> value) {
     auto msg = "onCharacteristicChangedCallback with value: " + value.bytes().toHex(true);
     SIMPLEBLE_LOG_INFO(msg);
 
@@ -237,8 +266,10 @@ void BluetoothGattCallback::jni_onCharacteristicChangedCallback(SimpleJNI::Objec
     }
 }
 
-void BluetoothGattCallback::jni_onCharacteristicReadCallback(SimpleJNI::Object<SimpleJNI::GlobalRef, jobject> thiz_obj, SimpleJNI::Object<SimpleJNI::GlobalRef, jobject> characteristic_obj,
-                                                             SimpleJNI::ByteArray<SimpleJNI::GlobalRef> value, jint status) {
+void BluetoothGattCallback::jni_onCharacteristicReadCallback(
+    SimpleJNI::Object<SimpleJNI::GlobalRef, jobject> thiz_obj,
+    SimpleJNI::Object<SimpleJNI::GlobalRef, jobject> characteristic_obj,
+    SimpleJNI::ByteArray<SimpleJNI::GlobalRef> value, jint status) {
     auto msg = "onCharacteristicReadCallback";
     SIMPLEBLE_LOG_INFO(msg);
 
@@ -246,8 +277,9 @@ void BluetoothGattCallback::jni_onCharacteristicReadCallback(SimpleJNI::Object<S
     obj->clear_flag_characteristicReadPending(characteristic_obj, value.bytes());
 }
 
-void BluetoothGattCallback::jni_onCharacteristicWriteCallback(SimpleJNI::Object<SimpleJNI::GlobalRef, jobject> thiz_obj, SimpleJNI::Object<SimpleJNI::GlobalRef, jobject> characteristic_obj,
-                                                              jint status) {
+void BluetoothGattCallback::jni_onCharacteristicWriteCallback(
+    SimpleJNI::Object<SimpleJNI::GlobalRef, jobject> thiz_obj,
+    SimpleJNI::Object<SimpleJNI::GlobalRef, jobject> characteristic_obj, jint status) {
     auto msg = "onCharacteristicWriteCallback";
     SIMPLEBLE_LOG_INFO(msg);
 
@@ -255,8 +287,10 @@ void BluetoothGattCallback::jni_onCharacteristicWriteCallback(SimpleJNI::Object<
     obj->clear_flag_characteristicWritePending(characteristic_obj);
 }
 
-void BluetoothGattCallback::jni_onDescriptorReadCallback(SimpleJNI::Object<SimpleJNI::GlobalRef, jobject> thiz_obj, SimpleJNI::Object<SimpleJNI::GlobalRef, jobject> descriptor_obj,
-                                                         SimpleJNI::ByteArray<SimpleJNI::GlobalRef> value, jint status) {
+void BluetoothGattCallback::jni_onDescriptorReadCallback(
+    SimpleJNI::Object<SimpleJNI::GlobalRef, jobject> thiz_obj,
+    SimpleJNI::Object<SimpleJNI::GlobalRef, jobject> descriptor_obj, SimpleJNI::ByteArray<SimpleJNI::GlobalRef> value,
+    jint status) {
     auto msg = "onDescriptorReadCallback";
     SIMPLEBLE_LOG_INFO(msg);
 
@@ -264,8 +298,9 @@ void BluetoothGattCallback::jni_onDescriptorReadCallback(SimpleJNI::Object<Simpl
     obj->clear_flag_descriptorReadPending(descriptor_obj, value.bytes());
 }
 
-void BluetoothGattCallback::jni_onDescriptorWriteCallback(SimpleJNI::Object<SimpleJNI::GlobalRef, jobject> thiz_obj, SimpleJNI::Object<SimpleJNI::GlobalRef, jobject> descriptor_obj,
-                                                          jint status) {
+void BluetoothGattCallback::jni_onDescriptorWriteCallback(
+    SimpleJNI::Object<SimpleJNI::GlobalRef, jobject> thiz_obj,
+    SimpleJNI::Object<SimpleJNI::GlobalRef, jobject> descriptor_obj, jint status) {
     auto msg = "onDescriptorWriteCallback";
     SIMPLEBLE_LOG_INFO(msg);
 
@@ -273,36 +308,42 @@ void BluetoothGattCallback::jni_onDescriptorWriteCallback(SimpleJNI::Object<Simp
     obj->clear_flag_descriptorWritePending(descriptor_obj);
 }
 
-void BluetoothGattCallback::jni_onMtuChangedCallback(SimpleJNI::Object<SimpleJNI::GlobalRef, jobject> thiz_obj, jint mtu, jint status) {
-    auto msg = "onMtuChangedCallback";
+void BluetoothGattCallback::jni_onMtuChangedCallback(SimpleJNI::Object<SimpleJNI::GlobalRef, jobject> thiz_obj,
+                                                     jint mtu, jint status) {
+    auto msg = fmt::format("onMtuChangedCallback mtu: {} status: {}", mtu, status);
     SIMPLEBLE_LOG_INFO(msg);
 
     BluetoothGattCallback* obj = GET_CALLBACK_OBJECT_OR_RETURN(thiz_obj);
     obj->mtu = mtu;
+    SAFE_CALLBACK_CALL(obj->_callback_onMtuChanged);
 }
 
-void BluetoothGattCallback::jni_onPhyReadCallback(SimpleJNI::Object<SimpleJNI::GlobalRef, jobject> thiz_obj, jint tx_phy, jint rx_phy, jint status) {
+void BluetoothGattCallback::jni_onPhyReadCallback(SimpleJNI::Object<SimpleJNI::GlobalRef, jobject> thiz_obj,
+                                                  jint tx_phy, jint rx_phy, jint status) {
     auto msg = "onPhyReadCallback";
     SIMPLEBLE_LOG_INFO(msg);
 
     BluetoothGattCallback* obj = GET_CALLBACK_OBJECT_OR_RETURN(thiz_obj);
 }
 
-void BluetoothGattCallback::jni_onPhyUpdateCallback(SimpleJNI::Object<SimpleJNI::GlobalRef, jobject> thiz_obj, jint tx_phy, jint rx_phy, jint status) {
+void BluetoothGattCallback::jni_onPhyUpdateCallback(SimpleJNI::Object<SimpleJNI::GlobalRef, jobject> thiz_obj,
+                                                    jint tx_phy, jint rx_phy, jint status) {
     auto msg = "onPhyUpdateCallback";
     SIMPLEBLE_LOG_INFO(msg);
 
     BluetoothGattCallback* obj = GET_CALLBACK_OBJECT_OR_RETURN(thiz_obj);
 }
 
-void BluetoothGattCallback::jni_onReadRemoteRssiCallback(SimpleJNI::Object<SimpleJNI::GlobalRef, jobject> thiz_obj, jint rssi, jint status) {
+void BluetoothGattCallback::jni_onReadRemoteRssiCallback(SimpleJNI::Object<SimpleJNI::GlobalRef, jobject> thiz_obj,
+                                                         jint rssi, jint status) {
     auto msg = "onReadRemoteRssiCallback";
     SIMPLEBLE_LOG_INFO(msg);
 
     BluetoothGattCallback* obj = GET_CALLBACK_OBJECT_OR_RETURN(thiz_obj);
 }
 
-void BluetoothGattCallback::jni_onReliableWriteCompletedCallback(SimpleJNI::Object<SimpleJNI::GlobalRef, jobject> thiz_obj, jint status) {
+void BluetoothGattCallback::jni_onReliableWriteCompletedCallback(
+    SimpleJNI::Object<SimpleJNI::GlobalRef, jobject> thiz_obj, jint status) {
     auto msg = "onReliableWriteCompletedCallback";
     SIMPLEBLE_LOG_INFO(msg);
 
