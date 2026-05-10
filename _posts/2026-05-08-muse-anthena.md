@@ -1,6 +1,6 @@
 ---
 layout: post
-title: BrainFlow 5.21.0
+title: BrainFlow 5.22.0
 subtitle: Support for Muse S Anthena and runtime board sampling rates
 tags: [release]
 image: /img/MuseAnthena.png
