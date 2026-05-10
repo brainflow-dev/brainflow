@@ -149,8 +149,7 @@ void athena_peripheral_on_data (simpleble_peripheral_t peripheral, simpleble_uui
 void athena_peripheral_on_status (simpleble_peripheral_t peripheral, simpleble_uuid_t service,
     simpleble_uuid_t characteristic, const uint8_t *data, size_t size, void *board)
 {
-    ((MuseAthena *)(board))
-        ->peripheral_on_status (peripheral, service, characteristic, data, size);
+    ((MuseAthena *)(board))->peripheral_on_status (peripheral, service, characteristic, data, size);
 }
 
 MuseAthena::MuseAthena (int board_id, struct BrainFlowInputParams params)
