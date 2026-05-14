@@ -61,7 +61,7 @@ def main():
             while True:
                 time.sleep(1)
     except KeyboardInterrupt:
-        pass
+        print('Streaming interrupted by user, stopping session.')
     finally:
         if streaming:
             board.stop_stream()

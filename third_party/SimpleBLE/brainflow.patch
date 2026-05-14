@@ -588,31 +588,29 @@ index e9ac75ee..435468c5 100644
 @@ -14 +14 @@ public class BluetoothGattCallback extends android.bluetooth.BluetoothGattCallba
 -        // NOTE: This method has been deprecated on API 33, but we're still using API 31, so we need to support this.
 +        // NOTE: This method is deprecated on API 33, but older Android versions still call it.
-@@ -19,6 +19,5 @@ public class BluetoothGattCallback extends android.bluetooth.BluetoothGattCallba
+@@ -19,6 +19,4 @@ public class BluetoothGattCallback extends android.bluetooth.BluetoothGattCallba
 -    // @Override
 -    // public void onCharacteristicChanged(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic, byte[] value) {
 -    //     // NOTE: This method is only available from API 33 onwards.
 -    //     super.onCharacteristicChanged(gatt, characteristic, value);
 -    //     onCharacteristicChangedCallback(gatt, characteristic, value);
 -    // }
-+    @Override
 +    public void onCharacteristicChanged(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic, byte[] value) {
-+        // The API 33 default implementation forwards to the deprecated overload.
++        // API 33+ calls this overload directly; older android.jar versions do not declare it.
 +        onCharacteristicChangedCallback(gatt, characteristic, value);
 +    }
 @@ -28 +27 @@ public class BluetoothGattCallback extends android.bluetooth.BluetoothGattCallba
 -        // NOTE: This method has been deprecated on API 33, but we're still using API 31, so we need to support this.
 +        // NOTE: This method is deprecated on API 33, but older Android versions still call it.
-@@ -33,6 +32,5 @@ public class BluetoothGattCallback extends android.bluetooth.BluetoothGattCallba
+@@ -33,6 +32,4 @@ public class BluetoothGattCallback extends android.bluetooth.BluetoothGattCallba
 -    // @Override
 -    // public void onCharacteristicRead(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic, byte[] value, int status) {
 -    //     // NOTE: This method is only available from API 33 onwards.
 -    //     super.onCharacteristicRead(gatt, characteristic, value, status);
 -    //     onCharacteristicReadCallback(gatt, characteristic, value, status);
 -    // }
-+    @Override
 +    public void onCharacteristicRead(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic, byte[] value, int status) {
-+        // The API 33 default implementation forwards to the deprecated overload.
++        // API 33+ calls this overload directly; older android.jar versions do not declare it.
 +        onCharacteristicReadCallback(gatt, characteristic, value, status);
 +    }
 @@ -52 +49,0 @@ public class BluetoothGattCallback extends android.bluetooth.BluetoothGattCallba
@@ -620,15 +618,14 @@ index e9ac75ee..435468c5 100644
 @@ -55 +52 @@ public class BluetoothGattCallback extends android.bluetooth.BluetoothGattCallba
 -        // NOTE: This method has been deprecated on API 33, but we're still using API 31, so we need to support this.
 +        // NOTE: This method is deprecated on API 33, but older Android versions still call it.
-@@ -60,6 +57,5 @@ public class BluetoothGattCallback extends android.bluetooth.BluetoothGattCallba
+@@ -60,6 +57,4 @@ public class BluetoothGattCallback extends android.bluetooth.BluetoothGattCallba
 -    // @Override
 -    // public void onDescriptorRead(BluetoothGatt gatt, BluetoothGattDescriptor descriptor, int status, byte[] value) {
 -    //     // NOTE: This method is only available from API 33 onwards.
 -    //     super.onDescriptorRead(gatt, descriptor, status, value);
 -    //     onDescriptorReadCallback(gatt, descriptor, value, status);
 -    // }
-+    @Override
 +    public void onDescriptorRead(BluetoothGatt gatt, BluetoothGattDescriptor descriptor, int status, byte[] value) {
-+        // The API 33 default implementation forwards to the deprecated overload.
++        // API 33+ calls this overload directly; older android.jar versions do not declare it.
 +        onDescriptorReadCallback(gatt, descriptor, value, status);
 +    }
