@@ -751,7 +751,7 @@ Supported platforms:
 Muse
 ------
 
-Muse startup commands can be selected with :code:`BrainFlowInputParams.other_info`. Use a shorthand such as :code:`p21` or a key-value form such as :code:`preset=p21`. If :code:`other_info` is empty, BrainFlow uses the default command listed in the device section. :code:`low_latency` is only supported for MuseS Anthena.
+Muse startup commands can be selected with :code:`BrainFlowInputParams.other_info`. Use a shorthand such as :code:`p21` or a key-value form such as :code:`preset=p21`. If :code:`other_info` is empty, BrainFlow uses the default command listed in the device section. :code:`low_latency` is only supported for MuseS Athena.
 
 
 Muse S
@@ -821,7 +821,7 @@ Available :ref:`presets-label`:
 - :code:`BrainFlowPresets.ANCILLARY_PRESET`, it contains PPG data, to enable it use :code:`board.config_board("p61")`
 
 
-MuseS Anthena
+MuseS Athena
 ~~~~~~~~~~~~~~
 
 .. image:: https://live.staticflickr.com/65535/55236436914_6e442f3192.jpg
@@ -840,10 +840,10 @@ MuseS Anthena
 
 To create such board you need to specify the following board ID and fields of BrainFlowInputParams object:
 
-- :code:`BoardIds.MUSE_S_ANTHENA_BOARD`
+- :code:`BoardIds.MUSE_S_ATHENA_BOARD`
 - *optional:* :code:`mac_address`, mac address of the device to connect
 - *optional:* :code:`serial_number`, device name, can be printed on the Muse device or discovered via mobile apps
-- *optional:* :code:`other_info`, MuseS Anthena startup options
+- *optional:* :code:`other_info`, MuseS Athena startup options
 
 Initialization Example:
 
@@ -851,7 +851,7 @@ Initialization Example:
 
     params = BrainFlowInputParams()
     params.other_info = "preset=p1041;low_latency=true"
-    board = BoardShim(BoardIds.MUSE_S_ANTHENA_BOARD, params)
+    board = BoardShim(BoardIds.MUSE_S_ATHENA_BOARD, params)
 
 Supported platforms:
 
@@ -917,7 +917,7 @@ Available :ref:`presets-label`:
 
 - :code:`BrainFlowPresets.DEFAULT_PRESET`, it contains EEG data, sampling rate is 256 Hz. For 4-channel Muse presets BrainFlow exposes :code:`TP9`, :code:`AF7`, :code:`AF8`, and :code:`TP10` as EEG channels. For 8-channel Muse presets the additional Muse EEG values are exposed as other channels.
 - :code:`BrainFlowPresets.AUXILIARY_PRESET`, it contains Accelerometer and Gyro data, sampling rate is 52 Hz.
-- :code:`BrainFlowPresets.ANCILLARY_PRESET`, it contains optics and battery data. Optics sampling rate is 64 Hz. MuseS Anthena uses optics data for PPG, and BrainFlow exposes this data as optical channels instead of PPG channels. Depending on selected Muse preset, the stream contains 4, 8, or 16 optical channels.
+- :code:`BrainFlowPresets.ANCILLARY_PRESET`, it contains optics and battery data. Optics sampling rate is 64 Hz. MuseS Athena uses optics data for PPG, and BrainFlow exposes this data as optical channels instead of PPG channels. Depending on selected Muse preset, the stream contains 4, 8, or 16 optical channels.
 
 
 Muse 2

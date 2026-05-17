@@ -77,7 +77,7 @@ SET (BOARD_CONTROLLER_SRC
     ${CMAKE_CURRENT_SOURCE_DIR}/src/board_controller/enophone/enophone.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/board_controller/ble_lib_board.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/board_controller/muse/muse.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/board_controller/muse/muse_anthena.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/board_controller/muse/muse_athena.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/board_controller/brainalive/brainalive.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/board_controller/emotibit/emotibit.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/board_controller/ntl/ntl_wifi.cpp
@@ -160,6 +160,21 @@ target_include_directories (
 
 target_compile_definitions(${BOARD_CONTROLLER_NAME} PRIVATE NOMINMAX BRAINFLOW_VERSION=${BRAINFLOW_VERSION})
 
+if (BUILD_BLE)
+    target_compile_definitions (${BOARD_CONTROLLER_NAME} PRIVATE BRAINFLOW_BUILD_BLE)
+    if (ANDROID)
+        target_compile_definitions (${BOARD_CONTROLLER_NAME} PRIVATE STATIC_SIMPLEBLE)
+        target_include_directories (
+            ${BOARD_CONTROLLER_NAME} PRIVATE
+            ${CMAKE_CURRENT_SOURCE_DIR}/third_party/SimpleBLE/simpleble/include
+            ${CMAKE_BINARY_DIR}/simpleble/export
+            ${CMAKE_BINARY_DIR}/third_party/SimpleBLE/simplecble/export
+        )
+        add_dependencies (${BOARD_CONTROLLER_NAME} simplecble)
+        target_link_libraries (${BOARD_CONTROLLER_NAME} PRIVATE "$<TARGET_FILE:simplecble>")
+    endif (ANDROID)
+endif (BUILD_BLE)
+
 set_target_properties (${BOARD_CONTROLLER_NAME}
     PROPERTIES
     ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/compiled
@@ -230,8 +245,14 @@ endif (UNIX AND NOT ANDROID)
 
 if (ANDROID)
     add_custom_command (TARGET ${BOARD_CONTROLLER_NAME} POST_BUILD
+        COMMAND "${CMAKE_COMMAND}" -E make_directory "${CMAKE_CURRENT_SOURCE_DIR}/tools/jniLibs/${ANDROID_ABI}"
         COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/compiled/${BOARD_CONTROLLER_COMPILED_NAME}" "${CMAKE_CURRENT_SOURCE_DIR}/tools/jniLibs/${ANDROID_ABI}/${BOARD_CONTROLLER_COMPILED_NAME}"
     )
+    if (BUILD_BLE)
+        add_custom_command (TARGET ${BOARD_CONTROLLER_NAME} POST_BUILD
+            COMMAND "${CMAKE_COMMAND}" -E copy_if_different "$<TARGET_FILE:simplecble>" "${CMAKE_CURRENT_SOURCE_DIR}/tools/jniLibs/${ANDROID_ABI}/$<TARGET_FILE_NAME:simplecble>"
+        )
+    endif (BUILD_BLE)
     if (LibFTDI1_FOUND)
         add_custom_command (TARGET ${BOARD_CONTROLLER_NAME} POST_BUILD
             COMMAND "${CMAKE_COMMAND}" -E make_directory "${CMAKE_CURRENT_SOURCE_DIR}/java_package/android/src/main/libs/${ANDROID_ABI}/"

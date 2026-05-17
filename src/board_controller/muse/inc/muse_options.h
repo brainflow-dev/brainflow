@@ -13,7 +13,7 @@ namespace MuseOptions
     enum class PresetFamily
     {
         Legacy,
-        Anthena
+        Athena
     };
 
     inline std::string trim_string (const std::string &value)
@@ -51,7 +51,7 @@ namespace MuseOptions
         return false;
     }
 
-    inline bool is_valid_anthena_preset (const std::string &preset)
+    inline bool is_valid_athena_preset (const std::string &preset)
     {
         static const char *valid_presets[] = {"p20", "p21", "p50", "p51", "p60", "p61", "p1034",
             "p1035", "p1041", "p1042", "p1043", "p1044", "p1045", "p1046", "p4129"};
@@ -92,9 +92,9 @@ namespace MuseOptions
 
     inline bool is_valid_preset (int board_id, PresetFamily family, const std::string &preset)
     {
-        if (family == PresetFamily::Anthena)
+        if (family == PresetFamily::Athena)
         {
-            return is_valid_anthena_preset (preset);
+            return is_valid_athena_preset (preset);
         }
         return is_valid_legacy_preset (board_id, preset);
     }

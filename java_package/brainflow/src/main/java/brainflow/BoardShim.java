@@ -159,8 +159,14 @@ public class BoardShim
 
         if (is_os_android)
         {
-            // for android you need to put these files manually to jniLibs folder, unpacking
-            // doesnt work
+            // Android native libraries are loaded from the app or BrainFlow AAR.
+            try
+            {
+                System.loadLibrary ("simpleble-c");
+            } catch (UnsatisfiedLinkError e)
+            {
+                // Android packages built without BLE do not ship SimpleBLE.
+            }
             lib_name = "BoardController"; // no lib prefix and no extension for android
         } else
         {

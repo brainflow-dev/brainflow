@@ -40,7 +40,7 @@ def main():
     parser.add_argument('--serial-number', type=str, required=False, default='')
     parser.add_argument('--timeout', type=int, required=False, default=0)
     parser.add_argument('--other-info', type=str, required=False, default='preset=p1035;low_latency=true')
-    parser.add_argument('--output-file', type=str, required=False, default='muse_anthena_optics_recording.csv')
+    parser.add_argument('--output-file', type=str, required=False, default='muse_athena_optics_recording.csv')
     args = parser.parse_args()
 
     params = BrainFlowInputParams()
@@ -49,7 +49,7 @@ def main():
     params.timeout = args.timeout
     params.other_info = args.other_info
 
-    board_id = BoardIds.MUSE_S_ANTHENA_BOARD.value
+    board_id = BoardIds.MUSE_S_ATHENA_BOARD.value
     preset = BrainFlowPresets.ANCILLARY_PRESET
     optical_channels = BoardShim.get_optical_channels(board_id, preset)
     timestamp_channel = BoardShim.get_timestamp_channel(board_id, preset)

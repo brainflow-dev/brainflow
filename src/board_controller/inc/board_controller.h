@@ -3,6 +3,12 @@
 #include "board_info_getter.h" // include it here for matlab
 #include "shared_export.h"
 
+#if defined(__ANDROID__)
+#include <jni.h>
+#else
+typedef const struct JNINativeInterface *JNIEnv; // A handle to use Java's JNI
+#endif
+
 #ifdef __cplusplus
 extern "C"
 {
@@ -46,7 +52,6 @@ extern "C"
         int log_level, char *message);
 
     // platform types and methods
-    typedef const struct JNINativeInterface *JNIEnv; // A handle to use Java's JNI
     SHARED_EXPORT int CALLING_CONVENTION java_set_jnienv (JNIEnv *java_jnienv);
     SHARED_EXPORT int CALLING_CONVENTION get_version_board_controller (
         char *version, int *num_chars, int max_chars);

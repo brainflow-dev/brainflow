@@ -74,8 +74,7 @@ public class MLModel
 
         if (is_os_android)
         {
-            // for android you need to put these files manually to jniLibs folder, unpacking
-            // doesnt work
+            // Android native libraries are loaded from the app or BrainFlow AAR.
             lib_name = "MLModule"; // no lib prefix and no extension for android
         } else
         {

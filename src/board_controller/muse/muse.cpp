@@ -162,6 +162,7 @@ int Muse::prepare_session ()
         res = (int)BrainFlowExitCodes::BOARD_NOT_READY_ERROR;
     }
     simpleble_adapter_scan_stop (muse_adapter);
+    simpleble_adapter_set_callback_on_scan_found (muse_adapter, NULL, NULL);
     if (res == (int)BrainFlowExitCodes::STATUS_OK)
     {
         // for safety
