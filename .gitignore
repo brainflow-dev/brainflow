@@ -96,6 +96,10 @@ ipch/
 *.opensdf
 *.sdf
 *.cachefile
+.swiftpm/
+.build/
+xcuserdata/
+DerivedData/
 *.VC.db
 *.VC.VC.opendb
 
@@ -384,4 +388,3 @@ Makefile
 *.cmd
 CMakeSettings.json
 ._.gitignore
-
