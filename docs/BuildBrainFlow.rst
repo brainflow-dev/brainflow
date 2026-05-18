@@ -152,7 +152,28 @@ Rust
 Swift
 -------
 
-You can build Swift binding for BrainFlow using xcode. Before that you need to compile C/C++ code :ref:`compilation-label` and ensure that native libraries are properly placed. Keep in mind that currently it supports only MacOS.
+You can build Swift bindings for BrainFlow with Swift Package Manager or Xcode. Before running examples or tests you need to compile C/C++ code :ref:`compilation-label` and ensure that native libraries are available to the Swift runtime loader.
+
+Local build example:
+
+.. code-block:: bash
+
+    python3 tools/build.py
+    cd swift_package
+    BRAINFLOW_LIB_DIR=../installed/lib swift build
+    BRAINFLOW_LIB_DIR=../installed/lib swift test
+    BRAINFLOW_LIB_DIR=../installed/lib swift run brainflow-swift-cli
+
+The Swift package searches :code:`BRAINFLOW_LIB_DIR`, system library paths, :code:`installed/lib`, and app bundle resource/framework directories for :code:`libBoardController`, :code:`libDataHandler`, and :code:`libMLModule`.
+
+The macOS demo can be built with:
+
+.. code-block:: bash
+
+    cd swift_package
+    BRAINFLOW_LIB_DIR=../installed/lib swift run BrainFlowMacDemo
+
+iOS and Mac App Store sample source and release-preparation notes are available in :code:`samples/ios`, :code:`samples/macos`, and :code:`swift_package/Docs/AppStoreReadiness.md`. iOS runtime support requires BrainFlow native libraries compiled and embedded for the target iOS architectures.
 
 Docker Image
 --------------
