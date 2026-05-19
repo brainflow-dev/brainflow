@@ -259,6 +259,7 @@ int MuseAthena::prepare_session ()
     std::this_thread::sleep_for (std::chrono::seconds (1));
 
     bool control_characteristics_found = false;
+    bool data_characteristics_notified = false;
 
     if (res == (int)BrainFlowExitCodes::STATUS_OK)
     {
@@ -301,12 +302,23 @@ int MuseAthena::prepare_session ()
                     }
                 }
 
-                if ((strcmp (service.characteristics[j].uuid.value, MUSE_ATHENA_GATT_DATA_1) ==
-                        0) ||
-                    (strcmp (service.characteristics[j].uuid.value, MUSE_ATHENA_GATT_DATA_2) == 0))
+                bool is_data_1 =
+                    strcmp (service.characteristics[j].uuid.value, MUSE_ATHENA_GATT_DATA_1) == 0;
+                bool is_data_2 =
+                    strcmp (service.characteristics[j].uuid.value, MUSE_ATHENA_GATT_DATA_2) == 0;
+                if (is_data_1 || is_data_2)
                 {
-                    // Athena multiplexes EEG, IMU, optics, and battery packets across data
-                    // characteristics; use one parser intentionally and route by packet tag.
+                    // Athena multiplexes EEG, IMU, optics, and battery packets by packet tag.
+                    // LibMuse maps both data characteristics, but not all firmware exposes both
+                    // as notify-capable.
+                    if (!service.characteristics[j].can_notify)
+                    {
+                        safe_logger (spdlog::level::info,
+                            "Skip MuseAthena data characteristic {} because it does not support "
+                            "notifications",
+                            service.characteristics[j].uuid.value);
+                        continue;
+                    }
                     if (simpleble_peripheral_notify (muse_peripheral, service.uuid,
                             service.characteristics[j].uuid, ::athena_peripheral_on_data,
                             (void *)this) == SIMPLEBLE_SUCCESS)
@@ -314,12 +326,13 @@ int MuseAthena::prepare_session ()
                         notified_characteristics.push_back (
                             std::pair<simpleble_uuid_t, simpleble_uuid_t> (
                                 service.uuid, service.characteristics[j].uuid));
+                        data_characteristics_notified = true;
                     }
                     else
                     {
-                        safe_logger (spdlog::level::err, "Failed to notify for {} {}",
+                        safe_logger (spdlog::level::warn,
+                            "Failed to notify MuseAthena data characteristic {} {}",
                             service.uuid.value, service.characteristics[j].uuid.value);
-                        res = (int)BrainFlowExitCodes::GENERAL_ERROR;
                     }
                 }
             }
@@ -330,6 +343,11 @@ int MuseAthena::prepare_session ()
     {
         safe_logger (spdlog::level::err, "failed to find control characteristic");
         res = (int)BrainFlowExitCodes::BOARD_NOT_READY_ERROR;
+    }
+    if ((res == (int)BrainFlowExitCodes::STATUS_OK) && (!data_characteristics_notified))
+    {
+        safe_logger (spdlog::level::err, "failed to notify any MuseAthena data characteristic");
+        res = (int)BrainFlowExitCodes::GENERAL_ERROR;
     }
 
     if (res == (int)BrainFlowExitCodes::STATUS_OK)
