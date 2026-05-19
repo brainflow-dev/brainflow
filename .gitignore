@@ -347,6 +347,7 @@ ASALocalRun/
 .vscode/
 
 installed*
+build_ios_sim/
 compiled/
 python/flowcat.egg-info/
 .Rproj.user

@@ -16,14 +16,15 @@ struct ContentView: View {
     @State private var rowCount = 0
     @State private var board: BoardShim?
     @State private var isStreaming = false
+    @State private var didRunAutomatedDemo = false
 
     var body: some View {
-        NavigationStack {
+        NavigationView {
             Form {
                 Section("Synthetic Board") {
-                    LabeledContent("Status", value: status)
-                    LabeledContent("Rows", value: "\(rowCount)")
-                    LabeledContent("Samples", value: "\(sampleCount)")
+                    infoRow("Status", status)
+                    infoRow("Rows", "\(rowCount)")
+                    infoRow("Samples", "\(sampleCount)")
                 }
 
                 Section {
@@ -40,6 +41,20 @@ struct ContentView: View {
                 }
             }
             .navigationTitle("BrainFlow Demo")
+        }
+        .navigationViewStyle(.stack)
+        .task {
+            await runAutomatedDemoIfRequested()
+        }
+    }
+
+    private func infoRow(_ title: String, _ value: String) -> some View {
+        HStack {
+            Text(title)
+            Spacer()
+            Text(value)
+                .foregroundColor(.secondary)
+                .multilineTextAlignment(.trailing)
         }
     }
 
@@ -85,6 +100,35 @@ struct ContentView: View {
             status = "Released"
         } catch {
             status = "Release failed"
+        }
+    }
+
+    private func runAutomatedDemoIfRequested() async {
+        let processInfo = ProcessInfo.processInfo
+        let shouldAutorun = processInfo.environment["BRAINFLOW_IOS_DEMO_AUTORUN"] == "1" ||
+            processInfo.arguments.contains("--autorun")
+        guard !didRunAutomatedDemo, shouldAutorun else {
+            return
+        }
+
+        didRunAutomatedDemo = true
+        status = "Autorun starting"
+        startStream()
+
+        try? await Task.sleep(nanoseconds: 2_000_000_000)
+
+        stopStream()
+        readData()
+        let rows = rowCount
+        let samples = sampleCount
+        releaseSession()
+
+        if rows > 0 && samples > 0 {
+            status = "Autorun passed: \(samples) samples"
+            print("BrainFlowiOSDemo autorun passed rows=\(rows) samples=\(samples)")
+        } else {
+            status = "Autorun failed"
+            print("BrainFlowiOSDemo autorun failed rows=\(rows) samples=\(samples)")
         }
     }
 }
