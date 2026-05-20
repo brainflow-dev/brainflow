@@ -14,17 +14,17 @@ This checklist is intentionally separate from the sample source because final Ap
 
 ## iOS
 
-- Create an iOS app target in Xcode.
-- Add `swift_package` as a local package dependency.
-- Add the files from `samples/ios/BrainFlowiOSDemo`.
+- Use `examples/apps/ios/BrainFlowiOSDemo` as the Xcode app project.
+- Keep `swift_package` as the local package dependency.
 - Provide iOS-compatible BrainFlow native binaries. The current high-level Swift package compiles for iOS, but the app can only run BrainFlow calls when matching native libraries are embedded.
-- Keep permissions minimal. The synthetic-board demo needs no Bluetooth, network, or file permissions.
+- For Muse native BLE boards, build BrainFlow native libraries with BLE support enabled for the target platform and keep the Bluetooth privacy string in the app plist.
+- Keep permissions minimal. The synthetic-board demo needs no network or file permissions.
 - Test via TestFlight before App Store submission.
 
 ## macOS
 
 - Use `swift_package` product `BrainFlowMacDemo` for local development, or create an Xcode app target for App Store archiving.
-- Add the files from `samples/macos/BrainFlowMacDemo`.
+- Add the files from `examples/apps/macos/BrainFlowMacDemo`.
 - Enable App Sandbox.
 - Embed and sign BrainFlow dylibs/XCFrameworks.
 - Verify dynamic loading works inside the archived app bundle, not only with `BRAINFLOW_LIB_DIR`.
