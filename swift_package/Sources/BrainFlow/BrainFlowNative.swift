@@ -39,11 +39,7 @@ final class NativeLibrary {
     }
 
     private static var openFlags: Int32 {
-        #if os(Linux)
         return RTLD_NOW | RTLD_GLOBAL
-        #else
-        return RTLD_NOW | RTLD_GLOBAL
-        #endif
     }
 
     private static func candidatePaths(for names: [String]) -> [String] {
@@ -128,7 +124,7 @@ enum NativeLibraries {
 final class LazyNativeLibrary {
     private let names: [String]
     private let lock = NSLock()
-    private var storage: Result<NativeLibrary, Error>?
+    private var storage: NativeLibrary?
 
     init(names: [String]) {
         self.names = names
@@ -138,10 +134,10 @@ final class LazyNativeLibrary {
         lock.lock()
         defer { lock.unlock() }
         if let storage {
-            return try storage.get()
+            return storage
         }
-        let result = Result { try NativeLibrary(names: names) }
-        storage = result
-        return try result.get()
+        let library = try NativeLibrary(names: names)
+        storage = library
+        return library
     }
 }

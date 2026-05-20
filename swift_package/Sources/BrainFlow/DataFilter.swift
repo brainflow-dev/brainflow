@@ -339,10 +339,16 @@ public enum DataFilter {
     }
 
     public static func get_csp(data: [[[Double]]], labels: [Double]) throws -> CSPResult {
-        guard let firstEpoch = data.first, let firstChannel = firstEpoch.first else { throw invalidArguments("Invalid CSP data") }
+        guard let firstEpoch = data.first, let firstChannel = firstEpoch.first, !firstChannel.isEmpty else { throw invalidArguments("Invalid CSP data") }
         let nEpochs = data.count
         let nChannels = firstEpoch.count
         let nTimes = firstChannel.count
+        guard labels.count == nEpochs else { throw invalidArguments("labels count must match epoch count") }
+        guard data.allSatisfy({ epoch in
+            epoch.count == nChannels && epoch.allSatisfy { $0.count == nTimes }
+        }) else {
+            throw invalidArguments("CSP data must be rectangular")
+        }
         var flattened = [Double]()
         flattened.reserveCapacity(nEpochs * nChannels * nTimes)
         for epoch in data {
@@ -368,6 +374,7 @@ public enum DataFilter {
     }
 
     public static func get_window(window_function: Int, window_len: Int) throws -> [Double] {
+        guard window_len > 0 else { throw invalidArguments("window_len must be positive") }
         var output = [Double](repeating: 0.0, count: window_len)
         try output.withUnsafeMutableBufferPointer { pointer in
             try DataFilterNative.withData { native in
@@ -413,6 +420,7 @@ public enum DataFilter {
     }
 
     public static func perform_ifft(data: [Complex]) throws -> [Double] {
+        guard data.count >= 2 else { throw invalidArguments("FFT data must contain at least two bins") }
         var real = data.map(\.real)
         var imag = data.map(\.imag)
         let restoredLength = (data.count - 1) * 2
@@ -461,7 +469,10 @@ public enum DataFilter {
     }
 
     public static func get_psd_welch(data: [Double], nfft: Int, overlap: Int, sampling_rate: Int, window: Int) throws -> PSD {
-        guard nfft % 2 == 0 else { throw invalidArguments("nfft must be even") }
+        guard nfft > 0, nfft & (nfft - 1) == 0 else { throw invalidArguments("nfft must be a positive power of two") }
+        guard data.count >= nfft else { throw invalidArguments("nfft must be less than or equal to data count") }
+        guard overlap >= 0, overlap < nfft else { throw invalidArguments("overlap must be non-negative and less than nfft") }
+        guard sampling_rate > 0 else { throw invalidArguments("sampling_rate must be positive") }
         var input = data
         var ampl = [Double](repeating: 0.0, count: nfft / 2 + 1)
         var freq = [Double](repeating: 0.0, count: nfft / 2 + 1)
@@ -482,6 +493,8 @@ public enum DataFilter {
     }
 
     public static func get_band_power(psd: PSD, freq_start: Double, freq_end: Double) throws -> Double {
+        guard !psd.ampl.isEmpty, psd.ampl.count == psd.freq.count else { throw invalidArguments("PSD arrays must be non-empty and have equal lengths") }
+        guard freq_start < freq_end else { throw invalidArguments("freq_start must be less than freq_end") }
         var ampl = psd.ampl
         var freq = psd.freq
         var output = 0.0
@@ -513,8 +526,11 @@ public enum DataFilter {
         sampling_rate: Int,
         apply_filter: Bool
     ) throws -> BandPowerResult {
+        let (rows, cols) = try BrainFlowArray.validateRectangular(data)
         guard !channels.isEmpty, !bands.isEmpty else { throw invalidArguments("Channels and bands must be non-empty") }
-        let cols = data[channels[0]].count
+        guard channels.allSatisfy({ $0 >= 0 && $0 < rows }) else { throw invalidArguments("Channel index is out of range") }
+        guard bands.allSatisfy({ $0.start < $0.stop }) else { throw invalidArguments("Band start frequency must be less than stop frequency") }
+        guard sampling_rate > 0 else { throw invalidArguments("sampling_rate must be positive") }
         var selected = [Double]()
         selected.reserveCapacity(channels.count * cols)
         for channel in channels {
@@ -543,7 +559,11 @@ public enum DataFilter {
     public static func perform_ica(data: [[Double]], num_components: Int, channels: [Int]? = nil) throws -> ICAResult {
         let (rows, cols) = try BrainFlowArray.validateRectangular(data)
         let selectedChannels = channels ?? Array(0..<rows)
-        guard num_components >= 1 else { throw invalidArguments("num_components must be positive") }
+        guard !selectedChannels.isEmpty else { throw invalidArguments("channels must be non-empty") }
+        guard selectedChannels.allSatisfy({ $0 >= 0 && $0 < rows }) else { throw invalidArguments("Channel index is out of range") }
+        guard cols >= 2 else { throw invalidArguments("ICA data must contain at least two samples") }
+        guard selectedChannels.count >= 2 else { throw invalidArguments("ICA requires at least two channels") }
+        guard num_components >= 2, num_components <= selectedChannels.count else { throw invalidArguments("num_components must be between 2 and the selected channel count") }
         var selected = [Double]()
         selected.reserveCapacity(selectedChannels.count * cols)
         for channel in selectedChannels {
@@ -578,6 +598,7 @@ public enum DataFilter {
         var input = data
         let start = start_pos ?? 0
         let end = end_pos ?? data.count
+        guard start >= 0, end <= data.count, start < end else { throw invalidArguments("Invalid position arguments") }
         var output = 0.0
         try input.withUnsafeMutableBufferPointer { pointer in
             try DataFilterNative.withData { native in
@@ -588,6 +609,7 @@ public enum DataFilter {
     }
 
     public static func get_railed_percentage(data: [Double], gain: Int) throws -> Double {
+        guard !data.isEmpty else { throw invalidArguments("data must be non-empty") }
         var input = data
         var output = 0.0
         try input.withUnsafeMutableBufferPointer { pointer in
@@ -599,6 +621,8 @@ public enum DataFilter {
     }
 
     public static func get_oxygen_level(ppg_ir: [Double], ppg_red: [Double], sampling_rate: Int, coef1: Double = 1.5958422, coef2: Double = -34.6596622, coef3: Double = 112.6898759) throws -> Double {
+        guard !ppg_ir.isEmpty, ppg_ir.count == ppg_red.count else { throw invalidArguments("PPG arrays must be non-empty and have equal lengths") }
+        guard sampling_rate > 0 else { throw invalidArguments("sampling_rate must be positive") }
         var ir = ppg_ir
         var red = ppg_red
         var output = 0.0
@@ -613,6 +637,9 @@ public enum DataFilter {
     }
 
     public static func get_heart_rate(ppg_ir: [Double], ppg_red: [Double], sampling_rate: Int, fft_size: Int) throws -> Double {
+        guard !ppg_ir.isEmpty, ppg_ir.count == ppg_red.count else { throw invalidArguments("PPG arrays must be non-empty and have equal lengths") }
+        guard sampling_rate > 0 else { throw invalidArguments("sampling_rate must be positive") }
+        guard fft_size >= 1024, fft_size % 2 == 0 else { throw invalidArguments("fft_size must be even and at least 1024") }
         var ir = ppg_ir
         var red = ppg_red
         var output = 0.0
@@ -655,6 +682,7 @@ public enum DataFilter {
                 try checkBrainFlowExitCode(native.get_num_elements_in_file(fileNamePtr, &elements), "Failed to determine number of file elements")
             }
         }
+        guard elements >= 0 else { throw invalidArguments("File element count must be non-negative") }
         var data = [Double](repeating: 0.0, count: Int(elements))
         var rows: CInt = 0
         var cols: CInt = 0

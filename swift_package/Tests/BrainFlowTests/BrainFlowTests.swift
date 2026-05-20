@@ -10,6 +10,24 @@ final class BrainFlowTests: XCTestCase {
         }
     }
 
+    private func assertInvalidArguments<T>(
+        _ expression: @autoclosure () throws -> T,
+        file: StaticString = #filePath,
+        line: UInt = #line
+    ) {
+        XCTAssertThrowsError(try expression(), file: file, line: line) { error in
+            guard let brainFlowError = error as? BrainFlowError else {
+                return XCTFail("Expected BrainFlowError, got \(error)", file: file, line: line)
+            }
+            XCTAssertEqual(
+                brainFlowError.exit_code,
+                BrainFlowExitCodes.INVALID_ARGUMENTS_ERROR.rawValue,
+                file: file,
+                line: line
+            )
+        }
+    }
+
     func testInputParamsJSON() throws {
         var params = BrainFlowInputParams()
         params.serial_port = "/dev/ttyUSB0"
@@ -19,6 +37,35 @@ final class BrainFlowTests: XCTestCase {
         XCTAssertTrue(json.contains("serial_port"))
         XCTAssertTrue(json.contains("ttyUSB0"))
         XCTAssertTrue(json.contains("master_board"))
+    }
+
+    func testBoardShimRejectsInvalidArgumentsBeforeNativeCalls() throws {
+        let board = try BoardShim(board_id: .SYNTHETIC_BOARD)
+
+        assertInvalidArguments(try board.start_stream(buffer_size: 0))
+        assertInvalidArguments(try board.config_board_with_bytes([]))
+        assertInvalidArguments(try board.get_current_board_data(num_samples: 0))
+    }
+
+    func testDataFilterRejectsInvalidArgumentsBeforeNativeCalls() throws {
+        assertInvalidArguments(try DataFilter.get_csp(data: [[[1.0, 2.0]], [[3.0]]], labels: [0.0, 1.0]))
+        assertInvalidArguments(try DataFilter.get_csp(data: [[[1.0, 2.0]]], labels: []))
+        assertInvalidArguments(try DataFilter.get_window(window_function: WindowOperations.HANNING.rawValue, window_len: 0))
+        assertInvalidArguments(try DataFilter.perform_ifft(data: [Complex(real: 1.0, imag: 0.0)]))
+        assertInvalidArguments(try DataFilter.get_psd_welch(data: [1.0, 2.0, 3.0], nfft: 4, overlap: 0, sampling_rate: 250, window: WindowOperations.NO_WINDOW.rawValue))
+        assertInvalidArguments(try DataFilter.get_band_power(psd: PSD(ampl: [1.0], freq: []), freq_start: 1.0, freq_end: 2.0))
+        assertInvalidArguments(try DataFilter.get_custom_band_powers(
+            data: [[1.0, 2.0]],
+            bands: [FrequencyBand(start: 1.0, stop: 2.0)],
+            channels: [1],
+            sampling_rate: 250,
+            apply_filter: false
+        ))
+        assertInvalidArguments(try DataFilter.perform_ica(data: [[1.0, 2.0], [3.0, 4.0]], num_components: 3))
+        assertInvalidArguments(try DataFilter.calc_stddev(data: [1.0, 2.0], start_pos: 1, end_pos: 3))
+        assertInvalidArguments(try DataFilter.get_railed_percentage(data: [], gain: 24))
+        assertInvalidArguments(try DataFilter.get_oxygen_level(ppg_ir: [1.0], ppg_red: [1.0, 2.0], sampling_rate: 25))
+        assertInvalidArguments(try DataFilter.get_heart_rate(ppg_ir: [1.0, 2.0], ppg_red: [1.0, 2.0], sampling_rate: 25, fft_size: 1023))
     }
 
     func testBrainFlowGetDataSyntheticBoard() throws {
