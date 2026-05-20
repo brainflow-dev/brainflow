@@ -28,6 +28,7 @@ public final class BoardShim {
     }
 
     public func start_stream(buffer_size: Int = 450_000, streamer_params: String = "") throws {
+        guard buffer_size > 0 else { throw invalidArguments("buffer_size must be positive") }
         try serialized_params.withCString { params in
             try streamer_params.withCString { streamer in
                 try BoardShimNative.withBoard { native in
@@ -86,34 +87,40 @@ public final class BoardShim {
         try serialized_params.withCString { params in
             try config.withCString { configPtr in
                 var response = [CChar](repeating: 0, count: 16_000)
+                let responseCapacity = response.count
                 var responseLen: CInt = 0
-                try BoardShimNative.withBoard { native in
-                    try checkBrainFlowExitCode(
-                        native.config_board(configPtr, &response, &responseLen, CInt(response.count), CInt(board_id), params),
-                        "Error in config_board"
-                    )
+                try response.withUnsafeMutableBufferPointer { responsePtr in
+                    try BoardShimNative.withBoard { native in
+                        try checkBrainFlowExitCode(
+                            native.config_board(configPtr, responsePtr.baseAddress, &responseLen, CInt(responseCapacity), CInt(board_id), params),
+                            "Error in config_board"
+                        )
+                    }
                 }
-                return String(cString: response)
+                let returnedCount = min(max(Int(responseLen), 0), responseCapacity)
+                return String(bytes: response.prefix(returnedCount).map { UInt8(bitPattern: $0) }, encoding: .utf8) ?? ""
             }
         }
     }
 
     public func config_board_with_bytes(_ bytes: [UInt8]) throws {
-        guard !bytes.isEmpty else { return }
+        guard !bytes.isEmpty else { throw invalidArguments("bytes must be non-empty") }
         try serialized_params.withCString { params in
             try bytes.withUnsafeBufferPointer { buffer in
-                let raw = UnsafeRawPointer(buffer.baseAddress!).assumingMemoryBound(to: CChar.self)
-                try BoardShimNative.withBoard { native in
-                    try checkBrainFlowExitCode(
-                        native.config_board_with_bytes(raw, CInt(bytes.count), CInt(board_id), params),
-                        "Error in config_board_with_bytes"
-                    )
+                try buffer.baseAddress!.withMemoryRebound(to: CChar.self, capacity: buffer.count) { bytesPtr in
+                    try BoardShimNative.withBoard { native in
+                        try checkBrainFlowExitCode(
+                            native.config_board_with_bytes(bytesPtr, CInt(buffer.count), CInt(board_id), params),
+                            "Error in config_board_with_bytes"
+                        )
+                    }
                 }
             }
         }
     }
 
     public func get_current_board_data(num_samples: Int, preset: BrainFlowPresets = .DEFAULT_PRESET) throws -> [[Double]] {
+        guard num_samples > 0 else { throw invalidArguments("num_samples must be positive") }
         let rows = try Self.get_num_rows(board_id: board_id, preset: preset)
         var data = [Double](repeating: 0.0, count: rows * num_samples)
         var returnedSamples: CInt = 0
