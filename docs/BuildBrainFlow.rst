@@ -163,8 +163,9 @@ Local build example:
     BRAINFLOW_LIB_DIR=../installed/lib swift build
     BRAINFLOW_LIB_DIR=../installed/lib swift test
     BRAINFLOW_LIB_DIR=../installed/lib swift run brainflow-swift-cli
+    BRAINFLOW_LIB_DIR=../installed/lib swift run swift-brainflow-get-data
 
-The Swift package searches :code:`BRAINFLOW_LIB_DIR`, system library paths, :code:`installed/lib`, and app bundle resource/framework directories for :code:`libBoardController`, :code:`libDataHandler`, and :code:`libMLModule`.
+The Swift package intentionally does not vendor BrainFlow native binaries. Like source builds for other bindings, it dynamically loads native libraries built from this repository. The loader searches :code:`BRAINFLOW_LIB_DIR`, system library paths, :code:`installed/lib`, and app bundle resource/framework directories for :code:`libBoardController`, :code:`libDataHandler`, and :code:`libMLModule`.
 
 The macOS demo can be built with:
 
@@ -173,7 +174,7 @@ The macOS demo can be built with:
     cd swift_package
     BRAINFLOW_LIB_DIR=../installed/lib swift run BrainFlowMacDemo
 
-iOS and Mac App Store sample source and release-preparation notes are available in :code:`samples/ios`, :code:`samples/macos`, and :code:`swift_package/Docs/AppStoreReadiness.md`. iOS runtime support requires BrainFlow native libraries compiled and embedded for the target iOS architectures.
+iOS and Mac App Store sample source and release-preparation notes are available in :code:`swift_package/examples/apps` and :code:`swift_package/Docs/AppStoreReadiness.md`. iOS runtime support requires BrainFlow native libraries compiled for the target iOS architectures and embedded as signed app-bundle libraries or XCFrameworks.
 
 Docker Image
 --------------

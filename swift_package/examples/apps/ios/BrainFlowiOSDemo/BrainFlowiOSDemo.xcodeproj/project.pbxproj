@@ -107,7 +107,7 @@
 			mainGroup = A10000000000000000000002;
 			minimizedProjectReferenceProxies = 1;
 			packageReferences = (
-				A10000000000000000000050 /* XCLocalSwiftPackageReference "../../../swift_package" */,
+				A10000000000000000000050 /* XCLocalSwiftPackageReference "../../../.." */,
 			);
 			preferredProjectObjectVersion = 60;
 			productRefGroup = A10000000000000000000004 /* Products */;
@@ -151,7 +151,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "set -euo pipefail\nDEFAULT_LIB_DIR=\"${SRCROOT}/../../../installed_ios_sim/lib\"\nif [ \"${PLATFORM_NAME}\" = \"iphoneos\" ]; then\n  DEFAULT_LIB_DIR=\"${SRCROOT}/../../../installed_ios/lib\"\nfi\nLIB_DIR=\"${BRAINFLOW_IOS_NATIVE_LIB_DIR:-${DEFAULT_LIB_DIR}}\"\nFRAMEWORKS_DIR=\"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}\"\nmkdir -p \"$FRAMEWORKS_DIR\"\nfor lib in libBoardController.dylib libDataHandler.dylib libMLModule.dylib; do\n  if [ ! -f \"$LIB_DIR/$lib\" ]; then\n    echo \"error: missing BrainFlow native library $LIB_DIR/$lib\" >&2\n    exit 1\n  fi\n  cp \"$LIB_DIR/$lib\" \"$FRAMEWORKS_DIR/$lib\"\n  codesign --force --sign \"${EXPANDED_CODE_SIGN_IDENTITY:--}\" --timestamp=none \"$FRAMEWORKS_DIR/$lib\" || codesign --force --sign - --timestamp=none \"$FRAMEWORKS_DIR/$lib\"\ndone\n";
+			shellScript = "set -euo pipefail\nDEFAULT_LIB_DIR=\"${SRCROOT}/../../../../../installed_ios_sim/lib\"\nif [ \"${PLATFORM_NAME}\" = \"iphoneos\" ]; then\n  DEFAULT_LIB_DIR=\"${SRCROOT}/../../../../../installed_ios/lib\"\nfi\nLIB_DIR=\"${BRAINFLOW_IOS_NATIVE_LIB_DIR:-${DEFAULT_LIB_DIR}}\"\nFRAMEWORKS_DIR=\"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}\"\nmkdir -p \"$FRAMEWORKS_DIR\"\nfor lib in libBoardController.dylib libDataHandler.dylib libMLModule.dylib; do\n  if [ ! -f \"$LIB_DIR/$lib\" ]; then\n    echo \"error: missing BrainFlow native library $LIB_DIR/$lib\" >&2\n    exit 1\n  fi\n  cp \"$LIB_DIR/$lib\" \"$FRAMEWORKS_DIR/$lib\"\n  codesign --force --sign \"${EXPANDED_CODE_SIGN_IDENTITY:--}\" --timestamp=none \"$FRAMEWORKS_DIR/$lib\" || codesign --force --sign - --timestamp=none \"$FRAMEWORKS_DIR/$lib\"\ndone\n";
 		};
 /* End PBXShellScriptBuildPhase section */
 
@@ -357,16 +357,16 @@
 /* End XCConfigurationList section */
 
 /* Begin XCLocalSwiftPackageReference section */
-		A10000000000000000000050 /* XCLocalSwiftPackageReference "../../../swift_package" */ = {
+		A10000000000000000000050 /* XCLocalSwiftPackageReference "../../../.." */ = {
 			isa = XCLocalSwiftPackageReference;
-			relativePath = ../../../swift_package;
+			relativePath = ../../../..;
 		};
 /* End XCLocalSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
 		A10000000000000000000051 /* BrainFlow */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = A10000000000000000000050 /* XCLocalSwiftPackageReference "../../../swift_package" */;
+			package = A10000000000000000000050 /* XCLocalSwiftPackageReference "../../../.." */;
 			productName = BrainFlow;
 		};
 /* End XCSwiftPackageProductDependency section */

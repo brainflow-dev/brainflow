@@ -9,9 +9,10 @@ python3 tools/build.py
 cd swift_package
 BRAINFLOW_LIB_DIR=../installed/lib swift test
 BRAINFLOW_LIB_DIR=../installed/lib swift run brainflow-swift-cli
+BRAINFLOW_LIB_DIR=../installed/lib swift run swift-brainflow-get-data
 ```
 
-The loader searches `BRAINFLOW_LIB_DIR`, `DYLD_LIBRARY_PATH`, `LD_LIBRARY_PATH`, `installed/lib`, app bundle resources, and the current directory for:
+The Swift package does not vendor native BrainFlow binaries. Build native libraries from this repository and provide them at runtime. The loader searches `BRAINFLOW_LIB_DIR`, `DYLD_LIBRARY_PATH`, `LD_LIBRARY_PATH`, `installed/lib`, app bundle resources, and the current directory for:
 
 - `libBoardController.dylib`
 - `libDataHandler.dylib`
@@ -45,5 +46,5 @@ try DataFilter.perform_lowpass(
 ## Apps
 
 - `swift run BrainFlowMacDemo` builds a simple macOS SwiftUI demo against the synthetic board.
-- `samples/ios/BrainFlowiOSDemo` contains iOS SwiftUI source and release-prep metadata for creating an Xcode app target.
-- `samples/macos/BrainFlowMacDemo` contains Mac App Store release-prep metadata for an Xcode app bundle.
+- `examples/apps/ios/BrainFlowiOSDemo` contains an Xcode iOS app project with synthetic-board autorun, Muse/native BLE board selection, and an EEG plot.
+- `examples/apps/macos/BrainFlowMacDemo` contains Mac App Store release-prep metadata for an Xcode app bundle.
