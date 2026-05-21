@@ -220,25 +220,31 @@ int MuseAthena::prepare_session ()
         // https://github.com/OpenBluetoothToolbox/SimpleBLE/issues/115
     }
 
-    simpleble_adapter_scan_start (muse_adapter);
-    std::unique_lock<std::mutex> lk (m);
-    auto sec = std::chrono::seconds (1);
-    if (cv.wait_for (lk, params.timeout * sec, [this] { return this->muse_peripheral != NULL; }))
     {
-        safe_logger (spdlog::level::info, "Found MuseAthena device");
+        // Release m before stopping the scan; macOS scan callbacks also take it.
+        simpleble_adapter_scan_start (muse_adapter);
+        std::unique_lock<std::mutex> lk (m);
+        auto sec = std::chrono::seconds (1);
+        if (cv.wait_for (
+                lk, params.timeout * sec, [this] { return this->muse_peripheral != NULL; }))
+        {
+            safe_logger (spdlog::level::info, "Found MuseAthena device");
+        }
+        else
+        {
+            safe_logger (spdlog::level::err, "Failed to find MuseAthena Device");
+            res = (int)BrainFlowExitCodes::BOARD_NOT_READY_ERROR;
+        }
     }
-    else
-    {
-        safe_logger (spdlog::level::err, "Failed to find MuseAthena Device");
-        res = (int)BrainFlowExitCodes::BOARD_NOT_READY_ERROR;
-    }
-    simpleble_adapter_scan_stop (muse_adapter);
+    // Prevent new scan callbacks from re-entering BrainFlow while SimpleBLE stops the scan.
     simpleble_adapter_set_callback_on_scan_found (muse_adapter, NULL, NULL);
+    simpleble_adapter_scan_stop (muse_adapter);
     if (res == (int)BrainFlowExitCodes::STATUS_OK)
     {
         // for safety
         for (int i = 0; i < 3; i++)
         {
+            safe_logger (spdlog::level::info, "Connect to MuseAthena Device attempt {}/3", i + 1);
             if (simpleble_peripheral_connect (muse_peripheral) == SIMPLEBLE_SUCCESS)
             {
                 safe_logger (spdlog::level::info, "Connected to MuseAthena Device");
