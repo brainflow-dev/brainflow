@@ -82,6 +82,40 @@ jobs:
         ninja install
       env:
         BRAINFLOW_VERSION: ${{ steps.version.outputs.version }}
+    - name: Build Swift Package MacOS
+      if: (matrix.os == 'macos-14')
+      run: |
+        cd $GITHUB_WORKSPACE/swift_package
+        swift --version
+        BRAINFLOW_LIB_DIR=$GITHUB_WORKSPACE/installed/lib swift build
+    - name: Test Swift Package MacOS
+      if: (matrix.os == 'macos-14')
+      run: |
+        cd $GITHUB_WORKSPACE/swift_package
+        BRAINFLOW_LIB_DIR=$GITHUB_WORKSPACE/installed/lib swift test
+    - name: Swift CLI Synthetic Board MacOS
+      if: (matrix.os == 'macos-14')
+      run: |
+        cd $GITHUB_WORKSPACE/swift_package
+        BRAINFLOW_LIB_DIR=$GITHUB_WORKSPACE/installed/lib swift run brainflow-swift-cli
+    - name: Swift Examples MacOS
+      if: (matrix.os == 'macos-14')
+      run: |
+        cd $GITHUB_WORKSPACE/swift_package
+        for example in \
+          swift-brainflow-get-data \
+          swift-markers \
+          swift-read-write-file \
+          swift-downsampling \
+          swift-transforms \
+          swift-signal-filtering \
+          swift-denoising \
+          swift-band-power \
+          swift-eeg-metrics \
+          swift-ica
+        do
+          BRAINFLOW_LIB_DIR=$GITHUB_WORKSPACE/installed/lib swift run "$example"
+        done
     - name: Compile BrainFlow Ubuntu
       if: (matrix.os == 'ubuntu-latest')
       run: |

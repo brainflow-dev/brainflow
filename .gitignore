@@ -96,6 +96,10 @@ ipch/
 *.opensdf
 *.sdf
 *.cachefile
+.swiftpm/
+.build/
+xcuserdata/
+DerivedData/
 *.VC.db
 *.VC.VC.opendb
 
@@ -343,6 +347,7 @@ ASALocalRun/
 .vscode/
 
 installed*
+build_ios_sim/
 compiled/
 python/flowcat.egg-info/
 .Rproj.user
@@ -384,4 +389,3 @@ Makefile
 *.cmd
 CMakeSettings.json
 ._.gitignore
-

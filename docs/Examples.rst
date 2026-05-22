@@ -605,6 +605,8 @@ Typescript ICA
 Swift
 ------------
 
+The Swift examples below are also Swift Package Manager executable products. After building native BrainFlow libraries, run them from :code:`swift_package` with :code:`BRAINFLOW_LIB_DIR=../installed/lib swift run <example-name>`. For example, :code:`swift run swift-brainflow-get-data`.
+
 Swift Get Data from a Board
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
