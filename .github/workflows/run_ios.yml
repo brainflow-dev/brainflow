@@ -1,0 +1,23 @@
+name: Run iOS
+
+on: [push, pull_request]
+
+jobs:
+  RunIOS:
+    runs-on: macos-latest
+
+    steps:
+    - name: Clone Repository
+      uses: actions/checkout@v4
+
+    - name: Configure (iOS Simulator arm64)
+      run: |
+        cmake -B build \
+          -DCMAKE_TOOLCHAIN_FILE=cmake/toolchains/ios.toolchain.cmake \
+          -DPLATFORM=SIMULATORARM64 \
+          -DCMAKE_BUILD_TYPE=Release \
+          -DBUILD_TESTS=OFF \
+          -DBRAINFLOW_COPY_TO_PACKAGE_DIRS=OFF
+
+    - name: Build
+      run: cmake --build build --config Release
