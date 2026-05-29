@@ -85,7 +85,8 @@ BrainFlowBoards::BrainFlowBoards()
             {"64", json::object()},
             {"65", json::object()},
             {"66", json::object()},
-            {"67", json::object()}
+            {"67", json::object()},
+            {"68", json::object()}
         }
     }};
 
@@ -1197,6 +1198,23 @@ BrainFlowBoards::BrainFlowBoards()
         {"num_rows", 20},
         {"optical_channels", {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16}},
         {"battery_channel", 17}
+    };
+    brainflow_boards_json["boards"]["68"]["default"] =
+    {
+        {"name", "Shimmer3"},
+        {"sampling_rate", 512}, // configurable via config_board("sampling_rate:<Hz>")
+        {"package_num_channel", 0},
+        {"timestamp_channel", 18},
+        {"marker_channel", 19},
+        {"num_rows", 20},
+        {"accel_channels", {1, 2, 3}},
+        {"gyro_channels", {4, 5, 6}},
+        {"magnetometer_channels", {7, 8, 9}},
+        {"ecg_channels", {10, 11, 12, 13}},
+        {"eda_channels", {14}},
+        {"temperature_channels", {15}},
+        {"battery_channel", 16},
+        {"other_channels", {17}}
     };
 }
 
