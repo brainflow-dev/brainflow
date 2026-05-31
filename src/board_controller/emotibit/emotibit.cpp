@@ -373,8 +373,7 @@ void Emotibit::read_thread ()
                             try
                             {
                                 anc_packages[i * 2][channel_index] = std::stod (payload[i]);
-                                anc_packages[i + 1][channel_index] =
-                                    anc_packages[i][channel_index];
+                                anc_packages[i + 1][channel_index] = anc_packages[i][channel_index];
                             }
                             catch (...)
                             {
