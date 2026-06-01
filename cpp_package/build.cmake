@@ -21,16 +21,17 @@ add_library (
 )
 
 target_include_directories (
-    ${BRAINFLOW_CPP_BINDING_NAME} PRIVATE
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/board_controller/inc
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/utils/inc
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/data_handler/inc
-    ${CMAKE_CURRENT_SOURCE_DIR}/cpp_package/src/inc
-    ${CMAKE_CURRENT_SOURCE_DIR}/third_party/json
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/ml/inc
+    ${BRAINFLOW_CPP_BINDING_NAME} PUBLIC
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src/board_controller/inc>
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src/utils/inc>
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src/data_handler/inc>
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/cpp_package/src/inc>
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/third_party/json>
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src/ml/inc>
+    $<INSTALL_INTERFACE:inc>
 )
 
-target_link_libraries (${BRAINFLOW_CPP_BINDING_NAME} PRIVATE ${BOARD_CONTROLLER_NAME} ${DATA_HANDLER_NAME} ${ML_MODULE_NAME})
+target_link_libraries (${BRAINFLOW_CPP_BINDING_NAME} PUBLIC ${BOARD_CONTROLLER_NAME} ${DATA_HANDLER_NAME} ${ML_MODULE_NAME})
 
 install (
     FILES
