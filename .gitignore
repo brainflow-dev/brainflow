@@ -53,6 +53,7 @@ BenchmarkDotNet.Artifacts/
 project.lock.json
 project.fragment.lock.json
 artifacts/
+swift_package/Artifacts/Apple/
 
 # StyleCop
 StyleCopReport.xml
@@ -374,6 +375,7 @@ src/ml/train/data/
 src/ml/train/data/*.onnx
 tools/brainflow-android.aar
 build_android_aar/
+build_apple/
 tools/simpleble-bridge.jar
 tools/simpleble-bridge-classes/
 tools/simpleble-bridge-sources.txt

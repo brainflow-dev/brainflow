@@ -145,13 +145,13 @@
 			outputFileListPaths = (
 			);
 			outputPaths = (
-				"$(TARGET_BUILD_DIR)/$(FRAMEWORKS_FOLDER_PATH)/libBoardController.dylib",
-				"$(TARGET_BUILD_DIR)/$(FRAMEWORKS_FOLDER_PATH)/libDataHandler.dylib",
-				"$(TARGET_BUILD_DIR)/$(FRAMEWORKS_FOLDER_PATH)/libMLModule.dylib",
+				"$(TARGET_BUILD_DIR)/$(FRAMEWORKS_FOLDER_PATH)/BoardController.framework/BoardController",
+				"$(TARGET_BUILD_DIR)/$(FRAMEWORKS_FOLDER_PATH)/DataHandler.framework/DataHandler",
+				"$(TARGET_BUILD_DIR)/$(FRAMEWORKS_FOLDER_PATH)/MLModule.framework/MLModule",
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "set -euo pipefail\nDEFAULT_LIB_DIR=\"${SRCROOT}/../../../../../installed_ios_sim/lib\"\nif [ \"${PLATFORM_NAME}\" = \"iphoneos\" ]; then\n  DEFAULT_LIB_DIR=\"${SRCROOT}/../../../../../installed_ios/lib\"\nfi\nLIB_DIR=\"${BRAINFLOW_IOS_NATIVE_LIB_DIR:-${DEFAULT_LIB_DIR}}\"\nFRAMEWORKS_DIR=\"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}\"\nmkdir -p \"$FRAMEWORKS_DIR\"\nfor lib in libBoardController.dylib libDataHandler.dylib libMLModule.dylib; do\n  if [ ! -f \"$LIB_DIR/$lib\" ]; then\n    echo \"error: missing BrainFlow native library $LIB_DIR/$lib\" >&2\n    exit 1\n  fi\n  cp \"$LIB_DIR/$lib\" \"$FRAMEWORKS_DIR/$lib\"\n  codesign --force --sign \"${EXPANDED_CODE_SIGN_IDENTITY:--}\" --timestamp=none \"$FRAMEWORKS_DIR/$lib\" || codesign --force --sign - --timestamp=none \"$FRAMEWORKS_DIR/$lib\"\ndone\n";
+			shellScript = "set -euo pipefail\nDEFAULT_XCFRAMEWORKS_DIR=\"${SRCROOT}/../../../../../build/apple_xcframeworks/XCFrameworks\"\nXCFRAMEWORKS_DIR=\"${BRAINFLOW_APPLE_XCFRAMEWORKS_DIR:-${DEFAULT_XCFRAMEWORKS_DIR}}\"\nFRAMEWORKS_DIR=\"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}\"\nmkdir -p \"$FRAMEWORKS_DIR\"\nselect_framework_slice() {\n  framework_name=\"$1\"\n  xcframework=\"$XCFRAMEWORKS_DIR/${framework_name}.xcframework\"\n  if [ ! -d \"$xcframework\" ]; then\n    echo \"error: missing BrainFlow XCFramework $xcframework\" >&2\n    exit 1\n  fi\n  if [ \"$PLATFORM_NAME\" = \"iphonesimulator\" ]; then\n    find \"$xcframework\" -path \"*/${framework_name}.framework\" -type d | grep simulator | head -n 1\n  elif [ \"$PLATFORM_NAME\" = \"iphoneos\" ]; then\n    find \"$xcframework\" -path \"*/${framework_name}.framework\" -type d | grep '/ios-' | grep -v simulator | head -n 1\n  else\n    echo \"error: unsupported platform $PLATFORM_NAME for BrainFlow iOS demo\" >&2\n    exit 1\n  fi\n}\nfor framework_name in BoardController DataHandler MLModule; do\n  src_framework=\"$(select_framework_slice \"$framework_name\")\"\n  if [ -z \"$src_framework\" ]; then\n    echo \"error: unable to select $framework_name slice for $PLATFORM_NAME from $XCFRAMEWORKS_DIR\" >&2\n    exit 1\n  fi\n  dst_framework=\"$FRAMEWORKS_DIR/${framework_name}.framework\"\n  rm -rf \"$dst_framework\"\n  cp -R \"$src_framework\" \"$dst_framework\"\n  codesign --force --sign \"${EXPANDED_CODE_SIGN_IDENTITY:--}\" --timestamp=none \"$dst_framework\" || codesign --force --sign - --timestamp=none \"$dst_framework\"\ndone\n";
 		};
 /* End PBXShellScriptBuildPhase section */
 

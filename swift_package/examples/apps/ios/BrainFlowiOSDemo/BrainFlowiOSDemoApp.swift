@@ -38,6 +38,7 @@ struct ContentView: View {
     @State private var isStreaming = false
     @State private var didRunAutomatedDemo = false
     @State private var eegSeries = [[Double]]()
+    @State private var pollingTask: Task<Void, Never>?
 
     var body: some View {
         NavigationView {
@@ -97,6 +98,9 @@ struct ContentView: View {
         .task {
             await runAutomatedDemoIfRequested()
         }
+        .onDisappear {
+            pollingTask?.cancel()
+        }
     }
 
     private func infoRow(_ title: String, _ value: String) -> some View {
@@ -111,6 +115,12 @@ struct ContentView: View {
 
     private func startStream() {
         do {
+            pollingTask?.cancel()
+            if isStreaming {
+                try? board?.stop_stream()
+            }
+            try? board?.release_session()
+
             var params = BrainFlowInputParams()
             params.serial_number = serialNumber.trimmingCharacters(in: .whitespacesAndNewlines)
             params.mac_address = macAddress.trimmingCharacters(in: .whitespacesAndNewlines)
@@ -122,7 +132,11 @@ struct ContentView: View {
             self.board = board
             activeBoardId = selectedBoardId
             status = "Streaming \(boardName(for: selectedBoardId))"
+            rowCount = try BoardShim.get_num_rows(board_id: selectedBoardId)
+            sampleCount = 0
+            eegSeries = []
             isStreaming = true
+            startPolling()
         } catch {
             status = "Start failed: \(error)"
         }
@@ -130,6 +144,8 @@ struct ContentView: View {
 
     private func stopStream() {
         do {
+            pollingTask?.cancel()
+            pollCurrentData()
             try board?.stop_stream()
             status = "Stopped"
             isStreaming = false
@@ -155,6 +171,10 @@ struct ContentView: View {
 
     private func releaseSession() {
         do {
+            pollingTask?.cancel()
+            if isStreaming {
+                try board?.stop_stream()
+            }
             try board?.release_session()
             board = nil
             isStreaming = false
@@ -164,9 +184,32 @@ struct ContentView: View {
         }
     }
 
-    private func updateDisplay(with data: [[Double]], boardId: Int) {
+    private func startPolling() {
+        pollingTask?.cancel()
+        pollingTask = Task { @MainActor in
+            while !Task.isCancelled {
+                pollCurrentData()
+                try? await Task.sleep(nanoseconds: 250_000_000)
+            }
+        }
+    }
+
+    private func pollCurrentData() {
+        guard let board else { return }
+
+        do {
+            let bufferedSamples = try board.get_board_data_count()
+            let previewSamples = max(min(bufferedSamples, 250), 1)
+            let data = try board.get_current_board_data(num_samples: previewSamples)
+            updateDisplay(with: data, boardId: activeBoardId, sampleCount: bufferedSamples)
+        } catch {
+            status = "Read failed: \(error)"
+        }
+    }
+
+    private func updateDisplay(with data: [[Double]], boardId: Int, sampleCount: Int? = nil) {
         rowCount = data.count
-        sampleCount = data.first?.count ?? 0
+        self.sampleCount = sampleCount ?? (data.first?.count ?? 0)
 
         let eegChannels = (try? BoardShim.get_eeg_channels(board_id: boardId)) ?? []
         eegSeries = eegChannels.prefix(4).compactMap { channel in
@@ -222,6 +265,10 @@ private struct EEGPlotView: View {
                 ForEach(Array(series.prefix(4).enumerated()), id: \.offset) { index, values in
                     path(for: values, channelIndex: index, channelCount: max(series.prefix(4).count, 1), size: proxy.size)
                         .stroke(colors[index % colors.count], lineWidth: 1.5)
+                }
+                if series.isEmpty {
+                    Text("Waiting for samples")
+                        .foregroundColor(.secondary)
                 }
             }
         }

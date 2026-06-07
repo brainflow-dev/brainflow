@@ -74,11 +74,50 @@ final class NativeLibrary {
         for dir in unique(dirs) {
             for name in names {
                 candidates.append((dir as NSString).appendingPathComponent(name))
+                #if os(macOS) || os(iOS)
+                for frameworkPath in appleFrameworkPaths(for: name, in: dir) {
+                    candidates.append(frameworkPath)
+                }
+                #endif
             }
         }
         candidates.append(contentsOf: names)
+        #if os(macOS) || os(iOS)
+        for name in names {
+            candidates.append(contentsOf: appleFrameworkLoaderNames(for: name))
+        }
+        #endif
         return unique(candidates)
     }
+
+    #if os(macOS) || os(iOS)
+    private static func appleFrameworkPaths(for libraryName: String, in directory: String) -> [String] {
+        let executable = appleFrameworkExecutableName(from: libraryName)
+        return [
+            "\(directory)/\(executable).framework/\(executable)",
+            "\(directory)/\(libraryName).framework/\(executable)"
+        ]
+    }
+
+    private static func appleFrameworkLoaderNames(for libraryName: String) -> [String] {
+        let executable = appleFrameworkExecutableName(from: libraryName)
+        return [
+            "@rpath/\(executable).framework/\(executable)",
+            "\(executable).framework/\(executable)"
+        ]
+    }
+
+    private static func appleFrameworkExecutableName(from libraryName: String) -> String {
+        var name = (libraryName as NSString).lastPathComponent
+        if name.hasPrefix("lib") {
+            name.removeFirst(3)
+        }
+        if name.hasSuffix(".dylib") {
+            name.removeLast(".dylib".count)
+        }
+        return name
+    }
+    #endif
 
     private static func splitPathList(_ value: String?) -> [String] {
         guard let value, !value.isEmpty else { return [] }

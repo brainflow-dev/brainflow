@@ -167,6 +167,17 @@ Local build example:
 
 The Swift package intentionally does not vendor BrainFlow native binaries. Like source builds for other bindings, it dynamically loads native libraries built from this repository. The loader searches :code:`BRAINFLOW_LIB_DIR`, system library paths, :code:`installed/lib`, and app bundle resource/framework directories for :code:`libBoardController`, :code:`libDataHandler`, and :code:`libMLModule`.
 
+For production iOS and macOS applications, use Apple XCFramework artifacts and the generated Swift binary package. Regenerate Apple artifacts with:
+
+.. code-block:: bash
+
+    tools/apple/regenerate_artifacts.sh
+    tools/apple/verify_xcframeworks.sh build/apple_xcframeworks
+
+The default generated artifact directory is :code:`build/apple_xcframeworks`. It contains :code:`XCFrameworks`, :code:`BrainFlowSwiftBinaryPackage`, :code:`BrainFlowAppleXCFrameworks.zip`, and checksum files. These generated headers and binaries are release/CI artifacts, not source files committed to the repository.
+
+The generated :code:`BrainFlowSwiftBinaryPackage` contains the Swift API and binary targets for :code:`BoardController.xcframework`, :code:`DataHandler.xcframework`, and :code:`MLModule.xcframework`. Add this package to an app through Xcode or Swift Package Manager so embedded frameworks are handled by standard Apple build, embed, and signing flows.
+
 The macOS demo can be built with:
 
 .. code-block:: bash
@@ -174,7 +185,7 @@ The macOS demo can be built with:
     cd swift_package
     BRAINFLOW_LIB_DIR=../installed/lib swift run BrainFlowMacDemo
 
-iOS and Mac App Store sample source and release-preparation notes are available in :code:`swift_package/examples/apps` and :code:`swift_package/Docs/AppStoreReadiness.md`. iOS runtime support requires BrainFlow native libraries compiled for the target iOS architectures and embedded as signed app-bundle libraries or XCFrameworks.
+iOS and Mac App Store sample source and release-preparation notes are available in :code:`swift_package/examples/apps`, :code:`swift_package/Docs/AppleBinaryDistribution.md`, and :code:`swift_package/Docs/AppStoreReadiness.md`. App runtime support requires matching BrainFlow native frameworks embedded and signed inside the app bundle; App Store builds should not depend on :code:`BRAINFLOW_LIB_DIR` or local development directories.
 
 Docker Image
 --------------

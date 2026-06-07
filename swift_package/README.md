@@ -18,6 +18,27 @@ The Swift package does not vendor native BrainFlow binaries. Build native librar
 - `libDataHandler.dylib`
 - `libMLModule.dylib`
 
+For production iOS and macOS apps, use the Apple XCFramework packaging workflow instead of loose
+development dylibs:
+
+```bash
+tools/apple/build_xcframeworks.sh
+tools/apple/verify_xcframeworks.sh build/apple_xcframeworks
+```
+
+The generated `build/apple_xcframeworks/BrainFlowSwiftBinaryPackage` is a normal Swift Package
+with binary targets for the BrainFlow native frameworks. Add that package to an app in Xcode so
+embedded frameworks are handled by the standard Xcode build, embed, and signing flow.
+
+Regenerate and verify the Apple artifacts with:
+
+```bash
+tools/apple/regenerate_artifacts.sh
+tools/apple/verify_xcframeworks.sh build/apple_xcframeworks
+```
+
+See `Docs/AppleBinaryDistribution.md` for artifact details and App Store packaging notes.
+
 On Linux the equivalent `.so` names are used.
 
 ## API Coverage
