@@ -38,11 +38,12 @@ This checklist is intentionally separate from the sample source because final Ap
 - CLI smoke test succeeds with the synthetic board.
 - `tools/apple/build_xcframeworks.sh` and `tools/apple/verify_xcframeworks.sh` pass.
 - `tools/apple/regenerate_artifacts.sh` refreshes `build/apple_xcframeworks`, and `tools/apple/verify_xcframeworks.sh build/apple_xcframeworks` passes.
-- The Apple release artifact set includes `BrainFlowAppleXCFrameworks.zip`,
-  `BrainFlowAppleXCFrameworks.zip.sha256`, `checksums.sha256`, and `manifest.json` from the same
-  build.
+- The Apple release artifact set includes the individual SwiftPM XCFramework zips,
+  `swiftpm-checksums.txt`, `swiftpm-checksums.json`, `BrainFlowSwiftPackageRemote`,
+  `BrainFlowAppleXCFrameworks.zip`, `BrainFlowAppleXCFrameworks.zip.sha256`, `checksums.sha256`,
+  and `manifest.json` from the same build.
 - `manifest.json` records the BrainFlow version, source revision, toolchain versions, deployment
-  targets, and optional native feature flags.
+  targets, optional native feature flags, SwiftPM release URL base, and binary target checksums.
 - A clean app consumes `BrainFlowSwiftBinaryPackage` without building native BrainFlow locally.
 - iOS and macOS app targets launch, handle missing native frameworks gracefully, and run the synthetic-board workflow when frameworks are embedded.
 - Accessibility labels and dynamic text behavior are reviewed in the sample apps.

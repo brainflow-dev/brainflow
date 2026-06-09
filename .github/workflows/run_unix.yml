@@ -162,7 +162,11 @@ jobs:
           ${{ github.workspace }}/build/apple_xcframeworks/BrainFlowAppleXCFrameworks.zip
           ${{ github.workspace }}/build/apple_xcframeworks/BrainFlowAppleXCFrameworks.zip.sha256
           ${{ github.workspace }}/build/apple_xcframeworks/checksums.sha256
+          ${{ github.workspace }}/build/apple_xcframeworks/swiftpm-checksums.txt
+          ${{ github.workspace }}/build/apple_xcframeworks/swiftpm-checksums.json
           ${{ github.workspace }}/build/apple_xcframeworks/manifest.json
+          ${{ github.workspace }}/build/apple_xcframeworks/SwiftPMArtifacts/*.xcframework.zip
+          ${{ github.workspace }}/build/apple_xcframeworks/BrainFlowSwiftPackageRemote
     - name: Compile BrainFlow Ubuntu
       if: (matrix.os == 'ubuntu-latest')
       run: |

@@ -13,6 +13,7 @@ MACOS_PREFIX=""
 IOS_PREFIX=""
 IOS_SIM_PREFIX=""
 BRAINFLOW_VERSION="${BRAINFLOW_VERSION:-0.0.1}"
+RELEASE_BASE_URL="${BRAINFLOW_APPLE_RELEASE_BASE_URL:-}"
 
 usage() {
   cat <<'USAGE'
@@ -38,6 +39,7 @@ Environment:
   BRAINFLOW_APPLE_BUILD_BLE=ON|OFF          Default: OFF
   BRAINFLOW_APPLE_BUILD_BLUETOOTH=ON|OFF    Default: OFF
   BRAINFLOW_APPLE_BUILD_ONNX=ON|OFF         Default: OFF
+  BRAINFLOW_APPLE_RELEASE_BASE_URL=<url>     Base URL for SwiftPM release zips.
 
 The script packages every produced dynamic library as an XCFramework. The
 BrainFlow core libraries are required:
@@ -99,8 +101,19 @@ while [[ $# -gt 0 ]]; do
   esac
 done
 
+absolute_path() {
+  case "$1" in
+    /*) echo "$1" ;;
+    *) echo "${ROOT_DIR}/$1" ;;
+  esac
+}
+
+BUILD_ROOT="$(absolute_path "${BUILD_ROOT}")"
+OUTPUT_DIR="$(absolute_path "${OUTPUT_DIR}")"
+
 command -v cmake >/dev/null || { echo "error: cmake is required" >&2; exit 1; }
 command -v ninja >/dev/null || { echo "error: ninja is required" >&2; exit 1; }
+command -v swift >/dev/null || { echo "error: swift is required" >&2; exit 1; }
 command -v xcodebuild >/dev/null || { echo "error: xcodebuild is required" >&2; exit 1; }
 command -v install_name_tool >/dev/null || { echo "error: install_name_tool is required" >&2; exit 1; }
 command -v vtool >/dev/null || { echo "error: vtool is required" >&2; exit 1; }
@@ -112,6 +125,11 @@ BUILD_ONNX="${BRAINFLOW_APPLE_BUILD_ONNX:-OFF}"
 MACOS_PREFIX="${MACOS_PREFIX:-${BUILD_ROOT}/installed_macos}"
 IOS_PREFIX="${IOS_PREFIX:-${BUILD_ROOT}/installed_ios}"
 IOS_SIM_PREFIX="${IOS_SIM_PREFIX:-${BUILD_ROOT}/installed_ios_sim}"
+MACOS_PREFIX="$(absolute_path "${MACOS_PREFIX}")"
+IOS_PREFIX="$(absolute_path "${IOS_PREFIX}")"
+IOS_SIM_PREFIX="$(absolute_path "${IOS_SIM_PREFIX}")"
+RELEASE_BASE_URL="${RELEASE_BASE_URL:-https://github.com/brainflow-dev/brainflow/releases/download/${BRAINFLOW_VERSION}}"
+RELEASE_BASE_URL="${RELEASE_BASE_URL%/}"
 
 REQUIRED_LIBS=(
   libBoardController.dylib
@@ -520,6 +538,125 @@ the Apple artifact script, and publish the regenerated zip plus checksums and
 manifest from the same build.
 README
 
+swiftpm_artifact_dir="${OUTPUT_DIR}/SwiftPMArtifacts"
+remote_swift_package="${OUTPUT_DIR}/BrainFlowSwiftPackageRemote"
+rm -rf "${swiftpm_artifact_dir}" "${remote_swift_package}"
+mkdir -p "${swiftpm_artifact_dir}" "${remote_swift_package}/Sources"
+cp -R "${ROOT_DIR}/swift_package/Sources/BrainFlow" "${remote_swift_package}/Sources/BrainFlow"
+
+create_swiftpm_framework_zip() {
+  local framework_name="$1"
+  local xcframework_path="${OUTPUT_DIR}/XCFrameworks/${framework_name}.xcframework"
+  local zip_path="${swiftpm_artifact_dir}/${framework_name}.xcframework.zip"
+
+  if [[ ! -d "${xcframework_path}" ]]; then
+    echo "error: missing SwiftPM XCFramework artifact ${xcframework_path}" >&2
+    exit 1
+  fi
+
+  rm -f "${zip_path}"
+  (
+    cd "${OUTPUT_DIR}/XCFrameworks"
+    /usr/bin/zip -qry "${zip_path}" "${framework_name}.xcframework"
+  )
+  swift package compute-checksum "${zip_path}"
+}
+
+board_controller_swiftpm_checksum="$(create_swiftpm_framework_zip BoardController)"
+data_handler_swiftpm_checksum="$(create_swiftpm_framework_zip DataHandler)"
+ml_module_swiftpm_checksum="$(create_swiftpm_framework_zip MLModule)"
+
+cat > "${OUTPUT_DIR}/swiftpm-checksums.txt" <<CHECKSUMS
+${board_controller_swiftpm_checksum}  SwiftPMArtifacts/BoardController.xcframework.zip
+${data_handler_swiftpm_checksum}  SwiftPMArtifacts/DataHandler.xcframework.zip
+${ml_module_swiftpm_checksum}  SwiftPMArtifacts/MLModule.xcframework.zip
+CHECKSUMS
+
+cat > "${OUTPUT_DIR}/swiftpm-checksums.json" <<CHECKSUMS
+{
+  "BoardController": {
+    "artifact": "SwiftPMArtifacts/BoardController.xcframework.zip",
+    "checksum": "${board_controller_swiftpm_checksum}"
+  },
+  "DataHandler": {
+    "artifact": "SwiftPMArtifacts/DataHandler.xcframework.zip",
+    "checksum": "${data_handler_swiftpm_checksum}"
+  },
+  "MLModule": {
+    "artifact": "SwiftPMArtifacts/MLModule.xcframework.zip",
+    "checksum": "${ml_module_swiftpm_checksum}"
+  }
+}
+CHECKSUMS
+
+cat > "${remote_swift_package}/Package.swift" <<PACKAGE
+// swift-tools-version: 5.9
+
+import PackageDescription
+
+let package = Package(
+    name: "BrainFlow",
+    platforms: [
+        .macOS(.v12),
+        .iOS(.v15)
+    ],
+    products: [
+        .library(name: "BrainFlow", targets: ["BrainFlow"])
+    ],
+    targets: [
+        .target(
+            name: "BrainFlow",
+            dependencies: [
+                "BoardController",
+                "DataHandler",
+                "MLModule"
+            ]
+        ),
+        .binaryTarget(
+            name: "BoardController",
+            url: "${RELEASE_BASE_URL}/BoardController.xcframework.zip",
+            checksum: "${board_controller_swiftpm_checksum}"
+        ),
+        .binaryTarget(
+            name: "DataHandler",
+            url: "${RELEASE_BASE_URL}/DataHandler.xcframework.zip",
+            checksum: "${data_handler_swiftpm_checksum}"
+        ),
+        .binaryTarget(
+            name: "MLModule",
+            url: "${RELEASE_BASE_URL}/MLModule.xcframework.zip",
+            checksum: "${ml_module_swiftpm_checksum}"
+        )
+    ]
+)
+PACKAGE
+
+cat > "${remote_swift_package}/README.md" <<README
+# BrainFlow Swift Release Package
+
+This generated package is the release-facing SwiftPM package for BrainFlow Apple
+artifacts. It uses URL-based binary targets whose ZIP checksums were generated
+with \`swift package compute-checksum\`.
+
+The generated binary target URLs use:
+
+\`\`\`
+${RELEASE_BASE_URL}
+\`\`\`
+
+Set \`BRAINFLOW_APPLE_RELEASE_BASE_URL\` before running
+\`tools/apple/build_xcframeworks.sh\` when publishing release assets from a
+different host, tag path, or CDN.
+
+Publish these files next to this package version:
+
+- \`BoardController.xcframework.zip\`
+- \`DataHandler.xcframework.zip\`
+- \`MLModule.xcframework.zip\`
+- \`swiftpm-checksums.txt\`
+- \`swiftpm-checksums.json\`
+README
+
 source_revision="unknown"
 if command -v git >/dev/null && git -C "${ROOT_DIR}" rev-parse --is-inside-work-tree >/dev/null 2>&1; then
   source_revision="$(git -C "${ROOT_DIR}" rev-parse HEAD 2>/dev/null || echo unknown)"
@@ -539,9 +676,10 @@ ninja_version="$(ninja --version 2>/dev/null || true)"
 
 (
   cd "${OUTPUT_DIR}"
-  find XCFrameworks BrainFlowSwiftBinaryPackage -type f -print | LC_ALL=C sort | while IFS= read -r artifact_file; do
+  find XCFrameworks BrainFlowSwiftBinaryPackage BrainFlowSwiftPackageRemote SwiftPMArtifacts -type f -print | LC_ALL=C sort | while IFS= read -r artifact_file; do
     shasum -a 256 "${artifact_file}"
   done > checksums.sha256
+  shasum -a 256 swiftpm-checksums.txt swiftpm-checksums.json >> checksums.sha256
 )
 
 cat > "${OUTPUT_DIR}/manifest.json" <<MANIFEST
@@ -560,13 +698,30 @@ cat > "${OUTPUT_DIR}/manifest.json" <<MANIFEST
   "build_onnx": "${BUILD_ONNX}",
   "macos_deployment_target": "12.0",
   "ios_deployment_target": "15.0",
-  "checksums": "checksums.sha256"
+  "swiftpm_release_base_url": "$(json_escape "${RELEASE_BASE_URL}")",
+  "swiftpm_remote_package": "BrainFlowSwiftPackageRemote",
+  "swiftpm_artifacts": {
+    "BoardController": {
+      "zip": "SwiftPMArtifacts/BoardController.xcframework.zip",
+      "checksum": "$(json_escape "${board_controller_swiftpm_checksum}")"
+    },
+    "DataHandler": {
+      "zip": "SwiftPMArtifacts/DataHandler.xcframework.zip",
+      "checksum": "$(json_escape "${data_handler_swiftpm_checksum}")"
+    },
+    "MLModule": {
+      "zip": "SwiftPMArtifacts/MLModule.xcframework.zip",
+      "checksum": "$(json_escape "${ml_module_swiftpm_checksum}")"
+    }
+  },
+  "checksums": "checksums.sha256",
+  "swiftpm_checksums": "swiftpm-checksums.json"
 }
 MANIFEST
 
 (
   cd "${OUTPUT_DIR}"
-  /usr/bin/zip -qry BrainFlowAppleXCFrameworks.zip XCFrameworks BrainFlowSwiftBinaryPackage checksums.sha256 manifest.json
+  /usr/bin/zip -qry BrainFlowAppleXCFrameworks.zip XCFrameworks BrainFlowSwiftBinaryPackage BrainFlowSwiftPackageRemote SwiftPMArtifacts checksums.sha256 swiftpm-checksums.txt swiftpm-checksums.json manifest.json
   shasum -a 256 BrainFlowAppleXCFrameworks.zip > BrainFlowAppleXCFrameworks.zip.sha256
 )
 
