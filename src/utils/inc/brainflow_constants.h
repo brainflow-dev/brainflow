@@ -99,7 +99,7 @@ enum class BoardIds : int
     SHIMMER3_BOARD = 68,
     // use it to iterate
     FIRST = PLAYBACK_FILE_BOARD,
-    LAST = MUSE_S_ATHENA_BOARD
+    LAST = SHIMMER3_BOARD
 };
 
 enum class IpProtocolTypes : int
