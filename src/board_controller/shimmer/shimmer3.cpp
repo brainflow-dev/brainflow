@@ -1,6 +1,9 @@
 #include <chrono>
-#include <cstring>
+#include <cmath>
+#include <cstdint>
+#include <exception>
 #include <string>
+#include <vector>
 
 #include "shimmer3.h"
 
@@ -19,8 +22,9 @@ Shimmer3::Shimmer3 (struct BrainFlowInputParams params)
     sampling_rate = 0.0;
     package_num = 0.0;
     packet_data_size = 0;
+    samples_per_packet = 1;
+    configured_gsr_range = 0xFF;
 }
-
 
 Shimmer3::~Shimmer3 ()
 {
@@ -46,49 +50,59 @@ int Shimmer3::write_bytes (const uint8_t *data, int len)
     return (int)BrainFlowExitCodes::STATUS_OK;
 }
 
-// Block until len bytes are read or we give up.
-int Shimmer3::read_exact (uint8_t *buf, int len)
+int Shimmer3::read_exact (uint8_t *buf, int len, bool cancellable)
 {
     if (serial_port == nullptr)
         return (int)BrainFlowExitCodes::BOARD_NOT_CREATED_ERROR;
+    if ((buf == nullptr) || (len < 0))
+        return (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR;
+    if (len == 0)
+        return (int)BrainFlowExitCodes::STATUS_OK;
 
     int got = 0;
     int idle = 0;
-    const int max_idle = 2000; // ~2s of empty reads before timing out
+    const int max_idle = 2;
+
     while (got < len)
     {
-        int r =
+        if (cancellable && !keep_alive)
+            return (int)BrainFlowExitCodes::STREAM_THREAD_IS_NOT_RUNNING;
+
+        int res =
             serial_port->read_from_serial_port (reinterpret_cast<char *> (buf + got), len - got);
-        if (r > 0)
+
+        if (cancellable && !keep_alive)
+            return (int)BrainFlowExitCodes::STREAM_THREAD_IS_NOT_RUNNING;
+
+        if (res > 0)
         {
-            got += r;
+            got += res;
             idle = 0;
         }
-        else if (r == 0)
+        else if (res == 0)
         {
             if (++idle > max_idle)
             {
                 safe_logger (spdlog::level::err, "serial read timeout {}/{}", got, len);
                 return (int)BrainFlowExitCodes::GENERAL_ERROR;
             }
-            std::this_thread::sleep_for (std::chrono::milliseconds (1));
         }
         else
         {
-            safe_logger (spdlog::level::err, "serial read error");
+            safe_logger (spdlog::level::err, "serial read error {}", res);
             return (int)BrainFlowExitCodes::GENERAL_ERROR;
         }
     }
+
     return (int)BrainFlowExitCodes::STATUS_OK;
 }
 
-int Shimmer3::read_byte (uint8_t &out)
+int Shimmer3::read_byte (uint8_t &out, bool cancellable)
 {
-    return read_exact (&out, 1);
+    return read_exact (&out, 1, cancellable);
 }
 
-// Read bytes until ACK (0xFF). In-stream command responses (0x8A) may arrive
-// first; consume their following opcode byte and keep looking.
+// Read bytes until ACK. In-stream responses may arrive first.
 int Shimmer3::wait_for_ack ()
 {
     for (int tries = 0; tries < 512; ++tries)
@@ -101,10 +115,13 @@ int Shimmer3::wait_for_ack ()
             return (int)BrainFlowExitCodes::STATUS_OK;
         if (b == Opcode::INSTREAM_CMD_RESPONSE)
         {
-            uint8_t discard;
-            read_byte (discard);
+            uint8_t discard = 0;
+            res = read_byte (discard);
+            if (res != (int)BrainFlowExitCodes::STATUS_OK)
+                return res;
         }
     }
+
     safe_logger (spdlog::level::err, "no ACK received");
     return (int)BrainFlowExitCodes::BOARD_NOT_READY_ERROR;
 }
@@ -119,6 +136,7 @@ int Shimmer3::cmd_get_fw_version ()
     int res = write_bytes (&cmd, 1);
     if (res != (int)BrainFlowExitCodes::STATUS_OK)
         return res;
+
     res = wait_for_ack ();
     if (res != (int)BrainFlowExitCodes::STATUS_OK)
         return res;
@@ -130,7 +148,6 @@ int Shimmer3::cmd_get_fw_version ()
     if (resp != Opcode::FW_VERSION_RESPONSE)
         return (int)BrainFlowExitCodes::GENERAL_ERROR;
 
-    // 6 payload bytes: fw_id(2), major(2), minor(1), internal(1).
     uint8_t b[6];
     res = read_exact (b, 6);
     if (res != (int)BrainFlowExitCodes::STATUS_OK)
@@ -148,6 +165,7 @@ int Shimmer3::cmd_get_hw_version (uint8_t &hw_version)
     int res = write_bytes (&cmd, 1);
     if (res != (int)BrainFlowExitCodes::STATUS_OK)
         return res;
+
     res = wait_for_ack ();
     if (res != (int)BrainFlowExitCodes::STATUS_OK)
         return res;
@@ -162,8 +180,7 @@ int Shimmer3::cmd_get_hw_version (uint8_t &hw_version)
     return read_byte (hw_version);
 }
 
-// Ask the firmware not to prefix in-stream responses with an ACK byte, so the
-// data stream stays clean. Older firmware may reject it; caller tolerates that.
+// Disable the ACK prefix for in-stream command responses.
 int Shimmer3::cmd_disable_instream_ack_prefix ()
 {
     uint8_t buf[2] = {Opcode::SET_INSTREAM_RESPONSE_ACK_PREFIX_STATE, 0x00};
@@ -173,42 +190,52 @@ int Shimmer3::cmd_disable_instream_ack_prefix ()
     return wait_for_ack ();
 }
 
-// SET_SENSORS_COMMAND + 3 little-endian bitfield bytes ("0x08, 0x80, 0x00, 0x00").
 int Shimmer3::cmd_set_sensors (uint32_t bitfield)
 {
-    uint8_t buf[4] = {Opcode::SET_SENSORS_COMMAND, static_cast<uint8_t> (bitfield & 0xFF),
-        static_cast<uint8_t> ((bitfield >> 8) & 0xFF),
-        static_cast<uint8_t> ((bitfield >> 16) & 0xFF)};
+    if (bitfield > 0x00FFFFFFU)
+        return (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR;
+
+    uint8_t buf[4] = {Opcode::SET_SENSORS_COMMAND, static_cast<uint8_t> (bitfield & 0xFFU),
+        static_cast<uint8_t> ((bitfield >> 8) & 0xFFU),
+        static_cast<uint8_t> ((bitfield >> 16) & 0xFFU)};
+
     int res = write_bytes (buf, 4);
     if (res != (int)BrainFlowExitCodes::STATUS_OK)
         return res;
     return wait_for_ack ();
 }
 
-// SET_SAMPLING_RATE_COMMAND + 2 little-endian divider bytes.
 int Shimmer3::cmd_set_sampling_rate (double hz)
 {
-    uint16_t div = hz_to_divider (hz);
+    if (!std::isfinite (hz) || (hz <= 0.0))
+        return (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR;
+
+    double divider_value = CLOCK_HZ / hz;
+    if ((divider_value < 1.0) || (divider_value > 65535.0))
+        return (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR;
+
+    uint16_t div = static_cast<uint16_t> (std::lround (divider_value));
     uint8_t buf[3] = {Opcode::SET_SAMPLING_RATE_COMMAND, static_cast<uint8_t> (div & 0xFF),
         static_cast<uint8_t> ((div >> 8) & 0xFF)};
+
     int res = write_bytes (buf, 3);
     if (res != (int)BrainFlowExitCodes::STATUS_OK)
         return res;
+
     res = wait_for_ack ();
     if (res == (int)BrainFlowExitCodes::STATUS_OK)
         sampling_rate = divider_to_hz (div);
     return res;
 }
 
-// INQUIRY: learn the active sampling rate and the ordered list of channels so
-// we can parse packets. Response layout (per BtStream manual, Table 5-1):
-//   0x02 | rate(2) | config(4) | num_channels(1) | buffer_size(1) | chan IDs...
+// INQUIRY returns the rate, configuration, packet buffer size and channel IDs.
 int Shimmer3::cmd_inquiry ()
 {
     uint8_t cmd = Opcode::INQUIRY_COMMAND;
     int res = write_bytes (&cmd, 1);
     if (res != (int)BrainFlowExitCodes::STATUS_OK)
         return res;
+
     res = wait_for_ack ();
     if (res != (int)BrainFlowExitCodes::STATUS_OK)
         return res;
@@ -229,9 +256,23 @@ int Shimmer3::cmd_inquiry ()
         return res;
 
     uint16_t div = static_cast<uint16_t> (hdr[0] | (hdr[1] << 8));
+    if (div == 0)
+        return (int)BrainFlowExitCodes::BOARD_NOT_READY_ERROR;
+
     sampling_rate = divider_to_hz (div);
+
+    uint32_t config_setup = static_cast<uint32_t> (hdr[2]) | (static_cast<uint32_t> (hdr[3]) << 8) |
+        (static_cast<uint32_t> (hdr[4]) << 16) | (static_cast<uint32_t> (hdr[5]) << 24);
+
+    configured_gsr_range = static_cast<uint8_t> ((config_setup >> 25) & 0x07U);
+
     uint8_t num_channels = hdr[6];
-    uint8_t buffer_size = hdr[7];
+    samples_per_packet = hdr[7];
+    if (samples_per_packet == 0)
+    {
+        safe_logger (spdlog::level::err, "inquiry returned buffer size 0");
+        return (int)BrainFlowExitCodes::BOARD_NOT_READY_ERROR;
+    }
 
     std::vector<uint8_t> ids (num_channels);
     if (num_channels > 0)
@@ -244,11 +285,16 @@ int Shimmer3::cmd_inquiry ()
     std::vector<Signal> signals;
     for (uint8_t id : ids)
         signals.push_back (static_cast<Signal> (id));
-    build_packet_layout (signals);
+
+    if (!build_packet_layout (signals))
+        return (int)BrainFlowExitCodes::BOARD_NOT_READY_ERROR;
+
+    if (packet_data_size <= 0)
+        return (int)BrainFlowExitCodes::BOARD_NOT_READY_ERROR;
 
     safe_logger (spdlog::level::info,
-        "inquiry: {} Hz, {} channels, buffer_size {}, packet data {} bytes", sampling_rate,
-        (int)num_channels, (int)buffer_size, packet_data_size);
+        "inquiry: {} Hz, {} channels, buffer_size {}, sample data {} bytes", sampling_rate,
+        (int)num_channels, (int)samples_per_packet, packet_data_size);
     return (int)BrainFlowExitCodes::STATUS_OK;
 }
 
@@ -264,36 +310,99 @@ int Shimmer3::cmd_start_streaming ()
 int Shimmer3::cmd_stop_streaming ()
 {
     uint8_t cmd = Opcode::STOP_STREAMING_COMMAND;
-    return write_bytes (&cmd, 1); // ACK consumed opportunistically by reader
+    return write_bytes (&cmd, 1);
 }
 
 // ---------------------------------------------------------------------------
 // Packet layout
 // ---------------------------------------------------------------------------
 
-// Every packet is: 0x00 header, 3-byte timestamp, then the active channels in
-// inquiry order. We prepend a synthetic TIMESTAMP field so parsing is uniform.
-void Shimmer3::build_packet_layout (const std::vector<Signal> &signals)
+// Each sample contains a timestamp followed by the active channels.
+bool Shimmer3::build_packet_layout (const std::vector<Signal> &signals)
 {
     packet_layout.clear ();
-    bool found = false;
+    packet_data_size = 0;
 
-    packet_layout.push_back ({Signal::TIMESTAMP, format_for (Signal::TIMESTAMP, found)});
+    bool analog_accel = false;
+    bool digital_accel = false;
+    bool mpu_accel = false;
+    bool lsm_mag = false;
+    bool mpu_mag = false;
 
     for (Signal s : signals)
     {
-        FieldFormat fmt = format_for (s, found);
-        if (!found || fmt.width == 0)
+        switch (s)
         {
-            safe_logger (spdlog::level::warn, "skipping unsupported signal 0x{:02X}", (int)s);
-            continue;
+            case Signal::ACCEL_LN_X:
+            case Signal::ACCEL_LN_Y:
+            case Signal::ACCEL_LN_Z:
+                analog_accel = true;
+                break;
+
+            case Signal::ACCEL_WR_X:
+            case Signal::ACCEL_WR_Y:
+            case Signal::ACCEL_WR_Z:
+                digital_accel = true;
+                break;
+
+            case Signal::MPU_ACCEL_X:
+            case Signal::MPU_ACCEL_Y:
+            case Signal::MPU_ACCEL_Z:
+                mpu_accel = true;
+                break;
+
+            case Signal::MAG_X:
+            case Signal::MAG_Y:
+            case Signal::MAG_Z:
+                lsm_mag = true;
+                break;
+
+            case Signal::MPU_MAG_X:
+            case Signal::MPU_MAG_Y:
+            case Signal::MPU_MAG_Z:
+                mpu_mag = true;
+                break;
+
+            default:
+                break;
         }
-        packet_layout.push_back ({s, fmt});
     }
 
-    packet_data_size = 0;
-    for (const auto &f : packet_layout)
-        packet_data_size += f.format.width;
+    int accel_sources = static_cast<int> (analog_accel) + static_cast<int> (digital_accel) +
+        static_cast<int> (mpu_accel);
+
+    int mag_sources = static_cast<int> (lsm_mag) + static_cast<int> (mpu_mag);
+
+    if ((accel_sources > 1) || (mag_sources > 1))
+    {
+        safe_logger (spdlog::level::err, "multiple IMU sources use the same BrainFlow rows");
+        return false;
+    }
+
+    bool found = false;
+    FieldFormat fmt = format_for (Signal::TIMESTAMP, found);
+    if (!found || (fmt.width == 0))
+        return false;
+
+    packet_layout.push_back ({Signal::TIMESTAMP, fmt});
+    packet_data_size += fmt.width;
+
+    for (Signal s : signals)
+    {
+        fmt = format_for (s, found);
+        if (!found || (fmt.width == 0))
+        {
+            safe_logger (spdlog::level::err, "unsupported signal 0x{:02X}", (int)s);
+            packet_layout.clear ();
+            packet_data_size = 0;
+            return false;
+        }
+
+        packet_layout.push_back ({s, fmt});
+        packet_data_size += fmt.width;
+    }
+
+    return true;
 }
 
 // ---------------------------------------------------------------------------
@@ -313,17 +422,32 @@ int Shimmer3::prepare_session ()
     port_name = params.serial_port;
 
     serial_port = Serial::create (port_name.c_str (), this);
-    if (serial_port->open_serial_port () < 0)
+    if (serial_port == nullptr)
+        return (int)BrainFlowExitCodes::UNABLE_TO_OPEN_PORT_ERROR;
+
+    int serial_res = serial_port->open_serial_port ();
+    if (serial_res < 0)
     {
         safe_logger (spdlog::level::err, "failed to open {}", port_name);
         delete serial_port;
         serial_port = nullptr;
         return (int)BrainFlowExitCodes::UNABLE_TO_OPEN_PORT_ERROR;
     }
-    serial_port->set_serial_port_settings (1000, false);
+
+    serial_res = serial_port->set_serial_port_settings (1000, false);
+    if (serial_res != (int)SerialExitCodes::OK)
+    {
+        safe_logger (
+            spdlog::level::err, "failed to configure {}, serial error {}", port_name, serial_res);
+        serial_port->close_serial_port ();
+        delete serial_port;
+        serial_port = nullptr;
+        return (int)BrainFlowExitCodes::GENERAL_ERROR;
+    }
+
     std::this_thread::sleep_for (std::chrono::milliseconds (500));
 
-    // Confirm we are actually talking to a Shimmer3 (reject Shimmer3R).
+    // Confirm this is a Shimmer3 and reject Shimmer3R.
     uint8_t hw = 0;
     int res = cmd_get_hw_version (hw);
     if (res != (int)BrainFlowExitCodes::STATUS_OK)
@@ -340,9 +464,9 @@ int Shimmer3::prepare_session ()
         return (int)BrainFlowExitCodes::BOARD_NOT_READY_ERROR;
     }
 
-    cmd_get_fw_version (); // informational only
+    if (cmd_get_fw_version () != (int)BrainFlowExitCodes::STATUS_OK)
+        safe_logger (spdlog::level::warn, "could not read firmware version");
 
-    // Best-effort: silence the in-stream ACK prefix.
     if (cmd_disable_instream_ack_prefix () != (int)BrainFlowExitCodes::STATUS_OK)
         safe_logger (spdlog::level::warn, "could not disable in-stream ACK prefix (old firmware?)");
 
@@ -363,7 +487,7 @@ int Shimmer3::start_stream (int buffer_size, const char *streamer_params)
         return (int)BrainFlowExitCodes::BOARD_NOT_CREATED_ERROR;
     if (keep_alive)
         return (int)BrainFlowExitCodes::STREAM_ALREADY_RUN_ERROR;
-    if (packet_data_size <= 0)
+    if ((packet_data_size <= 0) || packet_layout.empty () || (samples_per_packet == 0))
         return (int)BrainFlowExitCodes::BOARD_NOT_READY_ERROR;
     if (buffer_size <= 0)
         return (int)BrainFlowExitCodes::INVALID_BUFFER_SIZE_ERROR;
@@ -372,22 +496,23 @@ int Shimmer3::start_stream (int buffer_size, const char *streamer_params)
     if (res != (int)BrainFlowExitCodes::STATUS_OK)
         return res;
 
-    package_num = 0.0;           // reset sequence counter for the new stream
-    first_data_received = false; // reset handshake flag
+    package_num = 0.0;
+    {
+        std::lock_guard<std::mutex> lk (sync_mutex);
+        first_data_received = false;
+    }
 
     res = cmd_start_streaming ();
     if (res != (int)BrainFlowExitCodes::STATUS_OK)
     {
         safe_logger (spdlog::level::err, "failed to start streaming");
+        free_packages ();
         return res;
     }
 
     keep_alive = true;
     streaming_thread = std::thread ([this] { this->read_thread (); });
 
-    // Wait until the read thread confirms real 0x00 data packets are flowing.
-    // The device already ACKed START_STREAMING above; this additionally guards
-    // against a paired-but-dead Bluetooth link that ACKs but never streams.
     int timeout = params.timeout > 0 ? params.timeout : 5;
     std::unique_lock<std::mutex> lk (sync_mutex);
     bool got_data = sync_cv.wait_for (
@@ -401,12 +526,12 @@ int Shimmer3::start_stream (int buffer_size, const char *streamer_params)
         if (streaming_thread.joinable ())
             streaming_thread.join ();
         cmd_stop_streaming ();
+        free_packages ();
         return (int)BrainFlowExitCodes::SYNC_TIMEOUT_ERROR;
     }
 
     return (int)BrainFlowExitCodes::STATUS_OK;
 }
-
 
 int Shimmer3::stop_stream ()
 {
@@ -417,8 +542,9 @@ int Shimmer3::stop_stream ()
     if (streaming_thread.joinable ())
         streaming_thread.join ();
 
-    cmd_stop_streaming ();
-    // Drain whatever is left in the buffer (trailing data / ACK).
+    int res = cmd_stop_streaming ();
+
+    // Drain trailing data and ACK.
     if (serial_port != nullptr)
     {
         uint8_t junk[256];
@@ -430,13 +556,16 @@ int Shimmer3::stop_stream ()
                 break;
         }
     }
-    return (int)BrainFlowExitCodes::STATUS_OK;
+
+    return res;
 }
 
 int Shimmer3::release_session ()
 {
     if (keep_alive)
         stop_stream ();
+    else if (streaming_thread.joinable ())
+        streaming_thread.join ();
 
     if (initialized)
         free_packages ();
@@ -451,13 +580,31 @@ int Shimmer3::release_session ()
 
     packet_layout.clear ();
     packet_data_size = 0;
+    samples_per_packet = 1;
+    configured_gsr_range = 0xFF;
     sampling_rate = 0.0;
+    package_num = 0.0;
+
+    {
+        std::lock_guard<std::mutex> lk (sync_mutex);
+        first_data_received = false;
+    }
+
     return (int)BrainFlowExitCodes::STATUS_OK;
 }
 
+int Shimmer3::get_board_sampling_rate (int preset)
+{
+    if (preset != (int)BrainFlowPresets::DEFAULT_PRESET)
+        return Board::get_board_sampling_rate (preset);
+    if (!std::isfinite (sampling_rate) || (sampling_rate <= 0.0))
+        return Board::get_board_sampling_rate (preset);
+    return static_cast<int> (std::lround (sampling_rate));
+}
+
 // Supported config strings:
-//   "sampling_rate:<Hz>"  -> change sampling rate (re-runs inquiry)
-//   "sensors:<hex24>"     -> change enabled-sensor bitfield (re-runs inquiry)
+//   "sampling_rate:<Hz>"
+//   "sensors:<hex24>"
 int Shimmer3::config_board (std::string config, std::string &response)
 {
     if (!initialized)
@@ -476,21 +623,81 @@ int Shimmer3::config_board (std::string config, std::string &response)
         return r;
     };
 
-    if (config.rfind ("sampling_rate:", 0) == 0)
+    try
     {
-        double hz = std::stod (config.substr (14));
-        int res = cmd_set_sampling_rate (hz);
-        if (res != (int)BrainFlowExitCodes::STATUS_OK)
-            return res;
-        return reinquire (response);
+        if (config.rfind ("sampling_rate:", 0) == 0)
+        {
+            std::string value = config.substr (14);
+            if (value.empty ())
+            {
+                response = "INVALID_SAMPLING_RATE";
+                return (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR;
+            }
+
+            size_t parsed = 0;
+            double hz = std::stod (value, &parsed);
+            if ((parsed != value.size ()) || !std::isfinite (hz) || (hz <= 0.0))
+            {
+                response = "INVALID_SAMPLING_RATE";
+                return (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR;
+            }
+
+            double divider_value = CLOCK_HZ / hz;
+            if ((divider_value < 1.0) || (divider_value > 65535.0))
+            {
+                response = "INVALID_SAMPLING_RATE";
+                return (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR;
+            }
+
+            int res = cmd_set_sampling_rate (hz);
+            if (res != (int)BrainFlowExitCodes::STATUS_OK)
+                return res;
+            return reinquire (response);
+        }
+
+        if (config.rfind ("sensors:", 0) == 0)
+        {
+            std::string value = config.substr (8);
+            if (value.empty ())
+            {
+                response = "INVALID_SENSORS";
+                return (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR;
+            }
+
+            size_t parsed = 0;
+            unsigned long bits = std::stoul (value, &parsed, 16);
+
+            if ((parsed != value.size ()) || (bits > 0x00FFFFFFUL))
+            {
+                response = "INVALID_SENSORS";
+                return (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR;
+            }
+
+            uint32_t sensor_bits = static_cast<uint32_t> (bits);
+            uint32_t accel_bits = sensor_bits & ACCEL_SENSORS;
+            uint32_t mag_bits = sensor_bits & MAG_SENSORS;
+            uint32_t exg1_bits = sensor_bits & EXG1_SENSORS;
+            uint32_t exg2_bits = sensor_bits & EXG2_SENSORS;
+
+            if (((sensor_bits & ~SUPPORTED_SENSORS) != 0) ||
+                ((accel_bits & (accel_bits - 1)) != 0) || ((mag_bits & (mag_bits - 1)) != 0) ||
+                ((exg1_bits & (exg1_bits - 1)) != 0) || ((exg2_bits & (exg2_bits - 1)) != 0))
+            {
+                response = "INVALID_SENSORS";
+                return (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR;
+            }
+
+            int res = cmd_set_sensors (sensor_bits);
+            if (res != (int)BrainFlowExitCodes::STATUS_OK)
+                return res;
+            return reinquire (response);
+        }
     }
-    if (config.rfind ("sensors:", 0) == 0)
+    catch (const std::exception &e)
     {
-        uint32_t bits = static_cast<uint32_t> (std::stoul (config.substr (8), nullptr, 16));
-        int res = cmd_set_sensors (bits);
-        if (res != (int)BrainFlowExitCodes::STATUS_OK)
-            return res;
-        return reinquire (response);
+        safe_logger (spdlog::level::err, "invalid config '{}': {}", config, e.what ());
+        response = "INVALID_CONFIG";
+        return (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR;
     }
 
     safe_logger (spdlog::level::warn, "unknown config '{}'", config);
@@ -499,10 +706,43 @@ int Shimmer3::config_board (std::string config, std::string &response)
 }
 
 // ---------------------------------------------------------------------------
+// GSR conversion
+// ---------------------------------------------------------------------------
+
+bool Shimmer3::convert_gsr_to_microsiemens (int32_t raw_value, double &eda_us) const
+{
+    uint16_t raw = static_cast<uint16_t> (raw_value & 0xFFFF);
+    uint16_t adc = raw & 0x0FFF;
+    uint8_t range = configured_gsr_range;
+
+    if (range == 4)
+        range = static_cast<uint8_t> ((raw >> 14) & 0x03);
+
+    if (range > 3)
+    {
+        eda_us = 0.0;
+        return false;
+    }
+
+    struct Coeff
+    {
+        double p1;
+        double p2;
+    };
+
+    static constexpr Coeff coeffs[4] = {
+        {0.0373, -24.9915}, {0.0054, -3.5194}, {0.0015, -1.0163}, {0.0004558, -0.3014}};
+
+    eda_us = coeffs[range].p1 * adc + coeffs[range].p2;
+    if (!std::isfinite (eda_us) || (eda_us <= 0.0))
+        eda_us = 0.0;
+    return true;
+}
+
+// ---------------------------------------------------------------------------
 // Routing decoded values to BrainFlow rows
 // ---------------------------------------------------------------------------
 
-// Returns the row arrays from board_descr by key, or an empty vector.
 static std::vector<int> rows_by_key (const json &descr, const char *key)
 {
     std::vector<int> out;
@@ -514,61 +754,74 @@ static std::vector<int> rows_by_key (const json &descr, const char *key)
     return out;
 }
 
-int Shimmer3::route_field (Signal s, int32_t raw, double *package, int &accel_axis, int &gyro_axis,
-    int &mag_axis, int &exg_idx, int &other_idx)
+void Shimmer3::route_field (Signal s, int32_t raw, double *package, int &other_idx)
 {
     const json &d = board_descr["default"];
 
-    auto put_axis = [&] (const char *key, int axis)
+    auto put_row = [&] (const char *key, int index, double value)
     {
         auto rows = rows_by_key (d, key);
-        if (axis >= 0 && axis < (int)rows.size ())
-            package[rows[axis]] = static_cast<double> (raw);
+        if ((index >= 0) && (index < (int)rows.size ()))
+            package[rows[index]] = value;
     };
 
     switch (s)
     {
         case Signal::TIMESTAMP:
-            // Device timestamp converted to seconds; only stored if a generic
-            // "device timestamp" style row exists, otherwise ignored here.
             break;
 
         case Signal::ACCEL_LN_X:
-        case Signal::ACCEL_LN_Y:
-        case Signal::ACCEL_LN_Z:
         case Signal::ACCEL_WR_X:
+            put_row ("accel_channels", 0, raw);
+            break;
+
+        case Signal::ACCEL_LN_Y:
         case Signal::ACCEL_WR_Y:
+            put_row ("accel_channels", 1, raw);
+            break;
+
+        case Signal::ACCEL_LN_Z:
         case Signal::ACCEL_WR_Z:
-            put_axis ("accel_channels", accel_axis++ % 3);
+            put_row ("accel_channels", 2, raw);
             break;
 
         case Signal::GYRO_X:
+            put_row ("gyro_channels", 0, raw);
+            break;
+
         case Signal::GYRO_Y:
+            put_row ("gyro_channels", 1, raw);
+            break;
+
         case Signal::GYRO_Z:
-            put_axis ("gyro_channels", gyro_axis++ % 3);
+            put_row ("gyro_channels", 2, raw);
             break;
 
         case Signal::MAG_X:
+            put_row ("magnetometer_channels", 0, raw);
+            break;
+
         case Signal::MAG_Y:
+            put_row ("magnetometer_channels", 1, raw);
+            break;
+
         case Signal::MAG_Z:
-            put_axis ("magnetometer_channels", mag_axis++ % 3);
+            put_row ("magnetometer_channels", 2, raw);
             break;
 
         case Signal::GSR:
         {
-            auto rows = rows_by_key (d, "eda_channels");
-            if (!rows.empty ())
-                package[rows[0]] = static_cast<double> (raw);
+            double eda_us = 0.0;
+            if (!convert_gsr_to_microsiemens (raw, eda_us))
+                safe_logger (spdlog::level::warn, "invalid configured GSR range {}",
+                    (int)configured_gsr_range);
+            put_row ("eda_channels", 0, eda_us);
             break;
         }
 
         case Signal::TEMPERATURE:
-        {
-            auto rows = rows_by_key (d, "temperature_channels");
-            if (!rows.empty ())
-                package[rows[0]] = static_cast<double> (raw);
+            put_row ("temperature_channels", 0, raw);
             break;
-        }
 
         case Signal::VBATT:
             if (d.contains ("battery_channel"))
@@ -576,24 +829,51 @@ int Shimmer3::route_field (Signal s, int32_t raw, double *package, int &accel_ax
             break;
 
         case Signal::EXG1_CH1_24BIT:
-        case Signal::EXG1_CH2_24BIT:
-        case Signal::EXG2_CH1_24BIT:
-        case Signal::EXG2_CH2_24BIT:
         case Signal::EXG1_CH1_16BIT:
-        case Signal::EXG1_CH2_16BIT:
-        case Signal::EXG2_CH1_16BIT:
-        case Signal::EXG2_CH2_16BIT:
-        {
-            auto rows = rows_by_key (d, "ecg_channels");
-            if (exg_idx < (int)rows.size ())
-                package[rows[exg_idx]] = static_cast<double> (raw);
-            exg_idx++;
+            put_row ("ecg_channels", 0, raw);
             break;
-        }
+
+        case Signal::EXG1_CH2_24BIT:
+        case Signal::EXG1_CH2_16BIT:
+            put_row ("ecg_channels", 1, raw);
+            break;
+
+        case Signal::EXG2_CH1_24BIT:
+        case Signal::EXG2_CH1_16BIT:
+            put_row ("ecg_channels", 2, raw);
+            break;
+
+        case Signal::EXG2_CH2_24BIT:
+        case Signal::EXG2_CH2_16BIT:
+            put_row ("ecg_channels", 3, raw);
+            break;
+
+        case Signal::MPU_ACCEL_X:
+            put_row ("accel_channels", 0, raw);
+            break;
+
+        case Signal::MPU_ACCEL_Y:
+            put_row ("accel_channels", 1, raw);
+            break;
+
+        case Signal::MPU_ACCEL_Z:
+            put_row ("accel_channels", 2, raw);
+            break;
+
+        case Signal::MPU_MAG_X:
+            put_row ("magnetometer_channels", 0, raw);
+            break;
+
+        case Signal::MPU_MAG_Y:
+            put_row ("magnetometer_channels", 1, raw);
+            break;
+
+        case Signal::MPU_MAG_Z:
+            put_row ("magnetometer_channels", 2, raw);
+            break;
 
         default:
         {
-            // ADC channels, pressure, strain, ExG status, etc.
             auto rows = rows_by_key (d, "other_channels");
             if (other_idx < (int)rows.size ())
                 package[rows[other_idx]] = static_cast<double> (raw);
@@ -601,94 +881,113 @@ int Shimmer3::route_field (Signal s, int32_t raw, double *package, int &accel_ax
             break;
         }
     }
-    return 0;
 }
 
 // ---------------------------------------------------------------------------
-// Streaming thread: resync on 0x00 header, read one packet, decode, push.
+// Streaming thread
 // ---------------------------------------------------------------------------
 
 void Shimmer3::read_thread ()
 {
-    int num_rows = board_descr["default"]["num_rows"];
-    std::vector<uint8_t> buf (packet_data_size);
+    const json &d = board_descr["default"];
+    int num_rows = d["num_rows"];
+    int payload_size = packet_data_size * (int)samples_per_packet;
+    std::vector<uint8_t> buf (payload_size);
 
     int ts_row = -1;
-    if (board_descr["default"].contains ("timestamp_channel"))
-        ts_row = board_descr["default"]["timestamp_channel"];
+    if (d.contains ("timestamp_channel"))
+        ts_row = d["timestamp_channel"];
 
     int package_num_row = -1;
-    if (board_descr["default"].contains ("package_num_channel"))
-        package_num_row = board_descr["default"]["package_num_channel"];
+    if (d.contains ("package_num_channel"))
+        package_num_row = d["package_num_channel"];
 
     while (keep_alive)
     {
-        // Resync: every data packet starts with a 0x00 header byte.
         uint8_t header = 0xFF;
-        if (read_byte (header) != (int)BrainFlowExitCodes::STATUS_OK)
+        int res = read_byte (header, true);
+        if (res != (int)BrainFlowExitCodes::STATUS_OK)
+        {
+            if (!keep_alive)
+                break;
             continue;
+        }
+
         if (header != Opcode::DATA_PACKET)
         {
             if (header == Opcode::INSTREAM_CMD_RESPONSE)
             {
-                uint8_t discard;
-                read_byte (discard);
+                uint8_t discard = 0;
+                read_byte (discard, true);
             }
             continue;
         }
 
-        if (read_exact (buf.data (), packet_data_size) != (int)BrainFlowExitCodes::STATUS_OK)
-            continue;
-
-        double *package = new double[num_rows];
-        for (int i = 0; i < num_rows; ++i)
-            package[i] = 0.0;
-
-        int offset = 0;
-        int accel_axis = 0, gyro_axis = 0, mag_axis = 0, exg_idx = 0, other_idx = 0;
-        bool ok = true;
-
-        for (const auto &field : packet_layout)
+        res = read_exact (buf.data (), payload_size, true);
+        if (res != (int)BrainFlowExitCodes::STATUS_OK)
         {
-            if (offset + field.format.width > packet_data_size)
-            {
-                ok = false;
+            if (!keep_alive)
                 break;
-            }
-            int32_t raw = decode_field (field.format, buf.data () + offset);
-            offset += field.format.width;
-
-            if (field.signal == Signal::TIMESTAMP)
-                continue;
-
-            route_field (
-                field.signal, raw, package, accel_axis, gyro_axis, mag_axis, exg_idx, other_idx);
-        }
-
-        if (!ok)
-        {
-            delete[] package;
             continue;
         }
 
-        if (package_num_row >= 0)
-            package[package_num_row] = package_num;
-        package_num += 1.0;
+        double packet_timestamp = get_timestamp ();
 
-        if (ts_row >= 0)
-            package[ts_row] = get_timestamp ();
-
-        push_package (package);
-        delete[] package;
-
-        // Signal start_stream that data is flowing (first valid packet only).
-        if (!first_data_received)
+        for (int sample = 0; sample < (int)samples_per_packet; ++sample)
         {
+            std::vector<double> package (num_rows, 0.0);
+
+            int offset = sample * packet_data_size;
+            int sample_end = offset + packet_data_size;
+            int other_idx = 0;
+            bool ok = true;
+
+            for (const auto &field : packet_layout)
+            {
+                if ((field.format.width <= 0) || (offset + field.format.width > sample_end))
+                {
+                    ok = false;
+                    break;
+                }
+
+                int32_t raw = decode_field (field.format, buf.data () + offset);
+                offset += field.format.width;
+
+                if (field.signal == Signal::TIMESTAMP)
+                    continue;
+
+                route_field (field.signal, raw, package.data (), other_idx);
+            }
+
+            if (!ok || (offset != sample_end))
+            {
+                continue;
+            }
+
+            if (package_num_row >= 0)
+                package[package_num_row] = package_num;
+            package_num += 1.0;
+
+            if (ts_row >= 0)
+            {
+                int samples_after = (int)samples_per_packet - sample - 1;
+                package[ts_row] =
+                    packet_timestamp - static_cast<double> (samples_after) / sampling_rate;
+            }
+
+            push_package (package.data ());
+
+            bool notify = false;
             {
                 std::lock_guard<std::mutex> lk (sync_mutex);
-                first_data_received = true;
+                if (!first_data_received)
+                {
+                    first_data_received = true;
+                    notify = true;
+                }
             }
-            sync_cv.notify_one ();
+            if (notify)
+                sync_cv.notify_one ();
         }
     }
 }

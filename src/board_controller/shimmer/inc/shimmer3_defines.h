@@ -1,7 +1,7 @@
 #pragma once
 
+#include <cmath>
 #include <cstdint>
-#include <cstring>
 
 namespace shimmer3
 {
@@ -78,24 +78,23 @@ namespace shimmer3
         constexpr uint32_t EXG1_24BIT = 0x000010; // ADS1292R chip 1, 24-bit
         constexpr uint32_t EXG2_24BIT = 0x000008; // ADS1292R chip 2, 24-bit
         constexpr uint32_t GSR = 0x000004;
-        constexpr uint32_t EXT_A1 = 0x000002; // external ADC
-        constexpr uint32_t EXT_A0 = 0x000001; // external ADC
+        constexpr uint32_t EXT_A7 = 0x000002; // external ADC
+        constexpr uint32_t EXT_A6 = 0x000001; // external ADC
 
-        constexpr uint32_t INT_A1 = 0x000100;  // internal ADC
-        constexpr uint32_t INT_A0 = 0x000200;  // internal ADC
-        constexpr uint32_t INT_A3 = 0x000400;  // internal ADC
-        constexpr uint32_t EXT_A2 = 0x000800;  // external ADC
+        constexpr uint32_t INT_A13 = 0x000100; // internal ADC
+        constexpr uint32_t INT_A12 = 0x000200; // internal ADC
+        constexpr uint32_t INT_A1 = 0x000400;  // internal ADC
+        constexpr uint32_t EXT_A15 = 0x000800; // external ADC
         constexpr uint32_t D_ACCEL = 0x001000; // wide-range (digital) accel
         constexpr uint32_t VBATT = 0x002000;
-        constexpr uint32_t STRAIN = 0x008000;
+        constexpr uint32_t BRIDGE_AMP = 0x008000;
 
-        constexpr uint32_t TEMP = 0x020000;
         constexpr uint32_t PRESSURE = 0x040000;
         constexpr uint32_t EXG2_16BIT = 0x080000;
         constexpr uint32_t EXG1_16BIT = 0x100000;
-        constexpr uint32_t MAG_WR = 0x200000;
-        constexpr uint32_t HIGH_G_ACCEL = 0x400000;
-        constexpr uint32_t INT_A2 = 0x800000;
+        constexpr uint32_t MPU_MAG = 0x200000;
+        constexpr uint32_t MPU_ACCEL = 0x400000;
+        constexpr uint32_t INT_A14 = 0x800000;
     }
 
     // Channel (signal) identifiers as reported, in order, by the inquiry response.
@@ -115,19 +114,19 @@ namespace shimmer3
         GYRO_X = 0x0A,
         GYRO_Y = 0x0B,
         GYRO_Z = 0x0C,
-        EXT_ADC_A0 = 0x0D,
-        EXT_ADC_A1 = 0x0E,
-        EXT_ADC_A2 = 0x0F,
-        INT_ADC_A3 = 0x10,
-        INT_ADC_A0 = 0x11,
-        INT_ADC_A1 = 0x12,
-        INT_ADC_A2 = 0x13,
-        HIGH_G_ACCEL_X = 0x14,
-        HIGH_G_ACCEL_Y = 0x15,
-        HIGH_G_ACCEL_Z = 0x16,
-        MAG_WR_X = 0x17,
-        MAG_WR_Y = 0x18,
-        MAG_WR_Z = 0x19,
+        EXT_ADC_A7 = 0x0D,
+        EXT_ADC_A6 = 0x0E,
+        EXT_ADC_A15 = 0x0F,
+        INT_ADC_A1 = 0x10,
+        INT_ADC_A12 = 0x11,
+        INT_ADC_A13 = 0x12,
+        INT_ADC_A14 = 0x13,
+        MPU_ACCEL_X = 0x14,
+        MPU_ACCEL_Y = 0x15,
+        MPU_ACCEL_Z = 0x16,
+        MPU_MAG_X = 0x17,
+        MPU_MAG_Y = 0x18,
+        MPU_MAG_Z = 0x19,
         TEMPERATURE = 0x1A,
         PRESSURE = 0x1B,
         GSR = 0x1C,
@@ -144,9 +143,7 @@ namespace shimmer3
         STRAIN_HIGH = 0x27,
         STRAIN_LOW = 0x28,
 
-        // Synthetic: the 3-byte timestamp prepended to every packet. Not a real
-        // signal ID, so we use a value outside the on-wire 8-bit range conceptually
-        // (kept inside uint8_t but never sent by the device).
+        // Synthetic timestamp field used only by the host-side packet layout.
         TIMESTAMP = 0xFE,
     };
 
@@ -182,8 +179,7 @@ namespace shimmer3
         return static_cast<int32_t> (raw);
     }
 
-    // Return the wire format for a given signal. found is set false for signals
-    // that exist in the protocol but are not produced by Shimmer3 hardware.
+    // Return the wire format for a signal. found is false for unsupported IDs.
     inline FieldFormat format_for (Signal s, bool &found)
     {
         found = true;
@@ -215,17 +211,29 @@ namespace shimmer3
                 return {2, true, false};
 
             // ADC channels: unsigned 16-bit little-endian.
-            case Signal::EXT_ADC_A0:
-            case Signal::EXT_ADC_A1:
-            case Signal::EXT_ADC_A2:
-            case Signal::INT_ADC_A3:
-            case Signal::INT_ADC_A0:
+            case Signal::EXT_ADC_A7:
+            case Signal::EXT_ADC_A6:
+            case Signal::EXT_ADC_A15:
             case Signal::INT_ADC_A1:
-            case Signal::INT_ADC_A2:
+            case Signal::INT_ADC_A12:
+            case Signal::INT_ADC_A13:
+            case Signal::INT_ADC_A14:
             case Signal::GSR:
             case Signal::STRAIN_HIGH:
             case Signal::STRAIN_LOW:
                 return {2, false, true};
+
+            // MPU9150 accel: signed 16-bit big-endian.
+            case Signal::MPU_ACCEL_X:
+            case Signal::MPU_ACCEL_Y:
+            case Signal::MPU_ACCEL_Z:
+                return {2, true, false};
+
+            // MPU9150 magnetometer: signed 16-bit little-endian.
+            case Signal::MPU_MAG_X:
+            case Signal::MPU_MAG_Y:
+            case Signal::MPU_MAG_Z:
+                return {2, true, true};
 
             // BMP180/280 temperature & pressure: unsigned big-endian.
             case Signal::TEMPERATURE:
@@ -251,7 +259,6 @@ namespace shimmer3
             case Signal::TIMESTAMP:
                 return {TIMESTAMP_BYTES, false, true};
 
-            // Not present on Shimmer3 (high-g accel, wide-range mag).
             default:
                 found = false;
                 return {0, false, false};
@@ -267,9 +274,14 @@ namespace shimmer3
 
     inline uint16_t hz_to_divider (double hz)
     {
-        if (hz <= 0.0)
+        if (!std::isfinite (hz) || (hz <= 0.0))
             return 0;
-        return static_cast<uint16_t> (CLOCK_HZ / hz + 0.5);
+
+        double divider = CLOCK_HZ / hz;
+        if ((divider < 1.0) || (divider > 65535.0))
+            return 0;
+
+        return static_cast<uint16_t> (divider + 0.5);
     }
 
     // -------------------------- CRC --------------------------
@@ -289,6 +301,9 @@ namespace shimmer3
 
     inline uint16_t calc_crc (int length, const uint8_t *msg)
     {
+        if ((length <= 0) || (msg == nullptr))
+            return CRC_INIT;
+
         uint16_t crc = crc_byte (CRC_INIT, msg[0]);
         for (int i = 1; i < length; ++i)
             crc = crc_byte (crc, msg[i]);
@@ -296,5 +311,15 @@ namespace shimmer3
             crc = crc_byte (crc, 0x00);
         return crc;
     }
+
+    constexpr uint32_t SUPPORTED_SENSORS = sensor::A_ACCEL | sensor::GYRO | sensor::MAG |
+        sensor::EXG1_24BIT | sensor::EXG2_24BIT | sensor::GSR | sensor::EXT_A7 | sensor::EXT_A6 |
+        sensor::INT_A13 | sensor::INT_A12 | sensor::INT_A1 | sensor::EXT_A15 | sensor::D_ACCEL |
+        sensor::VBATT | sensor::BRIDGE_AMP | sensor::PRESSURE | sensor::EXG2_16BIT |
+        sensor::EXG1_16BIT | sensor::MPU_MAG | sensor::MPU_ACCEL | sensor::INT_A14;
+    constexpr uint32_t ACCEL_SENSORS = sensor::A_ACCEL | sensor::D_ACCEL | sensor::MPU_ACCEL;
+    constexpr uint32_t MAG_SENSORS = sensor::MAG | sensor::MPU_MAG;
+    constexpr uint32_t EXG1_SENSORS = sensor::EXG1_24BIT | sensor::EXG1_16BIT;
+    constexpr uint32_t EXG2_SENSORS = sensor::EXG2_24BIT | sensor::EXG2_16BIT;
 
 } // namespace shimmer3
