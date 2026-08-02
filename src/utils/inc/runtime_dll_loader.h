@@ -1,11 +1,15 @@
 #pragma once
 
+#include <memory>
 #include <string.h>
+#include <string>
+
+#include "spdlog/spdlog.h"
+
 #ifdef _WIN32
 #include <windows.h>
 #else
 #include <dlfcn.h>
-#include <string>
 #include <vector>
 #endif
 
@@ -40,8 +44,13 @@ public:
             this->lib_instance = LoadLibrary (this->dll_path);
             if (this->lib_instance == NULL)
             {
+                log_loader_message (spdlog::level::err,
+                    "Failed to load BrainFlow native library {}: Windows error {}",
+                    this->dll_path, GetLastError ());
                 return false;
             }
+            log_loader_message (
+                spdlog::level::info, "Loaded BrainFlow native library {}", this->dll_path);
         }
         return true;
     }
@@ -71,14 +80,31 @@ public:
         {
             // RTLD_DEEPBIND will search for symbols in loaded lib first and after that in global
             // scope
-            for (const std::string &candidate : get_dlopen_candidates ())
+            std::vector<std::string> candidates = get_dlopen_candidates ();
+            std::string checked_candidates;
+            for (const std::string &candidate : candidates)
             {
+                if (!checked_candidates.empty ())
+                {
+                    checked_candidates += ", ";
+                }
+                checked_candidates += candidate;
+                dlerror ();
                 lib_instance = dlopen (candidate.c_str (), RTLD_LAZY | RTLD_DEEPBIND);
                 if (lib_instance)
                 {
+                    log_loader_message (
+                        spdlog::level::info, "Loaded BrainFlow native library {}", candidate);
                     return true;
                 }
+                const char *error = dlerror ();
+                log_loader_message (spdlog::level::debug,
+                    "Failed to load BrainFlow native library candidate {}: {}", candidate,
+                    error ? error : "unknown error");
             }
+            log_loader_message (spdlog::level::err,
+                "Failed to load BrainFlow native library {}. Checked candidates: {}", this->dll_path,
+                checked_candidates);
             return false;
         }
         return true;
@@ -104,6 +130,31 @@ public:
 #endif
 
 private:
+    static std::shared_ptr<spdlog::logger> get_loader_logger ()
+    {
+        const char *logger_names[] = {"board_logger", "ml_logger", "data_logger"};
+        for (const char *logger_name : logger_names)
+        {
+            std::shared_ptr<spdlog::logger> logger = spdlog::get (logger_name);
+            if (logger)
+            {
+                return logger;
+            }
+        }
+        return nullptr;
+    }
+
+    template <typename... Args>
+    static void log_loader_message (
+        spdlog::level::level_enum log_level, const char *fmt, const Args &... args)
+    {
+        std::shared_ptr<spdlog::logger> logger = get_loader_logger ();
+        if (logger)
+        {
+            logger->log (log_level, fmt, args...);
+        }
+    }
+
 #ifndef _WIN32
     std::vector<std::string> get_dlopen_candidates () const
     {

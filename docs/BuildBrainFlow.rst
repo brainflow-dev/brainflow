@@ -187,7 +187,7 @@ The macOS demo can be built with:
     cd swift_package
     BRAINFLOW_LIB_DIR=../installed/lib swift run BrainFlowMacDemo
 
-iOS and Mac App Store sample source and release-preparation notes are available in :code:`swift_package/examples/apps`, :code:`swift_package/Docs/AppleBinaryDistribution.md`, and :code:`swift_package/Docs/AppStoreReadiness.md`. App runtime support requires matching BrainFlow native frameworks embedded and signed inside the app bundle; App Store builds should not depend on :code:`BRAINFLOW_LIB_DIR` or local development directories.
+iOS and Mac App Store sample source is available in :code:`swift_package/examples/apps`. See :ref:`apple-binary-distribution-label` and :ref:`app-store-readiness-label` for release-preparation notes. App runtime support requires matching BrainFlow native frameworks embedded and signed inside the app bundle; App Store builds should not depend on :code:`BRAINFLOW_LIB_DIR` or local development directories.
 
 Docker Image
 --------------

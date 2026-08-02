@@ -43,7 +43,7 @@ tools/apple/regenerate_artifacts.sh
 tools/apple/verify_xcframeworks.sh build/apple_xcframeworks
 ```
 
-See `Docs/AppleBinaryDistribution.md` for artifact details and App Store packaging notes.
+See `../docs/AppleBinaryDistribution.rst` and `../docs/AppStoreReadiness.rst` for artifact details and App Store packaging notes.
 
 On Linux the equivalent `.so` names are used.
 
@@ -59,10 +59,24 @@ The package exposes Swift equivalents for the public Python/Java binding surface
 Swift in-place signal-processing methods take `inout [Double]`, for example:
 
 ```swift
-var data = Array(0..<256).map { sin(Double($0) / 10.0) }
+import BrainFlow
+import Foundation
+
+let board = try BoardShim(board_id: .SYNTHETIC_BOARD)
+try board.prepare_session()
+defer { try? board.release_session() }
+
+try board.start_stream()
+Thread.sleep(forTimeInterval: 2.0)
+try board.stop_stream()
+
+let eegChannel = try BoardShim.get_eeg_channels(board_id: .SYNTHETIC_BOARD).first!
+let samplingRate = try BoardShim.get_sampling_rate(board_id: .SYNTHETIC_BOARD)
+var data = try board.get_board_data()[eegChannel]
+
 try DataFilter.perform_lowpass(
     data: &data,
-    sampling_rate: 250,
+    sampling_rate: samplingRate,
     cutoff: 30.0,
     order: 4,
     filter_type: .BUTTERWORTH,
