@@ -33,7 +33,7 @@ pip install brainflow
          style="max-width: 100%; height: auto; border: 1px solid #e1e1e1;">
   </a>
   <figcaption style="margin-top: 0.75rem; color: #666; font-size: 0.9em;">
-    PePy snapshot captured August 3, 2026. The displayed statistics include CI traffic.
+    PePy snapshot captured August 2, 2026. The displayed statistics include CI traffic.
   </figcaption>
 </figure>
 
