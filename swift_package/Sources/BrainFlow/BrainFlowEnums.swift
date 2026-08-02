@@ -58,13 +58,14 @@ public enum BoardIds: Int, CaseIterable, Sendable {
     case SYNCHRONI_TRIO_3_CHANNELS_BOARD = 58
     case SYNCHRONI_OCTO_8_CHANNELS_BOARD = 59
     case OB5000_8_CHANNELS_BOARD = 60
-    case SYNCHRONI_PENTO_8_CHANNELS_BOARD = 61
+    case SYNCHRONI_NEO_8_CHANNELS_BOARD = 61
     case SYNCHRONI_UNO_1_CHANNELS_BOARD = 62
     case OB3000_24_CHANNELS_BOARD = 63
     case BIOLISTENER_BOARD = 64
     case IRONBCI_32_BOARD = 65
     case NEUROPAWN_KNIGHT_BOARD_IMU = 66
     case MUSE_S_ATHENA_BOARD = 67
+    case SHIMMER3_BOARD = 68
 
     public var code: Int { rawValue }
 }

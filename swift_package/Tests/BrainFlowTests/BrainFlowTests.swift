@@ -39,6 +39,11 @@ final class BrainFlowTests: XCTestCase {
         XCTAssertTrue(json.contains("master_board"))
     }
 
+    func testBoardIdsMatchNativeConstants() {
+        XCTAssertEqual(BoardIds.SYNCHRONI_NEO_8_CHANNELS_BOARD.rawValue, 61)
+        XCTAssertEqual(BoardIds.SHIMMER3_BOARD.rawValue, 68)
+    }
+
     func testBoardShimRejectsInvalidArgumentsBeforeNativeCalls() throws {
         let board = try BoardShim(board_id: .SYNTHETIC_BOARD)
 
