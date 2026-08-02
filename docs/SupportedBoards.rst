@@ -1508,3 +1508,72 @@ Supported platforms:
 - Linux
 - MacOS
 - Devices like Raspberry Pi
+
+
+Shimmer
+--------
+
+Shimmer3
+~~~~~~~~
+
+`Shimmer website <https://www.shimmersensing.com/wearable-sensor-products/>`_
+
+BrainFlow supports Shimmer3 over Bluetooth SPP using the serial port exposed by the operating
+system. This driver checks the hardware version during session preparation and supports Shimmer3
+hardware only; Shimmer3R is rejected.
+
+To create such board you need to specify the following board ID and fields of BrainFlowInputParams
+object:
+
+- :code:`BoardIds.SHIMMER3_BOARD`
+- :code:`serial_port`, e.g. COM3, /dev/rfcomm0, /dev/tty.*
+- *optional:* :code:`timeout`, timeout in seconds for receiving the first data packet after
+  :code:`start_stream`, default is 5sec
+
+Initialization Example:
+
+.. code-block:: python
+
+    params = BrainFlowInputParams()
+    params.serial_port = "COM3"
+    board = BoardShim(BoardIds.SHIMMER3_BOARD, params)
+
+**On Unix-like systems you may need to configure permissions for serial port or run with sudo.**
+
+**On MacOS there are two serial ports for each device: /dev/tty..... and /dev/cu..... You HAVE to specify /dev/cu.....**
+
+Supported platforms:
+
+- Windows
+- Linux
+- MacOS
+- Devices like Raspberry Pi
+
+Available :ref:`presets-label`:
+
+- :code:`BrainFlowPresets.DEFAULT_PRESET`, it contains accelerometer, gyroscope, magnetometer,
+  ECG, EDA, temperature, battery, timestamp, marker, and one additional channel for other enabled
+  Shimmer signals.
+
+Before streaming, the Shimmer3 driver can update device configuration with :code:`config_board`:
+
+- Set sampling rate: :code:`board.config_board("sampling_rate:512")`. Shimmer stores the rate as
+  a divider of its 32768 Hz low-frequency clock, so the effective rate may be rounded to the
+  nearest supported divider.
+- Set enabled sensors: :code:`board.config_board("sensors:<hex24>")`, where :code:`<hex24>` is
+  the 24-bit Shimmer sensor bitfield. For example,
+  :code:`board.config_board("sensors:0020FC")` enables low-noise accelerometer, gyroscope,
+  magnetometer, both 24-bit EXG chips, GSR, and battery.
+
+For :code:`sensors:<hex24>`, BrainFlow validates the bitfield and allows only one accelerometer
+source, one magnetometer source, and one width per EXG chip at a time.
+
+Common sensor bits:
+
+- :code:`0x000080`, low-noise analog accelerometer
+- :code:`0x000040`, gyroscope
+- :code:`0x000020`, magnetometer
+- :code:`0x000010`, EXG1 24-bit
+- :code:`0x000008`, EXG2 24-bit
+- :code:`0x000004`, GSR, exposed as EDA
+- :code:`0x002000`, battery
