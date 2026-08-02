@@ -167,7 +167,7 @@ Example:
 Swift
 ------
 
-Swift binding calls C/C++ code as any other binding. Use Swift examples and API reference for other languaes as a starting point.
+Swift binding calls C/C++ code as any other binding. The Swift package exposes BoardShim, DataFilter, MLModel, params, errors, and BrainFlow constants using the same public API groups as Python and Java. In-place signal-processing methods use Swift :code:`inout [Double]` arguments.
 
 Example:
 

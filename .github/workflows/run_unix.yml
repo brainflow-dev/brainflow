@@ -82,6 +82,91 @@ jobs:
         ninja install
       env:
         BRAINFLOW_VERSION: ${{ steps.version.outputs.version }}
+    - name: Build Swift Package MacOS
+      if: (matrix.os == 'macos-14')
+      run: |
+        cd $GITHUB_WORKSPACE/swift_package
+        swift --version
+        BRAINFLOW_LIB_DIR=$GITHUB_WORKSPACE/installed/lib swift build
+    - name: Test Swift Package MacOS
+      if: (matrix.os == 'macos-14')
+      run: |
+        cd $GITHUB_WORKSPACE/swift_package
+        BRAINFLOW_LIB_DIR=$GITHUB_WORKSPACE/installed/lib swift test
+    - name: Swift CLI Synthetic Board MacOS
+      if: (matrix.os == 'macos-14')
+      run: |
+        cd $GITHUB_WORKSPACE/swift_package
+        BRAINFLOW_LIB_DIR=$GITHUB_WORKSPACE/installed/lib swift run brainflow-swift-cli
+    - name: Swift Examples MacOS
+      if: (matrix.os == 'macos-14')
+      run: |
+        cd $GITHUB_WORKSPACE/swift_package
+        for example in \
+          swift-brainflow-get-data \
+          swift-markers \
+          swift-read-write-file \
+          swift-downsampling \
+          swift-transforms \
+          swift-signal-filtering \
+          swift-denoising \
+          swift-band-power \
+          swift-eeg-metrics \
+          swift-ica
+        do
+          BRAINFLOW_LIB_DIR=$GITHUB_WORKSPACE/installed/lib swift run "$example"
+        done
+    - name: Build Apple XCFramework Artifacts
+      if: (matrix.os == 'macos-14')
+      run: |
+        $GITHUB_WORKSPACE/tools/apple/build_xcframeworks.sh \
+          --output $GITHUB_WORKSPACE/build/apple_xcframeworks
+      env:
+        BRAINFLOW_VERSION: ${{ steps.version.outputs.version }}
+    - name: Verify Apple XCFramework Artifacts
+      if: (matrix.os == 'macos-14')
+      run: |
+        $GITHUB_WORKSPACE/tools/apple/verify_xcframeworks.sh $GITHUB_WORKSPACE/build/apple_xcframeworks
+    - name: Build Generated Swift Binary Package MacOS
+      if: (matrix.os == 'macos-14')
+      run: |
+        cd $GITHUB_WORKSPACE/build/apple_xcframeworks/BrainFlowSwiftBinaryPackage
+        swift build
+    - name: Test Generated Swift Binary Package MacOS
+      if: (matrix.os == 'macos-14')
+      run: |
+        $GITHUB_WORKSPACE/tools/apple/test_swift_binary_package.sh $GITHUB_WORKSPACE/build/apple_xcframeworks
+    - name: Build iOS Demo With Generated XCFrameworks
+      if: (matrix.os == 'macos-14')
+      run: |
+        BRAINFLOW_APPLE_XCFRAMEWORKS_DIR=$GITHUB_WORKSPACE/build/apple_xcframeworks/XCFrameworks \
+        xcodebuild -quiet \
+          -project $GITHUB_WORKSPACE/swift_package/examples/apps/ios/BrainFlowiOSDemo/BrainFlowiOSDemo.xcodeproj \
+          -scheme BrainFlowiOSDemo \
+          -configuration Debug \
+          -destination 'generic/platform=iOS Simulator' \
+          -derivedDataPath $GITHUB_WORKSPACE/build/ios-demo-derived \
+          CODE_SIGNING_ALLOWED=NO \
+          build
+    - name: Package macOS Demo With Generated XCFrameworks
+      if: (matrix.os == 'macos-14')
+      run: |
+        BRAINFLOW_APPLE_XCFRAMEWORKS_DIR=$GITHUB_WORKSPACE/build/apple_xcframeworks/XCFrameworks \
+        $GITHUB_WORKSPACE/tools/apple/package_macos_demo_app.sh $GITHUB_WORKSPACE/build/apple_xcframeworks/BrainFlowMacDemo.app
+    - name: Upload Apple XCFramework Artifacts
+      if: (matrix.os == 'macos-14')
+      uses: actions/upload-artifact@v4
+      with:
+        name: brainflow-apple-xcframeworks
+        path: |
+          ${{ github.workspace }}/build/apple_xcframeworks/BrainFlowAppleXCFrameworks.zip
+          ${{ github.workspace }}/build/apple_xcframeworks/BrainFlowAppleXCFrameworks.zip.sha256
+          ${{ github.workspace }}/build/apple_xcframeworks/checksums.sha256
+          ${{ github.workspace }}/build/apple_xcframeworks/swiftpm-checksums.txt
+          ${{ github.workspace }}/build/apple_xcframeworks/swiftpm-checksums.json
+          ${{ github.workspace }}/build/apple_xcframeworks/manifest.json
+          ${{ github.workspace }}/build/apple_xcframeworks/SwiftPMArtifacts/*.xcframework.zip
+          ${{ github.workspace }}/build/apple_xcframeworks/BrainFlowSwiftPackageRemote
     - name: Compile BrainFlow Ubuntu
       if: (matrix.os == 'ubuntu-latest')
       run: |
