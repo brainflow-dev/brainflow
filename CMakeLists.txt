@@ -2,6 +2,12 @@ cmake_minimum_required (VERSION 3.13)
 
 project (brainflow)
 
+
+if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
+    set(CMAKE_BUILD_TYPE "Release" CACHE STRING "Default build type" FORCE)
+endif()
+
+
 SET (CMAKE_CXX_STANDARD 11)
 SET (CMAKE_VERBOSE_MAKEFILE ON)
 SET (BRAINFLOW_VERSION "0.0.1" CACHE STRING "BrainFlow Version")
