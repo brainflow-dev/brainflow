@@ -45,8 +45,8 @@ public:
             if (this->lib_instance == NULL)
             {
                 log_loader_message (spdlog::level::err,
-                    "Failed to load BrainFlow native library {}: Windows error {}",
-                    this->dll_path, GetLastError ());
+                    "Failed to load BrainFlow native library {}: Windows error {}", this->dll_path,
+                    GetLastError ());
                 return false;
             }
             log_loader_message (
@@ -103,8 +103,8 @@ public:
                     error ? error : "unknown error");
             }
             log_loader_message (spdlog::level::err,
-                "Failed to load BrainFlow native library {}. Checked candidates: {}", this->dll_path,
-                checked_candidates);
+                "Failed to load BrainFlow native library {}. Checked candidates: {}",
+                this->dll_path, checked_candidates);
             return false;
         }
         return true;
@@ -146,7 +146,7 @@ private:
 
     template <typename... Args>
     static void log_loader_message (
-        spdlog::level::level_enum log_level, const char *fmt, const Args &... args)
+        spdlog::level::level_enum log_level, const char *fmt, const Args &...args)
     {
         std::shared_ptr<spdlog::logger> logger = get_loader_logger ();
         if (logger)
