@@ -7,6 +7,65 @@
 #include "data_handler.h"
 
 
+void DataFilter::reference (BrainFlowArray<double, 2> &data,
+    const std::vector<int> &channels_to_reference, const std::vector<int> &reference_channels)
+{
+    const int rows = data.get_size (0);
+    const int cols = data.get_size (1);
+    if ((rows <= 0) || (cols <= 0) || channels_to_reference.empty () ||
+        reference_channels.empty ())
+    {
+        throw BrainFlowException (
+            "data and channel lists must be non-empty",
+            (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR);
+    }
+
+    for (const int channel : channels_to_reference)
+    {
+        if ((channel < 0) || (channel >= rows))
+        {
+            throw BrainFlowException (
+                "channel index is out of range",
+                (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR);
+        }
+    }
+    for (const int channel : reference_channels)
+    {
+        if ((channel < 0) || (channel >= rows))
+        {
+            throw BrainFlowException (
+                "reference channel index is out of range",
+                (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR);
+        }
+    }
+
+    // Compute the complete reference signal before mutating any channel. This keeps the result
+    // correct when a reference channel is also present in channels_to_reference.
+    std::vector<double> reference_signal (cols, 0.0);
+    for (const int channel : reference_channels)
+    {
+        const double *channel_data = data.get_address (channel);
+        for (int sample = 0; sample < cols; sample++)
+        {
+            reference_signal[sample] += channel_data[sample];
+        }
+    }
+    const double scale = 1.0 / static_cast<double> (reference_channels.size ());
+    for (double &sample : reference_signal)
+    {
+        sample *= scale;
+    }
+
+    for (const int channel : channels_to_reference)
+    {
+        double *channel_data = data.get_address (channel);
+        for (int sample = 0; sample < cols; sample++)
+        {
+            channel_data[sample] -= reference_signal[sample];
+        }
+    }
+}
+
 double DataFilter::get_oxygen_level (double *ppg_ir, double *ppg_red, int data_len,
     int sampling_rate, double coef1, double coef2, double coef3)
 {

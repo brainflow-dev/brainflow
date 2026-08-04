@@ -57,6 +57,44 @@ pub fn set_log_file<S: AsRef<str>>(log_file: S) -> Result<()> {
     Ok(check_brainflow_exit_code(res)?)
 }
 
+/// Re-reference selected channels in-place using the sample-wise mean of reference channels.
+/// Rows are channels and columns are samples.
+pub fn reference(
+    data: &mut Array2<f64>,
+    channels_to_reference: &[usize],
+    reference_channels: &[usize],
+) -> Result<()> {
+    let (rows, cols) = data.dim();
+    if rows == 0
+        || cols == 0
+        || channels_to_reference.is_empty()
+        || reference_channels.is_empty()
+        || channels_to_reference.iter().any(|&channel| channel >= rows)
+        || reference_channels.iter().any(|&channel| channel >= rows)
+    {
+        return Err(Error::BrainFlowError(BrainFlowError::InvalidArgumentsError));
+    }
+
+    // Snapshot the reference before changing any row so overlapping channel lists are safe.
+    let mut reference_signal = vec![0.0; cols];
+    for &channel in reference_channels {
+        for sample in 0..cols {
+            reference_signal[sample] += data[[channel, sample]];
+        }
+    }
+    let scale = 1.0 / reference_channels.len() as f64;
+    for value in &mut reference_signal {
+        *value *= scale;
+    }
+
+    for &channel in channels_to_reference {
+        for sample in 0..cols {
+            data[[channel, sample]] -= reference_signal[sample];
+        }
+    }
+    Ok(())
+}
+
 /// Apply low pass filter to provided data.
 pub fn perform_lowpass(
     data: &mut [f64],
@@ -925,5 +963,24 @@ mod tests {
         write_file(&data, filename, "w").unwrap();
         let read_data = read_file(filename).unwrap();
         assert_eq!(data, read_data);
+    }
+
+    #[test]
+    fn reference_uses_original_reference_signal_for_overlapping_channels() {
+        let mut data = array![[1.0, 2.0], [3.0, 4.0], [5.0, 6.0]];
+
+        reference(&mut data, &[0, 2], &[0, 1]).unwrap();
+
+        assert_eq!(data, array![[-1.0, -1.0], [3.0, 4.0], [3.0, 3.0]]);
+    }
+
+    #[test]
+    fn reference_rejects_empty_or_out_of_range_channel_lists() {
+        let mut data = array![[1.0, 2.0], [3.0, 4.0]];
+
+        assert!(reference(&mut data, &[], &[0]).is_err());
+        assert!(reference(&mut data, &[0], &[]).is_err());
+        assert!(reference(&mut data, &[2], &[0]).is_err());
+        assert!(reference(&mut data, &[0], &[2]).is_err());
     }
 }

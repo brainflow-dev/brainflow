@@ -12,6 +12,12 @@ data = board_shim.get_board_data(64, preset);
 board_shim.release_session();
 
 eeg_channels = BoardShim.get_eeg_channels(int32(BoardIds.SYNTHETIC_BOARD), preset);
+% Re-reference every EEG channel using the sample-wise mean of the first two EEG channels.
+% DataFilter.reference returns a referenced copy of the matrix.
+if length(eeg_channels) >= 2
+    data = DataFilter.reference(data, eeg_channels, eeg_channels(1:2));
+end
+
 % apply downsampling to the first eeg channel %
 first_eeg_channel = eeg_channels(1);
 original_data = data(first_eeg_channel, :);
