@@ -1438,7 +1438,7 @@ int get_railed_percentage (double *raw_data, int data_len, int gain, double *out
 
     double scaler = (4.5 / (pow (2, 23) - 1) / gain * 1000000.);
     double max_val = scaler * pow (2, 23);
-    int cur_max = abs (raw_data[0]);
+    double cur_max = abs (raw_data[0]);
     bool is_straight_line = true;
     for (int i = 1; i < data_len; i++)
     {
@@ -1446,7 +1446,7 @@ int get_railed_percentage (double *raw_data, int data_len, int gain, double *out
         {
             cur_max = abs (raw_data[i]);
         }
-        if (((abs (raw_data[i - 1]) - raw_data[i]) > 0.00001) && (abs (raw_data[i]) > 0.00001))
+        if ((abs (raw_data[i - 1] - raw_data[i]) > 0.00001) && (abs (raw_data[i]) > 0.00001))
         {
             is_straight_line = false;
         }
