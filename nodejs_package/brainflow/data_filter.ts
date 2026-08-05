@@ -491,7 +491,7 @@ export class DataFilter
     public static performWaveletTransform(data: number[], wavelet: WaveletTypes,
         decompositionLevel: number, extension: WaveletExtensionTypes): [number[], number[]]
     {
-        const waveletCoeffs = [...new Array (data.length + 2 * (40 + 1)).fill(0)];
+        const waveletCoeffs = [...new Array (data.length + 2 * decompositionLevel * (40 + 1)).fill(0)];
         const lengths = [...new Array (decompositionLevel + 1).fill(0)];
         const res = DataHandlerDLL.getInstance().performWaveletTransform(
             data, data.length, wavelet, decompositionLevel, extension, waveletCoeffs, lengths);

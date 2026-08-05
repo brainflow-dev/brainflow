@@ -878,7 +878,7 @@ class DataFilter(object):
         """
         check_memory_layout_row_major(data, 1)
 
-        wavelet_coeffs = numpy.zeros(data.shape[0] + 2 * (40 + 1)).astype(numpy.float64)
+        wavelet_coeffs = numpy.zeros(data.shape[0] + 2 * decomposition_level * (40 + 1)).astype(numpy.float64)
         lengths = numpy.zeros(decomposition_level + 1).astype(numpy.int32)
         res = DataHandlerDLL.get_instance().perform_wavelet_transform(data, data.shape[0], wavelet,
                                                                       decomposition_level, extension_type,
