@@ -235,6 +235,9 @@ jobs:
     - name: Downsampling Python Test
       run: python %GITHUB_WORKSPACE%\python_package\examples\tests\downsampling.py
       shell: cmd
+    - name: Wavelet Buffer Size Python Test
+      run: python %GITHUB_WORKSPACE%\python_package\examples\tests\wavelet_buffer_size.py
+      shell: cmd
     - name: CSP Python Test
       run: python %GITHUB_WORKSPACE%\python_package\examples\tests\csp.py
       shell: cmd
