@@ -354,6 +354,8 @@ jobs:
       run: sudo -H python3 $GITHUB_WORKSPACE/python_package/examples/tests/transforms.py
     - name: Downsampling Python
       run: sudo -H python3 $GITHUB_WORKSPACE/python_package/examples/tests/downsampling.py
+    - name: Downsampling Median Regression Python
+      run: sudo -H python3 $GITHUB_WORKSPACE/python_package/examples/tests/downsampling_median.py
     - name: ICA Python
       run: sudo -H python3 $GITHUB_WORKSPACE/python_package/examples/tests/ica.py
     - name: CSP Python
