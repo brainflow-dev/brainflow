@@ -354,6 +354,8 @@ jobs:
       run: sudo -H python3 $GITHUB_WORKSPACE/python_package/examples/tests/transforms.py
     - name: Downsampling Python
       run: sudo -H python3 $GITHUB_WORKSPACE/python_package/examples/tests/downsampling.py
+    - name: Wavelet Buffer Size Python
+      run: sudo -H python3 $GITHUB_WORKSPACE/python_package/examples/tests/wavelet_buffer_size.py
     - name: ICA Python
       run: sudo -H python3 $GITHUB_WORKSPACE/python_package/examples/tests/ica.py
     - name: CSP Python
