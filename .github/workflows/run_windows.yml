@@ -235,6 +235,9 @@ jobs:
     - name: Downsampling Python Test
       run: python %GITHUB_WORKSPACE%\python_package\examples\tests\downsampling.py
       shell: cmd
+    - name: PSD Welch Nyquist Overlap Python Test
+      run: python %GITHUB_WORKSPACE%\python_package\examples\tests\psd_welch_nyquist_overlap.py
+      shell: cmd
     - name: CSP Python Test
       run: python %GITHUB_WORKSPACE%\python_package\examples\tests\csp.py
       shell: cmd
