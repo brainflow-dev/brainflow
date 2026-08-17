@@ -20,15 +20,17 @@ inline double downsample_each (double *data, int len)
 
 inline double downsample_median (double *data, int len)
 {
-    if (len % 2 == 0)
-    {
-        return downsample_mean (data, len);
-    }
     std::vector<double> values;
     for (int i = 0; i < len; i++)
     {
         values.push_back (data[i]);
     }
     std::sort (values.begin (), values.end ());
+    if (len % 2 == 0)
+    {
+        // for an even number of values the median is the mean of the two middle ones,
+        // same convention as RollingMedian in rolling_filter.h
+        return (values[len / 2 - 1] + values[len / 2]) / 2.0;
+    }
     return values[len / 2];
 }
