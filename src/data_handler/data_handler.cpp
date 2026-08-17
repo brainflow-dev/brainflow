@@ -294,14 +294,17 @@ int perform_bandpass (double *data, int data_len, int sampling_rate, double star
     }
 
     Dsp::Params params;
+    params.clear ();
     params[0] = sampling_rate; // sample rate
     params[1] = order;         // order
     params[2] = center_freq;   // center freq
-    params[3] = band_width;
+    params[3] = band_width;    // band width
     if ((filter_type == (int)FilterTypes::CHEBYSHEV_TYPE_1) ||
         (filter_type == (int)FilterTypes::CHEBYSHEV_TYPE_1_ZERO_PHASE))
     {
-        params[3] = ripple; // ripple
+        // band pass and band stop chebyshev designs take 5 params and expect the ripple after
+        // the band width, unlike the low pass and high pass designs which take 4
+        params[4] = ripple; // ripple
     }
     f->setParams (params);
     f->process (data_len, filter_data);
@@ -362,14 +365,17 @@ int perform_bandstop (double *data, int data_len, int sampling_rate, double star
     }
 
     Dsp::Params params;
+    params.clear ();
     params[0] = sampling_rate; // sample rate
     params[1] = order;         // order
     params[2] = center_freq;   // center freq
-    params[3] = band_width;
+    params[3] = band_width;    // band width
     if ((filter_type == (int)FilterTypes::CHEBYSHEV_TYPE_1) ||
         (filter_type == (int)FilterTypes::CHEBYSHEV_TYPE_1_ZERO_PHASE))
     {
-        params[3] = ripple; // ripple
+        // band pass and band stop chebyshev designs take 5 params and expect the ripple after
+        // the band width, unlike the low pass and high pass designs which take 4
+        params[4] = ripple; // ripple
     }
     f->setParams (params);
     f->process (data_len, filter_data);

@@ -354,6 +354,8 @@ jobs:
       run: sudo -H python3 $GITHUB_WORKSPACE/python_package/examples/tests/transforms.py
     - name: Downsampling Python
       run: sudo -H python3 $GITHUB_WORKSPACE/python_package/examples/tests/downsampling.py
+    - name: Chebyshev Band Filters Python
+      run: sudo -H python3 $GITHUB_WORKSPACE/python_package/examples/tests/chebyshev_band_filters.py
     - name: PSD Welch Nyquist Overlap Python
       run: sudo -H python3 $GITHUB_WORKSPACE/python_package/examples/tests/psd_welch_nyquist_overlap.py
     - name: Wavelet Buffer Size Python
