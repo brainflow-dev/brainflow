@@ -186,7 +186,7 @@ classdef DataFilter
             task_name = 'perform_wavelet_transform';
             temp_input = libpointer('doublePtr', data);
             lib_name = DataFilter.load_lib();
-            temp_output = libpointer('doublePtr', zeros(1, int32(size(data, 2) + 2 *(40 + 1))));
+            temp_output = libpointer('doublePtr', zeros(1, int32(size(data, 2) + 2 * decomposition_level * (40 + 1))));
             lenghts = libpointer('int32Ptr', zeros(1, decomposition_level + 1));
             exit_code = calllib(lib_name, task_name, temp_input, size(data, 2), wavelet, decomposition_level, extension, temp_output, lenghts);
             DataFilter.check_ec(exit_code, task_name);

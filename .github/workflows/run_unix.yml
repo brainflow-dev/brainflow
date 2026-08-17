@@ -356,6 +356,14 @@ jobs:
       run: sudo -H python3 $GITHUB_WORKSPACE/python_package/examples/tests/downsampling.py
     - name: Railed Percentage Python
       run: sudo -H python3 $GITHUB_WORKSPACE/python_package/examples/tests/railed_percentage.py
+    - name: Chebyshev Band Filters Python
+      run: sudo -H python3 $GITHUB_WORKSPACE/python_package/examples/tests/chebyshev_band_filters.py
+    - name: PSD Welch Nyquist Overlap Python
+      run: sudo -H python3 $GITHUB_WORKSPACE/python_package/examples/tests/psd_welch_nyquist_overlap.py
+    - name: Wavelet Buffer Size Python
+      run: sudo -H python3 $GITHUB_WORKSPACE/python_package/examples/tests/wavelet_buffer_size.py
+    - name: FFT Window Error Python
+      run: sudo -H python3 $GITHUB_WORKSPACE/python_package/examples/tests/fft_window_error.py
     - name: ICA Python
       run: sudo -H python3 $GITHUB_WORKSPACE/python_package/examples/tests/ica.py
     - name: CSP Python
