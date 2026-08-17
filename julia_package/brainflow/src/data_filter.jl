@@ -297,7 +297,7 @@ end
 end
 
 @brainflow_rethrow function perform_wavelet_transform(data, wavelet::WaveletType, decomposition_level::Integer, extension::WaveletExtensionType)
-    wavelet_coeffs = Vector{Float64}(undef, length(data) + 2 * (40 + 1))
+    wavelet_coeffs = Vector{Float64}(undef, length(data) + 2 * decomposition_level * (40 + 1))
     lengths = Vector{Cint}(undef, decomposition_level + 1)
     ccall((:perform_wavelet_transform, DATA_HANDLER_INTERFACE), Cint, (Ptr{Float64}, Cint, Cint, Cint, Cint, Ptr{Float64}, Ptr{Cint}),
             data, length(data), Int32(wavelet), Int32(decomposition_level), Int32(extension), wavelet_coeffs, lengths)

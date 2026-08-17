@@ -788,7 +788,12 @@ int perform_fft (
     }
 
     double *windowed_data = new double[data_len];
-    get_window (window_function, data_len, windowed_data);
+    int window_res = get_window (window_function, data_len, windowed_data);
+    if (window_res != (int)BrainFlowExitCodes::STATUS_OK)
+    {
+        delete[] windowed_data;
+        return window_res;
+    }
     for (int i = 0; i < data_len; i++)
     {
         windowed_data[i] *= data[i];

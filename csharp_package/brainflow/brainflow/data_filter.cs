@@ -351,7 +351,7 @@ namespace brainflow
         /// <returns>tuple of wavelet coeffs in format [A(J) D(J) D(J-1) ..... D(1)] where J is decomposition level, A - app coeffs, D - detailed coeffs, and array with lengths for each block</returns>
         public static Tuple<double[], int[]> perform_wavelet_transform (double[] data, int wavelet, int decomposition_level, int extension)
         {
-            double[] wavelet_coeffs = new double[data.Length + 2 * (40 + 1)];
+            double[] wavelet_coeffs = new double[data.Length + 2 * decomposition_level * (40 + 1)];
             int[] lengths = new int[decomposition_level + 1];
             int res = DataHandlerLibrary.perform_wavelet_transform (data, data.Length, wavelet, decomposition_level, extension, wavelet_coeffs, lengths);
             if (res != (int)BrainFlowExitCodes.STATUS_OK)
@@ -1115,7 +1115,7 @@ namespace brainflow
         /// <returns>tuple of wavelet coeffs in format [A(J) D(J) D(J-1) ..... D(1)] where J is decomposition level, A - app coeffs, D - detailed coeffs, and array with lengths for each block</returns>
         public static unsafe Tuple<double[], int[]> perform_wavelet_transform (double[,] data, int row_num, int wavelet, int decomposition_level, int extension)
         {
-            double[] wavelet_coeffs = new double[data.Length + 2 * (40 + 1)];
+            double[] wavelet_coeffs = new double[data.GetLength (1) + 2 * decomposition_level * (40 + 1)];
             int[] lengths = new int[decomposition_level + 1];
             int res = (int)BrainFlowExitCodes.STATUS_OK;
             if ((row_num < 0) || (row_num >= data.GetLength (0)))
