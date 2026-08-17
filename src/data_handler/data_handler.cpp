@@ -294,14 +294,17 @@ int perform_bandpass (double *data, int data_len, int sampling_rate, double star
     }
 
     Dsp::Params params;
+    params.clear ();
     params[0] = sampling_rate; // sample rate
     params[1] = order;         // order
     params[2] = center_freq;   // center freq
-    params[3] = band_width;
+    params[3] = band_width;    // band width
     if ((filter_type == (int)FilterTypes::CHEBYSHEV_TYPE_1) ||
         (filter_type == (int)FilterTypes::CHEBYSHEV_TYPE_1_ZERO_PHASE))
     {
-        params[3] = ripple; // ripple
+        // band pass and band stop chebyshev designs take 5 params and expect the ripple after
+        // the band width, unlike the low pass and high pass designs which take 4
+        params[4] = ripple; // ripple
     }
     f->setParams (params);
     f->process (data_len, filter_data);
@@ -362,14 +365,17 @@ int perform_bandstop (double *data, int data_len, int sampling_rate, double star
     }
 
     Dsp::Params params;
+    params.clear ();
     params[0] = sampling_rate; // sample rate
     params[1] = order;         // order
     params[2] = center_freq;   // center freq
-    params[3] = band_width;
+    params[3] = band_width;    // band width
     if ((filter_type == (int)FilterTypes::CHEBYSHEV_TYPE_1) ||
         (filter_type == (int)FilterTypes::CHEBYSHEV_TYPE_1_ZERO_PHASE))
     {
-        params[3] = ripple; // ripple
+        // band pass and band stop chebyshev designs take 5 params and expect the ripple after
+        // the band width, unlike the low pass and high pass designs which take 4
+        params[4] = ripple; // ripple
     }
     f->setParams (params);
     f->process (data_len, filter_data);
@@ -788,7 +794,12 @@ int perform_fft (
     }
 
     double *windowed_data = new double[data_len];
-    get_window (window_function, data_len, windowed_data);
+    int window_res = get_window (window_function, data_len, windowed_data);
+    if (window_res != (int)BrainFlowExitCodes::STATUS_OK)
+    {
+        delete[] windowed_data;
+        return window_res;
+    }
     for (int i = 0; i < data_len; i++)
     {
         windowed_data[i] *= data[i];
@@ -1239,7 +1250,7 @@ int get_psd_welch (double *data, int data_len, int nfft, int overlap, int sampli
     int window_function, double *output_ampl, double *output_freq)
 {
     if ((data == NULL) || (data_len < 1) || (nfft & (nfft - 1)) || (output_ampl == NULL) ||
-        (output_freq == NULL) || (sampling_rate < 1) || (overlap < 0) || (overlap > nfft))
+        (output_freq == NULL) || (sampling_rate < 1) || (overlap < 0) || (overlap >= nfft))
     {
         data_logger->error ("Please review your arguments.");
         return (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR;
@@ -1270,7 +1281,7 @@ int get_psd_welch (double *data, int data_len, int nfft, int overlap, int sampli
         return (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR;
     }
     // average data
-    for (int i = 0; i < nfft / 2; i++)
+    for (int i = 0; i < nfft / 2 + 1; i++)
     {
         output_ampl[i] /= counter;
     }
@@ -1438,7 +1449,7 @@ int get_railed_percentage (double *raw_data, int data_len, int gain, double *out
 
     double scaler = (4.5 / (pow (2, 23) - 1) / gain * 1000000.);
     double max_val = scaler * pow (2, 23);
-    int cur_max = abs (raw_data[0]);
+    double cur_max = abs (raw_data[0]);
     bool is_straight_line = true;
     for (int i = 1; i < data_len; i++)
     {
@@ -1446,7 +1457,7 @@ int get_railed_percentage (double *raw_data, int data_len, int gain, double *out
         {
             cur_max = abs (raw_data[i]);
         }
-        if (((abs (raw_data[i - 1]) - raw_data[i]) > 0.00001) && (abs (raw_data[i]) > 0.00001))
+        if ((abs (raw_data[i - 1] - raw_data[i]) > 0.00001) && (abs (raw_data[i]) > 0.00001))
         {
             is_straight_line = false;
         }
