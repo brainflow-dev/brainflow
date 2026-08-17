@@ -751,7 +751,7 @@ namespace brainflow
         /// </summary>
         /// <param name="data">data for log PSD</param>
         /// <param name="nfft">FFT Size</param>
-        /// <param name="overlap">FFT Window overlap, must be between 0 and nfft</param>
+        /// <param name="overlap">FFT Window overlap, must be &gt;= 0 and &lt; nfft</param>
         /// <param name="sampling_rate">sampling rate</param>
         /// <param name="window">window function</param>
         /// <returns>Tuple of ampls and freqs arrays</returns>
@@ -1265,7 +1265,7 @@ namespace brainflow
         /// <param name="data">data for log PSD</param>
         /// <param name="row_num"></param>
         /// <param name="nfft">FFT Size</param>
-        /// <param name="overlap">FFT Window overlap, must be between 0 and nfft</param>
+        /// <param name="overlap">FFT Window overlap, must be &gt;= 0 and &lt; nfft</param>
         /// <param name="sampling_rate">sampling rate</param>
         /// <param name="window">window function</param>
         /// <returns>Tuple of ampls and freqs arrays</returns>

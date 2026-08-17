@@ -1105,7 +1105,7 @@ class DataFilter(object):
         :type data: NDArray[Shape["*"], Float64]
         :param nfft: FFT Window size, must be even
         :type nfft: int
-        :param overlap: overlap of FFT Windows, must be between 0 and nfft
+        :param overlap: overlap of FFT Windows, must be >= 0 and < nfft
         :type overlap: int
         :param sampling_rate: sampling rate
         :type sampling_rate: int

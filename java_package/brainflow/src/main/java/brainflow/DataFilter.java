@@ -960,7 +960,7 @@ public class DataFilter
      * 
      * @param data          data to process
      * @param nfft          size of FFT, must be even
-     * @param overlap       overlap between FFT Windows, must be between 0 and nfft
+     * @param overlap       overlap between FFT Windows, must be at least 0 and less than nfft
      * @param sampling_rate sampling rate
      * @param window        window function
      * @return pair of ampl and freq arrays
@@ -988,7 +988,7 @@ public class DataFilter
      * 
      * @param data          data to process
      * @param nfft          size of FFT, must be even
-     * @param overlap       overlap between FFT Windows, must be between 0 and nfft
+     * @param overlap       overlap between FFT Windows, must be at least 0 and less than nfft
      * @param sampling_rate sampling rate
      * @param window        window function
      * @return pair of ampl and freq arrays
