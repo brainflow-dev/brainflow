@@ -782,7 +782,7 @@ void MuseAthena::parse_sensor_payload (
                 if ((size_t)channel < eeg_channels.size ())
                 {
                     package[(size_t)eeg_channels[(size_t)channel]] =
-                        (double)raw * MUSE_ATHENA_EEG_SCALE_FACTOR;
+                        ((double)raw - MUSE_ATHENA_EEG_MIDPOINT) * MUSE_ATHENA_EEG_SCALE_FACTOR;
                 }
                 else
                 {
@@ -790,7 +790,7 @@ void MuseAthena::parse_sensor_payload (
                     if (other_channel < other_channels.size ())
                     {
                         package[(size_t)other_channels[other_channel]] =
-                            (double)raw * MUSE_ATHENA_EEG_SCALE_FACTOR;
+                            ((double)raw - MUSE_ATHENA_EEG_MIDPOINT) * MUSE_ATHENA_EEG_SCALE_FACTOR;
                     }
                 }
             }
