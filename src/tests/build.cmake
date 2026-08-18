@@ -30,7 +30,6 @@ enable_testing()
 SET (TESTS_SRC
     ${CMAKE_CURRENT_SOURCE_DIR}/src/utils/bluetooth/bluetooth_functions.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/utils/data_buffer.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/tests/board_controller/muse_athena_constants_unittest.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/tests/utils/bluetooth/socket_bluetooth_test.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/tests/utils/bluetooth/bluetooth_functions_unittest.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/tests/utils/data_buffer_unittest.cpp
@@ -43,7 +42,6 @@ add_executable(
 
 target_include_directories (
     ${TESTS_EXE_NAME} PRIVATE
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/board_controller/muse/inc
     ${CMAKE_CURRENT_SOURCE_DIR}/src/utils/inc
     ${CMAKE_CURRENT_SOURCE_DIR}/src/utils/bluetooth/inc
     ${CMAKE_CURRENT_SOURCE_DIR}/src/tests/utils/bluetooth/inc
