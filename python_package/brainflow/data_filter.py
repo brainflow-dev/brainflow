@@ -591,6 +591,41 @@ class DataFilter(object):
             raise BrainFlowError('unable to redirect logs to a file', res)
 
     @classmethod
+    def reference(cls, data, channels_to_reference: List[int], reference_channels: List[int]) -> None:
+        """Re-reference selected channels in-place.
+
+        The sample-wise mean of ``reference_channels`` is computed from the original data and
+        subtracted from every row in ``channels_to_reference``. Computing the complete reference
+        signal first makes overlapping target and reference channel lists safe.
+
+        :param data: 2-D C-contiguous float64 array; rows are channels and columns are samples
+        :param channels_to_reference: rows from which to subtract the reference signal
+        :param reference_channels: rows whose mean defines the reference signal
+        """
+        check_memory_layout_row_major(data, 2)
+        if data.shape[0] == 0 or data.shape[1] == 0 or data.dtype != numpy.float64:
+            raise BrainFlowError('data must be a non-empty float64 matrix',
+                                 BrainFlowExitCodes.INVALID_ARGUMENTS_ERROR.value)
+        if (channels_to_reference is None or reference_channels is None or
+                len(channels_to_reference) == 0 or len(reference_channels) == 0):
+            raise BrainFlowError('channel lists must be non-empty',
+                                 BrainFlowExitCodes.INVALID_ARGUMENTS_ERROR.value)
+
+        rows = data.shape[0]
+        for channel in channels_to_reference:
+            if not isinstance(channel, (int, numpy.integer)) or channel < 0 or channel >= rows:
+                raise BrainFlowError('channel index is out of range',
+                                     BrainFlowExitCodes.INVALID_ARGUMENTS_ERROR.value)
+        for channel in reference_channels:
+            if not isinstance(channel, (int, numpy.integer)) or channel < 0 or channel >= rows:
+                raise BrainFlowError('reference channel index is out of range',
+                                     BrainFlowExitCodes.INVALID_ARGUMENTS_ERROR.value)
+
+        reference_signal = numpy.mean(data[reference_channels, :], axis=0)
+        for channel in channels_to_reference:
+            data[channel, :] -= reference_signal
+
+    @classmethod
     def perform_lowpass(cls, data, sampling_rate: int, cutoff: float, order: int, filter_type: int,
                         ripple: float) -> None:
         """apply low pass filter to provided data

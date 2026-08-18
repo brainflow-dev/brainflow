@@ -160,6 +160,65 @@ export class DataFilter
         return out[0].substring(0, len[0]);
     }
 
+    /**
+     * Re-reference selected channels in-place using the sample-wise mean of reference channels.
+     * Rows are channels and columns are samples.
+     */
+    public static reference(data: number[][], channelsToReference: number[],
+        referenceChannels: number[]): void
+    {
+        if (!Array.isArray(data) || data.length === 0 || !Array.isArray(data[0]) ||
+            data[0].length === 0 || !Array.isArray(channelsToReference) ||
+            !Array.isArray(referenceChannels) || channelsToReference.length === 0 ||
+            referenceChannels.length === 0)
+        {
+            throw new BrainFlowError (
+                BrainFlowExitCodes.INVALID_ARGUMENTS_ERROR, 'Invalid reference arguments');
+        }
+
+        const rows = data.length;
+        const cols = data[0].length;
+        if (!data.every((row) => Array.isArray(row) && row.length === cols))
+        {
+            throw new BrainFlowError (
+                BrainFlowExitCodes.INVALID_ARGUMENTS_ERROR, 'Data must be a rectangular matrix');
+        }
+        if (!channelsToReference.every(
+            (channel) => Number.isInteger(channel) && channel >= 0 && channel < rows))
+        {
+            throw new BrainFlowError (
+                BrainFlowExitCodes.INVALID_ARGUMENTS_ERROR, 'Channel index is out of range');
+        }
+        if (!referenceChannels.every(
+            (channel) => Number.isInteger(channel) && channel >= 0 && channel < rows))
+        {
+            throw new BrainFlowError (BrainFlowExitCodes.INVALID_ARGUMENTS_ERROR,
+                'Reference channel index is out of range');
+        }
+
+        // Snapshot the reference before changing any row so overlapping channel lists are safe.
+        const referenceSignal = new Array<number>(cols).fill(0);
+        for (const channel of referenceChannels)
+        {
+            for (let sample = 0; sample < cols; sample++)
+            {
+                referenceSignal[sample] += data[channel][sample];
+            }
+        }
+        for (let sample = 0; sample < cols; sample++)
+        {
+            referenceSignal[sample] /= referenceChannels.length;
+        }
+
+        for (const channel of channelsToReference)
+        {
+            for (let sample = 0; sample < cols; sample++)
+            {
+                data[channel][sample] -= referenceSignal[sample];
+            }
+        }
+    }
+
     // signal processing methods
     public static getRailedPercentage(data: number[], gain: number): number
     {

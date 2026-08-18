@@ -43,6 +43,17 @@ end
     @test Int32(BrainFlow.BLACKMAN_HARRIS) == 3
 end
 
+@testset "channel reference" begin
+    data = [1.0 2.0; 3.0 4.0; 5.0 6.0]
+    BrainFlow.reference(data, [1, 3], [1, 2])
+    @test data == [-1.0 -1.0; 3.0 4.0; 3.0 3.0]
+
+    @test_throws BrainFlow.BrainFlowError BrainFlow.reference(copy(data), Int[], [1])
+    @test_throws BrainFlow.BrainFlowError BrainFlow.reference(copy(data), [1], Int[])
+    @test_throws BrainFlow.BrainFlowError BrainFlow.reference(copy(data), [4], [1])
+    @test_throws BrainFlow.BrainFlowError BrainFlow.reference(copy(data), [1], [4])
+end
+
 @testset "presets" begin
     presets = BrainFlow.get_board_presets(BrainFlow.CYTON_BOARD)
     @test presets[1] == Int32(BrainFlow.DEFAULT_PRESET)

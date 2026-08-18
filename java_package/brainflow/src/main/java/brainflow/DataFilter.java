@@ -193,6 +193,74 @@ public class DataFilter
     }
 
     /**
+     * Re-reference selected channels in-place using the sample-wise mean of reference channels.
+     *
+     * @param data rows are channels and columns are samples
+     * @param channels_to_reference rows from which to subtract the reference signal
+     * @param reference_channels rows whose mean defines the reference signal
+     */
+    public static void reference (double[][] data, int[] channels_to_reference, int[] reference_channels)
+            throws BrainFlowError
+    {
+        if ((data == null) || (channels_to_reference == null) || (reference_channels == null)
+                || (data.length == 0) || (data[0] == null) || (data[0].length == 0)
+                || (channels_to_reference.length == 0) || (reference_channels.length == 0))
+        {
+            throw new BrainFlowError ("Invalid reference arguments",
+                    BrainFlowExitCode.INVALID_ARGUMENTS_ERROR.get_code ());
+        }
+
+        final int rows = data.length;
+        final int cols = data[0].length;
+        for (double[] row : data)
+        {
+            if ((row == null) || (row.length != cols))
+            {
+                throw new BrainFlowError ("Data must be a rectangular matrix",
+                        BrainFlowExitCode.INVALID_ARGUMENTS_ERROR.get_code ());
+            }
+        }
+        for (int channel : channels_to_reference)
+        {
+            if ((channel < 0) || (channel >= rows))
+            {
+                throw new BrainFlowError ("Channel index is out of range",
+                        BrainFlowExitCode.INVALID_ARGUMENTS_ERROR.get_code ());
+            }
+        }
+        for (int channel : reference_channels)
+        {
+            if ((channel < 0) || (channel >= rows))
+            {
+                throw new BrainFlowError ("Reference channel index is out of range",
+                        BrainFlowExitCode.INVALID_ARGUMENTS_ERROR.get_code ());
+            }
+        }
+
+        // Snapshot the reference before changing any row so overlapping channel lists are safe.
+        double[] reference_signal = new double[cols];
+        for (int channel : reference_channels)
+        {
+            for (int sample = 0; sample < cols; sample++)
+            {
+                reference_signal[sample] += data[channel][sample];
+            }
+        }
+        for (int sample = 0; sample < cols; sample++)
+        {
+            reference_signal[sample] /= reference_channels.length;
+        }
+
+        for (int channel : channels_to_reference)
+        {
+            for (int sample = 0; sample < cols; sample++)
+            {
+                data[channel][sample] -= reference_signal[sample];
+            }
+        }
+    }
+
+    /**
      * calc stddev
      */
     public static double calc_stddev (double[] data, int start_pos, int end_pos) throws BrainFlowError

@@ -22,6 +22,15 @@ namespace examples
             board_shim.stop_stream ();
             double[,] unprocessed_data = board_shim.get_board_data ();
             int[] eeg_channels = BoardShim.get_eeg_channels (board_id);
+
+            // Re-reference every EEG channel using the sample-wise mean of the first two EEG channels.
+            // The operation changes unprocessed_data in-place.
+            if (eeg_channels.Length >= 2)
+            {
+                int[] reference_channels = {eeg_channels[0], eeg_channels[1]};
+                DataFilter.reference (unprocessed_data, eeg_channels, reference_channels);
+            }
+
             board_shim.release_session ();
 
             for (int i = 0; i < eeg_channels.Length; i++)
