@@ -12,7 +12,9 @@ jobs:
     - name: Install CppCheck
       timeout-minutes: 15
       run: |
-        sudo sed -i '/azure\.archive\.ubuntu\.com/d' /etc/apt/apt-mirrors.txt
+        if [[ -f /etc/apt/apt-mirrors.txt ]]; then
+          sudo sed -i '/azure\.archive\.ubuntu\.com/d' /etc/apt/apt-mirrors.txt
+        fi
         sudo -H apt-get update -y
         sudo -H apt-get install -y cppcheck
       env:

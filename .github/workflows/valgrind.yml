@@ -24,7 +24,9 @@ jobs:
     - name: Install Dependencies
       timeout-minutes: 20
       run: |
-        sudo sed -i '/azure\.archive\.ubuntu\.com/d' /etc/apt/apt-mirrors.txt
+        if [[ -f /etc/apt/apt-mirrors.txt ]]; then
+          sudo sed -i '/azure\.archive\.ubuntu\.com/d' /etc/apt/apt-mirrors.txt
+        fi
         sudo -H apt-get update -y
         sudo -H apt-get install -y libbluetooth-dev valgrind python3-setuptools python3-pygments
       env:
