@@ -5,6 +5,7 @@ on: [push, pull_request]
 jobs:
   RunValgrind:
     runs-on: ${{ matrix.os }}
+    timeout-minutes: 90
 
     strategy:
       fail-fast: false
@@ -15,15 +16,19 @@ jobs:
     steps:
     # compile and prepare env
     - name: Clone Repository
-      uses: actions/checkout@v2
+      uses: actions/checkout@v7
     - name: Setup CMake
       uses: lukka/get-cmake@v4.3.2
       with:
         cmakeVersion: '3.21.4'
     - name: Install Dependencies
+      timeout-minutes: 20
       run: |
+        if [[ -f /etc/apt/apt-mirrors.txt ]]; then
+          sudo sed -i '/azure\.archive\.ubuntu\.com/d' /etc/apt/apt-mirrors.txt
+        fi
         sudo -H apt-get update -y
-        sudo -H apt-get install -y libbluetooth-dev
+        sudo -H apt-get install -y libbluetooth-dev valgrind python3-setuptools python3-pygments
       env:
         DEBIAN_FRONTEND: noninteractive
     - name: Compile BrainFlow
@@ -54,22 +59,10 @@ jobs:
         cd build
         cmake -DCMAKE_PREFIX_PATH=$GITHUB_WORKSPACE/installed -DCMAKE_BUILD_TYPE=Debug ..
         make
-    - name: Install Valgrind
-      run: |
-        sudo -H apt-get update -y
-        sudo -H apt-get install -y valgrind
-      env:
-        DEBIAN_FRONTEND: noninteractive
-    - name: Install Python 3.10
-      uses: actions/setup-python@v5
+    - name: Install Python 3.11
+      uses: actions/setup-python@v7
       with:
         python-version: '3.11'
-    - name: Install Python Dependencies
-      run: |
-        sudo -H apt-get update -y
-        sudo -H apt-get install -y python3-setuptools python3-pygments
-      env:
-        DEBIAN_FRONTEND: noninteractive
     - name: Install Emulator
       run: |
         cd $GITHUB_WORKSPACE/emulator

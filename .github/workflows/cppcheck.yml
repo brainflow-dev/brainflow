@@ -5,13 +5,18 @@ on: [push, pull_request]
 jobs:
   cppcheck:
     runs-on: ubuntu-latest
+    timeout-minutes: 30
 
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v7
     - name: Install CppCheck
+      timeout-minutes: 15
       run: |
+        if [[ -f /etc/apt/apt-mirrors.txt ]]; then
+          sudo sed -i '/azure\.archive\.ubuntu\.com/d' /etc/apt/apt-mirrors.txt
+        fi
         sudo -H apt-get update -y
-        sudo -H apt-get install cppcheck
+        sudo -H apt-get install -y cppcheck
       env:
         DEBIAN_FRONTEND: noninteractive
     - name: Run Cppcheck

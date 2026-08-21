@@ -237,6 +237,7 @@ jobs:
       shell: cmd
     - name: PSD Welch Nyquist Overlap Python Test
       run: python %GITHUB_WORKSPACE%\python_package\examples\tests\psd_welch_nyquist_overlap.py
+      shell: cmd
     - name: Wavelet Buffer Size Python Test
       run: python %GITHUB_WORKSPACE%\python_package\examples\tests\wavelet_buffer_size.py
       shell: cmd
