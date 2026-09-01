@@ -806,6 +806,8 @@ void Muse::peripheral_on_ppg (simpleble_peripheral_t peripheral, simpleble_uuid_
     {
         double ppg_val = (double)cast_24bit_to_int32 ((unsigned char *)&data[2 + i * 3]);
         current_anc_buf[i][ppg_channels[ppg_num]] = ppg_val;
+        current_anc_buf[i][board_descr["ancillary"]["package_num_channel"].get<int> ()] =
+            package_num;
     }
     int num_trues = 0;
     for (size_t i = 0; i < new_ppg_data.size (); i++)
