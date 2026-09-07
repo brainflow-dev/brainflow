@@ -52,6 +52,11 @@ Correlation Between Electroencephalogram Brain-to-Brain Synchronization and Team
 JMIR Med Educ 2025;11:e69725
 URL: https://mededu.jmir.org/2025/1/e69725
 DOI: 10.2196/69725](https://mededu.jmir.org/2025/1/e69725/)
+* [M. O. Candela et al., "Toward Emotionally Adaptive Learning Spaces: Brain-Body Engagement in Immersive Dance Improvisation," 2026 IEEE Global Engineering Education Conference (EDUCON), Cairo, Egypt, 2026, pp. 1-5, doi: 10.1109/EDUCON67543.2026.11574191. keywords: {Indexes;Indexing;Electroencephalography;Printing;Humanities;Learning (artificial intelligence);Brain;Elbow;Fatigue;Knee;Immersive learning environments;Brain-body imaging;Embodied learning;EEG;Biomechanics}](https://ieeexplore.ieee.org/abstract/document/11574191)
+* [Evaluating Closed-Loop EEG Feedback for Simulated Prosthetic Vision in
+Immersive VR: A Sham-Controlled Feasibility Study](https://arxiv.org/pdf/2607.23889)
+* [Comparing Visual and Neural Representations for
+Imitation Learning in Robot Manipulation](https://sandergi.com/images/cse571report.pdf)
 
 
 ## Posts
