@@ -1,5 +1,3 @@
-#include <algorithm>
-#include <sstream>
 #include <string>
 #include <vector>
 
@@ -78,142 +76,56 @@ void BaseClassifier::parse_moving_average_params ()
         return;
     }
 
-    std::string info = params.other_info;
     try
     {
-        if (info.find ('{') != std::string::npos)
+        json j = json::parse (params.other_info);
+        if (!j.is_object ())
         {
-            json j = json::parse (info);
-            if (j.contains ("moving_average"))
-            {
-                if (j["moving_average"].is_boolean ())
-                {
-                    use_moving_average = j["moving_average"].get<bool> ();
-                    if (use_moving_average)
-                    {
-                        moving_average_window = DEFAULT_MOVING_AVERAGE_WINDOW;
-                    }
-                }
-                else if (j["moving_average"].is_number_integer ())
-                {
-                    moving_average_window = j["moving_average"].get<int> ();
-                    use_moving_average = (moving_average_window > 0);
-                }
-            }
-            if (j.contains ("window_len"))
-            {
-                moving_average_window = j["window_len"].get<int> ();
-                use_moving_average = true;
-            }
-            else if (j.contains ("period"))
-            {
-                moving_average_window = j["period"].get<int> ();
-                use_moving_average = true;
-            }
+            return;
         }
-        else if (info.find ('=') != std::string::npos)
-        {
-            std::stringstream ss (info);
-            std::string token;
-            while (std::getline (ss, token, ';'))
-            {
-                size_t eq = token.find ('=');
-                if (eq != std::string::npos)
-                {
-                    std::string k = token.substr (0, eq);
-                    std::string v = token.substr (eq + 1);
-                    k.erase (0, k.find_first_not_of (" \t\r\n"));
-                    k.erase (k.find_last_not_of (" \t\r\n") + 1);
-                    v.erase (0, v.find_first_not_of (" \t\r\n"));
-                    v.erase (v.find_last_not_of (" \t\r\n") + 1);
-                    std::transform (k.begin (), k.end (), k.begin (), ::tolower);
-                    std::transform (v.begin (), v.end (), v.begin (), ::tolower);
 
-                    if (k == "moving_average")
-                    {
-                        if (v == "true" || v == "1")
-                        {
-                            use_moving_average = true;
-                            if (moving_average_window <= 0)
-                            {
-                                moving_average_window = DEFAULT_MOVING_AVERAGE_WINDOW;
-                            }
-                        }
-                        else if (v == "false" || v == "0")
-                        {
-                            use_moving_average = false;
-                        }
-                        else
-                        {
-                            try
-                            {
-                                moving_average_window = std::stoi (v);
-                                use_moving_average = (moving_average_window > 0);
-                            }
-                            catch (...)
-                            {
-                            }
-                        }
-                    }
-                    else if (k == "window_len" || k == "period")
-                    {
-                        try
-                        {
-                            moving_average_window = std::stoi (v);
-                            use_moving_average = true;
-                        }
-                        catch (...)
-                        {
-                        }
-                    }
+        if (j.contains ("moving_average"))
+        {
+            if (j["moving_average"].is_boolean ())
+            {
+                if (!j["moving_average"].get<bool> ())
+                {
+                    return;
                 }
+                use_moving_average = true;
+                moving_average_window = DEFAULT_MOVING_AVERAGE_WINDOW;
+            }
+            else if (j["moving_average"].is_number_integer ())
+            {
+                int val = j["moving_average"].get<int> ();
+                if (val <= 0)
+                {
+                    return;
+                }
+                use_moving_average = true;
+                moving_average_window = val;
             }
         }
-        else
+
+        if (j.contains ("window_len") && j["window_len"].is_number_integer ())
         {
-            try
+            int val = j["window_len"].get<int> ();
+            if (val > 0)
             {
-                size_t idx = 0;
-                int val = std::stoi (info, &idx);
-                if ((idx == info.length ()) && (val > 0))
-                {
-                    moving_average_window = val;
-                    use_moving_average = true;
-                }
+                moving_average_window = val;
+                use_moving_average = true;
             }
-            catch (...)
+            else
             {
-                std::string lower_info = info;
-                lower_info.erase (0, lower_info.find_first_not_of (" \t\r\n"));
-                lower_info.erase (lower_info.find_last_not_of (" \t\r\n") + 1);
-                std::transform (
-                    lower_info.begin (), lower_info.end (), lower_info.begin (), ::tolower);
-                if ((lower_info == "moving_average") || (lower_info == "true"))
-                {
-                    use_moving_average = true;
-                    moving_average_window = DEFAULT_MOVING_AVERAGE_WINDOW;
-                }
+                use_moving_average = false;
+                moving_average_window = 0;
             }
         }
     }
-    catch (std::exception &e)
+    catch (const std::exception &)
     {
-        safe_logger (spdlog::level::warn,
-            "Failed to parse moving average from other_info: {}. Moving average disabled.",
-            e.what ());
         use_moving_average = false;
         moving_average_window = 0;
-    }
-
-    if (use_moving_average)
-    {
-        if (moving_average_window <= 0)
-        {
-            safe_logger (spdlog::level::warn,
-                "Invalid moving average window ({}), using default {}.", moving_average_window,
-                DEFAULT_MOVING_AVERAGE_WINDOW);
-            moving_average_window = DEFAULT_MOVING_AVERAGE_WINDOW;
-        }
     }
 }
 
@@ -224,7 +136,7 @@ void BaseClassifier::reset_moving_average ()
 
 void BaseClassifier::apply_moving_average (double *output, int *output_len)
 {
-    if ((output == NULL) || (output_len == NULL) || (*output_len <= 0))
+    if ((output == NULL) || (output_len == NULL) || (*output_len <= 0) || (moving_average_window <= 0))
     {
         return;
     }
@@ -238,6 +150,11 @@ void BaseClassifier::apply_moving_average (double *output, int *output_len)
     while ((int)window_data.size () > moving_average_window)
     {
         window_data.pop_front ();
+    }
+
+    if (window_data.empty ())
+    {
+        return;
     }
 
     for (int i = 0; i < *output_len; i++)

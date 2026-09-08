@@ -9,9 +9,8 @@
 // DynLibClassifier loads user-provided shared libraries (.so / .dll / .dylib) exporting
 // "prepare", "predict", and "release" C functions.
 // Note for plugin authors: BaseClassifier inspects params.other_info for moving average
-// configuration ("moving_average", "window_len", "period", or bare positive integer / "true").
-// If enabled, moving average smoothing is applied to the plugin's output. To avoid unintended
-// smoothing, custom plugins using other_info should use unique JSON or key-value keys.
+// configuration via JSON. Recognized keys: "moving_average" (bool or int) and "window_len" (int).
+// Non-JSON strings are safely ignored and will not activate smoothing.
 class DynLibClassifier : public BaseClassifier
 {
 public:
