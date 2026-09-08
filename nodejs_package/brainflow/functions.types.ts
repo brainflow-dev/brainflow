@@ -448,7 +448,8 @@ export class DataHandlerFunctions
     performIca!: (data: number[], rows: number, cols: number, numComponents: number, wMat: number[],
         kMat: number[], aMat: number[], sMat: number[]) => BrainFlowExitCodes;
     getActivityIndex!: (accelX: number[], accelY: number[], accelZ: number[], dataLen: number,
-        period: number, activityIndex: number[]) => BrainFlowExitCodes;
+        samplingRate: number, period: number, noiseVarX: number, noiseVarY: number, noiseVarZ: number,
+        activityIndex: number[]) => BrainFlowExitCodes;
     getCsp!: (data: number[], labels: number[], nEpochs: number, nChannels: number, nTimes: number,
         outputW: number[], outputD: number[]) => BrainFlowExitCodes;
     detrend!: (rawData: number[], dataLen: number, detrendOperation: number) => BrainFlowExitCodes;

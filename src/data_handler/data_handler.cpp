@@ -1,4 +1,5 @@
 #include <algorithm>
+#include <cmath>
 #include <math.h>
 #include <mutex>
 #include <sstream>
@@ -1732,8 +1733,10 @@ int get_activity_index (const double *accel_x, const double *accel_y, const doub
 {
     if ((accel_x == NULL) || (accel_y == NULL) || (accel_z == NULL) || (output == NULL) ||
         (data_len <= 0) || (sampling_rate <= 0) || (period < sampling_rate) ||
-        (data_len < period) || (period % sampling_rate != 0) || (noise_var_x < 0.0) ||
-        (noise_var_y < 0.0) || (noise_var_z < 0.0))
+        (data_len < period) || (period % sampling_rate != 0) ||
+        !std::isfinite (noise_var_x) || (noise_var_x < 0.0) ||
+        !std::isfinite (noise_var_y) || (noise_var_y < 0.0) ||
+        !std::isfinite (noise_var_z) || (noise_var_z < 0.0))
     {
         data_logger->error ("Invalid arguments for get_activity_index: accel_x {}, accel_y {}, "
                             "accel_z {}, output {}, data_len {}, sampling_rate {}, period {}, "
@@ -1741,6 +1744,15 @@ int get_activity_index (const double *accel_x, const double *accel_y, const doub
             (accel_x != NULL), (accel_y != NULL), (accel_z != NULL), (output != NULL), data_len,
             sampling_rate, period, noise_var_x, noise_var_y, noise_var_z);
         return (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR;
+    }
+
+    for (int i = 0; i < data_len; i++)
+    {
+        if (!std::isfinite (accel_x[i]) || !std::isfinite (accel_y[i]) || !std::isfinite (accel_z[i]))
+        {
+            data_logger->error ("Non-finite sample in accelerometer data at index {}", i);
+            return (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR;
+        }
     }
 
     int sec_per_epoch = period / sampling_rate;
