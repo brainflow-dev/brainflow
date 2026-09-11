@@ -136,7 +136,8 @@ void BaseClassifier::reset_moving_average ()
 
 void BaseClassifier::apply_moving_average (double *output, int *output_len)
 {
-    if ((output == NULL) || (output_len == NULL) || (*output_len <= 0) || (moving_average_window <= 0))
+    if ((output == NULL) || (output_len == NULL) || (*output_len <= 0) ||
+        (moving_average_window <= 0))
     {
         return;
     }

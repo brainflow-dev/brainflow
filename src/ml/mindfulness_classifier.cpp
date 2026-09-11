@@ -7,8 +7,7 @@
 #include "mindfulness_model.h"
 
 
-int MindfulnessClassifier::calculate (
-    double *data, int data_len, double *output, int *output_len)
+int MindfulnessClassifier::calculate (double *data, int data_len, double *output, int *output_len)
 {
     if ((data_len < 5) || (data == NULL) || (output == NULL))
     {
