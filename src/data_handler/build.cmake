@@ -1,6 +1,11 @@
+if (USE_OPENMP)
+    set (KISSFFT_OPENMP ON CACHE BOOL "Build kissfft with OpenMP support" FORCE)
+endif (USE_OPENMP)
+
 include (${CMAKE_CURRENT_SOURCE_DIR}/third_party/DSPFilters/build.cmake)
 include (${CMAKE_CURRENT_SOURCE_DIR}/third_party/wavelib/build.cmake)
 include (${CMAKE_CURRENT_SOURCE_DIR}/third_party/kissfft/build.cmake)
+
 
 if (CMAKE_SIZEOF_VOID_P EQUAL 8)
     SET (DATA_HANDLER_NAME "DataHandler")

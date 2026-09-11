@@ -261,6 +261,9 @@ def config(args):
     if hasattr(args, 'oymotion') and args.oymotion:
         cmd_config.append('-DBUILD_OYMOTION_SDK=ON')
     if hasattr(args, 'cmake_osx_architectures') and args.cmake_osx_architectures:
+        if args.use_openmp and args.cmake_osx_architectures == 'arm64;x86_64':
+            print('Building with OpenMP on macOS: adjusting default architectures to native %s because Homebrew libomp is single-architecture.' % platform.machine())
+            args.cmake_osx_architectures = platform.machine()
         cmd_config.append('-DCMAKE_OSX_ARCHITECTURES=%s' %
                           args.cmake_osx_architectures)
     if hasattr(args, 'cmake_osx_deployment_target') and args.cmake_osx_deployment_target:
