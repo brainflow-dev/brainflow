@@ -282,6 +282,36 @@ MacOS
         python3 build.py --help
 
 
+OpenMP Acceleration
+~~~~~~~~~~~~~~~~~~~~
+
+BrainFlow supports multi-core parallel execution via OpenMP for intensive data handling routines, including multi-channel signal filtering, wavelet denoising, and band power calculations across channels.
+
+To build BrainFlow with OpenMP support, first ensure that the OpenMP development package is available on your system:
+
+- **Linux:** Install the OpenMP development headers using your package manager, e.g. :code:`sudo apt-get install libomp-dev` on Debian/Ubuntu or :code:`sudo dnf install libgomp` on Fedora/RHEL.
+- **MacOS:** Install OpenMP via Homebrew: :code:`brew install libomp`. BrainFlow's build configuration automatically discovers Homebrew's :code:`libomp` installation.
+- **Windows:** OpenMP is included with MSVC in Visual Studio; no additional installation is needed.
+
+.. compound::
+
+    Using :code:`build.py`: ::
+
+        python3 tools/build.py --use-openmp
+
+.. compound::
+
+    Using CMake directly: ::
+
+        cmake -B build -DUSE_OPENMP=ON
+        cmake --build build --config Release
+
+.. note::
+
+    On Apple Silicon macOS, Homebrew's :code:`libomp` is built for the native architecture (:code:`arm64`). When :code:`--use-openmp` is specified without an explicit :code:`--cmake-osx-architectures`, :code:`tools/build.py` automatically configures the build for your machine's native architecture. If invoking CMake directly on Apple Silicon, pass :code:`-DCMAKE_OSX_ARCHITECTURES=arm64` (or :code:`x86_64` on Intel Macs).
+
+
+
 Android
 ---------
 
