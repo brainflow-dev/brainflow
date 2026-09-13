@@ -170,14 +170,8 @@ def prepare_args():
                     '--cmake-system-version', type=str,
                     help='system version for win', required=False)
     elif platform.system() == 'Darwin':
-        macos_ver = platform.mac_ver()[0]
-        versions = [int(x) for x in macos_ver.split('.')]
-        if versions[0] >= 11:
-            parser.add_argument('--cmake-osx-architectures', type=str,
-                                help='archs for osx', required=False, default='arm64;x86_64')
-        else:
-            parser.add_argument('--cmake-osx-architectures',
-                                type=str, help='archs for osx', required=False)
+        parser.add_argument('--cmake-osx-architectures', type=str,
+                            help='archs for osx', required=False, default=None)
         parser.add_argument('--cmake-osx-deployment-target', type=str,
                             help='min supported version of osx', required=False, default='10.15')
         parser.add_argument('--use-libftdi', action='store_true')
@@ -260,12 +254,23 @@ def config(args):
         cmd_config.append('-DUSE_OPENMP=ON')
     if hasattr(args, 'oymotion') and args.oymotion:
         cmd_config.append('-DBUILD_OYMOTION_SDK=ON')
-    if hasattr(args, 'cmake_osx_architectures') and args.cmake_osx_architectures:
-        if args.use_openmp and args.cmake_osx_architectures == 'arm64;x86_64':
-            print('Building with OpenMP on macOS: adjusting default architectures to native %s because Homebrew libomp is single-architecture.' % platform.machine())
-            args.cmake_osx_architectures = platform.machine()
-        cmd_config.append('-DCMAKE_OSX_ARCHITECTURES=%s' %
-                          args.cmake_osx_architectures)
+    if hasattr(args, 'cmake_osx_architectures'):
+        osx_arch = args.cmake_osx_architectures
+        if osx_arch is None:
+            if args.use_openmp:
+                print('Building with OpenMP on macOS: defaulting architecture to native %s because Homebrew libomp is single-architecture.' % platform.machine())
+                osx_arch = platform.machine()
+            else:
+                macos_ver = platform.mac_ver()[0]
+                if macos_ver:
+                    try:
+                        major_ver = int(macos_ver.split('.')[0])
+                        if major_ver >= 11:
+                            osx_arch = 'arm64;x86_64'
+                    except ValueError:
+                        pass
+        if osx_arch:
+            cmd_config.append('-DCMAKE_OSX_ARCHITECTURES=%s' % osx_arch)
     if hasattr(args, 'cmake_osx_deployment_target') and args.cmake_osx_deployment_target:
         cmd_config.append('-DCMAKE_OSX_DEPLOYMENT_TARGET=%s' %
                           args.cmake_osx_deployment_target)
