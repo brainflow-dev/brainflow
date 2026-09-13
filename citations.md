@@ -57,6 +57,7 @@ DOI: 10.2196/69725](https://mededu.jmir.org/2025/1/e69725/)
 Immersive VR: A Sham-Controlled Feasibility Study](https://arxiv.org/pdf/2607.23889)
 * [Comparing Visual and Neural Representations for
 Imitation Learning in Robot Manipulation](https://sandergi.com/images/cse571report.pdf)
+* [Streaming P300 Acquisition and Statistical Signal Validation Across Five EEG Platforms: A Hardware-Agnostic BrainFlow/LSL Pipeline](https://arxiv.org/pdf/2609.10047)
 
 
 ## Posts
