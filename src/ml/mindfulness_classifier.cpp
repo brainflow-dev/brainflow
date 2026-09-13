@@ -7,12 +7,7 @@
 #include "mindfulness_model.h"
 
 
-int MindfulnessClassifier::prepare ()
-{
-    return (int)BrainFlowExitCodes::STATUS_OK;
-}
-
-int MindfulnessClassifier::predict (double *data, int data_len, double *output, int *output_len)
+int MindfulnessClassifier::calculate (double *data, int data_len, double *output, int *output_len)
 {
     if ((data_len < 5) || (data == NULL) || (output == NULL))
     {
@@ -28,10 +23,5 @@ int MindfulnessClassifier::predict (double *data, int data_len, double *output, 
     double mindfulness = 1.0 / (1.0 + exp (-1.0 * (mindfulness_intercept + value)));
     *output = mindfulness;
     *output_len = 1;
-    return (int)BrainFlowExitCodes::STATUS_OK;
-}
-
-int MindfulnessClassifier::release ()
-{
     return (int)BrainFlowExitCodes::STATUS_OK;
 }

@@ -2,7 +2,7 @@
 #include "brainflow_constants.h"
 
 
-int DynLibClassifier::prepare ()
+int DynLibClassifier::prepare_classifier ()
 {
     if (dll_loader != NULL)
     {
@@ -33,7 +33,7 @@ int DynLibClassifier::prepare ()
     return func ((void *)this, &params);
 }
 
-int DynLibClassifier::predict (double *data, int data_len, double *output, int *output_len)
+int DynLibClassifier::calculate (double *data, int data_len, double *output, int *output_len)
 {
     if (dll_loader == NULL)
     {
@@ -50,7 +50,7 @@ int DynLibClassifier::predict (double *data, int data_len, double *output, int *
     return func (data, data_len, output, output_len, &params);
 }
 
-int DynLibClassifier::release ()
+int DynLibClassifier::release_classifier ()
 {
     if (dll_loader == NULL)
     {

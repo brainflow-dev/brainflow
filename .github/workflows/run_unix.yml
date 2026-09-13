@@ -458,6 +458,8 @@ jobs:
       run: sudo -H python3 $GITHUB_WORKSPACE/python_package/examples/tests/eeg_metrics.py --board-id -1
     - name: EEG Metrics Custom Python
       run: sudo -H python3 $GITHUB_WORKSPACE/python_package/examples/tests/eeg_metrics_ci.py --board-id -1 --classifier 2 --metric 2 --model-file $GITHUB_WORKSPACE/src/ml/train/logreg_mindfulness.onnx
+    - name: Moving Average Classifier Python
+      run: sudo -H python3 $GITHUB_WORKSPACE/python_package/examples/tests/moving_average_classifier.py
     - name: EEG Metrics Cpp
       run: $GITHUB_WORKSPACE/cpp_package/examples/ml/build/eeg_metrics --board-id -1
       env:

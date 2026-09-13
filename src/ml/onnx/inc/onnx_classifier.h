@@ -51,7 +51,8 @@ public:
         release ();
     }
 
-    int prepare () override;
-    int predict (double *data, int data_len, double *output, int *output_len) override;
-    int release () override;
+protected:
+    int prepare_classifier () override;
+    int calculate (double *data, int data_len, double *output, int *output_len) override;
+    int release_classifier () override;
 };

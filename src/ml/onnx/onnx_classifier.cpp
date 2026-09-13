@@ -14,7 +14,7 @@ void log_onnx_msg (void *param, OrtLoggingLevel severity, const char *category, 
     }
 }
 
-int OnnxClassifier::prepare ()
+int OnnxClassifier::prepare_classifier ()
 {
     if (dll_loader != NULL)
     {
@@ -62,7 +62,7 @@ int OnnxClassifier::prepare ()
 }
 
 
-int OnnxClassifier::predict (double *data, int data_len, double *output, int *output_len)
+int OnnxClassifier::calculate (double *data, int data_len, double *output, int *output_len)
 {
     int res = (int)BrainFlowExitCodes::STATUS_OK;
     if (ort == NULL)
@@ -390,7 +390,7 @@ int OnnxClassifier::predict (double *data, int data_len, double *output, int *ou
     return res;
 }
 
-int OnnxClassifier::release ()
+int OnnxClassifier::release_classifier ()
 {
     if ((allocator != NULL) && (ort != NULL))
     {
