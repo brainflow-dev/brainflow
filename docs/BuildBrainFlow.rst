@@ -189,6 +189,8 @@ The macOS demo can be built with:
 
 iOS and Mac App Store sample source is available in :code:`swift_package/examples/apps`. See :ref:`apple-binary-distribution-label` and :ref:`app-store-readiness-label` for release-preparation notes. App runtime support requires matching BrainFlow native frameworks embedded and signed inside the app bundle; App Store builds should not depend on :code:`BRAINFLOW_LIB_DIR` or local development directories.
 
+For dedicated iOS build, installation, and integration instructions, see :ref:`ios-label`.
+
 Docker Image
 --------------
 
@@ -361,3 +363,196 @@ Compilation instructions:
 
         # or build native libraries and package a local AAR in one command
         python tools/build_android_aar.py --build-native --abis arm64-v8a --allow-missing-abis
+
+
+.. _ios-label:
+
+iOS
+---
+
+To check supported boards for iOS visit :ref:`supported-boards-label`.
+
+BrainFlow provides first-class support for iOS applications. Native C/C++ core libraries (:code:`BoardController`, :code:`DataHandler`, and :code:`MLModule`) are distributed as multi-platform Apple XCFrameworks and can be integrated into iOS apps via Swift Package Manager (SwiftPM) or direct framework embedding in Xcode.
+
+Installation instructions
+~~~~~~~~~~~~~~~~~~~~~~~~~
+
+BrainFlow supports iOS 15.0 or newer.
+
+Using Swift Package Manager (Recommended)
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Swift Package Manager is the recommended way to integrate BrainFlow into modern Xcode projects.
+
+1. **Option A: Remote Swift Package (Precompiled Release)**
+
+   In Xcode, open your iOS project and navigate to **File > Add Package Dependencies...** (or declare it in your app's :code:`Package.swift`).
+
+   - Add the BrainFlow remote package repository URL (or release tag URL).
+   - Select the **BrainFlow** package product.
+   - SwiftPM will automatically download the binary targets (:code:`BoardController.xcframework`, :code:`DataHandler.xcframework`, :code:`MLModule.xcframework`) verified with SHA-256 checksums, along with the Swift API bindings.
+
+2. **Option B: Local Swift Binary Package**
+
+   If building from source or using a downloaded release archive:
+
+   - Locate or generate :code:`build/apple_xcframeworks/BrainFlowSwiftBinaryPackage`.
+   - In Xcode, drag the :code:`BrainFlowSwiftBinaryPackage` folder into your project navigator, or add it via **File > Add Package Dependencies... > Add Local...**.
+   - Add the :code:`BrainFlow` library to your app target's **Frameworks, Libraries, and Embedded Content**.
+
+Direct XCFramework Integration
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Alternatively, you can embed the prebuilt XCFrameworks directly:
+
+- Drag :code:`BoardController.xcframework`, :code:`DataHandler.xcframework`, and :code:`MLModule.xcframework` (and any required optional vendor frameworks) into your Xcode target under **General > Frameworks, Libraries, and Embedded Content**.
+- Ensure each framework is set to **Embed & Sign**.
+- Add the Swift source bindings from :code:`swift_package/Sources/BrainFlow` to your project.
+
+Permissions and Configuration
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Depending on the boards used by your application, configure your app's :code:`Info.plist` and privacy manifest:
+
+- **Bluetooth (BLE Boards such as Muse or Ganglion):**
+  iOS requires explicit user authorization before scanning for or connecting to Bluetooth peripherals. Add the following keys to your application's :code:`Info.plist`:
+
+  .. code-block:: xml
+
+      <key>NSBluetoothAlwaysUsageDescription</key>
+      <string>BrainFlow uses Bluetooth to connect to supported biosensor devices.</string>
+      <key>NSBluetoothPeripheralUsageDescription</key>
+      <string>BrainFlow uses Bluetooth to connect to supported biosensor devices.</string>
+
+- **Network Boards (WiFi streaming / UDP):**
+  If communicating with boards over local networks, configure App Transport Security (ATS) keys or local network privacy descriptions as required by iOS.
+
+- **Privacy Manifest:**
+  Modern iOS App Store submissions require a :code:`PrivacyInfo.xcprivacy` file in your application bundle. A reference privacy manifest is provided in :code:`swift_package/examples/apps/ios/BrainFlowiOSDemo/PrivacyInfo.xcprivacy`.
+
+- **Synthetic Board (Testing & Review):**
+  The synthetic board (:code:`BoardIds.SYNTHETIC_BOARD`) requires no hardware, Bluetooth, or network permissions, making it ideal for unit testing, simulator development, and App Review smoke testing.
+
+Quick Start Example (Swift)
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Here is a minimal iOS Swift example initializing the synthetic board, streaming data, and applying a lowpass filter:
+
+.. code-block:: swift
+
+    import BrainFlow
+    import Foundation
+
+    func runBrainFlow() {
+        do {
+            let params = BrainFlowInputParams()
+            let board = try BoardShim(board_id: .SYNTHETIC_BOARD, input_params: params)
+
+            try board.prepare_session()
+            defer {
+                try? board.release_session()
+            }
+
+            try board.start_stream()
+            Thread.sleep(forTimeInterval: 2.0)
+            try board.stop_stream()
+
+            let data = try board.get_board_data()
+            let eegChannels = try BoardShim.get_eeg_channels(board_id: .SYNTHETIC_BOARD)
+            let samplingRate = try BoardShim.get_sampling_rate(board_id: .SYNTHETIC_BOARD)
+
+            if let firstEeg = eegChannels.first {
+                var channelData = data[firstEeg]
+                try DataFilter.perform_lowpass(
+                    data: &channelData,
+                    sampling_rate: samplingRate,
+                    cutoff: 30.0,
+                    order: 4,
+                    filter_type: .BUTTERWORTH,
+                    ripple: 0.0
+                )
+                print("Filtered \(channelData.count) samples")
+            }
+        } catch {
+            print("BrainFlow error: \(error)")
+        }
+    }
+
+Compilation from Source
+~~~~~~~~~~~~~~~~~~~~~~~
+
+**For BrainFlow Developers**
+
+To compile the native Apple XCFrameworks and package the Swift bindings from source on macOS:
+
+Prerequisites:
+
+- macOS 13.0 or newer
+- Xcode 15.0+ with Command Line Tools (:code:`xcode-select --install`)
+- CMake >= 3.16 (:code:`brew install cmake` or :code:`python3 -m pip install cmake`)
+- Python 3
+
+Build Instructions:
+
+1. **Build XCFrameworks:**
+
+   Run the Apple build script from the repository root:
+
+   .. code-block:: bash
+
+       tools/apple/build_xcframeworks.sh
+
+   Or use the convenience regeneration script:
+
+   .. code-block:: bash
+
+       tools/apple/regenerate_artifacts.sh
+
+2. **Verify Output Artifacts:**
+
+   Verify the generated artifact tree:
+
+   .. code-block:: bash
+
+       tools/apple/verify_xcframeworks.sh build/apple_xcframeworks
+
+   The generated artifacts in :code:`build/apple_xcframeworks` include:
+
+   - :code:`XCFrameworks/`: Multi-platform XCFrameworks containing slices for iOS device (:code:`ios-arm64`), iOS simulator (:code:`ios-arm64_x86_64-simulator`), and macOS universal (:code:`macos-arm64_x86_64`).
+   - :code:`BrainFlowSwiftBinaryPackage`: Ready-to-use local Swift package referencing the generated XCFrameworks.
+   - :code:`BrainFlowSwiftPackageRemote`: Template manifest declaring URL-based binary targets with SHA-256 checksums for release hosting.
+   - :code:`SwiftPMArtifacts/*.xcframework.zip`: Individual zipped XCFrameworks formatted for Swift Package Manager releases.
+   - :code:`BrainFlowAppleXCFrameworks.zip`: Aggregate zip archive of all frameworks.
+   - :code:`swiftpm-checksums.txt` and :code:`swiftpm-checksums.json`: Computed checksums for SwiftPM validation.
+
+3. **Optional Native Feature Flags:**
+
+   By default, the script compiles a lightweight core suitable for standard App Store distribution. To enable Bluetooth/BLE or ONNX support:
+
+   .. code-block:: bash
+
+       BRAINFLOW_APPLE_BUILD_BLE=ON \
+       BRAINFLOW_APPLE_BUILD_BLUETOOTH=ON \
+       BRAINFLOW_APPLE_BUILD_ONNX=ON \
+       tools/apple/build_xcframeworks.sh
+
+iOS Demo Application
+~~~~~~~~~~~~~~~~~~~~
+
+A complete iOS demo application is provided in :code:`swift_package/examples/apps/ios/BrainFlowiOSDemo`.
+
+- Open :code:`swift_package/examples/apps/ios/BrainFlowiOSDemo/BrainFlowiOSDemo.xcodeproj` in Xcode.
+- Select an iPhone or iPad simulator target.
+- Build and run the `BrainFlowiOSDemo` scheme.
+- The demo includes:
+  - Synthetic board streaming with real-time EEG plotting.
+  - Board selector supporting BLE devices (such as Muse).
+  - An automated smoke test mode: pass :code:`--autorun` as a launch argument to automatically connect, acquire data, process signals, and render results.
+
+Additional Resources
+~~~~~~~~~~~~~~~~~~~~
+
+- :ref:`apple-binary-distribution-label` — Detailed information on XCFramework architecture, slice packaging, release maintenance, and checksum validation.
+- :ref:`app-store-readiness-label` — App Store submission checklist, bundle identifier requirements, code signing, and privacy requirements.
+- :ref:`swift-api-parity-label` — Full API coverage comparison between Swift and Python/Java bindings.
+

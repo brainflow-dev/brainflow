@@ -103,6 +103,7 @@ Supported platforms:
 - MacOS
 - Devices like Raspberry Pi
 - Android
+- iOS
 
 In methods like:
 
@@ -142,6 +143,7 @@ Supported platforms:
 - MacOS
 - Devices like Raspberry Pi
 - Android
+- iOS
 
 OpenBCI
 --------
@@ -1469,6 +1471,7 @@ Supported platforms:
 - MacOS
 - Devices like Raspberry Pi
 - Android
+- iOS
 
 Available :ref:`presets-label`:
 
