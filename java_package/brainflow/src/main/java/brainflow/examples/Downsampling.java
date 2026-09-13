@@ -30,6 +30,14 @@ public class Downsampling
         board_shim.release_session ();
 
         int[] eeg_channels = BoardShim.get_eeg_channels (board_id);
+        // Re-reference every EEG channel using the sample-wise mean of the first two EEG channels.
+        // The operation changes data in-place.
+        if (eeg_channels.length >= 2)
+        {
+            int[] reference_channels = {eeg_channels[0], eeg_channels[1]};
+            DataFilter.reference (data, eeg_channels, reference_channels);
+        }
+
         for (int i = 0; i < eeg_channels.length; i++)
         {
             System.out.println ("Original data:");

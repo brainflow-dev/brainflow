@@ -44,6 +44,43 @@ public enum DataFilter {
         try getVersion(function: \.get_version_data_handler)
     }
 
+    /// Re-reference selected channels in-place using the sample-wise mean of reference channels.
+    /// Rows are channels and columns are samples.
+    public static func reference(
+        data: inout [[Double]],
+        channels_to_reference: [Int],
+        reference_channels: [Int]
+    ) throws {
+        let (rows, cols) = try BrainFlowArray.validateRectangular(data)
+        guard !channels_to_reference.isEmpty, !reference_channels.isEmpty else {
+            throw invalidArguments("Channel lists must be non-empty")
+        }
+        guard channels_to_reference.allSatisfy({ $0 >= 0 && $0 < rows }) else {
+            throw invalidArguments("Channel index is out of range")
+        }
+        guard reference_channels.allSatisfy({ $0 >= 0 && $0 < rows }) else {
+            throw invalidArguments("Reference channel index is out of range")
+        }
+
+        // Snapshot the reference before changing any row so overlapping channel lists are safe.
+        var referenceSignal = [Double](repeating: 0.0, count: cols)
+        for channel in reference_channels {
+            for sample in 0..<cols {
+                referenceSignal[sample] += data[channel][sample]
+            }
+        }
+        let scale = 1.0 / Double(reference_channels.count)
+        for sample in 0..<cols {
+            referenceSignal[sample] *= scale
+        }
+
+        for channel in channels_to_reference {
+            for sample in 0..<cols {
+                data[channel][sample] -= referenceSignal[sample]
+            }
+        }
+    }
+
     public static func perform_lowpass(
         data: inout [Double],
         sampling_rate: Int,

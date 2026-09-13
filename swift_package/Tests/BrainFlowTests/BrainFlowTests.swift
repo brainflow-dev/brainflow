@@ -73,6 +73,39 @@ final class BrainFlowTests: XCTestCase {
         assertInvalidArguments(try DataFilter.get_heart_rate(ppg_ir: [1.0, 2.0], ppg_red: [1.0, 2.0], sampling_rate: 25, fft_size: 1023))
     }
 
+    func testReferenceUsesOriginalSignalWhenChannelListsOverlap() throws {
+        var data = [[1.0, 2.0], [3.0, 4.0], [5.0, 6.0]]
+
+        try DataFilter.reference(
+            data: &data,
+            channels_to_reference: [0, 2],
+            reference_channels: [0, 1]
+        )
+
+        XCTAssertEqual(data, [[-1.0, -1.0], [3.0, 4.0], [3.0, 3.0]])
+    }
+
+    func testReferenceRejectsInvalidChannelLists() throws {
+        var data = [[1.0, 2.0], [3.0, 4.0]]
+        var emptyData: [[Double]] = []
+
+        assertInvalidArguments(try DataFilter.reference(
+            data: &emptyData,
+            channels_to_reference: [0],
+            reference_channels: [0]
+        ))
+        assertInvalidArguments(try DataFilter.reference(
+            data: &data,
+            channels_to_reference: [],
+            reference_channels: [0]
+        ))
+        assertInvalidArguments(try DataFilter.reference(
+            data: &data,
+            channels_to_reference: [2],
+            reference_channels: [0]
+        ))
+    }
+
     func testBrainFlowGetDataSyntheticBoard() throws {
         try requireNativeLibraries()
         let board = try BoardShim(board_id: .SYNTHETIC_BOARD)

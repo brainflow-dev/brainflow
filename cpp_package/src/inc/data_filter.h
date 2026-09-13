@@ -28,6 +28,16 @@ public:
     /// write user defined string to BrainFlow logger
     static void log_message (int log_level, const char *format, ...);
 
+    /**
+     * re-reference selected channels in-place
+     * @param data input 2d array, rows are channels and columns are samples
+     * @param channels_to_reference channel rows from which to subtract the reference signal
+     * @param reference_channels channel rows whose sample-wise mean defines the reference signal
+     */
+    static void reference (BrainFlowArray<double, 2> &data,
+        const std::vector<int> &channels_to_reference,
+        const std::vector<int> &reference_channels);
+
     /// perform low pass filter in-place
     static void perform_lowpass (double *data, int data_len, int sampling_rate, double cutoff,
         int order, int filter_type, double ripple);

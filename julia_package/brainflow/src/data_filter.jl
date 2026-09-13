@@ -141,6 +141,43 @@ end
 WaveletType = Union{WaveletTypes, Integer}
 
 
+"""
+    reference(data, channels_to_reference, reference_channels)
+
+Re-reference selected channel rows in-place using the sample-wise mean of
+`reference_channels`. Channel indices follow Julia's one-based convention.
+"""
+function reference(data::AbstractMatrix{<:AbstractFloat}, channels_to_reference,
+                   reference_channels)
+    rows, cols = size(data)
+    if rows == 0 || cols == 0 || isempty(channels_to_reference) || isempty(reference_channels)
+        throw(BrainFlowError("Data and channel lists must be non-empty", Integer(INVALID_ARGUMENTS_ERROR)))
+    end
+    if !all(channel -> channel isa Integer && 1 <= channel <= rows, channels_to_reference)
+        throw(BrainFlowError("Channel index is out of range", Integer(INVALID_ARGUMENTS_ERROR)))
+    end
+    if !all(channel -> channel isa Integer && 1 <= channel <= rows, reference_channels)
+        throw(BrainFlowError("Reference channel index is out of range", Integer(INVALID_ARGUMENTS_ERROR)))
+    end
+
+    # Snapshot the reference before changing any row so overlapping channel lists are safe.
+    reference_signal = zeros(eltype(data), cols)
+    for channel in reference_channels
+        for sample in 1:cols
+            reference_signal[sample] += data[channel, sample]
+        end
+    end
+    reference_signal ./= length(reference_channels)
+
+    for channel in channels_to_reference
+        for sample in 1:cols
+            data[channel, sample] -= reference_signal[sample]
+        end
+    end
+    return nothing
+end
+
+
 @brainflow_rethrow function perform_lowpass(data, sampling_rate::Integer, cutoff::Float64, order::Integer,
     filter_type::FiltType, ripple::Float64)
     ccall((:perform_lowpass, DATA_HANDLER_INTERFACE), Cint, (Ptr{Float64}, Cint, Cint, Float64, Cint, Cint, Float64),

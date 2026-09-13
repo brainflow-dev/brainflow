@@ -78,6 +78,33 @@ classdef DataFilter
             DataFilter.set_log_level(int32(6))
         end
 
+        function referenced_data = reference(data, channels_to_reference, reference_channels)
+            % Re-reference selected channel rows using the sample-wise mean of reference channels.
+            % Channel indices follow MATLAB's one-based convention.
+            if ~isnumeric(data) || ~ismatrix(data) || isempty(data) || ...
+                    isempty(channels_to_reference) || isempty(reference_channels)
+                error('BrainFlow:InvalidArguments', 'Data and channel lists must be non-empty');
+            end
+            rows = size(data, 1);
+            target_indices = channels_to_reference(:);
+            reference_indices = reference_channels(:);
+            valid_targets = all(isfinite(target_indices)) && ...
+                all(target_indices == fix(target_indices)) && ...
+                all(target_indices >= 1) && all(target_indices <= rows);
+            valid_references = all(isfinite(reference_indices)) && ...
+                all(reference_indices == fix(reference_indices)) && ...
+                all(reference_indices >= 1) && all(reference_indices <= rows);
+            if ~valid_targets || ~valid_references
+                error('BrainFlow:InvalidArguments', 'Channel index is out of range');
+            end
+
+            % Snapshot the reference before changing any row so overlapping lists are safe.
+            reference_signal = mean(data(reference_indices, :), 1);
+            referenced_data = data;
+            referenced_data(target_indices, :) = ...
+                referenced_data(target_indices, :) - reference_signal;
+        end
+
         function filtered_data = perform_lowpass(data, sampling_rate, cutoff, order, filter_type, ripple)
             % perform lowpass filtering
             task_name = 'perform_lowpass';

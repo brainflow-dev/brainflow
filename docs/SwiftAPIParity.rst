@@ -29,8 +29,8 @@ Implemented:
 
 - Filters, noise removal, and detrending: lowpass, highpass, bandpass, bandstop, environmental
   noise removal, rolling filter, and detrend.
-- Transforms and features: downsampling, wavelet transform/inverse/denoising, CSP, windowing,
-  FFT/IFFT, PSD/Welch, band powers, and ICA.
+- Transforms and features: channel re-referencing, downsampling, wavelet
+  transform/inverse/denoising, CSP, windowing, FFT/IFFT, PSD/Welch, band powers, and ICA.
 - Helpers: standard deviation, railed percentage, oxygen level, heart rate, peak detection,
   nearest power of two, file I/O, reshape helpers, logging, and version.
 

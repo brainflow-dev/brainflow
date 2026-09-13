@@ -76,6 +76,61 @@ namespace brainflow
                 throw new BrainFlowError (res);
             }
         }
+
+        /// <summary>
+        /// Re-reference selected channels in-place using the sample-wise mean of reference channels.
+        /// </summary>
+        /// <param name="data">Rows are channels and columns are samples.</param>
+        /// <param name="channels_to_reference">Rows from which to subtract the reference signal.</param>
+        /// <param name="reference_channels">Rows whose mean defines the reference signal.</param>
+        public static void reference (double[,] data, int[] channels_to_reference, int[] reference_channels)
+        {
+            if ((data == null) || (channels_to_reference == null) || (reference_channels == null) ||
+                (data.GetLength (0) == 0) || (data.GetLength (1) == 0) ||
+                (channels_to_reference.Length == 0) || (reference_channels.Length == 0))
+            {
+                throw new BrainFlowError ((int)BrainFlowExitCodes.INVALID_ARGUMENTS_ERROR);
+            }
+
+            int rows = data.GetLength (0);
+            int cols = data.GetLength (1);
+            foreach (int channel in channels_to_reference)
+            {
+                if ((channel < 0) || (channel >= rows))
+                {
+                    throw new BrainFlowError ((int)BrainFlowExitCodes.INVALID_ARGUMENTS_ERROR);
+                }
+            }
+            foreach (int channel in reference_channels)
+            {
+                if ((channel < 0) || (channel >= rows))
+                {
+                    throw new BrainFlowError ((int)BrainFlowExitCodes.INVALID_ARGUMENTS_ERROR);
+                }
+            }
+
+            // Snapshot the reference before changing any row so overlapping channel lists are safe.
+            double[] reference_signal = new double[cols];
+            foreach (int channel in reference_channels)
+            {
+                for (int sample = 0; sample < cols; sample++)
+                {
+                    reference_signal[sample] += data[channel, sample];
+                }
+            }
+            for (int sample = 0; sample < cols; sample++)
+            {
+                reference_signal[sample] /= reference_channels.Length;
+            }
+
+            foreach (int channel in channels_to_reference)
+            {
+                for (int sample = 0; sample < cols; sample++)
+                {
+                    data[channel, sample] -= reference_signal[sample];
+                }
+            }
+        }
         // accord GetRow returns a copy instead pointer, so we can not easily update data in place like in other bindings
 
         /// <summary>

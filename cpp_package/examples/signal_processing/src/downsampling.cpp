@@ -45,6 +45,14 @@ int main (int argc, char *argv[])
         int filtered_size = 0;
         std::vector<int> eeg_channels = BoardShim::get_eeg_channels (board_id);
 
+        // Re-reference every EEG channel using the sample-wise mean of the first two EEG channels.
+        // The operation changes data in-place and may be applied before other signal processing.
+        if (eeg_channels.size () >= 2)
+        {
+            std::vector<int> reference_channels = {eeg_channels[0], eeg_channels[1]};
+            DataFilter::reference (data, eeg_channels, reference_channels);
+        }
+
         for (int i = 0; i < eeg_channels.size (); i++)
         {
             std::cout << "Data from :" << eeg_channels[i] << " before downsampling " << std::endl;

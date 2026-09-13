@@ -19,6 +19,11 @@ def main():
     board.release_session()
 
     eeg_channels = BoardShim.get_eeg_channels(BoardIds.SYNTHETIC_BOARD.value)
+    # Re-reference every EEG channel using the sample-wise mean of the first two EEG channels.
+    # The operation changes data in-place.
+    if len(eeg_channels) >= 2:
+        DataFilter.reference(data, eeg_channels, eeg_channels[:2])
+
     # demo for downsampling, it just aggregates data
     for count, channel in enumerate(eeg_channels):
         print('Original data for channel %d:' % channel)

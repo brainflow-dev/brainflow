@@ -16,6 +16,12 @@ BrainFlow.release_session(board_shim)
 eeg_channels = BrainFlow.get_eeg_channels(BrainFlow.SYNTHETIC_BOARD)
 sampling_rate = BrainFlow.get_sampling_rate(BrainFlow.SYNTHETIC_BOARD)
 
+# Re-reference every EEG channel using the sample-wise mean of the first two EEG channels.
+# The operation changes data in-place.
+if length(eeg_channels) >= 2
+    BrainFlow.reference(data, eeg_channels, eeg_channels[1:2])
+end
+
 data_first_channel = data[eeg_channels[1], :]
 println("Original Data First Channel")
 println(data_first_channel)
