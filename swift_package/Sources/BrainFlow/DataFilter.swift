@@ -704,6 +704,44 @@ public enum DataFilter {
         BrainFlowArray.reshape_data_to_2d(num_rows: num_rows, num_cols: num_cols, linear_buffer: linear_buffer)
     }
 
+    public static func get_activity_index(
+        accel_x: [Double],
+        accel_y: [Double],
+        accel_z: [Double],
+        sampling_rate: Int,
+        period: Int = 0,
+        noise_var_x: Double = 0.0,
+        noise_var_y: Double = 0.0,
+        noise_var_z: Double = 0.0
+    ) throws -> [Double] {
+        guard accel_x.count == accel_y.count, accel_x.count == accel_z.count else { throw invalidArguments("Array lengths must match") }
+        let dataLen = accel_x.count
+        guard dataLen > 0 else { throw invalidArguments("Input arrays must not be empty") }
+        guard sampling_rate > 0, dataLen >= sampling_rate else { throw invalidArguments("Invalid sampling rate or data length shorter than 1 second") }
+        let periodToUse = period <= 0 ? (dataLen - (dataLen % sampling_rate)) : period
+        guard periodToUse >= sampling_rate, dataLen >= periodToUse, periodToUse % sampling_rate == 0 else {
+            throw invalidArguments("Invalid period or data length is shorter than period")
+        }
+        guard noise_var_x >= 0.0, noise_var_y >= 0.0, noise_var_z >= 0.0 else {
+            throw invalidArguments("Noise variances must be non-negative")
+        }
+        let numEpochs = dataLen / periodToUse
+        guard numEpochs > 0 else { throw invalidArguments("Data length is shorter than period") }
+        var output = [Double](repeating: 0.0, count: numEpochs)
+        try accel_x.withUnsafeBufferPointer { xPtr in
+            try accel_y.withUnsafeBufferPointer { yPtr in
+                try accel_z.withUnsafeBufferPointer { zPtr in
+                    try output.withUnsafeMutableBufferPointer { outPtr in
+                        try DataFilterNative.withData { native in
+                            try checkBrainFlowExitCode(native.get_activity_index(xPtr.baseAddress, yPtr.baseAddress, zPtr.baseAddress, CInt(dataLen), CInt(sampling_rate), CInt(periodToUse), noise_var_x, noise_var_y, noise_var_z, outPtr.baseAddress), "Failed to calculate activity index")
+                        }
+                    }
+                }
+            }
+        }
+        return output
+    }
+
     private static func withMutableData<T>(_ data: inout [Double], _ body: (UnsafeMutablePointer<Double>?, Int) throws -> T) throws -> T {
         try data.withUnsafeMutableBufferPointer { pointer in
             try body(pointer.baseAddress, pointer.count)
@@ -753,6 +791,7 @@ final class DataFilterNative {
     let restore_data_from_wavelet_detailed_coeffs: @convention(c) (UnsafeMutablePointer<Double>?, CInt, CInt, CInt, CInt, UnsafeMutablePointer<Double>?) -> CInt
     let detect_peaks_z_score: @convention(c) (UnsafeMutablePointer<Double>?, CInt, CInt, Double, Double, UnsafeMutablePointer<Double>?) -> CInt
     let perform_ica: @convention(c) (UnsafeMutablePointer<Double>?, CInt, CInt, CInt, UnsafeMutablePointer<Double>?, UnsafeMutablePointer<Double>?, UnsafeMutablePointer<Double>?, UnsafeMutablePointer<Double>?) -> CInt
+    let get_activity_index: @convention(c) (UnsafePointer<Double>?, UnsafePointer<Double>?, UnsafePointer<Double>?, CInt, CInt, CInt, Double, Double, Double, UnsafeMutablePointer<Double>?) -> CInt
     let set_log_level_data_handler: @convention(c) (CInt) -> CInt
     let set_log_file_data_handler: @convention(c) (UnsafePointer<CChar>?) -> CInt
     let log_message_data_handler: @convention(c) (CInt, UnsafeMutablePointer<CChar>?) -> CInt
@@ -805,6 +844,7 @@ final class DataFilterNative {
         restore_data_from_wavelet_detailed_coeffs = try library.symbol("restore_data_from_wavelet_detailed_coeffs", as: type(of: restore_data_from_wavelet_detailed_coeffs))
         detect_peaks_z_score = try library.symbol("detect_peaks_z_score", as: type(of: detect_peaks_z_score))
         perform_ica = try library.symbol("perform_ica", as: type(of: perform_ica))
+        get_activity_index = try library.symbol("get_activity_index", as: type(of: get_activity_index))
         set_log_level_data_handler = try library.symbol("set_log_level_data_handler", as: type(of: set_log_level_data_handler))
         set_log_file_data_handler = try library.symbol("set_log_file_data_handler", as: type(of: set_log_file_data_handler))
         log_message_data_handler = try library.symbol("log_message_data_handler", as: type(of: log_message_data_handler))

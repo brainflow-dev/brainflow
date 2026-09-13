@@ -585,6 +585,45 @@ double DataFilter::get_railed_percentage (double *data, int data_len, int gain)
     return output;
 }
 
+double *DataFilter::get_activity_index (const double *accel_x, const double *accel_y,
+    const double *accel_z, int data_len, int sampling_rate, int period,
+    double noise_var_x, double noise_var_y, double noise_var_z, int *output_len)
+{
+    if ((data_len <= 0) || (sampling_rate <= 0))
+    {
+        throw BrainFlowException ("invalid arguments for get_activity_index",
+            (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR);
+    }
+    if (period <= 0)
+    {
+        period = data_len - (data_len % sampling_rate);
+    }
+    if ((period < sampling_rate) || (period > data_len) || (period % sampling_rate != 0))
+    {
+        throw BrainFlowException ("invalid period for get_activity_index",
+            (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR);
+    }
+    int num_epochs = data_len / period;
+    if (num_epochs <= 0)
+    {
+        throw BrainFlowException ("data length shorter than epoch period",
+            (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR);
+    }
+    double *output = new double[num_epochs];
+    int res = ::get_activity_index (accel_x, accel_y, accel_z, data_len, sampling_rate, period,
+        noise_var_x, noise_var_y, noise_var_z, output);
+    if (res != (int)BrainFlowExitCodes::STATUS_OK)
+    {
+        delete[] output;
+        throw BrainFlowException ("unable to calculate activity index", res);
+    }
+    if (output_len != NULL)
+    {
+        *output_len = num_epochs;
+    }
+    return output;
+}
+
 std::string DataFilter::get_version ()
 {
     char version[64];

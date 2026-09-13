@@ -65,6 +65,7 @@ class DataHandlerDLL extends DataHandlerFunctions
             this.lib.func(CLike.restore_data_from_wavelet_detailed_coeffs);
         this.detectPeaksZScore = this.lib.func(CLike.detect_peaks_z_score);
         this.performIca = this.lib.func(CLike.perform_ica);
+        this.getActivityIndex = this.lib.func(CLike.get_activity_index);
         this.getCsp = this.lib.func(CLike.get_csp);
         this.detrend = this.lib.func(CLike.detrend);
         this.calcStddev = this.lib.func(CLike.calc_stddev);
@@ -606,5 +607,61 @@ export class DataFilter
             throw new BrainFlowError (res, 'Could not calc stddev');
         }
         return output[0];
+    }
+
+    public static getActivityIndex(
+        accelX: number[], accelY: number[], accelZ: number[],
+        samplingRate: number, period: number = 0,
+        noiseVarX: number = 0, noiseVarY: number = 0, noiseVarZ: number = 0): number[]
+    {
+        if (accelX.length !== accelY.length || accelX.length !== accelZ.length)
+        {
+            throw new BrainFlowError (
+                BrainFlowExitCodes.INVALID_ARGUMENTS_ERROR, "arrays lengths must match");
+        }
+        if (accelX.length === 0)
+        {
+            throw new BrainFlowError (
+                BrainFlowExitCodes.INVALID_ARGUMENTS_ERROR, "input arrays must not be empty");
+        }
+        if (!Number.isInteger(samplingRate) || samplingRate <= 0 || accelX.length < samplingRate)
+        {
+            throw new BrainFlowError (
+                BrainFlowExitCodes.INVALID_ARGUMENTS_ERROR, "invalid sampling rate or data shorter than 1 second");
+        }
+        if (period <= 0)
+        {
+            period = accelX.length - (accelX.length % samplingRate);
+        }
+        if (!Number.isInteger(period))
+        {
+            throw new BrainFlowError (
+                BrainFlowExitCodes.INVALID_ARGUMENTS_ERROR, "period must be an integer");
+        }
+        if (period < samplingRate || accelX.length < period || (period % samplingRate !== 0))
+        {
+            throw new BrainFlowError (
+                BrainFlowExitCodes.INVALID_ARGUMENTS_ERROR, "invalid period or data length shorter than period");
+        }
+        if (noiseVarX < 0 || noiseVarY < 0 || noiseVarZ < 0)
+        {
+            throw new BrainFlowError (
+                BrainFlowExitCodes.INVALID_ARGUMENTS_ERROR, "noise variances must be non-negative");
+        }
+        const numEpochs = Math.trunc(accelX.length / period);
+        if (numEpochs === 0)
+        {
+            throw new BrainFlowError (
+                BrainFlowExitCodes.INVALID_ARGUMENTS_ERROR, "data length is shorter than period");
+        }
+        const output = [...new Array (numEpochs).fill(0)];
+        const res = DataHandlerDLL.getInstance().getActivityIndex(
+            accelX, accelY, accelZ, accelX.length, samplingRate, period,
+            noiseVarX, noiseVarY, noiseVarZ, output);
+        if (res !== BrainFlowExitCodes.STATUS_OK)
+        {
+            throw new BrainFlowError (res, 'Could not calc activity index');
+        }
+        return output;
     }
 }

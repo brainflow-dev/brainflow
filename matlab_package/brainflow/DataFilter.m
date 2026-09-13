@@ -460,6 +460,51 @@ classdef DataFilter
             data =  transpose(reshape(data_array.Value(1, 1:data_count.Value), [num_cols.Value, num_rows.value]));
         end
         
+        function output = get_activity_index(accel_x, accel_y, accel_z, sampling_rate, period, noise_var_x, noise_var_y, noise_var_z)
+            % calculate activity index using Bai et al. (2016) formulation
+            if nargin < 4
+                error('accel_x, accel_y, accel_z, and sampling_rate are required');
+            end
+            if isempty(accel_x) || isempty(accel_y) || isempty(accel_z)
+                error('Input arrays must not be empty');
+            end
+            if size(accel_x, 2) ~= size(accel_y, 2) || size(accel_x, 2) ~= size(accel_z, 2)
+                error('Length of accel_x, accel_y, and accel_z must match');
+            end
+            if floor(sampling_rate) ~= sampling_rate || sampling_rate <= 0
+                error('Sampling rate must be a positive integer');
+            end
+            data_len = size(accel_x, 2);
+            if data_len < sampling_rate
+                error('Data length must be at least one second');
+            end
+            if nargin < 5 || period <= 0
+                period = data_len - mod(data_len, sampling_rate);
+            end
+            if floor(period) ~= period
+                error('Period must be an integer');
+            end
+            if period < sampling_rate || period > data_len || mod(period, sampling_rate) ~= 0
+                error('Period must be an integer multiple of sampling rate and <= data_len');
+            end
+            if nargin < 6; noise_var_x = 0.0; end
+            if nargin < 7; noise_var_y = 0.0; end
+            if nargin < 8; noise_var_z = 0.0; end
+            if noise_var_x < 0 || noise_var_y < 0 || noise_var_z < 0
+                error('Noise variances must be non-negative');
+            end
+            task_name = 'get_activity_index';
+            temp_input_x = libpointer('doublePtr', accel_x);
+            temp_input_y = libpointer('doublePtr', accel_y);
+            temp_input_z = libpointer('doublePtr', accel_z);
+            lib_name = DataFilter.load_lib();
+            num_epochs = floor(data_len / period);
+            temp_output = libpointer('doublePtr', zeros(1, num_epochs));
+            exit_code = calllib(lib_name, task_name, temp_input_x, temp_input_y, temp_input_z, data_len, sampling_rate, period, noise_var_x, noise_var_y, noise_var_z, temp_output);
+            DataFilter.check_ec(exit_code, task_name);
+            output = temp_output.Value;
+        end
+        
     end
     
 end

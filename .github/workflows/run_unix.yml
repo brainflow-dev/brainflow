@@ -378,6 +378,8 @@ jobs:
       run: sudo -H python3 $GITHUB_WORKSPACE/python_package/examples/tests/band_power.py
     - name: BandPowerAll Python
       run: sudo -H python3 $GITHUB_WORKSPACE/python_package/examples/tests/band_power_all.py
+    - name: Activity Index Python
+      run: sudo -H python3 $GITHUB_WORKSPACE/python_package/examples/tests/activity_index.py
     - name: Denoising Cpp
       run: $GITHUB_WORKSPACE/cpp_package/examples/signal_processing/build/denoising
       env:

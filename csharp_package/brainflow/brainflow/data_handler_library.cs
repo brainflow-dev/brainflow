@@ -1,4 +1,4 @@
-﻿using System.Runtime.InteropServices;
+using System.Runtime.InteropServices;
 
 namespace brainflow
 {
@@ -187,6 +187,8 @@ namespace brainflow
         public static extern int get_heart_rate (double[] ppg_ir, double[] ppg_red, int data_size, int sampling_rate, int fft_size, double[] output);
         [DllImport ("DataHandler", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int perform_ica (double[] data, int rows, int cols, int num_components, double[] w, double[] k, double[] a, double[] s);
+        [DllImport ("DataHandler", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        public static extern int get_activity_index (double[] accel_x, double[] accel_y, double[] accel_z, int data_len, int sampling_rate, int period, double noise_var_x, double noise_var_y, double noise_var_z, double[] output);
         // unsafe methods working with pointers
         [DllImport ("DataHandler", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static unsafe extern int perform_lowpass (double* data, int len, int sampling_rate, double cutoff, int order, int filter_type, double ripple);
@@ -297,6 +299,8 @@ namespace brainflow
         public static extern int get_heart_rate (double[] ppg_ir, double[] ppg_red, int data_size, int sampling_rate, int fft_size, double[] output);
         [DllImport ("DataHandler32", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int perform_ica (double[] data, int rows, int cols, int num_components, double[] w, double[] k, double[] a, double[] s);
+        [DllImport ("DataHandler32", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        public static extern int get_activity_index (double[] accel_x, double[] accel_y, double[] accel_z, int data_len, int sampling_rate, int period, double noise_var_x, double noise_var_y, double noise_var_z, double[] output);
         // unsafe methods working with pointers
         [DllImport ("DataHandler32", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static unsafe extern int perform_lowpass (double* data, int len, int sampling_rate, double cutoff, int order, int filter_type, double ripple);
@@ -384,6 +388,19 @@ namespace brainflow
                     return DataHandlerLibrary64.perform_ica (data, rows, cols, num_components, w, k, a, s);
                 case LibraryEnvironment.x86:
                     return DataHandlerLibrary32.perform_ica (data, rows, cols, num_components, w, k, a, s);
+            }
+
+            return (int)BrainFlowExitCodes.GENERAL_ERROR;
+        }
+
+        public static int get_activity_index (double[] accel_x, double[] accel_y, double[] accel_z, int data_len, int sampling_rate, int period, double noise_var_x, double noise_var_y, double noise_var_z, double[] output)
+        {
+            switch (PlatformHelper.get_library_environment ())
+            {
+                case LibraryEnvironment.x64:
+                    return DataHandlerLibrary64.get_activity_index (accel_x, accel_y, accel_z, data_len, sampling_rate, period, noise_var_x, noise_var_y, noise_var_z, output);
+                case LibraryEnvironment.x86:
+                    return DataHandlerLibrary32.get_activity_index (accel_x, accel_y, accel_z, data_len, sampling_rate, period, noise_var_x, noise_var_y, noise_var_z, output);
             }
 
             return (int)BrainFlowExitCodes.GENERAL_ERROR;

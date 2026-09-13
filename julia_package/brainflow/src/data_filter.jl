@@ -461,3 +461,33 @@ end
             psd[1], psd[2], length(psd[1]), Float64(freq_start), Float64(freq_end), band_power)
     return band_power[1]
 end
+
+@brainflow_rethrow function get_activity_index(accel_x, accel_y, accel_z, sampling_rate::Integer, period::Integer=0, noise_var_x::Real=0.0, noise_var_y::Real=0.0, noise_var_z::Real=0.0)
+    if (length(accel_x) != length(accel_y)) || (length(accel_x) != length(accel_z))
+        throw(BrainFlowError(string("Arrays lengths must match ", INVALID_ARGUMENTS_ERROR), Integer(INVALID_ARGUMENTS_ERROR)))
+    end
+    data_len = length(accel_x)
+    if data_len == 0
+        throw(BrainFlowError(string("Input arrays must not be empty ", INVALID_ARGUMENTS_ERROR), Integer(INVALID_ARGUMENTS_ERROR)))
+    end
+    if sampling_rate <= 0 || data_len < sampling_rate
+        throw(BrainFlowError(string("Invalid sampling rate or data length shorter than 1 second ", INVALID_ARGUMENTS_ERROR), Integer(INVALID_ARGUMENTS_ERROR)))
+    end
+    if period <= 0
+        period = data_len - mod(data_len, sampling_rate)
+    end
+    if period < sampling_rate || data_len < period || mod(period, sampling_rate) != 0
+        throw(BrainFlowError(string("Invalid period or data length is shorter than period ", INVALID_ARGUMENTS_ERROR), Integer(INVALID_ARGUMENTS_ERROR)))
+    end
+    if noise_var_x < 0.0 || noise_var_y < 0.0 || noise_var_z < 0.0
+        throw(BrainFlowError(string("Noise variances must be non-negative ", INVALID_ARGUMENTS_ERROR), Integer(INVALID_ARGUMENTS_ERROR)))
+    end
+    num_epochs = div(data_len, period)
+    if num_epochs == 0
+        throw(BrainFlowError(string("Data length is shorter than period ", INVALID_ARGUMENTS_ERROR), Integer(INVALID_ARGUMENTS_ERROR)))
+    end
+    output = Vector{Float64}(undef, num_epochs)
+    ccall((:get_activity_index, DATA_HANDLER_INTERFACE), Cint, (Ptr{Float64}, Ptr{Float64}, Ptr{Float64}, Cint, Cint, Cint, Float64, Float64, Float64, Ptr{Float64}),
+            accel_x, accel_y, accel_z, Int32(data_len), Int32(sampling_rate), Int32(period), Float64(noise_var_x), Float64(noise_var_y), Float64(noise_var_z), output)
+    return output
+end

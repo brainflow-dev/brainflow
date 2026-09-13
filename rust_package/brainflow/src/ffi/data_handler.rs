@@ -273,6 +273,20 @@ extern "C" {
     ) -> ::std::os::raw::c_int;
 }
 extern "C" {
+    pub fn get_activity_index(
+        accel_x: *const f64,
+        accel_y: *const f64,
+        accel_z: *const f64,
+        data_len: ::std::os::raw::c_int,
+        sampling_rate: ::std::os::raw::c_int,
+        period: ::std::os::raw::c_int,
+        noise_var_x: f64,
+        noise_var_y: f64,
+        noise_var_z: f64,
+        activity_index: *mut f64,
+    ) -> ::std::os::raw::c_int;
+}
+extern "C" {
     pub fn set_log_level_data_handler(log_level: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
 }
 extern "C" {

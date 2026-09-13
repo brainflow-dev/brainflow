@@ -1,4 +1,4 @@
-﻿using brainflow.math;
+using brainflow.math;
 
 using System;
 using System.Numerics;
@@ -583,6 +583,53 @@ namespace brainflow
 
             double[,] result = data_arr.Reshape(num_rows[0], num_cols[0]);
             return result;
+        }
+
+        /// <summary>
+        /// calculate activity index from 3-axis accelerometer data using Bai et al. (2016) formulation
+        /// </summary>
+        public static double[] get_activity_index (double[] accel_x, double[] accel_y, double[] accel_z, int sampling_rate, int period = 0, double noise_var_x = 0.0, double noise_var_y = 0.0, double noise_var_z = 0.0)
+        {
+            if (accel_x == null || accel_y == null || accel_z == null)
+            {
+                throw new BrainFlowError ((int)BrainFlowExitCodes.INVALID_ARGUMENTS_ERROR);
+            }
+            if ((accel_x.Length != accel_y.Length) || (accel_x.Length != accel_z.Length))
+            {
+                throw new BrainFlowError ((int)BrainFlowExitCodes.INVALID_ARGUMENTS_ERROR);
+            }
+            if (accel_x.Length == 0)
+            {
+                throw new BrainFlowError ((int)BrainFlowExitCodes.INVALID_ARGUMENTS_ERROR);
+            }
+            if (sampling_rate <= 0 || accel_x.Length < sampling_rate)
+            {
+                throw new BrainFlowError ((int)BrainFlowExitCodes.INVALID_ARGUMENTS_ERROR);
+            }
+            if (period <= 0)
+            {
+                period = accel_x.Length - (accel_x.Length % sampling_rate);
+            }
+            if (period < sampling_rate || accel_x.Length < period || (period % sampling_rate != 0))
+            {
+                throw new BrainFlowError ((int)BrainFlowExitCodes.INVALID_ARGUMENTS_ERROR);
+            }
+            if (noise_var_x < 0.0 || noise_var_y < 0.0 || noise_var_z < 0.0)
+            {
+                throw new BrainFlowError ((int)BrainFlowExitCodes.INVALID_ARGUMENTS_ERROR);
+            }
+            int num_epochs = accel_x.Length / period;
+            if (num_epochs == 0)
+            {
+                throw new BrainFlowError ((int)BrainFlowExitCodes.INVALID_ARGUMENTS_ERROR);
+            }
+            double[] output = new double[num_epochs];
+            int res = DataHandlerLibrary.get_activity_index (accel_x, accel_y, accel_z, accel_x.Length, sampling_rate, period, noise_var_x, noise_var_y, noise_var_z, output);
+            if (res != (int)BrainFlowExitCodes.STATUS_OK)
+            {
+                throw new BrainFlowError (res);
+            }
+            return output;
         }
 
         /// <summary>

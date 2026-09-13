@@ -859,6 +859,55 @@ where
     Ok(check_brainflow_exit_code(res)?)
 }
 
+/// Calculate activity index from 3-axis accelerometer data using the Bai et al. (2016) formulation.
+pub fn get_activity_index(
+    accel_x: &[f64],
+    accel_y: &[f64],
+    accel_z: &[f64],
+    sampling_rate: usize,
+    period: Option<usize>,
+    noise_var: Option<(f64, f64, f64)>,
+) -> Result<Vec<f64>> {
+    if accel_x.len() != accel_y.len() || accel_x.len() != accel_z.len() {
+        return Err(Error::BrainFlowError(BrainFlowError::InvalidArgumentsError));
+    }
+    let data_len = accel_x.len();
+    if data_len == 0 || sampling_rate == 0 || data_len < sampling_rate {
+        return Err(Error::BrainFlowError(BrainFlowError::InvalidArgumentsError));
+    }
+    let period = period.unwrap_or(data_len - (data_len % sampling_rate));
+    if period < sampling_rate || period > data_len || period % sampling_rate != 0 {
+        return Err(Error::BrainFlowError(BrainFlowError::InvalidArgumentsError));
+    }
+    let num_epochs = data_len / period;
+    if num_epochs == 0 {
+        return Err(Error::BrainFlowError(BrainFlowError::InvalidArgumentsError));
+    }
+    let (noise_var_x, noise_var_y, noise_var_z) = noise_var.unwrap_or((0.0, 0.0, 0.0));
+    if noise_var_x < 0.0 || noise_var_y < 0.0 || noise_var_z < 0.0 {
+        return Err(Error::BrainFlowError(BrainFlowError::InvalidArgumentsError));
+    }
+    let mut output = Vec::<f64>::with_capacity(num_epochs);
+    let res = unsafe {
+        data_handler::get_activity_index(
+            accel_x.as_ptr() as *const c_double,
+            accel_y.as_ptr() as *const c_double,
+            accel_z.as_ptr() as *const c_double,
+            data_len as c_int,
+            sampling_rate as c_int,
+            period as c_int,
+            noise_var_x,
+            noise_var_y,
+            noise_var_z,
+            output.as_mut_ptr() as *mut c_double,
+        )
+    };
+    check_brainflow_exit_code(res)?;
+
+    unsafe { output.set_len(num_epochs) };
+    Ok(output)
+}
+
 /// Get DataFilter version.
 pub fn get_version() -> Result<String> {
     const MAX_CHARS: usize = 64;

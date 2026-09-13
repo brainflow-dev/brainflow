@@ -69,6 +69,9 @@ extern "C"
         double *data, int data_len, int lag, double threshold, double influence, double *output);
     SHARED_EXPORT int CALLING_CONVENTION perform_ica (double *data, int rows, int cols,
         int num_components, double *w_mat, double *k_mat, double *a_mat, double *s_mat);
+    SHARED_EXPORT int CALLING_CONVENTION get_activity_index (const double *accel_x,
+        const double *accel_y, const double *accel_z, int data_len, int sampling_rate, int period,
+        double noise_var_x, double noise_var_y, double noise_var_z, double *activity_index);
 
     // logging methods
     SHARED_EXPORT int CALLING_CONVENTION set_log_level_data_handler (int log_level);
