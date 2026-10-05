@@ -3,8 +3,8 @@
 #include <algorithm>
 #include <array>
 #include <iostream>
-#include <memory>
 #include <limits>
+#include <memory>
 #include <stdlib.h>
 #include <string.h>
 
@@ -26,7 +26,8 @@ static inline int product (const std::array<int, N> &array)
     {
         if (array[i] < 0 || (array[i] != 0 && result > std::numeric_limits<int>::max () / array[i]))
         {
-            throw BrainFlowException ("invalid array dimensions", (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR);
+            throw BrainFlowException (
+                "invalid array dimensions", (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR);
         }
         result *= array[i];
     }
@@ -74,9 +75,11 @@ static inline std::array<int, N> make_stride (const std::array<int, N> &size)
     stride[N - 1] = 1;
     for (int i = (int)N - 2; i >= 0; i--)
     {
-        if (size[i + 1] < 0 || (size[i + 1] != 0 && stride[i + 1] > std::numeric_limits<int>::max () / size[i + 1]))
+        if (size[i + 1] < 0 ||
+            (size[i + 1] != 0 && stride[i + 1] > std::numeric_limits<int>::max () / size[i + 1]))
         {
-            throw BrainFlowException ("invalid array dimensions", (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR);
+            throw BrainFlowException (
+                "invalid array dimensions", (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR);
         }
         stride[i] = stride[i + 1] * size[i + 1];
     }
@@ -99,7 +102,8 @@ private:
     {
         if (index < 0 || index >= size[dim])
         {
-            throw BrainFlowException ("out of range", (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR);
+            throw BrainFlowException (
+                "out of range", (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR);
         }
     }
 
@@ -285,7 +289,8 @@ public:
     {
         if (dim < 0 || dim >= Dim)
         {
-            throw BrainFlowException ("invalid dim argument", (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR);
+            throw BrainFlowException (
+                "invalid dim argument", (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR);
         }
         return stride[dim];
     }
@@ -355,7 +360,8 @@ public:
     {
         if (index0 < 0 || index0 >= length)
         {
-            throw BrainFlowException ("out of range", (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR);
+            throw BrainFlowException (
+                "out of range", (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR);
         }
         return origin[index0];
     }
@@ -365,7 +371,8 @@ public:
     {
         if (index0 < 0 || index0 >= length)
         {
-            throw BrainFlowException ("out of range", (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR);
+            throw BrainFlowException (
+                "out of range", (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR);
         }
         return origin[index0];
     }

@@ -681,6 +681,7 @@ class StreamingFilter:
         try:
             self.close()
         except Exception:
+            # Finalizers may run after the native library has been torn down.
             pass
 
 

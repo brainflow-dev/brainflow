@@ -1,0 +1,158 @@
+{
+  "brainflow_version": "0.0.1",
+  "bundled_onnxruntime": {
+    "sha256": "1d288bc5cf880825e9aae4c9217799d092257dc6be2b1094d361a95d532a009a",
+    "version": "1.11.0"
+  },
+  "models": {
+    "extra_trees": {
+      "evaluation": {
+        "class_disagreements": 0,
+        "native_vs_python_max_error": 4.76837158203125e-07,
+        "native_vs_sklearn_max_error": 1.3339557891622889e-07,
+        "probes": 793,
+        "sha256": "6108e3a556edf8fc6439176d1c6f8b8e7f962d27ddabe2e86accb41bc685e693"
+      },
+      "production": {
+        "native_vs_python_max_error": 4.76837158203125e-07,
+        "probes": 197,
+        "sha256": "b903adff21a1f0c2a3cf25cb1edfb13cc3539ba6377a998d6c399b544ef27a38"
+      }
+    },
+    "gradient_boosting": {
+      "evaluation": {
+        "class_disagreements": 0,
+        "native_vs_python_max_error": 2.980232238769531e-07,
+        "native_vs_sklearn_max_error": 9.219201291266188e-08,
+        "probes": 793,
+        "sha256": "a743b1d2ef41cfbfbd96e7e9784491618021108c66496c47d41b284568189b7f"
+      },
+      "production": {
+        "native_vs_python_max_error": 2.384185791015625e-07,
+        "probes": 197,
+        "sha256": "08ef3b350eba51727d96344b253fba967f31731d79e7c9f7ead12dcad82b6617"
+      }
+    },
+    "hist_gradient_boosting": {
+      "evaluation": {
+        "class_disagreements": 0,
+        "native_vs_python_max_error": 1.7881393432617188e-07,
+        "native_vs_sklearn_max_error": 9.126003985837627e-08,
+        "probes": 793,
+        "sha256": "0dd6862d9aebd64a1f8e53e8e5ecd0276ebb69a1e0485953e9fb86f8b0875558"
+      },
+      "production": {
+        "native_vs_python_max_error": 2.384185791015625e-07,
+        "probes": 197,
+        "sha256": "84cd8106c185905580ccfd3bc6fd39c4d74e4455d9a5f0295325097fcfca5ba9"
+      }
+    },
+    "knn": {
+      "evaluation": {
+        "class_disagreements": 0,
+        "native_vs_python_max_error": 0.0,
+        "native_vs_sklearn_max_error": 1.1305528657690189e-07,
+        "probes": 793,
+        "sha256": "2d1394d7b06fd318a1a903b5b48eff8ef730bcf1bd96ae795bc1ce8a73592a75"
+      },
+      "production": {
+        "native_vs_python_max_error": 0.0,
+        "probes": 197,
+        "sha256": "a7199c6a21df6f0ba5db472d4f0590aec7ab3eb55e4eab07a58426af22b1972d"
+      }
+    },
+    "logreg": {
+      "evaluation": {
+        "class_disagreements": 0,
+        "native_vs_python_max_error": 0.0,
+        "native_vs_sklearn_max_error": 2.560292147180121e-07,
+        "probes": 793,
+        "sha256": "ceba0f2f64ad5714c145f5de3c9b280f7d465f7ef3c40fe27336549a22e8c3ef"
+      },
+      "production": {
+        "native_vs_python_max_error": 0.0,
+        "probes": 197,
+        "sha256": "c42b04affdde311beb81cf8ae34c97aeab926864da1f1c9cf7971477722e6dee"
+      }
+    },
+    "mlp": {
+      "evaluation": {
+        "class_disagreements": 0,
+        "native_vs_python_max_error": 0.0,
+        "native_vs_sklearn_max_error": 4.7546925341368507e-07,
+        "probes": 793,
+        "sha256": "80834de180c1849070a6d20271d7630d2ce35e5900079c5d5c22b56ee38a27f3"
+      },
+      "production": {
+        "native_vs_python_max_error": 0.0,
+        "probes": 197,
+        "sha256": "41df51c69d445fde352f3d87e69b58bef8f399ca56a9460cd2373958d776982b"
+      }
+    },
+    "polynomial_logreg": {
+      "evaluation": {
+        "class_disagreements": 0,
+        "native_vs_python_max_error": 0.0,
+        "native_vs_sklearn_max_error": 6.232599443212195e-07,
+        "probes": 793,
+        "sha256": "c5bcfb91c53ef8a9eda62fc7ac9ef137e87287ab69f8c493220ef85337831a13"
+      },
+      "production": {
+        "native_vs_python_max_error": 0.0,
+        "probes": 197,
+        "sha256": "db6f6ac413b804c474d0f6b2ed66b1070d9e0de39d12decf6ed8e5e2ea3c7074"
+      }
+    },
+    "random_forest": {
+      "evaluation": {
+        "class_disagreements": 0,
+        "native_vs_python_max_error": 4.172325134277344e-07,
+        "native_vs_sklearn_max_error": 1.2219964173887377e-07,
+        "probes": 793,
+        "sha256": "97d6acd5e534767f835da9f0405b8047d57fae54f5063ab4f7c7ef84da535f92"
+      },
+      "production": {
+        "native_vs_python_max_error": 4.172325134277344e-07,
+        "probes": 197,
+        "sha256": "011d54d33fe614b28d70ddfe3a5869297ca000be88221d7c2606743c0d694714"
+      }
+    },
+    "stacking": {
+      "evaluation": {
+        "class_disagreements": 0,
+        "native_vs_python_max_error": 1.1920928955078125e-07,
+        "native_vs_sklearn_max_error": 3.02576646071806e-07,
+        "probes": 793,
+        "sha256": "e689c6bc422431f57046f863374d1d7cb637a371b92caed1ba52762cc68bf986"
+      },
+      "production": {
+        "native_vs_python_max_error": 1.1920928955078125e-07,
+        "probes": 197,
+        "sha256": "ec582a8599218c2da4ef507710c87c5eaa0b62c92fdf96d77351f669226d5d86"
+      }
+    },
+    "svm": {
+      "evaluation": {
+        "class_disagreements": 0,
+        "native_vs_python_max_error": 0.0,
+        "native_vs_sklearn_max_error": 8.93687427394596e-08,
+        "probes": 793,
+        "sha256": "2f8804dc77626b743f4e348c5c4bca1ceaa19b1fd229c57d926040db071091ef"
+      },
+      "production": {
+        "native_vs_python_max_error": 0.0,
+        "probes": 197,
+        "sha256": "bc337325be60d47d9854bf94c1ee4f0290fc0a9748c090b902382256102190a9"
+      }
+    }
+  },
+  "native_default": {
+    "coefficient_parity_error": 2.7755575615628914e-16,
+    "complement_error": 2.220446049250313e-16,
+    "onnx_parity_error": 9.535044487307687e-08,
+    "probes": 197
+  },
+  "onnxruntime_version": "1.19.2",
+  "status": "passed",
+  "training_fingerprint": "315272f3d22f632e01c2e980515c9023eee702061e2afb6ee1c240c790fb3ceb"
+}
