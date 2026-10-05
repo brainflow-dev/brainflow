@@ -24,7 +24,8 @@ static inline int product (const std::array<int, N> &array)
 
     for (int i = 0; i < N; i++)
     {
-        if (array[i] < 0 || (array[i] != 0 && result > std::numeric_limits<int>::max () / array[i]))
+        if (array[i] < 0 ||
+            (array[i] != 0 && result > (std::numeric_limits<int>::max) () / array[i]))
         {
             throw BrainFlowException (
                 "invalid array dimensions", (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR);
@@ -76,7 +77,7 @@ static inline std::array<int, N> make_stride (const std::array<int, N> &size)
     for (int i = (int)N - 2; i >= 0; i--)
     {
         if (size[i + 1] < 0 ||
-            (size[i + 1] != 0 && stride[i + 1] > std::numeric_limits<int>::max () / size[i + 1]))
+            (size[i + 1] != 0 && stride[i + 1] > (std::numeric_limits<int>::max) () / size[i + 1]))
         {
             throw BrainFlowException (
                 "invalid array dimensions", (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR);
