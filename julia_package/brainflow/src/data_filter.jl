@@ -140,9 +140,39 @@ end
 
 WaveletType = Union{WaveletTypes, Integer}
 
+function _dsp_signal(data; inplace=false)
+    if !(data isa AbstractVector{<:Real}) || !(0 < length(data) <= typemax(Cint))
+        throw(BrainFlowError("Expected a nonempty real signal vector", Integer(INVALID_ARGUMENTS_ERROR)))
+    end
+    if inplace
+        if !(data isa StridedVector{Float64}) || stride(data, 1) != 1
+            throw(BrainFlowError("In-place processing requires contiguous Float64 samples", Integer(INVALID_ARGUMENTS_ERROR)))
+        end
+        return data
+    end
+    return Vector{Float64}(data)
+end
+
+function _dsp_matrix(data)
+    if !(data isa AbstractMatrix{<:Real}) || !(0 < length(data) <= typemax(Cint))
+        throw(BrainFlowError("Expected a nonempty real matrix", Integer(INVALID_ARGUMENTS_ERROR)))
+    end
+    return Matrix{Float64}(data)
+end
+
+function _dsp_channels(data, channels)
+    if !(channels isa AbstractVector) || isempty(channels) ||
+       any(c -> !(c isa Integer) || !(1 <= c <= size(data, 1)), channels) ||
+       length(channels) > div(typemax(Cint), size(data, 2))
+        throw(BrainFlowError("Invalid channel selection", Integer(INVALID_ARGUMENTS_ERROR)))
+    end
+    return Int[c for c in channels]
+end
+
 
 @brainflow_rethrow function perform_lowpass(data, sampling_rate::Integer, cutoff::Float64, order::Integer,
     filter_type::FiltType, ripple::Float64)
+    data = _dsp_signal(data; inplace=true)
     ccall((:perform_lowpass, DATA_HANDLER_INTERFACE), Cint, (Ptr{Float64}, Cint, Cint, Float64, Cint, Cint, Float64),
             data, length(data), Int32(sampling_rate), Float64(cutoff), Int32(order), Int32(filter_type), Float64(ripple))
     return
@@ -151,6 +181,7 @@ end
 @brainflow_rethrow function perform_highpass(data, sampling_rate::Integer, cutoff::Float64, order::Integer,
     filter_type::FiltType, ripple::Float64
 )
+    data = _dsp_signal(data; inplace=true)
     ccall((:perform_highpass, DATA_HANDLER_INTERFACE), Cint, (Ptr{Float64}, Cint, Cint, Float64, Cint, Cint, Float64),
             data, length(data), Int32(sampling_rate), Float64(cutoff), Int32(order), Int32(filter_type), Float64(ripple))
     return
@@ -158,6 +189,7 @@ end
 
 @brainflow_rethrow function perform_bandpass(data, sampling_rate::Integer, start_freq::Float64,
     stop_freq::Float64, order::Integer, filter_type::FiltType, ripple::Float64)
+    data = _dsp_signal(data; inplace=true)
     ccall((:perform_bandpass, DATA_HANDLER_INTERFACE), Cint, (Ptr{Float64}, Cint, Cint, Float64, Float64, Cint, Cint, Float64),
             data, length(data), Int32(sampling_rate), Float64(start_freq), Float64(stop_freq), Int32(order), Int32(filter_type), Float64(ripple))
     return
@@ -165,24 +197,28 @@ end
 
 @brainflow_rethrow function perform_bandstop(data, sampling_rate::Integer, start_freq::Float64,
     stop_freq::Float64, order::Integer, filter_type::FiltType, ripple::Float64)
+    data = _dsp_signal(data; inplace=true)
     ccall((:perform_bandstop, DATA_HANDLER_INTERFACE), Cint, (Ptr{Float64}, Cint, Cint, Float64, Float64, Cint, Cint, Float64),
             data, length(data), Int32(sampling_rate), Float64(start_freq), Float64(stop_freq), Int32(order), Int32(filter_type), Float64(ripple))
     return
 end
 
 @brainflow_rethrow function remove_environmental_noise(data, sampling_rate::Integer, noise_type::EnvNoiseType)
+    data = _dsp_signal(data; inplace=true)
     ccall((:remove_environmental_noise, DATA_HANDLER_INTERFACE), Cint, (Ptr{Float64}, Cint, Cint, Cint),
             data, length(data), Int32(sampling_rate), Int32(noise_type))
     return
 end
 
 @brainflow_rethrow function perform_rolling_filter(data, period::Integer, operation::AggType)
+    data = _dsp_signal(data; inplace=true)
     ccall((:perform_rolling_filter, DATA_HANDLER_INTERFACE), Cint, (Ptr{Float64}, Cint, Cint, Cint),
             data, length(data), Int32(period), Int32(operation))
     return
 end
 
 @brainflow_rethrow function detrend(data, operation::DetType)
+    data = _dsp_signal(data; inplace=true)
     ccall((:detrend, DATA_HANDLER_INTERFACE), Cint, (Ptr{Float64}, Cint, Cint),
             data, length(data), Int32(operation))
     return
@@ -191,6 +227,7 @@ end
 @brainflow_rethrow function restore_data_from_wavelet_detailed_coeffs(data, wavelet::WaveletType,
                                                                       decomposition_level::Integer,
                                                                       level_to_restore::Integer)
+    data = _dsp_signal(data)
     restored_data = Vector{Float64}(undef, length(data))
     ccall((:restore_data_from_wavelet_detailed_coeffs, DATA_HANDLER_INTERFACE), Cint, (Ptr{Float64}, Cint, Cint, Cint, Cint, Ptr{Float64}),
             data, length(data), Int32(wavelet), Int32(decomposition_level), Int32(level_to_restore), restored_data)
@@ -200,6 +237,7 @@ end
 @brainflow_rethrow function detect_peaks_z_score(data, lag::Integer,
                                                  threshold::Float64,
                                                  influence::Float64)
+    data = _dsp_signal(data)
     peaks = Vector{Float64}(undef, length(data))
     ccall((:detect_peaks_z_score, DATA_HANDLER_INTERFACE), Cint, (Ptr{Float64}, Cint, Cint, Float64, Float64, Ptr{Float64}),
             data, length(data), Int32(lag), threshold, influence, peaks)
@@ -211,6 +249,7 @@ end
                                                       threshold::ThresholdType,
                                                       extension::WaveletExtensionType,
                                                       noise_level::NoiseEstimationLevelType)
+    data = _dsp_signal(data; inplace=true)
     ccall((:perform_wavelet_denoising, DATA_HANDLER_INTERFACE), Cint, (Ptr{Float64}, Cint, Cint, Cint, Cint, Cint, Cint, Cint),
             data, length(data), Int32(wavelet), Int32(decomposition_level), Int32(wavelet_denoising),
             Int32(threshold), Int32(extension), Int32(noise_level))
@@ -218,7 +257,11 @@ end
 end
 
 @brainflow_rethrow function perform_downsampling(data, period::Integer, operation::AggType)
-    len = Integer(floor(length(data) / period))
+    data = _dsp_signal(data)
+    if !(1 <= period <= typemax(Cint))
+        throw(BrainFlowError("Invalid aggregation period", Integer(INVALID_ARGUMENTS_ERROR)))
+    end
+    len = div(length(data), period)
     downsampled_data = Vector{Float64}(undef, len)
     ccall((:perform_downsampling, DATA_HANDLER_INTERFACE), Cint, (Ptr{Float64}, Cint, Cint, Cint, Ptr{Float64}),
             data, length(data), Int32(period), Int32(operation), downsampled_data)
@@ -226,6 +269,7 @@ end
 end
 
 @brainflow_rethrow function write_file(data, file_name::String, file_mode::String)
+    data = _dsp_matrix(data)
     shape = size(data)
     flatten = transpose(vcat(data))
     flaten = reshape(flatten, (1, shape[1] * shape[2]))
@@ -243,6 +287,7 @@ end
 end
 
 @brainflow_rethrow function calc_stddev(data)
+    data = _dsp_signal(data)
     output = Vector{Float64}(undef, 1)
     ccall((:calc_stddev, DATA_HANDLER_INTERFACE), Cint, (Ptr{Float64}, Cint, Cint, Ptr{Float64}),
                 data, 0, length(data), output)
@@ -250,6 +295,7 @@ end
 end
 
 @brainflow_rethrow function get_railed_percentage(data, gain::Integer)
+    data = _dsp_signal(data)
     output = Vector{Float64}(undef, 1)
     ccall((:get_railed_percentage, DATA_HANDLER_INTERFACE), Cint, (Ptr{Float64}, Cint, Cint, Ptr{Float64}),
                 data, length(data), gain, output)
@@ -257,6 +303,7 @@ end
 end
 
 @brainflow_rethrow function get_oxygen_level(ppg_ir, ppg_red, sampling_rate::Integer, coef1=1.5958422, coef2=-34.6596622, coef3=112.6898759)
+    ppg_ir, ppg_red = _dsp_signal(ppg_ir), _dsp_signal(ppg_red)
     if length(ppg_ir) != length(ppg_red)
       throw(BrainFlowError(string("invalid size", INVALID_ARGUMENTS_ERROR), Integer(INVALID_ARGUMENTS_ERROR)))
     end
@@ -268,6 +315,7 @@ end
 end
 
 @brainflow_rethrow function get_heart_rate(ppg_ir, ppg_red, sampling_rate::Integer, fft_size::Integer)
+    ppg_ir, ppg_red = _dsp_signal(ppg_ir), _dsp_signal(ppg_red)
     if length(ppg_ir) != length(ppg_red)
       throw(BrainFlowError(string("invalid size", INVALID_ARGUMENTS_ERROR), Integer(INVALID_ARGUMENTS_ERROR)))
     end
@@ -297,6 +345,10 @@ end
 end
 
 @brainflow_rethrow function perform_wavelet_transform(data, wavelet::WaveletType, decomposition_level::Integer, extension::WaveletExtensionType)
+    data = _dsp_signal(data)
+    if !(1 <= decomposition_level <= 100) || length(data) > typemax(Cint) - 82 * decomposition_level
+        throw(BrainFlowError("Invalid decomposition level", Integer(INVALID_ARGUMENTS_ERROR)))
+    end
     wavelet_coeffs = Vector{Float64}(undef, length(data) + 2 * decomposition_level * (40 + 1))
     lengths = Vector{Cint}(undef, decomposition_level + 1)
     ccall((:perform_wavelet_transform, DATA_HANDLER_INTERFACE), Cint, (Ptr{Float64}, Cint, Cint, Cint, Cint, Ptr{Float64}, Ptr{Cint}),
@@ -306,13 +358,34 @@ end
 
 
 @brainflow_rethrow function perform_inverse_wavelet_transform(wavelet_output, original_data_len::Integer, wavelet::WaveletType, decomposition_level::Integer, extension::WaveletExtensionType)
+    if !(0 < original_data_len <= typemax(Cint)) || !(1 <= decomposition_level <= 100) || length(wavelet_output) != 2
+        throw(BrainFlowError("Invalid wavelet dimensions", Integer(INVALID_ARGUMENTS_ERROR)))
+    end
+    coeffs, block_lengths = wavelet_output
+    if original_data_len > length(coeffs)
+        throw(BrainFlowError("Original length exceeds coefficient count", Integer(INVALID_ARGUMENTS_ERROR)))
+    end
+    if ndims(coeffs) != 1 || ndims(block_lengths) != 1 || length(block_lengths) != decomposition_level + 1 ||
+       any(x -> !(x isa Integer) || !(0 < x <= typemax(Cint)), block_lengths) ||
+       sum(Int64(x) for x in block_lengths) != length(coeffs)
+        throw(BrainFlowError("Invalid wavelet coefficient lengths", Integer(INVALID_ARGUMENTS_ERROR)))
+    end
+    coeffs = _dsp_signal(coeffs)
+    block_lengths = Vector{Cint}(block_lengths)
     original_data = Vector{Float64}(undef, original_data_len)
-    ccall((:perform_inverse_wavelet_transform, DATA_HANDLER_INTERFACE), Cint, (Ptr{Float64}, Cint, Cint, Cint, Cint, Ptr{Float64}, Ptr{Float64}),
-            wavelet_output[1], Int32(original_data_len), Int32(wavelet), Int32(decomposition_level), Int32(extension), wavelet_output[2], original_data)
+    ccall((:perform_inverse_wavelet_transform_checked, DATA_HANDLER_INTERFACE), Cint,
+          (Ptr{Float64}, Cint, Cint, Cint, Cint, Cint, Ptr{Cint}, Cint, Ptr{Float64}, Cint),
+          coeffs, length(coeffs), Int32(original_data_len), Int32(wavelet), Int32(decomposition_level),
+          Int32(extension), block_lengths, length(block_lengths), original_data, length(original_data))
     return original_data
 end
 
 @brainflow_rethrow function get_csp(data, labels)
+    if ndims(data) != 3 || ndims(labels) != 1 || length(labels) != size(data, 1) ||
+       !(0 < length(data) <= typemax(Cint)) || size(data, 2) > isqrt(typemax(Cint))
+        throw(BrainFlowError("CSP requires one label per epoch", Integer(INVALID_ARGUMENTS_ERROR)))
+    end
+    labels = Vector{Float64}(labels)
     n_epochs = size(data, 1)
     n_channels = size(data, 2)
     n_times = size(data, 3)
@@ -341,6 +414,9 @@ end
 end
 
 @brainflow_rethrow function get_window(window_function::WinType, window_len::Integer)
+    if !(0 < window_len <= typemax(Cint))
+        throw(BrainFlowError("Invalid window length", Integer(INVALID_ARGUMENTS_ERROR)))
+    end
     window_data = Vector{Float64}(undef, Integer(window_len))
     ccall((:get_window, DATA_HANDLER_INTERFACE), Cint, (Cint, Cint, Ptr{Float64}),
     Int32(window_function), Int32(window_len), window_data)
@@ -348,6 +424,7 @@ end
 end
 
 @brainflow_rethrow function perform_fft(data, window::WinType)
+    data = _dsp_signal(data)
 
     if (length(data) % 2 == 1)
         throw(BrainFlowError(string("Data Len must be even ", INVALID_ARGUMENTS_ERROR), Integer(INVALID_ARGUMENTS_ERROR)))
@@ -366,6 +443,10 @@ end
 end
 
 @brainflow_rethrow function perform_ifft(data)
+    if !(data isa AbstractVector{<:Number}) || !(2 <= length(data) <= div(typemax(Cint), 2) + 1)
+        throw(BrainFlowError("Invalid inverse FFT spectrum", Integer(INVALID_ARGUMENTS_ERROR)))
+    end
+    data = ComplexF64.(data)
 
     temp_re = Vector{Float64}(undef, length(data))
     temp_im = Vector{Float64}(undef, length(data))
@@ -381,19 +462,46 @@ end
     return res
 end
 
+"""
+    get_avg_band_powers(data, channels, sampling_rate, apply_filter)
+
+Calculate normalized mean powers for bands 2-4, 4-8, 8-13, 13-30, 30-45 Hz.
+Uses `get_custom_band_powers` preprocessing, minimum retained length, and variation semantics.
+"""
 function get_avg_band_powers(data, channels, sampling_rate::Integer, apply_filter::Bool)
     bands = [(2.0, 4.0), (4.0, 8.0), (8.0, 13.0), (13.0, 30.0), (30.0, 45.0)]
     return get_custom_band_powers(data, bands, channels, sampling_rate, apply_filter)
 end
 
+"""
+    get_custom_band_powers(data, bands, channels, sampling_rate, apply_filter)
+
+Return normalized channel-mean band powers and coefficients of variation (population
+stddev / mean of absolute channel powers). Zero-power bands have zero variation;
+an all-zero total returns zero normalized powers.
+Filtering demeans and applies padded, initialized zero-phase 48-52 and 58-62 Hz
+notches only when their upper edges are below 90% of Nyquist. There is no automatic
+passband, so preprocessing is independent of the requested integration bands.
+Margins estimated from the complete cascade impulse-response tail are discarded at
+both ends; this estimate is not a guaranteed artifact bound. Supply surrounding
+samples and account for the resulting delay in live analysis. Without filtering
+there is no preprocessing or trimming. At least max(8, 2 * get_nearest_power_of_two(sampling_rate))
+samples must remain. Data and edges must be finite; bands require
+0 <= start < stop <= Nyquist. Mains notches also attenuate overlapping bands.
+"""
 @brainflow_rethrow function get_custom_band_powers(data, bands, channels, sampling_rate::Integer, apply_filter::Bool)
+    data = _dsp_matrix(data)
+    channels = _dsp_channels(data, channels)
 
     shape = size(data)
     data_1d = reshape(transpose(data[channels,:]), (1, size(channels)[1] * shape[2]))
     data_1d = copy(data_1d)
 
-    start_freqs = [first(p) for p in bands]
-    stop_freqs = [last(p) for p in bands]
+    if isempty(bands) || any(p -> length(p) != 2, bands)
+        throw(BrainFlowError("Bands must contain frequency pairs", Integer(INVALID_ARGUMENTS_ERROR)))
+    end
+    start_freqs = Float64[first(p) for p in bands]
+    stop_freqs = Float64[last(p) for p in bands]
 
     temp_avgs = Vector{Float64}(undef, length(start_freqs))
     temp_stddevs = Vector{Float64}(undef, length(start_freqs))
@@ -404,10 +512,15 @@ end
 end
 
 @brainflow_rethrow function perform_ica_select_channels(data, num_components::Integer, channels)
+    data = _dsp_matrix(data)
+    channels = _dsp_channels(data, channels)
     shape = size(data)
     data_1d = reshape(transpose(data[channels,:]), (1, size(channels)[1] * shape[2]))
     data_1d = copy(data_1d)
 
+    if !(2 <= num_components <= min(length(channels), shape[2] - 1))
+        throw(BrainFlowError("Invalid component count", Integer(INVALID_ARGUMENTS_ERROR)))
+    end
     temp_w = Vector{Float64}(undef, num_components * num_components)
     temp_k = Vector{Float64}(undef, length(channels) * num_components)
     temp_a = Vector{Float64}(undef, num_components * length(channels))
@@ -428,6 +541,7 @@ function perform_ica(data, num_components::Integer)
 end
 
 @brainflow_rethrow function get_psd(data, sampling_rate::Integer, window::WinType)
+    data = _dsp_signal(data)
 
     if (length(data) % 2 == 1)
         throw(BrainFlowError(string("Data Len must be even ", INVALID_ARGUMENTS_ERROR), Integer(INVALID_ARGUMENTS_ERROR)))
@@ -442,10 +556,12 @@ end
 end
 
 @brainflow_rethrow function get_psd_welch(data, nfft::Integer, overlap::Integer, sampling_rate::Integer, window::WinType)
+    data = _dsp_signal(data)
 
-    if (length(data) % 2 == 1)
-        throw(BrainFlowError(string("Data Len must be even ", INVALID_ARGUMENTS_ERROR), Integer(INVALID_ARGUMENTS_ERROR)))
+    if ndims(data) != 1 || !(2 <= nfft <= length(data)) || !ispow2(nfft) || !(0 <= overlap < nfft)
+        throw(BrainFlowError("Invalid Welch segment size or overlap", Integer(INVALID_ARGUMENTS_ERROR)))
     end
+    data = Vector{Float64}(data)
 
     temp_ampls = Vector{Float64}(undef, Integer(nfft / 2) + 1)
     temp_freqs = Vector{Float64}(undef, Integer(nfft / 2) + 1)
@@ -456,13 +572,18 @@ end
 end
 
 @brainflow_rethrow function get_band_power(psd, freq_start::Float64, freq_end::Float64)
+    if length(psd) != 2 || ndims(psd[1]) != 1 || ndims(psd[2]) != 1 || length(psd[1]) != length(psd[2])
+        throw(BrainFlowError("PSD amplitude and frequency lengths must match", Integer(INVALID_ARGUMENTS_ERROR)))
+    end
+    amplitudes, frequencies = _dsp_signal(psd[1]), _dsp_signal(psd[2])
     band_power = Vector{Float64}(undef, 1)
     ccall((:get_band_power, DATA_HANDLER_INTERFACE), Cint, (Ptr{Float64}, Ptr{Float64}, Cint, Float64, Float64, Ptr{Float64}),
-            psd[1], psd[2], length(psd[1]), Float64(freq_start), Float64(freq_end), band_power)
+            amplitudes, frequencies, length(amplitudes), Float64(freq_start), Float64(freq_end), band_power)
     return band_power[1]
 end
 
 @brainflow_rethrow function get_activity_index(accel_x, accel_y, accel_z, sampling_rate::Integer, period::Integer=0, noise_var_x::Real=0.0, noise_var_y::Real=0.0, noise_var_z::Real=0.0)
+    accel_x, accel_y, accel_z = _dsp_signal(accel_x), _dsp_signal(accel_y), _dsp_signal(accel_z)
     if (length(accel_x) != length(accel_y)) || (length(accel_x) != length(accel_z))
         throw(BrainFlowError(string("Arrays lengths must match ", INVALID_ARGUMENTS_ERROR), Integer(INVALID_ARGUMENTS_ERROR)))
     end

@@ -20,7 +20,9 @@ jobs:
     - name: Install dotnet
       uses: actions/setup-dotnet@v3
       with:
-        dotnet-version: '7.0.x'
+        dotnet-version: |
+          7.0.x
+          8.0.x
     - name: Setup Python
       uses: actions/setup-python@v4
       with:
@@ -240,6 +242,21 @@ jobs:
       shell: cmd
     - name: PSD Welch Nyquist Overlap Python Test
       run: python %GITHUB_WORKSPACE%\python_package\examples\tests\psd_welch_nyquist_overlap.py
+      shell: cmd
+    - name: Signal Processing Regression Python
+      run: |
+        python python_package\examples\tests\band_power_regression.py
+        python python_package\examples\tests\signal_processing_regression.py
+        python python_package\examples\tests\decomposition_regression.py
+        python python_package\examples\tests\signal_metrics_regression.py
+        python python_package\examples\tests\binding_validation_regression.py
+      shell: cmd
+    - name: Signal Processing Regression Csharp
+      run: dotnet run --project csharp_package\brainflow\examples\signal_processing_regression
+    - name: Signal Processing Regression Rust
+      run: cargo test --manifest-path rust_package\brainflow\Cargo.toml data_filter::tests
+    - name: Signal Processing Regression Cpp
+      run: .\cpp_package\examples\signal_processing\build\Release\signal_processing_regression.exe
       shell: cmd
     - name: Wavelet Buffer Size Python Test
       run: python %GITHUB_WORKSPACE%\python_package\examples\tests\wavelet_buffer_size.py

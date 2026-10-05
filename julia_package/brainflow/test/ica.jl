@@ -1,23 +1,10 @@
 using BrainFlow
 
-# enable logs
-BrainFlow.enable_dev_logger(BrainFlow.BOARD_CONTROLLER)
-BrainFlow.enable_dev_logger(BrainFlow.DATA_HANDLER)
-
-params = BrainFlowInputParams()
-board_shim = BrainFlow.BoardShim(BrainFlow.SYNTHETIC_BOARD, params)
-sampling_rate = BrainFlow.get_sampling_rate(BrainFlow.SYNTHETIC_BOARD)
-
-BrainFlow.prepare_session(board_shim)
-BrainFlow.start_stream(board_shim)
-sleep(10)
-BrainFlow.stop_stream(board_shim)
-data = BrainFlow.get_board_data(500, board_shim)
-BrainFlow.release_session(board_shim)
-
-eeg_channels = BrainFlow.get_eeg_channels(BrainFlow.SYNTHETIC_BOARD)
-data_first_channel = data[eeg_channels[1], :]
-
-my_data = transpose(reshape(data_first_channel, (100, 5)))
-
-ica = BrainFlow.perform_ica(my_data, 2)
+# Two simultaneous mixtures: rows are channels and columns are samples.
+sample_times = collect(0:1023) ./ 256.0
+source1 = sin.(2.0 .* pi .* 7.0 .* sample_times)
+source2 = sin.(2.0 .* pi .* 13.0 .* sample_times) .^ 3
+data = permutedims(hcat(source1 .+ 0.3 .* source2, 0.2 .* source1 .+ source2))
+w, k, a, sources = BrainFlow.perform_ica(data, 2)
+# Component order and sign are arbitrary.
+println("Recovered $(size(sources, 1)) sources from $(size(sources, 2)) samples")

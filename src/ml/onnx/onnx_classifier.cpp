@@ -2,6 +2,9 @@
 #include "brainflow_constants.h"
 #include "get_dll_dir.h"
 
+#include <cmath>
+#include <limits>
+
 
 void log_onnx_msg (void *param, OrtLoggingLevel severity, const char *category, const char *logid,
     const char *code_location, const char *message)
@@ -69,10 +72,38 @@ int OnnxClassifier::calculate (double *data, int data_len, double *output, int *
     {
         return (int)BrainFlowExitCodes::CLASSIFIER_IS_NOT_PREPARED_ERROR;
     }
-    if ((data == NULL) || (data_len < 1) || (output == NULL) || (output_len == NULL))
+    if ((data == NULL) || (data_len < 1) || (output == NULL) || (output_len == NULL) ||
+        (params.max_array_size < 1))
     {
         safe_logger (spdlog::level::err, "invalid input arguments");
         return (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR;
+    }
+    *output_len = 0;
+
+    size_t input_size = 1;
+    for (int64_t dimension : input_node_dims)
+    {
+        if ((dimension <= 0) || ((uint64_t)dimension > (size_t)data_len / input_size))
+        {
+            safe_logger (spdlog::level::err,
+                "Input dimensions must be fixed and match the feature vector size");
+            return (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR;
+        }
+        input_size *= (size_t)dimension;
+    }
+    if (input_size != (size_t)data_len)
+    {
+        safe_logger (spdlog::level::err, "Feature vector size does not match the input tensor");
+        return (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR;
+    }
+    for (int i = 0; i < data_len; i++)
+    {
+        if (!std::isfinite (data[i]) ||
+            ((input_type == ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT) &&
+                (std::abs (data[i]) > std::numeric_limits<float>::max ())))
+        {
+            return (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR;
+        }
     }
 
     // todo add support for ints and float16
@@ -100,6 +131,7 @@ int OnnxClassifier::calculate (double *data, int data_len, double *output, int *
     OrtMemoryInfo *memory_info = NULL;
     OrtValue *input_tensor = NULL;
     OrtValue *output_tensor = NULL;
+    OrtTensorTypeAndShapeInfo *output_shape = NULL;
     OrtStatus *onnx_status =
         ort->CreateCpuMemoryInfo (OrtArenaAllocator, OrtMemTypeDefault, &memory_info);
     if (onnx_status != NULL)
@@ -202,20 +234,42 @@ int OnnxClassifier::calculate (double *data, int data_len, double *output, int *
         }
     }
 
-    // Get pointer to output tensor float values
-    size_t output_size = 1;
+    // Symbolic output dimensions are resolved only after running the graph. Never use
+    // the session metadata to decide how many elements to read from an actual tensor.
+    size_t output_size = 0;
     if (res == (int)BrainFlowExitCodes::STATUS_OK)
     {
-        for (int64_t output_dim : output_node_dims)
+        onnx_status = ort->GetTensorTypeAndShape (output_tensor, &output_shape);
+        if (onnx_status != NULL)
         {
-            output_size *= output_dim;
+            safe_logger (spdlog::level::err, "GetTensorTypeAndShape failed: {}",
+                ort->GetErrorMessage (onnx_status));
+            ort->ReleaseStatus (onnx_status);
+            res = (int)BrainFlowExitCodes::GENERAL_ERROR;
         }
-        if (output_size > (uint64_t)params.max_array_size)
+        else if (output_shape == NULL)
         {
-            safe_logger (spdlog::level::warn, "output is bigger than allocated array");
-            output_size = params.max_array_size;
+            res = (int)BrainFlowExitCodes::GENERAL_ERROR;
         }
-
+    }
+    if (res == (int)BrainFlowExitCodes::STATUS_OK)
+    {
+        onnx_status = ort->GetTensorShapeElementCount (output_shape, &output_size);
+        if (onnx_status != NULL)
+        {
+            safe_logger (spdlog::level::err, "GetTensorShapeElementCount failed: {}",
+                ort->GetErrorMessage (onnx_status));
+            ort->ReleaseStatus (onnx_status);
+            res = (int)BrainFlowExitCodes::GENERAL_ERROR;
+        }
+        else if (output_size > (size_t)params.max_array_size)
+        {
+            safe_logger (spdlog::level::err, "Output is bigger than max_array_size");
+            res = (int)BrainFlowExitCodes::INVALID_BUFFER_SIZE_ERROR;
+        }
+    }
+    if ((res == (int)BrainFlowExitCodes::STATUS_OK) && (output_size != 0))
+    {
         void *output_tensor_data = NULL;
         onnx_status = ort->GetTensorMutableData (output_tensor, &output_tensor_data);
         if (onnx_status != NULL)
@@ -232,7 +286,6 @@ int OnnxClassifier::calculate (double *data, int data_len, double *output, int *
         }
         else
         {
-            *output_len = (int)output_size;
             switch (output_type)
             {
                 case ONNX_TENSOR_ELEMENT_DATA_TYPE_UNDEFINED:
@@ -370,6 +423,15 @@ int OnnxClassifier::calculate (double *data, int data_len, double *output, int *
         }
     }
 
+    if (res == (int)BrainFlowExitCodes::STATUS_OK)
+    {
+        *output_len = (int)output_size;
+    }
+    if (output_shape != NULL)
+    {
+        ort->ReleaseTensorTypeAndShapeInfo (output_shape);
+    }
+
     if (output_tensor != NULL)
     {
         ort->ReleaseValue (output_tensor);
@@ -398,13 +460,26 @@ int OnnxClassifier::release_classifier ()
         {
             OrtStatus *status = ort->AllocatorFree (
                 allocator, const_cast<void *> (reinterpret_cast<const void *> (node_name)));
+            if (status != NULL)
+            {
+                ort->ReleaseStatus (status);
+            }
         }
         for (const char *node_name : output_node_names)
         {
             OrtStatus *status = ort->AllocatorFree (
                 allocator, const_cast<void *> (reinterpret_cast<const void *> (node_name)));
+            if (status != NULL)
+            {
+                ort->ReleaseStatus (status);
+            }
         }
     }
+    input_node_names.clear ();
+    output_node_names.clear ();
+    input_node_dims.clear ();
+    output_node_dims.clear ();
+    allocator = NULL;
     if ((session_options != NULL) && (ort != NULL))
     {
         ort->ReleaseSessionOptions (session_options);
@@ -764,12 +839,12 @@ int OnnxClassifier::get_output_info ()
                 else
                 {
                     safe_logger (spdlog::level::info, "found output node: {}", output_name);
-                    if (((num_output_nodes == 1) ||
+                    if (((!params.output_name.empty ()) &&
                             (strcmp (params.output_name.c_str (), output_name) == 0)) ||
                         ((params.output_name.empty ()) &&
-                            (strcmp (output_name, "output_probability") == 0)) ||
-                        ((params.output_name.empty ()) &&
-                            (strcmp (output_name, "probabilities") == 0)))
+                            ((num_output_nodes == 1) ||
+                                (strcmp (output_name, "output_probability") == 0) ||
+                                (strcmp (output_name, "probabilities") == 0))))
                     {
                         output_node_names.resize (1);
                         output_node_names[0] = output_name;
@@ -779,6 +854,10 @@ int OnnxClassifier::get_output_info ()
                     else
                     {
                         onnx_status = ort->AllocatorFree (allocator, output_name);
+                        if (onnx_status != NULL)
+                        {
+                            ort->ReleaseStatus (onnx_status);
+                        }
                     }
                 }
             }
@@ -787,7 +866,7 @@ int OnnxClassifier::get_output_info ()
     if (!node_found)
     {
         safe_logger (spdlog::level::err,
-            "Model has multiple output nodes, you need to provide correct node name via "
+            "Unable to select an output node. Provide a correct node name via "
             "BrainFlowModelParams.output_name, you can use https://netron.app/ to inspect the "
             "model");
         res = (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR;
@@ -840,7 +919,7 @@ int OnnxClassifier::get_output_info ()
         }
         else
         {
-            safe_logger (spdlog::level::info, "output type is: {}", (int)input_type);
+            safe_logger (spdlog::level::info, "output type is: {}", (int)output_type);
         }
     }
 

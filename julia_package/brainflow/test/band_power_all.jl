@@ -10,7 +10,8 @@ nfft = BrainFlow.get_nearest_power_of_two(sampling_rate)
 
 BrainFlow.prepare_session(board_shim)
 BrainFlow.start_stream(board_shim)
-sleep(5)
+# Include filter settling margins around the retained analysis interval.
+sleep(10)
 BrainFlow.stop_stream(board_shim)
 data = BrainFlow.get_board_data(board_shim)
 BrainFlow.release_session(board_shim)

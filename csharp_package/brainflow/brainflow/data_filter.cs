@@ -11,6 +11,23 @@ namespace brainflow
     /// </summary>
     public class DataFilter
     {
+        private static void validate_span (int length, int start_pos, int end_pos)
+        {
+            if (start_pos < 0 || end_pos > length || start_pos >= end_pos)
+            {
+                throw new BrainFlowError ((int)BrainFlowExitCodes.INVALID_ARGUMENTS_ERROR);
+            }
+        }
+
+        private static int wavelet_capacity (int data_len, int decomposition_level)
+        {
+            if (data_len <= 0 || decomposition_level <= 0 || decomposition_level > 100 ||
+                (long)data_len + 82L * decomposition_level > int.MaxValue)
+            {
+                throw new BrainFlowError ((int)BrainFlowExitCodes.INVALID_ARGUMENTS_ERROR);
+            }
+            return data_len + 82 * decomposition_level;
+        }
 
 
         /// <summary>
@@ -273,6 +290,9 @@ namespace brainflow
         /// <returns>stddev</returns>
         public static double calc_stddev (double[] data, int start_pos, int end_pos)
         {
+            if (data == null)
+                throw new BrainFlowError ((int)BrainFlowExitCodes.INVALID_ARGUMENTS_ERROR);
+            validate_span (data.Length, start_pos, end_pos);
             double[] output = new double[1];
             int res = DataHandlerLibrary.calc_stddev (data, start_pos, end_pos, output);
             if (res != (int)BrainFlowExitCodes.STATUS_OK)
@@ -351,7 +371,9 @@ namespace brainflow
         /// <returns>tuple of wavelet coeffs in format [A(J) D(J) D(J-1) ..... D(1)] where J is decomposition level, A - app coeffs, D - detailed coeffs, and array with lengths for each block</returns>
         public static Tuple<double[], int[]> perform_wavelet_transform (double[] data, int wavelet, int decomposition_level, int extension)
         {
-            double[] wavelet_coeffs = new double[data.Length + 2 * decomposition_level * (40 + 1)];
+            if (data == null)
+                throw new BrainFlowError ((int)BrainFlowExitCodes.INVALID_ARGUMENTS_ERROR);
+            double[] wavelet_coeffs = new double[wavelet_capacity (data.Length, decomposition_level)];
             int[] lengths = new int[decomposition_level + 1];
             int res = DataHandlerLibrary.perform_wavelet_transform (data, data.Length, wavelet, decomposition_level, extension, wavelet_coeffs, lengths);
             if (res != (int)BrainFlowExitCodes.STATUS_OK)
@@ -383,9 +405,24 @@ namespace brainflow
         /// <returns>restored data</returns>
         public static double[] perform_inverse_wavelet_transform (Tuple<double[], int[]> wavelet_data, int original_data_len, int wavelet, int decomposition_level, int extension)
         {
+            wavelet_capacity (original_data_len, decomposition_level);
+            if (wavelet_data == null || wavelet_data.Item1 == null || wavelet_data.Item2 == null ||
+                original_data_len > wavelet_data.Item1.Length ||
+                wavelet_data.Item2.Length != decomposition_level + 1)
+                throw new BrainFlowError ((int)BrainFlowExitCodes.INVALID_ARGUMENTS_ERROR);
+            long total = 0;
+            foreach (int length in wavelet_data.Item2)
+            {
+                if (length <= 0)
+                    throw new BrainFlowError ((int)BrainFlowExitCodes.INVALID_ARGUMENTS_ERROR);
+                total += length;
+            }
+            if (total != wavelet_data.Item1.Length)
+                throw new BrainFlowError ((int)BrainFlowExitCodes.INVALID_ARGUMENTS_ERROR);
             double[] original_data = new double[original_data_len];
-            int res = DataHandlerLibrary.perform_inverse_wavelet_transform (wavelet_data.Item1, original_data_len, wavelet, decomposition_level, extension,
-                                                                            wavelet_data.Item2, original_data);
+            int res = DataHandlerLibrary.perform_inverse_wavelet_transform_checked (wavelet_data.Item1, wavelet_data.Item1.Length,
+                original_data_len, wavelet, decomposition_level, extension, wavelet_data.Item2, wavelet_data.Item2.Length,
+                original_data, original_data.Length);
             if (res != (int)BrainFlowExitCodes.STATUS_OK)
             {
                 throw new BrainFlowError (res);
@@ -427,6 +464,8 @@ namespace brainflow
         /// <returns>Tuple of two arrays: [n_channels x n_channels] shaped array of filters and n_channels length array of eigenvalues</returns>
         public static Tuple<double[,], double[]> get_csp (double[,,] data, double[] labels)
         {
+            if (data == null || labels == null || labels.Length != data.GetLength (0))
+                throw new BrainFlowError ((int)BrainFlowExitCodes.INVALID_ARGUMENTS_ERROR);
             int n_epochs = data.GetLength (0);
             int n_channels = data.GetLength (1);
             int n_times = data.GetLength (2);
@@ -649,14 +688,27 @@ namespace brainflow
         }
 
         /// <summary>
-        /// calculate avg and stddev bandpowers across channels
+        /// Calculate normalized mean band powers and coefficients of variation across channels.
+        /// Filtering removes DC and applies padded, initialized zero-phase 48-52 and 58-62 Hz
+        /// notches only when their upper edges are below 0.9 * Nyquist. Preprocessing is independent
+        /// of the requested output bands; no automatic passband is applied. Margins estimated from
+        /// the filter cascade's impulse tail are excluded at both ends.
+        /// Mains notches attenuate overlapping bands; preprocess externally and disable filtering
+        /// to customize this behavior.
+        /// Supply surrounding samples; excluding newest samples adds delay in live analysis.
+        /// Without filtering, no preprocessing or trimming is performed. At least
+        /// max(8, 2 * get_nearest_power_of_two(sampling_rate)) samples must remain after trimming.
+        /// Data and edges must be finite; bands require 0 &lt;= start &lt; stop &lt;= Nyquist,
+        /// and means are normalized by their sum.
+        /// The second array is population stddev / mean of absolute channel powers, with zero
+        /// for zero-power bands. A zero total returns zero normalized means.
         /// </summary>
         /// <param name="data">2d array with values</param>
         /// <param name="bands">bands to calculate</param>
         /// <param name="channels">rows of data array which should be used for calculation</param>
         /// <param name="sampling_rate">sampling rate</param>
-        /// <param name="apply_filters">apply bandpass and bandstop filters before calculation</param>
-        /// <returns>Tuple of avgs and stddev arrays</returns>
+        /// <param name="apply_filters">preprocess and discard edge margins to reduce filter transients</param>
+        /// <returns>Normalized mean band powers and coefficients of variation</returns>
         public static Tuple<double[], double[]> get_custom_band_powers (double[,] data, Tuple<double, double>[] bands, int[] channels, int sampling_rate, bool apply_filters)
         {
             double[] data_1d = new double[data.GetRow (0).Length * channels.Length];
@@ -710,7 +762,10 @@ namespace brainflow
         /// <returns></returns>
         public static Tuple<double[,], double[,], double[,], double[,]> perform_ica (double[,] data, int num_components, int[] channels)
         {
-            if ((num_components < 1) || (data == null) || (channels == null))
+            if ((num_components < 2) || (data == null) || (channels == null) ||
+                num_components > channels.Length || data.GetLength (1) < 2 ||
+                (long)channels.Length * data.GetLength (1) > int.MaxValue ||
+                (long)channels.Length * num_components > int.MaxValue)
             {
                 throw new BrainFlowError((int)BrainFlowExitCodes.INVALID_ARGUMENTS_ERROR);
             }
@@ -740,13 +795,14 @@ namespace brainflow
         }
 
         /// <summary>
-        /// calculate avg and stddev bandpowers across channels
+        /// Calculate normalized mean powers for bands 2-4, 4-8, 8-13, 13-30, 30-45 Hz.
+        /// Uses get_custom_band_powers preprocessing and minimum retained data length.
         /// </summary>
         /// <param name="data">2d array with values</param>
         /// <param name="channels">rows of data array which should be used for calculation</param>
         /// <param name="sampling_rate">sampling rate</param>
-        /// <param name="apply_filters">apply bandpass and bandstop filters before calculation</param>
-        /// <returns>Tuple of avgs and stddev arrays</returns>
+        /// <param name="apply_filters">preprocess and discard edge margins to reduce filter transients</param>
+        /// <returns>Normalized mean band powers and coefficients of variation</returns>
         public static Tuple<double[], double[]> get_avg_band_powers (double[,] data, int[] channels, int sampling_rate, bool apply_filters)
         {
             Tuple<double, double>[] bands = new Tuple<double, double>[5];
@@ -754,7 +810,7 @@ namespace brainflow
             bands[1] = new Tuple<double, double> (4.0, 8.0);
             bands[2] = new Tuple<double, double> (8.0, 13.0);
             bands[3] = new Tuple<double, double> (13.0, 30.0);
-            bands[4] = new Tuple<double, double> (30.0, 50.0);
+            bands[4] = new Tuple<double, double> (30.0, 45.0);
 
             return get_custom_band_powers (data, bands, channels, sampling_rate, apply_filters);
         }
@@ -804,7 +860,7 @@ namespace brainflow
         /// <returns>Tuple of ampls and freqs arrays</returns>
         public static Tuple<double[], double[]> get_psd_welch (double[] data, int nfft, int overlap, int sampling_rate, int window)
         {
-            if ((nfft & (nfft - 1)) != 0)
+            if (nfft <= 0 || (nfft & (nfft - 1)) != 0)
             {
                 throw new BrainFlowError ((int)BrainFlowExitCodes.INVALID_ARGUMENTS_ERROR);
             }
@@ -829,6 +885,8 @@ namespace brainflow
         /// <returns>band power</returns>
         public static double get_band_power (Tuple<double[], double[]> psd, double start_freq, double stop_freq)
         {
+            if (psd == null || psd.Item1 == null || psd.Item2 == null || psd.Item1.Length != psd.Item2.Length)
+                throw new BrainFlowError ((int)BrainFlowExitCodes.INVALID_ARGUMENTS_ERROR);
             double[] band_power = new double[1];
 
             int res = DataHandlerLibrary.get_band_power (psd.Item1, psd.Item2, psd.Item1.Length, start_freq, stop_freq, band_power);
@@ -1108,6 +1166,9 @@ namespace brainflow
         /// <returns>stddev</returns>
         public static unsafe double calc_stddev (double[,] data, int row_num, int start_pos, int end_pos)
         {
+            if (data == null)
+                throw new BrainFlowError ((int)BrainFlowExitCodes.INVALID_ARGUMENTS_ERROR);
+            validate_span (data.GetLength (1), start_pos, end_pos);
             double[] output = new double[1];
             int res = (int)BrainFlowExitCodes.STATUS_OK;
             if ((row_num < 0) || (row_num >= data.GetLength (0)))
@@ -1162,7 +1223,7 @@ namespace brainflow
         /// <returns>tuple of wavelet coeffs in format [A(J) D(J) D(J-1) ..... D(1)] where J is decomposition level, A - app coeffs, D - detailed coeffs, and array with lengths for each block</returns>
         public static unsafe Tuple<double[], int[]> perform_wavelet_transform (double[,] data, int row_num, int wavelet, int decomposition_level, int extension)
         {
-            double[] wavelet_coeffs = new double[data.GetLength (1) + 2 * decomposition_level * (40 + 1)];
+            double[] wavelet_coeffs = new double[wavelet_capacity (data.GetLength (1), decomposition_level)];
             int[] lengths = new int[decomposition_level + 1];
             int res = (int)BrainFlowExitCodes.STATUS_OK;
             if ((row_num < 0) || (row_num >= data.GetLength (0)))
@@ -1233,7 +1294,7 @@ namespace brainflow
         /// <returns>complex array of size N / 2 + 1 of fft data</returns>
         public static unsafe Complex[] perform_fft (double[,] data, int row_num, int start_pos, int end_pos, int window)
         {
-            if ((start_pos < 0) || (end_pos > data.Length) || (start_pos >= end_pos))
+            if (data == null || (start_pos < 0) || (end_pos > data.GetLength (1)) || (start_pos >= end_pos))
             {
                 throw new BrainFlowError ((int)BrainFlowExitCodes.INVALID_ARGUMENTS_ERROR);
             }
@@ -1278,7 +1339,7 @@ namespace brainflow
         /// <returns>Tuple of ampls and freqs arrays of size N / 2 + 1</returns>
         public static unsafe Tuple<double[], double[]> get_psd (double[,] data, int row_num, int start_pos, int end_pos, int sampling_rate, int window)
         {
-            if ((start_pos < 0) || (end_pos > data.Length) || (start_pos >= end_pos))
+            if (data == null || (start_pos < 0) || (end_pos > data.GetLength (1)) || (start_pos >= end_pos))
             {
                 throw new BrainFlowError ((int)BrainFlowExitCodes.INVALID_ARGUMENTS_ERROR);
             }
@@ -1318,7 +1379,7 @@ namespace brainflow
         /// <returns>Tuple of ampls and freqs arrays</returns>
         public static unsafe Tuple<double[], double[]> get_psd_welch (double[,] data, int row_num, int nfft, int overlap, int sampling_rate, int window)
         {
-            if ((nfft & (nfft - 1)) != 0)
+            if (nfft <= 0 || (nfft & (nfft - 1)) != 0)
             {
                 throw new BrainFlowError ((int)BrainFlowExitCodes.INVALID_ARGUMENTS_ERROR);
             }

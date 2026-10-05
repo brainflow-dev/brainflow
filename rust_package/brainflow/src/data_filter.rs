@@ -5,6 +5,7 @@ use num_complex::Complex64;
 use std::os::raw::c_int;
 use std::{ffi::CString, ffi::CStr, os::raw::c_double};
 use std::os::raw::c_char;
+use std::convert::TryFrom;
 
 use crate::error::{BrainFlowError, Error};
 use crate::ffi::data_handler;
@@ -12,6 +13,32 @@ use crate::{
     check_brainflow_exit_code, AggOperations, DetrendOperations, FilterTypes, LogLevels,
     NoiseTypes, Result, WindowOperations, WaveletTypes, WaveletExtensionTypes, WaveletDenoisingTypes, ThresholdTypes, NoiseEstimationLevelTypes,
 };
+
+fn invalid_arguments() -> Error {
+    Error::BrainFlowError(BrainFlowError::InvalidArgumentsError)
+}
+
+fn native_int(value: usize) -> Result<c_int> {
+    c_int::try_from(value).map_err(|_| invalid_arguments())
+}
+
+fn checked_product(left: usize, right: usize) -> Result<usize> {
+    let value = left.checked_mul(right).ok_or_else(invalid_arguments)?;
+    native_int(value)?;
+    Ok(value)
+}
+
+fn selected_data(data: &Array2<f64>, channels: &[usize]) -> Result<Vec<f64>> {
+    if channels.is_empty() || data.ncols() == 0 || channels.iter().any(|&c| c >= data.nrows()) {
+        return Err(invalid_arguments());
+    }
+    let mut selected = Vec::with_capacity(checked_product(channels.len(), data.ncols())?);
+    // Preserve the requested order and duplicate channels consistently with other bindings.
+    for &channel in channels {
+        selected.extend(data.row(channel).iter().copied());
+    }
+    Ok(selected)
+}
 
 
 /// Set BrainFlow data logger log level.
@@ -69,10 +96,10 @@ pub fn perform_lowpass(
     let res = unsafe {
         data_handler::perform_lowpass(
             data.as_mut_ptr() as *mut c_double,
-            data.len() as c_int,
-            sampling_rate as c_int,
+            native_int(data.len())?,
+            native_int(sampling_rate)?,
             cutoff as c_double,
-            order as c_int,
+            native_int(order)?,
             filter_type as c_int,
             ripple as c_double,
         )
@@ -93,10 +120,10 @@ pub fn perform_highpass(
     let res = unsafe {
         data_handler::perform_highpass(
             data.as_mut_ptr() as *mut c_double,
-            data.len() as c_int,
-            sampling_rate as c_int,
+            native_int(data.len())?,
+            native_int(sampling_rate)?,
             cutoff as c_double,
-            order as c_int,
+            native_int(order)?,
             filter_type as c_int,
             ripple as c_double,
         )
@@ -118,11 +145,11 @@ pub fn perform_bandpass(
     let res = unsafe {
         data_handler::perform_bandpass(
             data.as_mut_ptr() as *mut c_double,
-            data.len() as c_int,
-            sampling_rate as c_int,
+            native_int(data.len())?,
+            native_int(sampling_rate)?,
             start_freq as c_double,
             stop_freq as c_double,
-            order as c_int,
+            native_int(order)?,
             filter_type as c_int,
             ripple as c_double,
         )
@@ -144,11 +171,11 @@ pub fn perform_bandstop(
     let res = unsafe {
         data_handler::perform_bandstop(
             data.as_mut_ptr() as *mut c_double,
-            data.len() as c_int,
-            sampling_rate as c_int,
+            native_int(data.len())?,
+            native_int(sampling_rate)?,
             start_freq as c_double,
             stop_freq as c_double,
-            order as c_int,
+            native_int(order)?,
             filter_type as c_int,
             ripple as c_double,
         )
@@ -166,8 +193,8 @@ pub fn remove_environmental_noise(
     let res = unsafe {
         data_handler::remove_environmental_noise(
             data.as_mut_ptr() as *mut c_double,
-            data.len() as c_int,
-            sampling_rate as c_int,
+            native_int(data.len())?,
+            native_int(sampling_rate)?,
             noise_type as c_int,
         )
     };
@@ -184,8 +211,8 @@ pub fn perform_rolling_filter(
     let res = unsafe {
         data_handler::perform_rolling_filter(
             data.as_mut_ptr() as *mut c_double,
-            data.len() as c_int,
-            period as c_int,
+            native_int(data.len())?,
+            native_int(period)?,
             agg_operation as c_int,
         )
     };
@@ -199,12 +226,15 @@ pub fn calc_stddev(
     start_pos: usize,
     end_pos: usize
 ) -> Result<f64> {
+    if start_pos >= end_pos || end_pos > data.len() {
+        return Err(invalid_arguments());
+    }
     let mut output = 0.0 as f64;
     let res = unsafe {
         data_handler::calc_stddev(
             data.as_mut_ptr() as *mut c_double,
-            start_pos as c_int,
-            end_pos as c_int,
+            native_int(start_pos)?,
+            native_int(end_pos)?,
             &mut output,
         )
     };
@@ -218,12 +248,15 @@ pub fn get_railed_percentage(
     data_size: usize,
     gain: usize
 ) -> Result<f64> {
+    if data_size == 0 || data_size > data.len() {
+        return Err(invalid_arguments());
+    }
     let mut output = 0.0 as f64;
     let res = unsafe {
         data_handler::get_railed_percentage(
             data.as_mut_ptr() as *mut c_double,
-            data_size as c_int,
-            gain as c_int,
+            native_int(data_size)?,
+            native_int(gain)?,
             &mut output,
         )
     };
@@ -240,13 +273,16 @@ pub fn get_oxygen_level(
     coef2: f64,
     coef3: f64,
 ) -> Result<f64> {
+    if ppg_ir.len() != ppg_red.len() {
+        return Err(invalid_arguments());
+    }
     let mut output = 0.0 as f64;
     let res = unsafe {
         data_handler::get_oxygen_level(
             ppg_ir.as_mut_ptr() as *mut c_double,
             ppg_red.as_mut_ptr() as *mut c_double,
-            ppg_red.len() as c_int,
-            sampling_rate as c_int,
+            native_int(ppg_red.len())?,
+            native_int(sampling_rate)?,
             coef1 as c_double,
             coef2 as c_double,
             coef3 as c_double,
@@ -264,14 +300,17 @@ pub fn get_heart_rate(
     sampling_rate: usize,
     fft_size: usize,
 ) -> Result<f64> {
+    if ppg_ir.len() != ppg_red.len() {
+        return Err(invalid_arguments());
+    }
     let mut output = 0.0 as f64;
     let res = unsafe {
         data_handler::get_heart_rate(
             ppg_ir.as_mut_ptr() as *mut c_double,
             ppg_red.as_mut_ptr() as *mut c_double,
-            ppg_red.len() as c_int,
-            sampling_rate as c_int,
-            fft_size as c_int,
+            native_int(ppg_red.len())?,
+            native_int(sampling_rate)?,
+            native_int(fft_size)?,
             &mut output,
         )
     };
@@ -293,8 +332,8 @@ pub fn perform_downsampling(
     let res = unsafe {
         data_handler::perform_downsampling(
             data.as_mut_ptr() as *mut c_double,
-            data.len() as c_int,
-            period as c_int,
+            native_int(data.len())?,
+            native_int(period)?,
             agg_operation as c_int,
             output.as_mut_ptr() as *mut c_double,
         )
@@ -362,7 +401,13 @@ pub fn perform_wavelet_transform(
     decomposition_level: usize,
     extension: WaveletExtensionTypes,
 ) -> Result<WaveletTransform> {
-    let capacity = data.len() + 2 * decomposition_level * (40 + 1);
+    if decomposition_level == 0 || decomposition_level > 100 || data.is_empty() {
+        return Err(invalid_arguments());
+    }
+    native_int(data.len())?;
+    let capacity = data.len().checked_add(checked_product(decomposition_level, 82)?)
+        .ok_or_else(invalid_arguments)?;
+    native_int(capacity)?;
     let mut wavelet_transform = WaveletTransform::new(
         capacity,
         decomposition_level,
@@ -370,21 +415,33 @@ pub fn perform_wavelet_transform(
         extension,
         data.len(),
     );
+    let mut lengths = vec![0 as c_int; decomposition_level + 1];
     let res = unsafe {
         let output = wavelet_transform.coefficients.as_mut_ptr() as *mut c_double;
-        let decomposition_lengths =
-            wavelet_transform.decomposition_lengths.as_mut_ptr() as *mut c_int;
+        let decomposition_lengths = lengths.as_mut_ptr();
         data_handler::perform_wavelet_transform(
             data.as_mut_ptr() as *mut c_double,
-            data.len() as c_int,
+            native_int(data.len())?,
             wavelet as c_int,
-            decomposition_level as c_int,
+            native_int(decomposition_level)?,
             extension as c_int,
             output,
             decomposition_lengths,
         )
     };
     check_brainflow_exit_code(res)?;
+    let mut total = 0usize;
+    for &length in &lengths {
+        if length <= 0 {
+            return Err(invalid_arguments());
+        }
+        total = total.checked_add(length as usize).ok_or_else(invalid_arguments)?;
+    }
+    if total > capacity {
+        return Err(invalid_arguments());
+    }
+    unsafe { wavelet_transform.coefficients.set_len(total); }
+    wavelet_transform.decomposition_lengths = lengths.into_iter().map(|v| v as usize).collect();
     Ok(wavelet_transform)
 }
 
@@ -401,10 +458,10 @@ pub fn restore_data_from_wavelet_detailed_coeffs(
     let res = unsafe {
         data_handler::restore_data_from_wavelet_detailed_coeffs(
             data.as_mut_ptr() as *mut c_double,
-            data.len() as c_int,
+            native_int(data.len())?,
             wavelet as c_int,
-            decomposition_level as c_int,
-            level_to_restore as c_int,
+            native_int(decomposition_level)?,
+            native_int(level_to_restore)?,
             output.as_mut_ptr() as *mut c_double,
         )
     };
@@ -425,8 +482,8 @@ pub fn detect_peaks_z_score(
     let res = unsafe {
         data_handler::detect_peaks_z_score(
             data.as_mut_ptr() as *mut c_double,
-            data.len() as c_int,
-            lag as c_int,
+            native_int(data.len())?,
+            native_int(lag)?,
             threshold as c_double,
             influence as c_double,
             output.as_mut_ptr() as *mut c_double,
@@ -440,16 +497,36 @@ pub fn detect_peaks_z_score(
 /// Perform inverse wavelet transform.
 pub fn perform_inverse_wavelet_transform(wavelet_transform: WaveletTransform) -> Result<Vec<f64>> {
     let mut wavelet_transform = wavelet_transform;
+    let level = wavelet_transform.decomposition_level;
+    if level == 0 || level > 100 || wavelet_transform.decomposition_lengths.len() != level + 1
+        || wavelet_transform.original_data_len == 0
+        || wavelet_transform.original_data_len > wavelet_transform.coefficients.len() {
+        return Err(invalid_arguments());
+    }
+    let mut lengths = Vec::with_capacity(level + 1);
+    let mut total = 0usize;
+    for &length in &wavelet_transform.decomposition_lengths {
+        if length == 0 { return Err(invalid_arguments()); }
+        lengths.push(native_int(length)?);
+        total = total.checked_add(length).ok_or_else(invalid_arguments)?;
+    }
+    if total != wavelet_transform.coefficients.len() {
+        return Err(invalid_arguments());
+    }
+    native_int(wavelet_transform.original_data_len)?;
     let mut output = Vec::<f64>::with_capacity(wavelet_transform.original_data_len);
     let res = unsafe {
-        data_handler::perform_inverse_wavelet_transform(
+        data_handler::perform_inverse_wavelet_transform_checked(
             wavelet_transform.coefficients.as_mut_ptr() as *mut c_double,
-            wavelet_transform.original_data_len as c_int,
+            native_int(wavelet_transform.coefficients.len())?,
+            native_int(wavelet_transform.original_data_len)?,
             wavelet_transform.wavelet as c_int,
-            wavelet_transform.decomposition_level as c_int,
+            native_int(wavelet_transform.decomposition_level)?,
             wavelet_transform.extension as c_int,
-            wavelet_transform.decomposition_lengths.as_ptr() as *mut c_int,
+            lengths.as_mut_ptr(),
+            native_int(lengths.len())?,
             output.as_mut_ptr() as *mut c_double,
+            native_int(wavelet_transform.original_data_len)?,
         )
     };
     check_brainflow_exit_code(res)?;
@@ -470,9 +547,9 @@ pub fn perform_wavelet_denoising(
     let res = unsafe {
         data_handler::perform_wavelet_denoising(
             data.as_mut_ptr() as *mut c_double,
-            data.len() as c_int,
+            native_int(data.len())?,
             wavelet as c_int,
-            decomposition_level as c_int,
+            native_int(decomposition_level)?,
             wavelet_denoising as c_int,
             wavelet_threshold as c_int,
             extension as c_int,
@@ -484,7 +561,7 @@ pub fn perform_wavelet_denoising(
 }
 
 /// Calculate filters and the corresponding eigenvalues using the Common Spatial Patterns.
-pub fn get_csp<Labels>(
+pub fn get_csp(
     data: &Array3<f64>,
     labels: &Array1<f64>,
 ) -> Result<(Array2<f64>, Array1<f64>)> {
@@ -492,6 +569,11 @@ pub fn get_csp<Labels>(
     let n_epochs = shape[0];
     let n_channels = shape[1];
     let n_times = shape[2];
+    if labels.len() != n_epochs || n_epochs == 0 || n_channels == 0 || n_times == 0 {
+        return Err(invalid_arguments());
+    }
+    checked_product(n_channels, n_channels)?;
+    native_int(data.len())?;
     let data: Vec<f64> = data.into_iter().cloned().collect();
 
     let labels: Vec<f64> = labels.into_iter().cloned().collect();
@@ -503,9 +585,9 @@ pub fn get_csp<Labels>(
         data_handler::get_csp(
             data.as_ptr() as *const c_double,
             labels.as_ptr() as *const c_double,
-            n_epochs as c_int,
-            n_channels as c_int,
-            n_times as c_int,
+            native_int(n_epochs)?,
+            native_int(n_channels)?,
+            native_int(n_times)?,
             output_filters.as_mut_ptr() as *mut c_double,
             output_eigenvalues.as_mut_ptr() as *mut c_double,
         )
@@ -523,11 +605,12 @@ pub fn get_csp<Labels>(
 
 /// Perform data windowing.
 pub fn get_window(window_function: WindowOperations, window_len: usize) -> Result<Vec<f64>> {
+    native_int(window_len)?;
     let mut output = Vec::<f64>::with_capacity(window_len);
     let res = unsafe {
         data_handler::get_window(
             window_function as c_int,
-            window_len as c_int,
+            native_int(window_len)?,
             output.as_mut_ptr() as *mut c_double,
         )
     };
@@ -544,7 +627,7 @@ pub fn perform_fft(data: &mut [f64], window_function: WindowOperations) -> Resul
     let res = unsafe {
         data_handler::perform_fft(
             data.as_mut_ptr() as *mut c_double,
-            data.len() as c_int,
+            native_int(data.len())?,
             window_function as c_int,
             output_re.as_mut_ptr() as *mut c_double,
             output_im.as_mut_ptr() as *mut c_double,
@@ -564,6 +647,10 @@ pub fn perform_fft(data: &mut [f64], window_function: WindowOperations) -> Resul
 
 /// Perform inverse FFT.
 pub fn perform_ifft(data: &[Complex64], original_data_len: usize) -> Result<Vec<f64>> {
+    native_int(original_data_len)?;
+    if data.len() < 2 || original_data_len != checked_product(data.len() - 1, 2)? {
+        return Err(invalid_arguments());
+    }
     let mut restored_data = Vec::<f64>::with_capacity(original_data_len);
     let (mut input_re, mut input_im): (Vec<f64>, Vec<f64>) =
         data.iter().map(|d| (d.re, d.im)).unzip();
@@ -571,7 +658,7 @@ pub fn perform_ifft(data: &[Complex64], original_data_len: usize) -> Result<Vec<
         data_handler::perform_ifft(
             input_re.as_mut_ptr() as *mut c_double,
             input_im.as_mut_ptr() as *mut c_double,
-            original_data_len as c_int,
+            native_int(original_data_len)?,
             restored_data.as_mut_ptr() as *mut c_double,
         )
     };
@@ -586,7 +673,7 @@ pub fn detrend(data: &mut [f64], detrend_operation: DetrendOperations) -> Result
     let res = unsafe {
         data_handler::detrend(
             data.as_mut_ptr() as *mut c_double,
-            data.len() as c_int,
+            native_int(data.len())?,
             detrend_operation as c_int,
         )
     };
@@ -612,8 +699,8 @@ pub fn get_psd(
     let res = unsafe {
         data_handler::get_psd(
             data.as_mut_ptr() as *mut c_double,
-            data.len() as c_int,
-            sampling_rate as c_int,
+            native_int(data.len())?,
+            native_int(sampling_rate)?,
             window_function as c_int,
             amplitude.as_mut_ptr() as *mut c_double,
             frequency.as_mut_ptr() as *mut c_double,
@@ -637,15 +724,19 @@ pub fn get_psd_welch(
     sampling_rate: usize,
     window_function: WindowOperations,
 ) -> Result<Psd> {
+    native_int(nfft)?;
+    if nfft == 0 || nfft > data.len() || nfft % 2 != 0 || overlap >= nfft {
+        return Err(invalid_arguments());
+    }
     let mut amplitude = Vec::<f64>::with_capacity(nfft / 2 + 1);
     let mut frequency = Vec::<f64>::with_capacity(nfft / 2 + 1);
     let res = unsafe {
         data_handler::get_psd_welch(
             data.as_mut_ptr() as *mut c_double,
-            data.len() as c_int,
-            nfft as c_int,
-            overlap as c_int,
-            sampling_rate as c_int,
+            native_int(data.len())?,
+            native_int(nfft)?,
+            native_int(overlap)?,
+            native_int(sampling_rate)?,
             window_function as c_int,
             amplitude.as_mut_ptr() as *mut c_double,
             frequency.as_mut_ptr() as *mut c_double,
@@ -677,14 +768,13 @@ pub fn perform_ica_select_channels(
 ) -> Result<(Vec<f64>, Vec<f64>, Vec<f64>, Vec<f64>)> {
     let shape = data.shape();
     let (rows, cols) = (channels.len(), shape[1]);
-    let mut raw_data = data
-        .outer_iter()
-        .enumerate()
-        .filter(|(i, _)| channels.contains(i))
-        .map(|(_, x)| x)
-        .flatten()
-        .copied()
-        .collect::<Vec<f64>>();
+    if num_components < 2 || num_components > rows || cols < 2 {
+        return Err(invalid_arguments());
+    }
+    let mut raw_data = selected_data(&data, &channels)?;
+    checked_product(num_components, num_components)?;
+    checked_product(rows, num_components)?;
+    checked_product(cols, num_components)?;
 
     let mut temp_w = Vec::with_capacity(num_components * num_components);
     let mut temp_k = Vec::with_capacity(rows * num_components);
@@ -694,9 +784,9 @@ pub fn perform_ica_select_channels(
     let res = unsafe {
         data_handler::perform_ica(
             raw_data.as_mut_ptr() as *mut c_double,
-            rows as c_int,
-            cols as c_int,
-            num_components as c_int,
+            native_int(rows)?,
+            native_int(cols)?,
+            native_int(num_components)?,
             temp_w.as_mut_ptr() as *mut c_double,
             temp_k.as_mut_ptr() as *mut c_double,
             temp_a.as_mut_ptr() as *mut c_double,
@@ -704,11 +794,12 @@ pub fn perform_ica_select_channels(
         )
     };
     check_brainflow_exit_code(res)?;
-    //let w = Array2::from_shape_vec((num_components, num_components), temp_w);
-    //let k = Array2::from_shape_vec((num_components, rows), temp_k);
-    //let a = Array2::from_shape_vec((rows, num_components), temp_a);
-    //let s = Array2::from_shape_vec((num_components, cols), temp_s);
-    //Ok((w,k,a,s))
+    unsafe {
+        temp_w.set_len(num_components * num_components);
+        temp_k.set_len(rows * num_components);
+        temp_a.set_len(rows * num_components);
+        temp_s.set_len(cols * num_components);
+    }
     Ok((temp_w, temp_k, temp_a, temp_s))
 }
 
@@ -722,7 +813,17 @@ pub fn perform_ica(
     perform_ica_select_channels(data, num_components, channels)
 }
 
-/// Calculate avg and stddev of BandPowers across all channels, bands are 1-4,4-8,8-13,13-30,30-50.
+/// Return normalized channel-mean band powers and coefficients of variation (population
+/// stddev / mean of absolute channel powers). Zero-power bands have zero variation;
+/// an all-zero total returns zero normalized powers.
+/// Filtering removes DC and applies padded, initialized zero-phase 48-52 and 58-62 Hz
+/// notches only when their upper edges are below 0.9 * Nyquist. Preprocessing is independent
+/// of the requested output bands; no automatic passband is applied. Margins estimated from
+/// the filter cascade's impulse tail are discarded at both ends; supply surrounding samples and account
+/// for the resulting delay in live analysis. Without filtering there is no preprocessing
+/// or trimming. At least max(8, 2 * get_nearest_power_of_two(sampling_rate)) samples must remain.
+/// Data and edges must be finite. Bands require 0 <= start < stop <= Nyquist.
+/// Mains notches also attenuate overlapping bands.
 pub fn get_custom_band_powers(
     data: Array2<f64>,
     bands: Vec<Band>,
@@ -732,14 +833,7 @@ pub fn get_custom_band_powers(
 ) -> Result<(Vec<f64>, Vec<f64>)> {
     let shape = data.shape();
     let (rows, cols) = (eeg_channels.len(), shape[1]);
-    let mut raw_data = data
-        .outer_iter()
-        .enumerate()
-        .filter(|(i, _)| eeg_channels.contains(i))
-        .map(|(_, x)| x)
-        .flatten()
-        .copied()
-        .collect::<Vec<f64>>();
+    let mut raw_data = selected_data(&data, &eeg_channels)?;
 
     let (mut x, mut y): (Vec<_>, Vec<_>) = bands.into_iter().map(|Band{freq_start, freq_stop}| (freq_start, freq_stop)).unzip();
 
@@ -749,12 +843,12 @@ pub fn get_custom_band_powers(
     let res = unsafe {
         data_handler::get_custom_band_powers(
             raw_data.as_mut_ptr() as *mut c_double,
-            rows as c_int,
-            cols as c_int,
+            native_int(rows)?,
+            native_int(cols)?,
             x.as_mut_ptr() as *mut c_double,
             y.as_mut_ptr() as *mut c_double,
-            x.len() as c_int,
-            sampling_rate as c_int,
+            native_int(x.len())?,
+            native_int(sampling_rate)?,
             apply_filters as c_int,
             avg_band_powers.as_mut_ptr() as *mut c_double,
             stddev_band_powers.as_mut_ptr() as *mut c_double,
@@ -767,6 +861,8 @@ pub fn get_custom_band_powers(
     Ok((avg_band_powers, stddev_band_powers))
 }
 
+/// Calculate normalized mean powers for bands 2-4, 4-8, 8-13, 13-30, 30-45 Hz.
+/// Uses get_custom_band_powers preprocessing, minimum retained length, and variation semantics.
 pub fn get_avg_band_powers(
     data: Array2<f64>,
     eeg_channels: Vec<usize>,
@@ -790,7 +886,7 @@ pub fn get_band_power(psd: &mut Psd, band: Band) -> Result<f64> {
         data_handler::get_band_power(
             psd.amplitude.as_mut_ptr() as *mut c_double,
             psd.frequency.as_mut_ptr() as *mut c_double,
-            psd.amplitude.len() as c_int,
+            native_int(psd.amplitude.len())?,
             band.freq_start,
             band.freq_stop,
             &mut band_power,
@@ -803,7 +899,7 @@ pub fn get_band_power(psd: &mut Psd, band: Band) -> Result<f64> {
 /// Calculate nearest power of two.
 pub fn get_nearest_power_of_two(value: usize) -> Result<usize> {
     let mut output = 0;
-    let res = unsafe { data_handler::get_nearest_power_of_two(value as c_int, &mut output) };
+    let res = unsafe { data_handler::get_nearest_power_of_two(native_int(value)?, &mut output) };
     check_brainflow_exit_code(res)?;
     Ok(output as usize)
 }
@@ -830,9 +926,16 @@ pub fn read_file<S: AsRef<str>>(file_name: S) -> Result<Array2<f64>> {
     };
     check_brainflow_exit_code(res)?;
 
-    unsafe { data.set_len(num_elements as usize) };
+    if rows <= 0 || cols <= 0 {
+        return Err(invalid_arguments());
+    }
+    let actual_len = checked_product(rows as usize, cols as usize)?;
+    if actual_len > num_elements as usize {
+        return Err(invalid_arguments());
+    }
+    unsafe { data.set_len(actual_len) };
     let data = ArrayBase::from_vec(data);
-    let data = data.into_shape((rows as usize, cols as usize)).unwrap();
+    let data = data.into_shape((rows as usize, cols as usize))?;
     Ok(data)
 }
 
@@ -850,8 +953,8 @@ where
     let res = unsafe {
         data_handler::write_file(
             data.as_mut_ptr() as *mut c_double,
-            rows as c_int,
-            cols as c_int,
+            native_int(rows)?,
+            native_int(cols)?,
             file_name.as_ptr(),
             file_mode.as_ptr(),
         )
@@ -893,9 +996,9 @@ pub fn get_activity_index(
             accel_x.as_ptr() as *const c_double,
             accel_y.as_ptr() as *const c_double,
             accel_z.as_ptr() as *const c_double,
-            data_len as c_int,
-            sampling_rate as c_int,
-            period as c_int,
+            native_int(data_len)?,
+            native_int(sampling_rate)?,
+            native_int(period)?,
             noise_var_x,
             noise_var_y,
             noise_var_z,
@@ -953,11 +1056,54 @@ mod tests {
 
         println!("{:?}", data);
         let wavelet_data = perform_wavelet_transform(&mut data, WaveletTypes::Db3, 3, WaveletExtensionTypes::Periodic).unwrap();
-        let restored_wavelet = perform_inverse_wavelet_transform(wavelet_data).unwrap();
+        assert_eq!(wavelet_data.decomposition_lengths().len(), 4);
+        assert_eq!(wavelet_data.coefficients().len(), wavelet_data.decomposition_lengths().iter().sum::<usize>());
+        let restored_wavelet = perform_inverse_wavelet_transform(wavelet_data.clone()).unwrap();
         println!("{:?}", restored_wavelet);
         for (d, r) in data.iter().zip(restored_wavelet) {
             assert_relative_eq!(*d, r, max_relative = 1e-14);
         }
+    }
+
+    #[test]
+    fn rejects_mismatched_buffers_before_native_access() {
+        let mut short = vec![1.0; 4];
+        let mut long = vec![1.0; 8];
+        assert!(calc_stddev(&mut short, 0, 8).is_err());
+        assert!(get_railed_percentage(&mut short, 8, 24).is_err());
+        assert!(get_heart_rate(&mut short, &mut long, 64, 1024).is_err());
+        assert!(get_oxygen_level(&mut short, &mut long, 64, 1.0, 1.0, 1.0).is_err());
+        assert!(perform_ifft(&[Complex64::new(1.0, 0.0); 3], 8).is_err());
+        assert!(get_csp(&Array3::zeros((2, 2, 8)), &Array1::zeros(1)).is_err());
+        assert!(native_int(c_int::MAX as usize + 1).is_err());
+        let invalid = WaveletTransform::with_coefficients(vec![0.0; 4], 2, vec![2, 2],
+            WaveletTypes::Db3, WaveletExtensionTypes::Periodic, 8);
+        assert!(perform_inverse_wavelet_transform(invalid).is_err());
+        for original_length in [4, c_int::MAX as usize / 2, c_int::MAX as usize] {
+            let oversized = WaveletTransform::with_coefficients(vec![0.0; 2], 1, vec![1, 1],
+                WaveletTypes::Haar, WaveletExtensionTypes::Periodic, original_length);
+            assert!(perform_inverse_wavelet_transform(oversized).is_err());
+        }
+    }
+
+    #[test]
+    fn channel_selection_preserves_order_and_duplicates() {
+        let data = array![[1.0, 2.0], [3.0, 4.0], [5.0, 6.0]];
+        assert_eq!(selected_data(&data, &[2, 0, 2]).unwrap(), vec![5.0, 6.0, 1.0, 2.0, 5.0, 6.0]);
+        assert!(selected_data(&data, &[0, 3]).is_err());
+    }
+
+    #[test]
+    fn ica_returns_initialized_output_vectors() {
+        let data = Array2::from_shape_fn((2, 1024), |(row, col)| {
+            let t = col as f64 / 256.0;
+            let first = (2.0 * PI * 7.0 * t).sin();
+            let second = (2.0 * PI * 13.0 * t).sin().powi(3);
+            if row == 0 { first + 0.3 * second } else { 0.2 * first + second }
+        });
+        let (w, k, a, s) = perform_ica_select_channels(data, 2, vec![1, 0]).unwrap();
+        assert_eq!((w.len(), k.len(), a.len(), s.len()), (4, 4, 4, 2048));
+        assert!(w.iter().chain(&k).chain(&a).chain(&s).all(|v| v.is_finite()));
     }
 
     #[test]

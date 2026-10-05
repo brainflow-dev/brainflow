@@ -379,16 +379,19 @@ class DataHandlerDLL(object):
             ndpointer(ctypes.c_double)
         ]
 
-        self.perform_inverse_wavelet_transform = self.lib.perform_inverse_wavelet_transform
-        self.perform_inverse_wavelet_transform.restype = ctypes.c_int
-        self.perform_inverse_wavelet_transform.argtypes = [
-            ndpointer(ctypes.c_double),
+        self.perform_inverse_wavelet_transform_checked = self.lib.perform_inverse_wavelet_transform_checked
+        self.perform_inverse_wavelet_transform_checked.restype = ctypes.c_int
+        self.perform_inverse_wavelet_transform_checked.argtypes = [
+            ndpointer(ctypes.c_double, ndim=1, flags='C_CONTIGUOUS'),
             ctypes.c_int,
             ctypes.c_int,
             ctypes.c_int,
             ctypes.c_int,
-            ndpointer(ctypes.c_int32),
-            ndpointer(ctypes.c_double)
+            ctypes.c_int,
+            ndpointer(ctypes.c_int32, ndim=1, flags='C_CONTIGUOUS'),
+            ctypes.c_int,
+            ndpointer(ctypes.c_double, ndim=1, flags=('C_CONTIGUOUS', 'WRITEABLE')),
+            ctypes.c_int
         ]
 
         self.get_csp = self.lib.get_csp
@@ -478,6 +481,46 @@ class DataHandlerDLL(object):
             ndpointer(ctypes.c_double)
         ]
 
+        self.perform_ica_with_options = self.lib.perform_ica_with_options
+        self.perform_ica_with_options.restype = ctypes.c_int
+        self.perform_ica_with_options.argtypes = self.perform_ica.argtypes + [
+            ctypes.c_int, ctypes.c_double, ctypes.c_int]
+
+        self.create_streaming_filter = self.lib.create_streaming_filter
+        self.create_streaming_filter.restype = ctypes.c_int
+        self.create_streaming_filter.argtypes = [
+            ctypes.c_int, ctypes.c_int, ctypes.c_double, ctypes.c_double,
+            ctypes.c_int, ctypes.c_int, ctypes.c_double, ndpointer(ctypes.c_int32)]
+        self.get_filter_settling_samples = self.lib.get_filter_settling_samples
+        self.get_filter_settling_samples.restype = ctypes.c_int
+        self.get_filter_settling_samples.argtypes = self.create_streaming_filter.argtypes
+        self.perform_streaming_filter = self.lib.perform_streaming_filter
+        self.perform_streaming_filter.restype = ctypes.c_int
+        self.perform_streaming_filter.argtypes = [ctypes.c_int,
+            ndpointer(ctypes.c_double, ndim=1, flags=('C_CONTIGUOUS', 'WRITEABLE')), ctypes.c_int]
+        self.reset_streaming_filter = self.lib.reset_streaming_filter
+        self.reset_streaming_filter.restype = ctypes.c_int
+        self.reset_streaming_filter.argtypes = [ctypes.c_int]
+        self.release_streaming_filter = self.lib.release_streaming_filter
+        self.release_streaming_filter.restype = ctypes.c_int
+        self.release_streaming_filter.argtypes = [ctypes.c_int]
+        self.perform_decimation = self.lib.perform_decimation
+        self.perform_decimation.restype = ctypes.c_int
+        self.perform_decimation.argtypes = [
+            ndpointer(ctypes.c_double, ndim=1, flags='C_CONTIGUOUS'), ctypes.c_int,
+            ctypes.c_int, ndpointer(ctypes.c_double)]
+
+        self.get_clipping_percentage = self.lib.get_clipping_percentage
+        self.get_clipping_percentage.restype = ctypes.c_int
+        self.get_clipping_percentage.argtypes = [
+            ndpointer(ctypes.c_double, ndim=1, flags='C_CONTIGUOUS'), ctypes.c_int,
+            ctypes.c_double, ctypes.c_double, ndpointer(ctypes.c_double)]
+        self.get_flatline_percentage = self.lib.get_flatline_percentage
+        self.get_flatline_percentage.restype = ctypes.c_int
+        self.get_flatline_percentage.argtypes = [
+            ndpointer(ctypes.c_double, ndim=1, flags='C_CONTIGUOUS'), ctypes.c_int,
+            ctypes.c_double, ndpointer(ctypes.c_double)]
+
         self.get_custom_band_powers = self.lib.get_custom_band_powers
         self.get_custom_band_powers.restype = ctypes.c_int
         self.get_custom_band_powers.argtypes = [
@@ -492,6 +535,19 @@ class DataHandlerDLL(object):
             ndpointer(ctypes.c_double),
             ndpointer(ctypes.c_double),
         ]
+
+        self.get_band_power_settings = self.lib.get_band_power_settings
+        self.get_band_power_settings.restype = ctypes.c_int
+        self.get_band_power_settings.argtypes = [
+            ctypes.c_int, ctypes.c_int, ctypes.c_int, ctypes.c_double, ctypes.c_double,
+            ctypes.c_int, ndpointer(ctypes.c_int32), ndpointer(ctypes.c_int32)]
+        self.get_custom_band_powers_with_options = self.lib.get_custom_band_powers_with_options
+        self.get_custom_band_powers_with_options.restype = ctypes.c_int
+        self.get_custom_band_powers_with_options.argtypes = [
+            ndpointer(ctypes.c_double), ctypes.c_int, ctypes.c_int,
+            ndpointer(ctypes.c_double), ndpointer(ctypes.c_double), ctypes.c_int,
+            ctypes.c_int, ctypes.c_int, ctypes.c_int, ctypes.c_double, ctypes.c_double,
+            ctypes.c_int, ctypes.c_int, ndpointer(ctypes.c_double), ndpointer(ctypes.c_double)]
 
         self.get_psd = self.lib.get_psd
         self.get_psd.restype = ctypes.c_int
@@ -560,8 +616,83 @@ class DataHandlerDLL(object):
         ]
 
 
+class StreamingFilter:
+    """Stateful causal filter for contiguous chunks from one signal channel.
+
+    Kind 0 is lowpass, 1 highpass, 2 bandpass and 3 bandstop. low_cutoff supplies
+    the single cutoff for kinds 0/1; kinds 2/3 use both cutoffs. Only causal
+    FilterTypes 0, 1 and 2 are supported.
+    process modifies each writable float64 chunk in place. Use a separate instance
+    for each channel. close releases the native state; a context manager is preferred.
+    """
+
+    def __init__(self, kind, sampling_rate, low_cutoff=0.0, high_cutoff=0.0, order=4,
+                 filter_type=FilterTypes.BUTTERWORTH, ripple=1.0):
+        self._handle = None
+        for value in (kind, sampling_rate, order, filter_type):
+            if not isinstance(value, (int, numpy.integer)) or not -2147483648 <= value <= 2147483647:
+                raise BrainFlowError('invalid streaming filter integer parameter',
+                                     BrainFlowExitCodes.INVALID_ARGUMENTS_ERROR.value)
+        self._dll = DataHandlerDLL.get_instance()
+        handle = numpy.zeros(1, dtype=numpy.int32)
+        res = self._dll.create_streaming_filter(kind, sampling_rate, low_cutoff, high_cutoff,
+                                                order, filter_type, ripple, handle)
+        if res != BrainFlowExitCodes.STATUS_OK.value:
+            raise BrainFlowError('unable to create streaming filter', res)
+        self._handle = int(handle[0])
+
+    def _require_open(self):
+        if self._handle is None:
+            raise BrainFlowError('streaming filter is closed', BrainFlowExitCodes.INVALID_ARGUMENTS_ERROR.value)
+
+    def process(self, data):
+        """Filter one chunk in place, preserving state for the next chunk."""
+        self._require_open()
+        DataFilter._check_inplace_array(data)
+        if not 0 < data.size <= 2147483647:
+            raise BrainFlowError('invalid chunk length', BrainFlowExitCodes.INVALID_ARGUMENTS_ERROR.value)
+        res = self._dll.perform_streaming_filter(self._handle, data, data.size)
+        if res != BrainFlowExitCodes.STATUS_OK.value:
+            raise BrainFlowError('unable to process streaming filter chunk', res)
+
+    def reset(self):
+        """Reset filter state to the initial state for a new independent signal."""
+        self._require_open()
+        res = self._dll.reset_streaming_filter(self._handle)
+        if res != BrainFlowExitCodes.STATUS_OK.value:
+            raise BrainFlowError('unable to reset streaming filter', res)
+
+    def close(self):
+        """Release native state. Repeated calls are harmless."""
+        if self._handle is not None:
+            res = self._dll.release_streaming_filter(self._handle)
+            if res != BrainFlowExitCodes.STATUS_OK.value:
+                raise BrainFlowError('unable to release streaming filter', res)
+            self._handle = None
+
+    def __enter__(self):
+        self._require_open()
+        return self
+
+    def __exit__(self, exc_type, exc_value, traceback):
+        self.close()
+
+    def __del__(self):
+        try:
+            self.close()
+        except Exception:
+            pass
+
+
 class DataFilter(object):
     """DataFilter class contains methods for signal processig"""
+
+    @staticmethod
+    def _check_inplace_array(data):
+        check_memory_layout_row_major(data, 1)
+        if data.dtype != numpy.float64 or not data.flags.writeable:
+            raise BrainFlowError('in-place data must be a writable float64 array',
+                                 BrainFlowExitCodes.INVALID_ARGUMENTS_ERROR.value)
 
     @classmethod
     def set_log_level(cls, log_level: int) -> None:
@@ -574,6 +705,42 @@ class DataFilter(object):
         res = DataHandlerDLL.get_instance().set_log_level_data_handler(log_level)
         if res != BrainFlowExitCodes.STATUS_OK.value:
             raise BrainFlowError('unable to enable logger', res)
+
+    @classmethod
+    def get_filter_settling_samples(cls, kind, sampling_rate, low_cutoff=0.0, high_cutoff=0.0,
+                                    order=4, filter_type=FilterTypes.BUTTERWORTH_ZERO_PHASE, ripple=1.0):
+        """Estimated edge margin in samples; not a guaranteed artifact bound.
+
+        Kind/cutoff meanings match StreamingFilter. Zero-phase filtering keeps its
+        full output length; callers can exclude this margin at both ends for analysis.
+        """
+        for value in (kind, sampling_rate, order, filter_type):
+            if not isinstance(value, (int, numpy.integer)) or not -2147483648 <= value <= 2147483647:
+                raise BrainFlowError('invalid filter integer parameter', BrainFlowExitCodes.INVALID_ARGUMENTS_ERROR.value)
+        output = numpy.zeros(1, dtype=numpy.int32)
+        res = DataHandlerDLL.get_instance().get_filter_settling_samples(
+            kind, sampling_rate, low_cutoff, high_cutoff, order, filter_type, ripple, output)
+        if res != BrainFlowExitCodes.STATUS_OK.value:
+            raise BrainFlowError('unable to estimate filter settling margin', res)
+        return int(output[0])
+
+    @classmethod
+    def perform_decimation(cls, data, factor: int):
+        """Apply an anti-alias FIR and return floor(len(data)/factor) samples.
+
+        The first output is aligned with input[0]. Reflected endpoint extension is
+        used for this offline operation. Block aggregation remains perform_downsampling.
+        """
+        check_memory_layout_row_major(data, 1)
+        if (not isinstance(factor, (int, numpy.integer)) or not 1 <= factor <= data.size or
+                data.size > 2147483647):
+            raise BrainFlowError('invalid decimation factor or input length',
+                                 BrainFlowExitCodes.INVALID_ARGUMENTS_ERROR.value)
+        output = numpy.zeros(data.size // factor, dtype=numpy.float64)
+        res = DataHandlerDLL.get_instance().perform_decimation(data, data.size, factor, output)
+        if res != BrainFlowExitCodes.STATUS_OK.value:
+            raise BrainFlowError('unable to decimate data', res)
+        return output
 
     @classmethod
     def enable_data_logger(cls) -> None:
@@ -623,7 +790,7 @@ class DataFilter(object):
         :param ripple: ripple value for Chebyshev filter
         :type ripple: float
         """
-        check_memory_layout_row_major(data, 1)
+        cls._check_inplace_array(data)
         if not isinstance(sampling_rate, int):
             raise BrainFlowError('wrong type for sampling rate', BrainFlowExitCodes.INVALID_ARGUMENTS_ERROR.value)
         if not isinstance(filter_type, int):
@@ -651,7 +818,7 @@ class DataFilter(object):
         :param ripple: ripple value for Chebyshev filter
         :type ripple: float
         """
-        check_memory_layout_row_major(data, 1)
+        cls._check_inplace_array(data)
         if not isinstance(sampling_rate, int):
             raise BrainFlowError('wrong type for sampling rate', BrainFlowExitCodes.INVALID_ARGUMENTS_ERROR.value)
         if not isinstance(filter_type, int):
@@ -681,7 +848,7 @@ class DataFilter(object):
         :param ripple: ripple value for Chebyshev filter
         :type ripple: float
         """
-        check_memory_layout_row_major(data, 1)
+        cls._check_inplace_array(data)
         if not isinstance(sampling_rate, int):
             raise BrainFlowError('wrong type for sampling rate', BrainFlowExitCodes.INVALID_ARGUMENTS_ERROR.value)
         if not isinstance(filter_type, int):
@@ -711,7 +878,7 @@ class DataFilter(object):
         :param ripple: ripple value for Chebyshev filter
         :type ripple: float
         """
-        check_memory_layout_row_major(data, 1)
+        cls._check_inplace_array(data)
         if not isinstance(sampling_rate, int):
             raise BrainFlowError('wrong type for sampling rate', BrainFlowExitCodes.INVALID_ARGUMENTS_ERROR.value)
         if not isinstance(filter_type, int):
@@ -732,7 +899,7 @@ class DataFilter(object):
         :param noise_type: noise type
         :type noise_type: int
         """
-        check_memory_layout_row_major(data, 1)
+        cls._check_inplace_array(data)
         if not isinstance(sampling_rate, int):
             raise BrainFlowError('wrong type for sampling rate', BrainFlowExitCodes.INVALID_ARGUMENTS_ERROR.value)
         if not isinstance(noise_type, int):
@@ -752,7 +919,7 @@ class DataFilter(object):
         :param operation: int value from AggOperation enum
         :type operation: int
         """
-        check_memory_layout_row_major(data, 1)
+        cls._check_inplace_array(data)
         if not isinstance(period, int):
             raise BrainFlowError('wrong type for period', BrainFlowExitCodes.INVALID_ARGUMENTS_ERROR.value)
         if not isinstance(operation, int):
@@ -793,6 +960,27 @@ class DataFilter(object):
         res = DataHandlerDLL.get_instance().get_railed_percentage(data, data.shape[0], gain, output)
         if res != BrainFlowExitCodes.STATUS_OK.value:
             raise BrainFlowError('unable to get railed percentage', res)
+        return output[0]
+
+    @classmethod
+    def get_clipping_percentage(cls, data, lower_bound: float, upper_bound: float):
+        """Percentage of samples at or outside the supplied ADC limits, in data units."""
+        check_memory_layout_row_major(data, 1)
+        output = numpy.zeros(1, dtype=numpy.float64)
+        res = DataHandlerDLL.get_instance().get_clipping_percentage(
+            data, data.size, lower_bound, upper_bound, output)
+        if res != BrainFlowExitCodes.STATUS_OK.value:
+            raise BrainFlowError('unable to calculate clipping percentage', res)
+        return output[0]
+
+    @classmethod
+    def get_flatline_percentage(cls, data, tolerance: float = 0.0):
+        """Percentage of adjacent sample differences no greater than tolerance."""
+        check_memory_layout_row_major(data, 1)
+        output = numpy.zeros(1, dtype=numpy.float64)
+        res = DataHandlerDLL.get_instance().get_flatline_percentage(data, data.size, tolerance, output)
+        if res != BrainFlowExitCodes.STATUS_OK.value:
+            raise BrainFlowError('unable to calculate flatline percentage', res)
         return output[0]
 
     @classmethod
@@ -893,6 +1081,9 @@ class DataFilter(object):
         """
         check_memory_layout_row_major(data, 1)
 
+        if (not isinstance(decomposition_level, (int, numpy.integer)) or not 1 <= decomposition_level <= 100 or
+                data.size == 0 or data.size + 2 * decomposition_level * 41 > 2147483647):
+            raise BrainFlowError('invalid wavelet dimensions', BrainFlowExitCodes.INVALID_ARGUMENTS_ERROR.value)
         wavelet_coeffs = numpy.zeros(data.shape[0] + 2 * decomposition_level * (40 + 1)).astype(numpy.float64)
         lengths = numpy.zeros(decomposition_level + 1).astype(numpy.int32)
         res = DataHandlerDLL.get_instance().perform_wavelet_transform(data, data.shape[0], wavelet,
@@ -971,11 +1162,23 @@ class DataFilter(object):
         :return: restored data
         :rtype: NDArray[Shape["*"], Float64]
         """
-        original_data = numpy.zeros(original_data_len).astype(numpy.float64)
-        res = DataHandlerDLL.get_instance().perform_inverse_wavelet_transform(wavelet_output[0], original_data_len,
-                                                                              wavelet,
-                                                                              decomposition_level, extension_type,
-                                                                              wavelet_output[1], original_data)
+        if (not isinstance(original_data_len, (int, numpy.integer)) or
+                not 0 < original_data_len <= numpy.iinfo(numpy.int32).max or
+                not isinstance(decomposition_level, (int, numpy.integer)) or
+                not 0 < decomposition_level <= 100 or len(wavelet_output) != 2):
+            raise BrainFlowError('invalid wavelet dimensions', BrainFlowExitCodes.INVALID_ARGUMENTS_ERROR.value)
+        coeffs, lengths = wavelet_output
+        check_memory_layout_row_major(coeffs, 1)
+        check_memory_layout_row_major(lengths, 1)
+        if (coeffs.dtype != numpy.float64 or lengths.dtype != numpy.int32 or original_data_len > coeffs.size or
+                lengths.size != decomposition_level + 1 or numpy.any(lengths <= 0) or
+                sum(int(value) for value in lengths) != coeffs.size):
+            raise BrainFlowError('invalid wavelet coefficient lengths',
+                                 BrainFlowExitCodes.INVALID_ARGUMENTS_ERROR.value)
+        original_data = numpy.zeros(original_data_len, dtype=numpy.float64)
+        res = DataHandlerDLL.get_instance().perform_inverse_wavelet_transform_checked(
+            coeffs, coeffs.size, original_data_len, wavelet, decomposition_level, extension_type,
+            lengths, lengths.size, original_data, original_data.size)
         if res != BrainFlowExitCodes.STATUS_OK.value:
             raise BrainFlowError('unable to perform inverse wavelet transform', res)
 
@@ -1004,7 +1207,7 @@ class DataFilter(object):
         :param noise_level: use NoiseEstimationLevelTypes enum
         :type noise_level: int
         """
-        check_memory_layout_row_major(data, 1)
+        cls._check_inplace_array(data)
 
         res = DataHandlerDLL.get_instance().perform_wavelet_denoising(data, data.shape[0], wavelet,
                                                                       decomposition_level, wavelet_denoising, threshold,
@@ -1023,6 +1226,8 @@ class DataFilter(object):
         :return: [channels x channels]-shaped 2D array of filters and [channels]-length 1D array of the corresponding eigenvalues
         :rtype: Tuple
         """
+        check_memory_layout_row_major(data, 3)
+        check_memory_layout_row_major(labels, 1)
         if not (len(labels.shape) == 1):
             raise BrainFlowError('Invalid shape of array <labels>', BrainFlowExitCodes.INVALID_ARGUMENTS_ERROR.value)
         if not (len(labels) == data.shape[0]):
@@ -1151,7 +1356,7 @@ class DataFilter(object):
         :type detrend_operation: int
         """
 
-        check_memory_layout_row_major(data, 1)
+        cls._check_inplace_array(data)
         res = DataHandlerDLL.get_instance().detrend(data, data.shape[0], detrend_operation)
         if res != BrainFlowExitCodes.STATUS_OK.value:
             raise BrainFlowError('unable to detrend data', res)
@@ -1169,6 +1374,14 @@ class DataFilter(object):
         :return: band power
         :rtype: float
         """
+        if len(psd) != 2:
+            raise BrainFlowError('PSD must contain amplitudes and frequencies',
+                                 BrainFlowExitCodes.INVALID_ARGUMENTS_ERROR.value)
+        check_memory_layout_row_major(psd[0], 1)
+        check_memory_layout_row_major(psd[1], 1)
+        if psd[0].size != psd[1].size:
+            raise BrainFlowError('PSD amplitude and frequency lengths must match',
+                                 BrainFlowExitCodes.INVALID_ARGUMENTS_ERROR.value)
         band_power = numpy.zeros(1).astype(numpy.float64)
         res = DataHandlerDLL.get_instance().get_band_power(psd[0], psd[1], psd[0].shape[0], freq_start, freq_end,
                                                            band_power)
@@ -1179,7 +1392,10 @@ class DataFilter(object):
 
     @classmethod
     def get_avg_band_powers(cls, data, channels: List, sampling_rate: int, apply_filter: bool) -> Tuple:
-        """calculate avg and stddev of BandPowers across all channels, bands are 1-4,4-8,8-13,13-30,30-50
+        """Calculate normalized mean powers for bands 2-4, 4-8, 8-13, 13-30, 30-45 Hz.
+
+        Uses the preprocessing, minimum data length, and coefficient-of-variation
+        semantics of :meth:`get_custom_band_powers`.
 
         :param data: 2d array for calculation
         :type data: NDArray[Shape["*, *"], Float64]
@@ -1187,9 +1403,9 @@ class DataFilter(object):
         :type channels: List
         :param sampling_rate: sampling rate
         :type sampling_rate: int
-        :param apply_filter: apply bandpass and bandstop filtrers or not
+        :param apply_filter: preprocess and discard edge margins to reduce filter transients
         :type apply_filter: bool
-        :return: avg and stddev arrays for bandpowers
+        :return: normalized mean band powers and coefficients of variation across channels
         :rtype: tuple
         """
 
@@ -1199,37 +1415,57 @@ class DataFilter(object):
     @classmethod
     def get_custom_band_powers(cls, data, bands: List, channels: List, sampling_rate: int,
                                apply_filter: bool) -> Tuple:
-        """calculate avg and stddev of BandPowers across selected channels
+        """Calculate normalized mean band powers and variation across selected channels.
+
+        With ``apply_filter=True``, demean and apply padded, initialized zero-phase
+        48-52 and 58-62 Hz notches when their upper edges are below 90% of Nyquist.
+        No automatic passband is applied, so preprocessing does not change when
+        integration bands change. Samples from both ends are excluded using an
+        estimated guard from the complete filter cascade's impulse-response tail.
+        The guard is an estimate, not a guaranteed artifact bound. Supply extra
+        surrounding data; excluding the newest samples introduces a corresponding
+        delay in live analysis. With ``apply_filter=False``, no preprocessing or
+        trimming is performed. Mains notches also attenuate overlapping custom bands;
+        use external preprocessing and disable filtering to customize this behavior.
+
+        At least ``max(8, 2 * get_nearest_power_of_two(sampling_rate))`` samples must remain
+        after trimming. Short inputs raise an error instead of reducing the FFT size.
+        Band edges must satisfy ``0 <= start < stop <= sampling_rate / 2``.
+        Data and edges must be finite.
+
+        The first output contains channel-mean absolute band powers normalized by
+        their sum across the requested bands. The second output, historically named
+        stddev, contains population standard deviation divided by mean absolute
+        power for each band (coefficient of variation). Zero-power bands have zero
+        variation, and an all-zero total returns zero normalized powers.
 
         :param data: 2d array for calculation
         :type data: NDArray[Shape["*, *"], Float64]
-        :param bands: List of typles with bands to use. E.g [(1.5, 4.0), (4.0, 8.0), (8.0, 13.0), (13.0, 30.0), (30.0, 45.0)]
+        :param bands: list of (start, stop) frequency pairs in Hz
         :type bands: List
         :param channels: channels - rows of data array which should be used for calculation
         :type channels: List
         :param sampling_rate: sampling rate
         :type sampling_rate: int
-        :param apply_filter: apply bandpass and bandstop filtrers or not
+        :param apply_filter: preprocess and discard edge margins to reduce filter transients
         :type apply_filter: bool
-        :return: avg and stddev arrays for bandpowers
+        :return: normalized mean band powers and coefficients of variation across channels
         :rtype: tuple
         """
 
         check_memory_layout_row_major(data, 2)
-        if (len(channels) == 0) or (len(bands) == 0):
-            raise BrainFlowError('wrong input for channels or bands', BrainFlowExitCodes.INVALID_ARGUMENTS_ERROR.value)
-        num_bands = len(bands)
+        channels = numpy.asarray(channels)
+        bands = numpy.asarray(bands, dtype=numpy.float64)
+        if (channels.ndim != 1 or channels.size == 0 or channels.dtype.kind not in 'iu' or
+                numpy.any(channels < 0) or numpy.any(channels >= data.shape[0]) or
+                bands.ndim != 2 or bands.shape[0] == 0 or bands.shape[1] != 2):
+            raise BrainFlowError('invalid channels or bands', BrainFlowExitCodes.INVALID_ARGUMENTS_ERROR.value)
+        num_bands = bands.shape[0]
         avg_bands = numpy.zeros(num_bands).astype(numpy.float64)
         stddev_bands = numpy.zeros(num_bands).astype(numpy.float64)
-        data_1d = numpy.zeros(len(channels) * data.shape[1])
-        start_freqs = numpy.zeros(num_bands)
-        stop_freqs = numpy.zeros(num_bands)
-        for i in range(num_bands):
-            start_freqs[i] = bands[i][0]
-            stop_freqs[i] = bands[i][1]
-        for i, channel in enumerate(channels):
-            for j in range(data.shape[1]):
-                data_1d[j + data.shape[1] * i] = data[channel][j]
+        data_1d = numpy.ascontiguousarray(data[channels], dtype=numpy.float64).ravel()
+        start_freqs = numpy.ascontiguousarray(bands[:, 0])
+        stop_freqs = numpy.ascontiguousarray(bands[:, 1])
         res = DataHandlerDLL.get_instance().get_custom_band_powers(data_1d, len(channels), data.shape[1], start_freqs,
                                                                    stop_freqs, num_bands,
                                                                    sampling_rate, int(apply_filter), avg_bands,
@@ -1240,7 +1476,70 @@ class DataFilter(object):
         return avg_bands, stddev_bands
 
     @classmethod
-    def perform_ica(cls, data, num_components: int, channels=None) -> Tuple:
+    def get_band_power_info(cls, sampling_rate: int, apply_filter=True, *, nfft=0,
+                            low_cutoff=0.0, high_cutoff=0.0, mains=-1, data_len=None):
+        """Return FFT size, bin spacing, edge margin, and minimum required samples.
+
+        Cutoff 0 disables that passband edge. Mains: -1 automatic, 0 disabled,
+        1 50 Hz, 2 60 Hz, 3 both. Automatic notches must end below 90% of Nyquist.
+        The settling margin is an impulse-tail estimate, not an artifact guarantee.
+        If data_len is supplied, usable_start/usable_stop describe a half-open interval.
+        """
+        effective = numpy.zeros(1, dtype=numpy.int32)
+        edge = numpy.zeros(1, dtype=numpy.int32)
+        res = DataHandlerDLL.get_instance().get_band_power_settings(
+            sampling_rate, int(apply_filter), nfft, low_cutoff, high_cutoff, mains,
+            effective, edge)
+        if res != BrainFlowExitCodes.STATUS_OK.value:
+            raise BrainFlowError('invalid band-power settings', res)
+        size, margin = int(effective[0]), int(edge[0])
+        info = dict(nfft=size, frequency_resolution=sampling_rate / size,
+                    edge_samples=margin, minimum_samples=size + 2 * margin,
+                    edge_seconds=margin / sampling_rate)
+        if data_len is not None:
+            if data_len < info['minimum_samples']:
+                raise BrainFlowError('insufficient samples for band powers',
+                                     BrainFlowExitCodes.INVALID_BUFFER_SIZE_ERROR.value)
+            info.update(usable_start=margin, usable_stop=data_len - margin)
+        return info
+
+    @classmethod
+    def get_custom_band_powers_with_options(cls, data, bands, channels, sampling_rate,
+                                           apply_filter=True, *, nfft=0, low_cutoff=0.0,
+                                           high_cutoff=0.0, mains=-1,
+                                           detrend_operation=DetrendOperations.CONSTANT):
+        """Band powers with preprocessing configured independently of integration bands.
+
+        Output semantics match get_custom_band_powers. Query get_band_power_info with
+        the same filter/FFT options before collecting data. Detrending applies even
+        when apply_filter is False; choose NO_DETREND to preserve raw DC.
+        No per-segment detrending is performed. No automatic FFT-size reduction occurs.
+        """
+        check_memory_layout_row_major(data, 2)
+        selected = numpy.asarray(channels)
+        edges = numpy.asarray(bands, dtype=numpy.float64)
+        if (selected.ndim != 1 or selected.size == 0 or selected.dtype.kind not in 'iu' or
+                numpy.any(selected < 0) or numpy.any(selected >= data.shape[0]) or
+                edges.ndim != 2 or edges.shape[0] == 0 or edges.shape[1] != 2 or
+                data.shape[1] == 0 or max(data.shape[1], selected.size, edges.shape[0]) > 2147483647):
+            raise BrainFlowError('invalid channels, bands, or data dimensions',
+                                 BrainFlowExitCodes.INVALID_ARGUMENTS_ERROR.value)
+        gathered = numpy.ascontiguousarray(data[selected], dtype=numpy.float64).ravel()
+        starts = numpy.ascontiguousarray(edges[:, 0])
+        stops = numpy.ascontiguousarray(edges[:, 1])
+        averages = numpy.zeros(len(edges), dtype=numpy.float64)
+        variation = numpy.zeros(len(edges), dtype=numpy.float64)
+        res = DataHandlerDLL.get_instance().get_custom_band_powers_with_options(
+            gathered, len(selected), data.shape[1], starts, stops, len(edges), sampling_rate,
+            int(apply_filter), nfft, low_cutoff, high_cutoff, mains, int(detrend_operation),
+            averages, variation)
+        if res != BrainFlowExitCodes.STATUS_OK.value:
+            raise BrainFlowError('unable to calculate band powers', res)
+        return averages, variation
+
+    @classmethod
+    def perform_ica(cls, data, num_components: int, channels=None, *, max_iterations=1000,
+                    tolerance=1e-4, seed=None) -> Tuple:
         """perform ICA
 
         :param data: 2d array for calculation
@@ -1249,33 +1548,34 @@ class DataFilter(object):
         :type num_components: int
         :param channels: channels - rows of data array which should be used for calculation, if None use all
         :type channels: List
+        :param max_iterations: positive maximum number of FastICA iterations
+        :param tolerance: positive convergence tolerance
+        :param seed: nonnegative random seed for reproducibility, or None for random initialization
         :return: w, k, a, s matrixes as a tuple
         :rtype: tuple
         """
         check_memory_layout_row_major(data, 2)
         if len(data.shape) != 2:
             raise BrainFlowError('wrong number of dimensions', BrainFlowExitCodes.INVALID_ARGUMENTS_ERROR.value)
-        if num_components < 1:
-            raise BrainFlowError('wrong number of components', BrainFlowExitCodes.INVALID_ARGUMENTS_ERROR.value)
-
-        if not channels:
-            channels_to_use = range(data.shape[0])
-        else:
-            channels_to_use = channels
-    
-        data_1d = numpy.zeros(len(channels_to_use) * data.shape[1]).astype(numpy.float64)
+        channels_to_use = numpy.arange(data.shape[0]) if channels is None else numpy.asarray(channels)
+        if (channels_to_use.ndim != 1 or channels_to_use.dtype.kind not in 'iu' or
+                numpy.any(channels_to_use < 0) or numpy.any(channels_to_use >= data.shape[0]) or
+                not isinstance(num_components, (int, numpy.integer)) or
+                not 2 <= num_components <= min(channels_to_use.size, data.shape[1]) or
+                not isinstance(max_iterations, (int, numpy.integer)) or not 0 < max_iterations <= 2147483647 or
+                not numpy.isfinite(tolerance) or tolerance <= 0 or
+                (seed is not None and (not isinstance(seed, (int, numpy.integer)) or not 0 <= seed <= 2147483647))):
+            raise BrainFlowError('invalid ICA dimensions or options', BrainFlowExitCodes.INVALID_ARGUMENTS_ERROR.value)
+        data_1d = numpy.ascontiguousarray(data[channels_to_use], dtype=numpy.float64).ravel()
 
         w = numpy.zeros(num_components * num_components).astype(numpy.float64)
         k = numpy.zeros(len(channels_to_use) * num_components).astype(numpy.float64)
         a = numpy.zeros(num_components * len(channels_to_use)).astype(numpy.float64)
         s = numpy.zeros(data.shape[1] * num_components).astype(numpy.float64)
 
-        for i, channel in enumerate(channels_to_use):
-            for j in range(data.shape[1]):
-                data_1d[j + data.shape[1] * i] = data[channel][j]
-
-        res = DataHandlerDLL.get_instance().perform_ica(data_1d, len(channels_to_use), data.shape[1],
-                                                        num_components, w, k, a, s)
+        res = DataHandlerDLL.get_instance().perform_ica_with_options(
+            data_1d, len(channels_to_use), data.shape[1], num_components, w, k, a, s,
+            max_iterations, tolerance, -1 if seed is None else seed)
         if res != BrainFlowExitCodes.STATUS_OK.value:
             raise BrainFlowError('unable to calculate ICA', res)
 

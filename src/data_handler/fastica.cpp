@@ -1,183 +1,167 @@
 #include "fastica.h"
 
+#include <algorithm>
 #include <cmath>
+#include <limits>
 #include <random>
 
-// https://en.wikipedia.org/wiki/FastICA
-// https://arnauddelorme.com/ica_for_dummies/
+namespace
+{
+    bool decorrelate (Eigen::MatrixXd &matrix)
+    {
+        if (!matrix.allFinite ())
+        {
+            return false;
+        }
+        Eigen::JacobiSVD<Eigen::MatrixXd> svd (matrix, Eigen::ComputeFullU | Eigen::ComputeFullV);
+        const Eigen::VectorXd &values = svd.singularValues ();
+        if (!values.allFinite () || values[0] <= 0.0 ||
+            values[values.size () - 1] <=
+                values[0] * std::numeric_limits<double>::epsilon () * matrix.rows ())
+        {
+            return false;
+        }
+        // The polar factor is symmetric decorrelation without dividing by small
+        // singular values or explicitly forming an inverse.
+        matrix = svd.matrixU () * svd.matrixV ().transpose ();
+        return matrix.allFinite ();
+    }
+}
+
 int FastICA::compute (Eigen::MatrixXd &X)
 {
     int rows = (int)X.rows ();
     int cols = (int)X.cols ();
-    int min_rows_cols = rows < cols ? rows : cols;
-    if ((num_components < 2) || (max_it < 1) || (rows < 2) || (cols < 2) ||
-        (num_components > min_rows_cols))
+    if ((num_components < 2) || (max_it < 1) || (rows < 2) || (cols < 3) ||
+        (num_components > std::min (rows, cols - 1)) || !std::isfinite (tol) || (tol <= 0.0) ||
+        (tol >= 1.0) || (seed < -1) || !X.allFinite ())
     {
         return (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR;
     }
 
-    W.resize (num_components, num_components);
-    A.resize (rows, num_components);
-    K.resize (num_components, rows);
-    S.resize (num_components, cols);
+    // Work at unit scale so centering and covariance do not overflow for otherwise
+    // representable signals. K and A below retain their original physical units.
+    double input_scale = X.cwiseAbs ().maxCoeff ();
+    if (!(input_scale > 0.0))
+    {
+        return (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR;
+    }
+    X /= input_scale;
+    Eigen::VectorXd means = X.rowwise ().mean ();
+    X.colwise () -= means;
+    Eigen::MatrixXd covariance = X * (X / (double)cols).transpose ();
+    Eigen::SelfAdjointEigenSolver<Eigen::MatrixXd> solver (covariance);
+    if (solver.info () != Eigen::Success || !solver.eigenvalues ().allFinite ())
+    {
+        return (int)BrainFlowExitCodes::GENERAL_ERROR;
+    }
 
-    scale (X, true, row_norm);
+    double largest = solver.eigenvalues ()[rows - 1];
+    double rank_tolerance =
+        largest * std::numeric_limits<double>::epsilon () * std::max (rows, cols);
+    if (!(largest > 0.0) || solver.eigenvalues ()[rows - num_components] <= rank_tolerance)
+    {
+        return (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR;
+    }
 
-    // Whitening
-    // X %*% t(X)/rows
-    Eigen::MatrixXd V = X * (X.array () / cols).matrix ().transpose ();
-    // s <- La.svd(V)
-    Eigen::BDCSVD<Eigen::MatrixXd> s (V, Eigen::ComputeThinU | Eigen::ComputeThinV);
-    // D <- diag(c(1/sqrt(s$d)))
-    Eigen::MatrixXd D = s.singularValues ().array ().sqrt ().inverse ().matrix ().asDiagonal ();
-    // K <- D %*% t(s$u)
-    Eigen::MatrixXd K_temp = D * s.matrixU ().transpose ();
-    // K <- matrix( K[1:rows.comp, ], rows.comp, cols)
-    Eigen::MatrixXd K_temp2 = K_temp.block (0, 0, num_components, rows);
-    // X1 <- K %*% X
-    Eigen::MatrixXd X1 = K_temp2 * X;
-    Eigen::MatrixXd a = fast_ica_parallel_compute (X1);
-    // w <- a %*% K
-    Eigen::MatrixXd w = a * K_temp2;
-    // S <- w %*% X
-    S = w * X;
-    // A <- t(w) %*% solve(w %*% t(w))
-    A = w.transpose () * (w * w.transpose ()).inverse ();
-    A.transposeInPlace ();
-    K = K_temp2;
-    W = a;
+    Eigen::MatrixXd basis (rows, num_components);
+    Eigen::VectorXd scales (num_components);
+    for (int i = 0; i < num_components; i++)
+    {
+        basis.col (i) = solver.eigenvectors ().col (rows - 1 - i);
+        scales[i] = std::sqrt (solver.eigenvalues ()[rows - 1 - i]);
+    }
+    Eigen::MatrixXd whitening = scales.cwiseInverse ().asDiagonal () * basis.transpose ();
+    Eigen::MatrixXd whitened = whitening * X;
+    Eigen::MatrixXd weights;
+    if (!whitened.allFinite () || !fast_ica_parallel_compute (whitened, weights))
+    {
+        // A nonconverged estimate must not be silently returned as successful ICA.
+        return (int)BrainFlowExitCodes::GENERAL_ERROR;
+    }
 
+    W = weights;
+    K = whitening / input_scale;
+    S = weights * whitened;
+    // W is orthogonal, so this is pinv(W*K), without an unstable matrix inverse.
+    // Keep A channels-by-components, matching every documented output shape.
+    A = (basis * scales.asDiagonal () * weights.transpose ()) * input_scale;
+    if (!W.allFinite () || !K.allFinite () || !S.allFinite () || !A.allFinite ())
+    {
+        return (int)BrainFlowExitCodes::GENERAL_ERROR;
+    }
     return (int)BrainFlowExitCodes::STATUS_OK;
 }
 
-Eigen::MatrixXd FastICA::fast_ica_parallel_compute (const Eigen::MatrixXd &X)
+bool FastICA::fast_ica_parallel_compute (const Eigen::MatrixXd &X, Eigen::MatrixXd &result)
 {
-    int cols = (int)X.cols ();
-    Eigen::MatrixXd W (num_components, num_components);
-    random_normal (W);
-
-    //  sW <- La.svd(W)
-    Eigen::BDCSVD<Eigen::MatrixXd> sW (W, Eigen::ComputeThinU | Eigen::ComputeThinV);
-    // W <- sW$u %*% Diag(1/sW$d) %*% t(sW$u) %*% W
-    W = sW.matrixU () * (sW.singularValues ().array ().inverse ()).matrix ().asDiagonal () *
-        sW.matrixU ().transpose () * W;
-    Eigen::MatrixXd W1 = W;
-    // lim <- rep(1000, maxit)
-    std::vector<double> lim (max_it, 1000);
-    // iteration counter
-    int it = 0;
-
-    while (lim[it] > tol && it < (max_it - 1))
+    Eigen::MatrixXd weights (num_components, num_components);
+    random_normal (weights);
+    if (!decorrelate (weights))
     {
-        //  wx <- W %*% X
-        // gwx <- tanh(alpha * wx)
-        // alpha = 1 , so ignore
-        Eigen::MatrixXd gwx = (W * X).array ().tanh ().matrix ();
-        // v1 <- gwx %*% t(X)/cols
-        Eigen::MatrixXd v1 = gwx * (X.array () / cols).matrix ().transpose ();
-        // g.wx <- alpha * (1 - (gwx)^2)
-        // nb alpha == 1
-        gwx = 1 - gwx.array ().square ();
-        // v2 <- Diag(apply(g.wx, 1, FUN = mean)) %*% W
-        Eigen::MatrixXd v2 = gwx.array ().rowwise ().mean ().matrix ().asDiagonal () * W;
-        // W1 <- v1 - v2
-        W1 = v1 - v2;
-        // sW1 <- La.svd(W1)
-        Eigen::BDCSVD<Eigen::MatrixXd> sW1 (W1, Eigen::ComputeThinU | Eigen::ComputeThinV);
-        // W1 <- sW1$u %*% Diag(1/sW1$d) %*% t(sW1$u) %*% W1
-        W1 = sW1.matrixU () * (sW1.singularValues ().array ().inverse ()).matrix ().asDiagonal () *
-            sW1.matrixU ().transpose () * W1;
-        // lim[it + 1] <- max( Mod(   Mod(  diag(W1 %*% t(W) )  )  - 1 ) )
-        lim[it + 1] = ((W1 * W.transpose ()).diagonal ().array ().abs () - 1).abs ().maxCoeff ();
-        // W <- W1
-        W = W1;
-        ++it;
+        return false;
     }
 
-    return W;
+    const double samples = (double)X.cols ();
+    for (int iteration = 0; iteration < max_it; iteration++)
+    {
+        Eigen::MatrixXd activation = (weights * X).array ().tanh ().matrix ();
+        Eigen::VectorXd derivative = (1.0 - activation.array ().square ()).rowwise ().mean ();
+        Eigen::MatrixXd next =
+            activation * (X / samples).transpose () - derivative.asDiagonal () * weights;
+        if (!decorrelate (next))
+        {
+            return false;
+        }
+        double change =
+            ((next * weights.transpose ()).diagonal ().array ().abs () - 1.0).abs ().maxCoeff ();
+        weights.swap (next);
+        if (change < tol)
+        {
+            result = weights;
+            return true;
+        }
+    }
+    return false;
 }
 
-void FastICA::scale (Eigen::Ref<Eigen::MatrixXd> M, bool center, bool normalize,
-    bool ignore_invariants, std::vector<int> *zeros)
+void FastICA::random_normal (Eigen::MatrixXd &matrix)
 {
-    int rows = (int)M.rows ();
-    Eigen::Array<double, 1, Eigen::Dynamic> means = M.rowwise ().mean ();
-
-    if (normalize)
+    std::mt19937 generator;
+    if (seed < 0)
     {
-        // TODO: This block has not been tested yet
-        Eigen::Array<double, 1, Eigen::Dynamic> sds =
-            ((M.array ().rowwise () - means).square ().colwise ().sum () / (rows - 1)).sqrt ();
-
-        for (int i = 0; i < sds.size (); i++)
-        {
-            if (sds[i] == 0)
-            {
-                if (!ignore_invariants)
-                    return;
-                if (zeros != NULL)
-                    zeros->push_back (i);
-                sds[i] = 1.0;
-            }
-        }
-
-        if (center)
-        {
-            M.array ().rowwise () -= means;
-        }
-        M.array ().rowwise () /= sds;
+        std::random_device device;
+        generator.seed (device ());
     }
     else
     {
-        M.array ().transpose ().rowwise () -= means;
+        generator.seed ((unsigned int)seed);
     }
-}
-
-void FastICA::random_normal (Eigen::MatrixXd &M)
-{
-    std::random_device rd {};
-    std::mt19937 gen {rd ()};
-    std::normal_distribution<double> d {0, 1};
-
-    for (int r = 0; r < M.rows (); r++)
+    std::normal_distribution<double> distribution (0.0, 1.0);
+    for (int row = 0; row < matrix.rows (); row++)
     {
-        for (int c = 0; c < M.cols (); c++)
+        for (int col = 0; col < matrix.cols (); col++)
         {
-            M (r, c) = d (gen);
+            matrix (row, col) = distribution (generator);
         }
     }
 }
 
 int FastICA::get_matrixes (double *w_mat, double *k_mat, double *a_mat, double *s_mat)
 {
-    for (int r = 0; r < (int)W.rows (); r++)
+    if (!w_mat || !k_mat || !a_mat || !s_mat || W.size () == 0 || K.size () == 0 ||
+        A.size () == 0 || S.size () == 0)
     {
-        for (int c = 0; c < (int)W.cols (); c++)
-        {
-            w_mat[r * W.cols () + c] = W (r, c);
-        }
+        return (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR;
     }
-    for (int r = 0; r < (int)S.rows (); r++)
-    {
-        for (int c = 0; c < (int)S.cols (); c++)
-        {
-            s_mat[r * S.cols () + c] = S (r, c);
-        }
-    }
-    for (int r = 0; r < (int)K.rows (); r++)
-    {
-        for (int c = 0; c < (int)K.cols (); c++)
-        {
-            k_mat[r * K.cols () + c] = K (r, c);
-        }
-    }
-    for (int r = 0; r < (int)A.rows (); r++)
-    {
-        for (int c = 0; c < (int)A.cols (); c++)
-        {
-            a_mat[r * A.cols () + c] = A (r, c);
-        }
-    }
-
+    typedef Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor> RowMatrix;
+    Eigen::Map<RowMatrix> w_output (w_mat, W.rows (), W.cols ());
+    Eigen::Map<RowMatrix> k_output (k_mat, K.rows (), K.cols ());
+    Eigen::Map<RowMatrix> a_output (a_mat, A.rows (), A.cols ());
+    Eigen::Map<RowMatrix> s_output (s_mat, S.rows (), S.cols ());
+    w_output = W;
+    k_output = K;
+    a_output = A;
+    s_output = S;
     return (int)BrainFlowExitCodes::STATUS_OK;
 }

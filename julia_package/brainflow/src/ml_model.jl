@@ -36,6 +36,9 @@ mutable struct BrainFlowModelParams
 end
 
 function JSON.json(params::BrainFlowModelParams)
+    if params.max_array_size < 1
+        throw(BrainFlowError("max_array_size must be positive", Integer(INVALID_ARGUMENTS_ERROR)))
+    end
     d = Dict(
         "metric" => Integer(params.metric), 
         "classifier" => Integer(params.classifier), 
@@ -60,12 +63,25 @@ end
 end
 
 @brainflow_rethrow function predict(data, params::BrainFlowModelParams)
-    input_json = JSON.json(params)
-    val = Vector{Float64}(undef, params.max_array_size)
-    val_len = Vector{Float64}(undef, 1)
+    # Keep the native lookup key and allocated capacity from the same snapshot.
+    snapshot = deepcopy(params)
+    input_json = JSON.json(snapshot)
+    capacity = Int(snapshot.max_array_size)
+    if !(data isa AbstractVector{<:Real}) || !(0 < length(data) <= typemax(Cint))
+        throw(BrainFlowError("Expected a nonempty real feature vector", Integer(INVALID_ARGUMENTS_ERROR)))
+    end
+    data = Vector{Float64}(data)
+    if !all(isfinite, data)
+        throw(BrainFlowError("Feature values must be finite", Integer(INVALID_ARGUMENTS_ERROR)))
+    end
+    val = Vector{Float64}(undef, capacity)
+    val_len = Ref{Cint}(0)
     ccall((:predict, ML_MODULE_INTERFACE), Cint, (Ptr{Float64}, Cint, Ptr{Float64}, Ptr{Cint}, Ptr{UInt8}),
         data, length(data), val, val_len, input_json)
-    value = val[1:val_len[1]]
+    if !(0 <= val_len[] <= capacity)
+        throw(BrainFlowError("Native prediction length exceeds the output buffer", Integer(GENERAL_ERROR)))
+    end
+    value = val[1:Int(val_len[])]
     return value
 end
 

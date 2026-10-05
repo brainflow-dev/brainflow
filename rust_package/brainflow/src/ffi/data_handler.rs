@@ -4,6 +4,18 @@
 
 
 extern "C" {
+    pub fn perform_inverse_wavelet_transform_checked(
+        wavelet_coeffs: *mut ::std::os::raw::c_double,
+        coeff_count: ::std::os::raw::c_int,
+        original_data_len: ::std::os::raw::c_int,
+        wavelet: ::std::os::raw::c_int,
+        decomposition_level: ::std::os::raw::c_int,
+        extension: ::std::os::raw::c_int,
+        decomposition_lengths: *mut ::std::os::raw::c_int,
+        lengths_count: ::std::os::raw::c_int,
+        output_data: *mut ::std::os::raw::c_double,
+        output_count: ::std::os::raw::c_int,
+    ) -> ::std::os::raw::c_int;
     pub fn perform_lowpass(
         data: *mut f64,
         data_len: ::std::os::raw::c_int,

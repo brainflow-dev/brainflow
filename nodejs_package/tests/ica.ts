@@ -1,27 +1,16 @@
-import {BoardIds, BoardShim, DataFilter} from 'brainflow';
+import {DataFilter} from 'brainflow';
 
-function sleep (ms: number)
+// Two simultaneous mixtures: rows are channels and columns are samples.
+const samples = 1024;
+const data: number[][] = [[], []];
+for (let i = 0; i < samples; i++)
 {
-    return new Promise ((resolve) => { setTimeout (resolve, ms); });
+    const t = i / 256;
+    const first = Math.sin(2 * Math.PI * 7 * t);
+    const second = Math.pow(Math.sin(2 * Math.PI * 13 * t), 3);
+    data[0].push(first + 0.3 * second);
+    data[1].push(0.2 * first + second);
 }
-
-async function runExample (): Promise<void>
-{
-    const boardId = BoardIds.SYNTHETIC_BOARD;
-    const board = new BoardShim (boardId, {});
-    board.prepareSession();
-    board.startStream();
-    await sleep (10000);
-    board.stopStream();
-    const data = board.getCurrentBoardData(500);
-    board.releaseSession();
-    const eegChannels = BoardShim.getEegChannels(boardId);
-    const eegData = data[eegChannels[0]];
-    const eeg2D: number[][] = [];
-    while (eegData.length)
-        eeg2D.push(eegData.splice(0, 100));
-    const icaData = DataFilter.performIca(eeg2D, 2, [0, 1, 2, 3, 4]);
-    console.info(icaData[3]);
-}
-
-runExample ();
+const ica = DataFilter.performIca(data, 2, [0, 1]);
+// Component order and sign are arbitrary.
+console.info(`Recovered ${ica[3].length} sources from ${samples} samples`);

@@ -48,8 +48,8 @@ class DataHandlerDLL extends DataHandlerFunctions
         this.getNumElementsInFile = this.lib.func(CLike.get_num_elements_in_file);
         this.performDownsampling = this.lib.func(CLike.perform_downsampling);
         this.performWaveletTransform = this.lib.func(CLike.perform_wavelet_transform);
-        this.performInverseWaveletTransform =
-            this.lib.func(CLike.perform_inverse_wavelet_transform);
+        this.performInverseWaveletTransformChecked =
+            this.lib.func(CLike.perform_inverse_wavelet_transform_checked);
         this.performWaveletDenoising = this.lib.func(CLike.perform_wavelet_denoising);
         this.getWindow = this.lib.func(CLike.get_window);
         this.performFft = this.lib.func(CLike.perform_fft);
@@ -121,6 +121,69 @@ class DataHandlerDLL extends DataHandlerFunctions
 
 export class DataFilter
 {
+    private static checkMatrix(data: number[][], requireFinite = false): number
+    {
+        if (!Array.isArray(data) || data.length === 0 || !Array.isArray(data[0]) || data[0].length === 0)
+        {
+            throw new BrainFlowError (BrainFlowExitCodes.INVALID_ARGUMENTS_ERROR, 'Input matrix must be non-empty');
+        }
+        const columns = data[0].length;
+        if (data.length * columns > 2147483647)
+        {
+            throw new BrainFlowError (BrainFlowExitCodes.INVALID_ARGUMENTS_ERROR, 'Input matrix must be rectangular and fit native dimensions');
+        }
+        // Value iteration also rejects sparse arrays, whose holes flat() would omit.
+        for (const row of data)
+        {
+            if (!Array.isArray(row) || row.length !== columns)
+            {
+                throw new BrainFlowError (BrainFlowExitCodes.INVALID_ARGUMENTS_ERROR, 'Input matrix must be rectangular');
+            }
+            if (requireFinite)
+            {
+                for (const value of row)
+                {
+                    if (!Number.isFinite(value))
+                    {
+                        throw new BrainFlowError (BrainFlowExitCodes.INVALID_ARGUMENTS_ERROR, 'Input matrix must contain finite numbers');
+                    }
+                }
+            }
+        }
+        return columns;
+    }
+
+    private static checkChannels(data: number[][], channels: number[], columns: number): void
+    {
+        if (!Array.isArray(channels) || channels.length === 0 || channels.length * columns > 2147483647)
+        {
+            throw new BrainFlowError (BrainFlowExitCodes.INVALID_ARGUMENTS_ERROR, 'Invalid channel selection');
+        }
+        for (const channel of channels)
+        {
+            if (!Number.isInteger(channel) || channel < 0 || channel >= data.length)
+            {
+                throw new BrainFlowError (BrainFlowExitCodes.INVALID_ARGUMENTS_ERROR, 'Invalid channel selection');
+            }
+            for (const value of data[channel])
+            {
+                if (!Number.isFinite(value))
+                {
+                    throw new BrainFlowError (BrainFlowExitCodes.INVALID_ARGUMENTS_ERROR, 'Selected channels must contain finite numbers');
+                }
+            }
+        }
+    }
+
+    private static checkPairedArrays(first: number[], second: number[]): void
+    {
+        if (!Array.isArray(first) || !Array.isArray(second) || first.length !== second.length)
+        {
+            throw new BrainFlowError (BrainFlowExitCodes.INVALID_ARGUMENTS_ERROR,
+                'Input array lengths must match');
+        }
+    }
+
     // logging methods
     public static setLogLevel(logLevel: LogLevels): void
     {
@@ -231,13 +294,10 @@ export class DataFilter
 
     public static writeFile(data: number[][], file: string, mode: string)
     {
-        if (data.length == 0)
-        {
-            throw new BrainFlowError (BrainFlowExitCodes.INVALID_ARGUMENTS_ERROR, 'Empty data');
-        }
+        const columns = DataFilter.checkMatrix(data, true);
         const flat = data.flat();
         const res =
-            DataHandlerDLL.getInstance().writeFile(flat, data.length, data[0].length, file, mode);
+            DataHandlerDLL.getInstance().writeFile(flat, data.length, columns, file, mode);
         if (res !== BrainFlowExitCodes.STATUS_OK)
         {
             throw new BrainFlowError (res, 'Could not write file');
@@ -303,6 +363,7 @@ export class DataFilter
     public static getOxygenLevel(ppgIr: number[], ppgRed: number[], samplingRate: number,
         coef1 = 1.5958422, coef2 = -34.6596622, coef3 = 112.6898759): number
     {
+        this.checkPairedArrays(ppgIr, ppgRed);
         const output = [0];
         const res = DataHandlerDLL.getInstance().getOxygenLevel(
             ppgIr, ppgRed, ppgIr.length, samplingRate, coef1, coef2, coef3, output);
@@ -316,6 +377,7 @@ export class DataFilter
     public static getHeartRate(
         ppgIr: number[], ppgRed: number[], samplingRate: number, fftSize: number): number
     {
+        this.checkPairedArrays(ppgIr, ppgRed);
         const output = [0];
         const res = DataHandlerDLL.getInstance().getHeartRate(
             ppgIr, ppgRed, ppgIr.length, samplingRate, fftSize, output);
@@ -326,18 +388,41 @@ export class DataFilter
         return output[0];
     }
 
+    /**
+     * Return normalized channel-mean band powers and coefficients of variation (population
+     * stddev / mean of absolute channel powers). Zero-power bands have zero variation;
+     * an all-zero total returns zero normalized powers.
+     * Filtering demeans and applies padded, initialized zero-phase 48-52 and 58-62 Hz
+     * notches only when their upper edges are below 90% of Nyquist. There is no automatic
+     * passband, so preprocessing is independent of the requested integration bands.
+     * Margins estimated from the complete cascade impulse-response tail are discarded at
+     * both ends; this estimate is not a guaranteed artifact bound. Supply surrounding
+     * samples and account for the resulting delay in live analysis. Without filtering
+     * there is no preprocessing or trimming. At least max(8, 2 * getNearestPowerOfTwo(samplingRate))
+     * samples must remain. Data and edges must be finite; bands require
+     * 0 <= start < stop <= Nyquist. Mains notches also attenuate overlapping bands.
+     */
     public static getCustomBandPowers(data: number[][], bands: number[][], channels: number[],
         samplingRate: number, applyFilters = true): [number[], number[]]
     {
-        if ((data.length == 0) || (bands.length == 0) || (channels.length == 0))
+        const columns = DataFilter.checkMatrix(data);
+        DataFilter.checkChannels(data, channels, columns);
+        if (!Array.isArray(bands) || bands.length === 0 || bands.length > 2147483647)
         {
-            throw new BrainFlowError (BrainFlowExitCodes.INVALID_ARGUMENTS_ERROR, 'Empty data');
+            throw new BrainFlowError (BrainFlowExitCodes.INVALID_ARGUMENTS_ERROR, 'Bands must contain finite start/stop pairs');
+        }
+        for (const band of bands)
+        {
+            if (!Array.isArray(band) || band.length !== 2 || !Number.isFinite(band[0]) || !Number.isFinite(band[1]))
+            {
+                throw new BrainFlowError (BrainFlowExitCodes.INVALID_ARGUMENTS_ERROR, 'Bands must contain finite start/stop pairs');
+            }
         }
         var i: number;
         var j: number;
         const avgBands = [...new Array (bands.length).fill(0)];
         const stddevBands = [...new Array (bands.length).fill(0)];
-        const data1D = [...new Array (data[0].length * channels.length).fill(0)];
+        const data1D = [...new Array (columns * channels.length).fill(0)];
         const startFreqs = [...new Array (bands.length).fill(0)];
         const stopFreqs = [...new Array (bands.length).fill(0)];
         for (i = 0; i < bands.length; i++)
@@ -347,13 +432,13 @@ export class DataFilter
         }
         for (i = 0; i < channels.length; i++)
         {
-            for (j = 0; j < data[0].length; j++)
+            for (j = 0; j < columns; j++)
             {
-                data1D[j + data[0].length * i] = data[channels[i]][j];
+                data1D[j + columns * i] = data[channels[i]][j];
             }
         }
         const res = DataHandlerDLL.getInstance().getCustomBandPowers(data1D, channels.length,
-            data[0].length, startFreqs, stopFreqs, bands.length, samplingRate,
+            columns, startFreqs, stopFreqs, bands.length, samplingRate,
             Number (applyFilters), avgBands, stddevBands);
         if (res !== BrainFlowExitCodes.STATUS_OK)
         {
@@ -362,6 +447,10 @@ export class DataFilter
         return [avgBands, stddevBands];
     }
 
+    /**
+     * Calculate normalized mean powers for bands 2-4, 4-8, 8-13, 13-30, 30-45 Hz.
+     * Uses getCustomBandPowers preprocessing, minimum retained length, and variation semantics.
+     */
     public static getAvgBandPowers(data: number[][], channels: number[], samplingRate: number,
         applyFilters = true): [number[], number[]]
     {
@@ -459,12 +548,13 @@ export class DataFilter
     public static getPsdWelch(data: number[], nfft: number, overlap: number, samplingRate: number,
         windowType: WindowOperations): [number[], number[]]
     {
-        if (data.length % 2 != 0)
+        if (!Number.isInteger(nfft) || nfft < 2 || nfft > data.length || nfft % 2 !== 0 ||
+            !Number.isInteger(overlap) || overlap < 0 || overlap >= nfft)
         {
             throw new BrainFlowError (
-                BrainFlowExitCodes.INVALID_ARGUMENTS_ERROR, "invalid input length");
+                BrainFlowExitCodes.INVALID_ARGUMENTS_ERROR, 'Invalid Welch segment size or overlap');
         }
-        const outputLen = Math.trunc(data.length / 2 + 1);
+        const outputLen = nfft / 2 + 1;
         const ampls = [...new Array (outputLen).fill(0)];
         const freqs = [...new Array (outputLen).fill(0)];
         const res = DataHandlerDLL.getInstance().getPsdWelch(
@@ -479,6 +569,11 @@ export class DataFilter
     public static getBandPower(
         psd: [number[], number[]], startFreq: number, stopFreq: number): number
     {
+        if (!Array.isArray(psd) || psd.length !== 2)
+        {
+            throw new BrainFlowError (BrainFlowExitCodes.INVALID_ARGUMENTS_ERROR, 'Invalid PSD pair');
+        }
+        this.checkPairedArrays(psd[0], psd[1]);
         const output = [0];
         const res = DataHandlerDLL.getInstance().getBandPower(
             psd[0], psd[1], psd[0].length, startFreq, stopFreq, output);
@@ -492,6 +587,10 @@ export class DataFilter
     public static performWaveletTransform(data: number[], wavelet: WaveletTypes,
         decompositionLevel: number, extension: WaveletExtensionTypes): [number[], number[]]
     {
+        if (!Number.isInteger(decompositionLevel) || decompositionLevel < 1 || decompositionLevel > 100)
+        {
+            throw new BrainFlowError (BrainFlowExitCodes.INVALID_ARGUMENTS_ERROR, 'Invalid decomposition level');
+        }
         const waveletCoeffs = [...new Array (data.length + 2 * decompositionLevel * (40 + 1)).fill(0)];
         const lengths = [...new Array (decompositionLevel + 1).fill(0)];
         const res = DataHandlerDLL.getInstance().performWaveletTransform(
@@ -509,9 +608,21 @@ export class DataFilter
         originalLen: number, wavelet: WaveletTypes, decompositionLevel: number,
         extension: WaveletExtensionTypes): number[]
     {
+        if (!Number.isInteger(originalLen) || originalLen < 1 || originalLen > 2147483647 ||
+            !Number.isInteger(decompositionLevel) || decompositionLevel < 1 || decompositionLevel > 100 ||
+            !Array.isArray(waveletData) || waveletData.length !== 2 ||
+            !Array.isArray(waveletData[0]) || !Array.isArray(waveletData[1]) ||
+            originalLen > waveletData[0].length || waveletData[0].length > 2147483647 ||
+            waveletData[1].length !== decompositionLevel + 1 ||
+            waveletData[1].some(n => !Number.isInteger(n) || n < 1 || n > 2147483647) ||
+            waveletData[1].reduce((a, b) => a + b, 0) !== waveletData[0].length)
+        {
+            throw new BrainFlowError (BrainFlowExitCodes.INVALID_ARGUMENTS_ERROR, 'Invalid wavelet metadata');
+        }
         const output = [...new Array (originalLen).fill(0)];
-        const res = DataHandlerDLL.getInstance().performInverseWaveletTransform(waveletData[0],
-            originalLen, wavelet, decompositionLevel, extension, waveletData[1], output);
+        const res = DataHandlerDLL.getInstance().performInverseWaveletTransformChecked(waveletData[0],
+            waveletData[0].length, originalLen, wavelet, decompositionLevel, extension,
+            waveletData[1], waveletData[1].length, output, output.length);
         if (res !== BrainFlowExitCodes.STATUS_OK)
         {
             throw new BrainFlowError (res, 'Could not calc inverse wavelet transform');
@@ -548,28 +659,31 @@ export class DataFilter
     public static performIca(data: number[][], numComponents: number,
         channels: number[]): [number[][], number[][], number[][], number[][]]
     {
-        if (data.length < 1)
+        const columns = DataFilter.checkMatrix(data);
+        DataFilter.checkChannels(data, channels, columns);
+        if (!Number.isInteger(numComponents) || numComponents < 2 || numComponents > channels.length ||
+            columns < 2 || channels.length * numComponents > 2147483647)
         {
-            throw new BrainFlowError (BrainFlowExitCodes.INVALID_ARGUMENTS_ERROR, "empty data");
+            throw new BrainFlowError (BrainFlowExitCodes.INVALID_ARGUMENTS_ERROR, 'Invalid ICA dimensions');
         }
         var i: number;
         var j: number;
-        const data1D = [...new Array (data[0].length * channels.length).fill(0)];
+        const data1D = [...new Array (columns * channels.length).fill(0)];
         const w = [...new Array (numComponents * numComponents).fill(0)];
         const k = [...new Array (channels.length * numComponents).fill(0)];
         const a = [...new Array (numComponents * channels.length).fill(0)];
-        const s = [...new Array (data[0].length * numComponents).fill(0)];
+        const s = [...new Array (columns * numComponents).fill(0)];
 
         for (i = 0; i < channels.length; i++)
         {
-            for (j = 0; j < data[0].length; j++)
+            for (j = 0; j < columns; j++)
             {
-                data1D[j + data[0].length * i] = data[channels[i]][j];
+                data1D[j + columns * i] = data[channels[i]][j];
             }
         }
 
         const res = DataHandlerDLL.getInstance().performIca(
-            data1D, channels.length, data[0].length, numComponents, w, k, a, s);
+            data1D, channels.length, columns, numComponents, w, k, a, s);
         if (res !== BrainFlowExitCodes.STATUS_OK)
         {
             throw new BrainFlowError (res, 'Could not perform ica');
@@ -585,7 +699,7 @@ export class DataFilter
             aOut.push(a.splice(0, numComponents));
         const sOut: number[][] = [];
         while (s.length)
-            sOut.push(s.splice(0, data[0].length));
+            sOut.push(s.splice(0, columns));
         return [wOut, kOut, aOut, sOut];
     }
 
@@ -600,6 +714,11 @@ export class DataFilter
 
     public static calcStddev(data: number[], startPos: number, stopPos: number): number
     {
+        if (!Number.isInteger(startPos) || !Number.isInteger(stopPos) ||
+            startPos < 0 || stopPos <= startPos || stopPos > data.length)
+        {
+            throw new BrainFlowError (BrainFlowExitCodes.INVALID_ARGUMENTS_ERROR, 'Invalid standard deviation span');
+        }
         const output = [0];
         const res = DataHandlerDLL.getInstance().calcStddev(data, startPos, stopPos, output);
         if (res !== BrainFlowExitCodes.STATUS_OK)

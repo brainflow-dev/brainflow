@@ -1,8 +1,5 @@
 #pragma once
 
-#include <stdlib.h>
-#include <vector>
-
 #include "Eigen/Dense"
 #include "brainflow_constants.h"
 
@@ -11,13 +8,12 @@ class FastICA
 {
 
 public:
-    FastICA (int num_components, int max_it = 300, double tol = 0.0001)
+    FastICA (int num_components, int max_it = 1000, double tol = 0.0001, int seed = -1)
     {
         this->max_it = max_it;
         this->num_components = num_components;
         this->tol = tol;
-        alpha = 1;
-        row_norm = false;
+        this->seed = seed;
     }
 
     int compute (Eigen::MatrixXd &X);
@@ -29,14 +25,11 @@ private:
     Eigen::MatrixXd A;
     Eigen::MatrixXd S;
 
-    Eigen::MatrixXd fast_ica_parallel_compute (const Eigen::MatrixXd &X);
-    void scale (Eigen::Ref<Eigen::MatrixXd> m, bool, bool, bool ignore_invariants = false,
-        std::vector<int> *zeros = NULL);
+    bool fast_ica_parallel_compute (const Eigen::MatrixXd &X, Eigen::MatrixXd &result);
     void random_normal (Eigen::MatrixXd &m);
 
     int max_it;
     int num_components;
     double tol;
-    int alpha;
-    bool row_norm;
+    int seed;
 };

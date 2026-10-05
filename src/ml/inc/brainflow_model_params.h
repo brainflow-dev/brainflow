@@ -28,7 +28,7 @@ struct BrainFlowModelParams
     bool operator< (const struct BrainFlowModelParams &other) const
     {
         return std::tie (metric, classifier, file, other_info, output_name, max_array_size) <
-            std::tie (other.metric, other.classifier, other.file, other.other_info, output_name,
-                max_array_size);
+            std::tie (other.metric, other.classifier, other.file, other.other_info,
+                other.output_name, other.max_array_size);
     }
 };

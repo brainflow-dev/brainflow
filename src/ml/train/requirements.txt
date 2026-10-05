@@ -1,5 +1,11 @@
-scikit-learn
-brainflow
-metric-learn
-libsvm
-skl2onnx 
+# Reference training/export stack for Python 3.11.
+# BrainFlow must come from this checkout with rebuilt native libraries; see README.md.
+numpy==1.25.2
+scipy==1.11.2
+scikit-learn==1.5.1
+joblib==1.4.2
+threadpoolctl==3.5.0
+skl2onnx==1.17.0
+onnxconverter-common==1.14.0
+onnx==1.16.2
+onnxruntime==1.19.2

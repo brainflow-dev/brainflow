@@ -26,6 +26,10 @@ std::mutex models_mutex;
 
 int prepare (const char *json_params)
 {
+    if (json_params == NULL)
+    {
+        return (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR;
+    }
     std::lock_guard<std::mutex> lock (models_mutex);
 
     std::shared_ptr<BaseClassifier> model = NULL;
@@ -82,6 +86,12 @@ int prepare (const char *json_params)
 
 int predict (double *data, int data_len, double *output, int *output_len, const char *json_params)
 {
+    if ((json_params == NULL) || (data == NULL) || (data_len <= 0) || (output == NULL) ||
+        (output_len == NULL))
+    {
+        return (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR;
+    }
+    *output_len = 0;
     std::lock_guard<std::mutex> lock (models_mutex);
     struct BrainFlowModelParams key (
         (int)BrainFlowMetrics::MINDFULNESS, (int)BrainFlowClassifiers::DEFAULT_CLASSIFIER);
@@ -102,6 +112,10 @@ int predict (double *data, int data_len, double *output, int *output_len, const 
 
 int release (const char *json_params)
 {
+    if (json_params == NULL)
+    {
+        return (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR;
+    }
     std::lock_guard<std::mutex> lock (models_mutex);
 
     struct BrainFlowModelParams key (
@@ -136,6 +150,10 @@ int string_to_brainflow_model_params (const char *json_params, struct BrainFlowM
         params->output_name = config["output_name"];
         params->other_info = config["other_info"];
         params->max_array_size = config["max_array_size"];
+        if (params->max_array_size < 1)
+        {
+            return (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR;
+        }
         return (int)BrainFlowExitCodes::STATUS_OK;
     }
     catch (json::exception &e)

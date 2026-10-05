@@ -4,6 +4,7 @@
 #include <array>
 #include <iostream>
 #include <memory>
+#include <limits>
 #include <stdlib.h>
 #include <string.h>
 
@@ -23,6 +24,10 @@ static inline int product (const std::array<int, N> &array)
 
     for (int i = 0; i < N; i++)
     {
+        if (array[i] < 0 || (array[i] != 0 && result > std::numeric_limits<int>::max () / array[i]))
+        {
+            throw BrainFlowException ("invalid array dimensions", (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR);
+        }
         result *= array[i];
     }
 
@@ -69,6 +74,10 @@ static inline std::array<int, N> make_stride (const std::array<int, N> &size)
     stride[N - 1] = 1;
     for (int i = (int)N - 2; i >= 0; i--)
     {
+        if (size[i + 1] < 0 || (size[i + 1] != 0 && stride[i + 1] > std::numeric_limits<int>::max () / size[i + 1]))
+        {
+            throw BrainFlowException ("invalid array dimensions", (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR);
+        }
         stride[i] = stride[i + 1] * size[i + 1];
     }
 
@@ -85,6 +94,14 @@ private:
     std::array<int, Dim> size;
     std::array<int, Dim> stride;
     T *origin;
+
+    void validate_index (int index, int dim) const
+    {
+        if (index < 0 || index >= size[dim])
+        {
+            throw BrainFlowException ("out of range", (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR);
+        }
+    }
 
 public:
     friend std::ostream &operator<<<> (std::ostream &out, const BrainFlowArray<T, Dim> &array);
@@ -113,7 +130,7 @@ public:
     }
 
     explicit BrainFlowArray (int size0)
-        : length (size0)
+        : length (product (make_array (size0)))
         , size (make_array (size0))
         , stride (make_stride<1> (make_array (size0)))
         , origin (nullptr)
@@ -124,7 +141,7 @@ public:
     }
 
     BrainFlowArray (int size0, int size1)
-        : length (size0 * size1)
+        : length (product (make_array (size0, size1)))
         , size (make_array (size0, size1))
         , stride (make_stride<2> (make_array (size0, size1)))
         , origin (nullptr)
@@ -135,7 +152,7 @@ public:
     }
 
     BrainFlowArray (int size0, int size1, int size2)
-        : length (size0 * size1 * size2)
+        : length (product (make_array (size0, size1, size2)))
         , size (make_array (size0, size1, size2))
         , stride (make_stride<3> (make_array (size0, size1, size2)))
         , origin (nullptr)
@@ -146,7 +163,7 @@ public:
     }
 
     BrainFlowArray (T *ptr, int size0)
-        : length (size0)
+        : length (product (make_array (size0)))
         , size (make_array (size0))
         , stride (make_stride<1> (make_array (size0)))
         , origin (nullptr)
@@ -157,7 +174,7 @@ public:
     }
 
     BrainFlowArray (T *ptr, int size0, int size1)
-        : length (size0 * size1)
+        : length (product (make_array (size0, size1)))
         , size (make_array (size0, size1))
         , stride (make_stride<2> (make_array (size0, size1)))
         , origin (nullptr)
@@ -168,7 +185,7 @@ public:
     }
 
     BrainFlowArray (T *ptr, int size0, int size1, int size2)
-        : length (size0 * size1 * size2)
+        : length (product (make_array (size0, size1, size2)))
         , size (make_array (size0, size1, size2))
         , stride (make_stride<3> (make_array (size0, size1, size2)))
         , origin (nullptr)
@@ -266,6 +283,10 @@ public:
 
     int get_stride (int dim) const
     {
+        if (dim < 0 || dim >= Dim)
+        {
+            throw BrainFlowException ("invalid dim argument", (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR);
+        }
         return stride[dim];
     }
 
@@ -294,6 +315,7 @@ public:
     /// access element at index
     T &at (int index0)
     {
+        validate_index (index0, 0);
         int idx = index0 * get_stride (0);
         if (idx >= length)
         {
@@ -306,6 +328,7 @@ public:
     /// access element at index
     const T &at (int index0) const
     {
+        validate_index (index0, 0);
         int idx = index0 * get_stride (0);
         if (idx >= length)
         {
@@ -330,12 +353,20 @@ public:
     /// access element at index
     T &operator[] (int index0)
     {
+        if (index0 < 0 || index0 >= length)
+        {
+            throw BrainFlowException ("out of range", (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR);
+        }
         return origin[index0];
     }
 
     /// access element at index
     const T &operator[] (int index0) const
     {
+        if (index0 < 0 || index0 >= length)
+        {
+            throw BrainFlowException ("out of range", (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR);
+        }
         return origin[index0];
     }
 
@@ -343,6 +374,8 @@ public:
     T &at (int index0, int index1)
     {
         static_assert (Dim >= 2, "BrainFlowArray dimension bounds error");
+        validate_index (index0, 0);
+        validate_index (index1, 1);
         int idx = index0 * get_stride (0) + index1 * get_stride (1);
         if (idx >= length)
         {
@@ -356,6 +389,8 @@ public:
     const T &at (int index0, int index1) const
     {
         static_assert (Dim >= 2, "BrainFlowArray dimension bounds error");
+        validate_index (index0, 0);
+        validate_index (index1, 1);
         int idx = index0 * get_stride (0) + index1 * get_stride (1);
         if (idx >= length)
         {
@@ -381,6 +416,9 @@ public:
     T &at (int index0, int index1, int index2)
     {
         static_assert (Dim >= 3, "BrainFlowArray dimension bounds error");
+        validate_index (index0, 0);
+        validate_index (index1, 1);
+        validate_index (index2, 2);
         int idx = index0 * get_stride (0) + index1 * get_stride (1) + index2 * get_stride (2);
         if (idx >= length)
         {
@@ -394,6 +432,9 @@ public:
     const T &at (int index0, int index1, int index2) const
     {
         static_assert (Dim >= 3, "BrainFlowArray dimension bounds error");
+        validate_index (index0, 0);
+        validate_index (index1, 1);
+        validate_index (index2, 2);
         int idx = index0 * get_stride (0) + index1 * get_stride (1) + index2 * get_stride (2);
         if (idx >= length)
         {
@@ -424,27 +465,27 @@ public:
     /// use it to get pointer to row in matrix or to get pointer to matrix from 3d array
     T *get_address (int index0)
     {
-        return &origin[index0 * get_stride (0)];
+        return &at (index0);
     }
 
     /// use it to get pointer to row in 3d array
     T *get_address (int index0, int index1)
     {
         static_assert (Dim >= 2, "Dim should be >= 2");
-        return &origin[index0 * get_stride (0) + index1 * get_stride (1)];
+        return &at (index0, index1);
     }
 
     /// use it to get pointer to row in matrix or to get pointer to matrix from 3d array
     const T *get_address (int index0) const
     {
-        return &origin[index0 * get_stride (0)];
+        return &at (index0);
     }
 
     /// use it to get pointer to row in 3d array
     const T *get_address (int index0, int index1) const
     {
         static_assert (Dim >= 2, "Dim should be >= 2");
-        return &origin[index0 * get_stride (0) + index1 * get_stride (1)];
+        return &at (index0, index1);
     }
 
     /// fill already preallocated buffer

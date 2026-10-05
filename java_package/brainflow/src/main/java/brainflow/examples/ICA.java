@@ -1,33 +1,25 @@
 package brainflow.examples;
 
 import java.util.List;
-
-import brainflow.BoardIds;
-import brainflow.BoardShim;
-import brainflow.BrainFlowInputParams;
 import brainflow.DataFilter;
 
 public class ICA
 {
-
     public static void main (String[] args) throws Exception
     {
-        // use synthetic board for demo
-        BoardShim.enable_board_logger ();
-        BrainFlowInputParams params = new BrainFlowInputParams ();
-        BoardIds board_id = BoardIds.SYNTHETIC_BOARD;
-        BoardShim board_shim = new BoardShim (board_id, params);
-        board_shim.prepare_session ();
-        board_shim.start_stream (3600);
-        Thread.sleep (10000);
-        board_shim.stop_stream ();
-        double[][] data = board_shim.get_board_data (500);
-        board_shim.release_session ();
-
-        int[] eeg_channels = BoardShim.get_eeg_channels (board_id);
-        int eeg_channel = eeg_channels[1];
-        double[][] ica_data = DataFilter.reshape_data_to_2d (5, 100, data[eeg_channel]);
-        List<double[][]> ica = DataFilter.perform_ica (ica_data, 2);
-        System.out.println ("Completed");
+        // Two simultaneous mixtures: rows are channels and columns are samples.
+        int samples = 1024;
+        double[][] data = new double[2][samples];
+        for (int i = 0; i < samples; i++)
+        {
+            double t = i / 256.0;
+            double first = Math.sin (2.0 * Math.PI * 7.0 * t);
+            double second = Math.pow (Math.sin (2.0 * Math.PI * 13.0 * t), 3);
+            data[0][i] = first + 0.3 * second;
+            data[1][i] = 0.2 * first + second;
+        }
+        List<double[][]> ica = DataFilter.perform_ica (data, 2);
+        // Component order and sign are arbitrary.
+        System.out.println ("Recovered " + ica.get (3).length + " sources from " + samples + " samples");
     }
 }
