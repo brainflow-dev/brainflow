@@ -53,6 +53,24 @@ final class BrainFlowTests: XCTestCase {
     }
 
     func testDataFilterRejectsInvalidArgumentsBeforeNativeCalls() throws {
+        assertInvalidArguments(try DataFilter.perform_wavelet_transform(
+            data: [1.0, 2.0], wavelet: .DB3, decomposition_level: Int.max,
+            extension_type: .SYMMETRIC))
+        assertInvalidArguments(try DataFilter.perform_wavelet_transform(
+            data: [1.0, 2.0], wavelet: .DB3, decomposition_level: 101,
+            extension_type: .SYMMETRIC))
+        assertInvalidArguments(try DataFilter.get_window(
+            window_function: .HANNING, window_len: Int.max))
+        assertInvalidArguments(try DataFilter.perform_inverse_wavelet_transform(
+            wavelet_output: WaveletTransform(coefficients: [0.0, 0.0], decomposition_lengths: [1, 1]),
+            original_data_len: Int(CInt.max), wavelet: .HAAR, decomposition_level: 1,
+            extension_type: .PERIODIC))
+        assertInvalidArguments(try DataFilter.perform_inverse_wavelet_transform(
+            wavelet_output: WaveletTransform(coefficients: [0.0], decomposition_lengths: [19, 19, 34]),
+            original_data_len: 64, wavelet: WaveletTypes.DB3, decomposition_level: 2, extension_type: WaveletExtensionTypes.SYMMETRIC))
+        assertInvalidArguments(try DataFilter.perform_inverse_wavelet_transform(
+            wavelet_output: WaveletTransform(coefficients: [0.0], decomposition_lengths: [Int.max]),
+            original_data_len: 64, wavelet: WaveletTypes.DB3, decomposition_level: 2, extension_type: WaveletExtensionTypes.SYMMETRIC))
         assertInvalidArguments(try DataFilter.get_csp(data: [[[1.0, 2.0]], [[3.0]]], labels: [0.0, 1.0]))
         assertInvalidArguments(try DataFilter.get_csp(data: [[[1.0, 2.0]]], labels: []))
         assertInvalidArguments(try DataFilter.get_window(window_function: WindowOperations.HANNING.rawValue, window_len: 0))
@@ -71,6 +89,20 @@ final class BrainFlowTests: XCTestCase {
         assertInvalidArguments(try DataFilter.get_railed_percentage(data: [], gain: 24))
         assertInvalidArguments(try DataFilter.get_oxygen_level(ppg_ir: [1.0], ppg_red: [1.0, 2.0], sampling_rate: 25))
         assertInvalidArguments(try DataFilter.get_heart_rate(ppg_ir: [1.0, 2.0], ppg_red: [1.0, 2.0], sampling_rate: 25, fft_size: 1023))
+    }
+
+    func testDataFilterRejectsOutOfRangeNativeIntegers() throws {
+        try requireNativeLibraries()
+        var data = [1.0, 2.0, 3.0, 4.0]
+        assertInvalidArguments(try DataFilter.perform_lowpass(
+            data: &data, sampling_rate: Int.max, cutoff: 20.0, order: 4,
+            filter_type: .BUTTERWORTH, ripple: 0.0))
+        assertInvalidArguments(try DataFilter.perform_rolling_filter(
+            data: &data, period: Int.max, operation: .MEAN))
+        assertInvalidArguments(try DataFilter.get_nearest_power_of_two(Int.max))
+        assertInvalidArguments(try DataFilter.get_psd(
+            data: data, sampling_rate: Int.max, window: .NO_WINDOW))
+        XCTAssertEqual(data, [1.0, 2.0, 3.0, 4.0])
     }
 
     func testBrainFlowGetDataSyntheticBoard() throws {

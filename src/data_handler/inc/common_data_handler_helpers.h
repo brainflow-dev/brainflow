@@ -1,39 +1,72 @@
 #pragma once
 
-#include <math.h>
-#include <stdlib.h>
+#include <algorithm>
+#include <cmath>
+#include <limits>
+
+inline bool finite_signal (const double *data, int n)
+{
+    if (!data || n <= 0)
+        return false;
+    for (int i = 0; i < n; i++)
+        if (!std::isfinite (data[i]))
+            return false;
+    return true;
+}
+
+inline double signal_scale (const double *data, int n)
+{
+    double scale = 0.0;
+    for (int i = 0; i < n; i++)
+        scale = std::max (scale, std::abs (data[i]));
+    return scale;
+}
 
 inline double rms (double x[], int n)
 {
+    const double scale = signal_scale (x, n);
+    if (scale == 0.0)
+        return 0.0;
     double sum = 0;
     for (int i = 0; i < n; i++)
     {
-        sum += x[i] * x[i];
+        const double value = x[i] / scale;
+        sum += value * value / n;
     }
-    return sqrt (sum / n);
+    return scale * sqrt (std::min (1.0, sum));
 }
 
-inline double mean (double x[], int n)
+inline double mean (const double x[], int n)
 {
-    double sum = 0;
+    const double scale = signal_scale (x, n);
+    if (scale == 0.0)
+        return 0.0;
+    double sum = 0, correction = 0;
     for (int i = 0; i < n; i++)
     {
-        sum += x[i];
+        const double value = (x[i] / scale) / n - correction;
+        const double next = sum + value;
+        correction = (next - sum) - value;
+        sum = next;
     }
-    return sum / n;
+    return std::max (-1.0, std::min (1.0, sum)) * scale;
 }
 
-inline double stddev (double data[], int len)
+inline double stddev (const double data[], int len)
 {
-    double the_mean = mean (data, len);
+    const double scale = signal_scale (data, len);
+    if (scale == 0.0)
+        return 0.0;
+    double the_mean = mean (data, len) / scale;
     double deviation = 0.0;
 
     for (int i = 0; i < len; ++i)
     {
-        deviation += pow (data[i] - the_mean, 2);
+        const double delta = data[i] / scale - the_mean;
+        deviation += delta * delta / len;
     }
 
-    return sqrt (deviation / len);
+    return scale * sqrt (std::min (1.0, deviation));
 }
 
 

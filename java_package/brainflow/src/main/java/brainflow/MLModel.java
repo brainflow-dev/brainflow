@@ -91,15 +91,28 @@ public class MLModel
 
     private String input_params;
 
-    private BrainFlowModelParams params;
+    private final int output_capacity;
 
     /**
      * Create MLModel object
      */
     public MLModel (BrainFlowModelParams params)
     {
-        input_params = params.to_json ();
-        this.params = params;
+        if (params == null)
+        {
+            throw new IllegalArgumentException ("Model params must not be null");
+        }
+        BrainFlowModelParams snapshot = new BrainFlowModelParams (params.metric, params.classifier);
+        snapshot.file = params.file;
+        snapshot.other_info = params.other_info;
+        snapshot.output_name = params.output_name;
+        snapshot.max_array_size = params.max_array_size;
+        if (snapshot.max_array_size <= 0)
+        {
+            throw new IllegalArgumentException ("max_array_size must be positive");
+        }
+        input_params = snapshot.to_json ();
+        output_capacity = snapshot.max_array_size;
     }
 
     /**
@@ -233,12 +246,17 @@ public class MLModel
      */
     public double[] predict (double[] data) throws BrainFlowError
     {
-        double[] val = new double[params.max_array_size];
+        double[] val = new double[output_capacity];
         int[] val_len = new int[1];
         int ec = instance.predict (data, data.length, val, val_len, input_params);
         if (ec != BrainFlowExitCode.STATUS_OK.get_code ())
         {
             throw new BrainFlowError ("Error in predict", ec);
+        }
+        if (val_len[0] < 0 || val_len[0] > output_capacity)
+        {
+            throw new BrainFlowError ("Invalid prediction output length",
+                    BrainFlowExitCode.INVALID_BUFFER_SIZE_ERROR.get_code ());
         }
         return Arrays.copyOfRange (val, 0, val_len[0]);
     }

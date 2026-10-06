@@ -11,7 +11,8 @@ async function runExample (): Promise<void>
     const board = new BoardShim (boardId, {});
     board.prepareSession();
     board.startStream();
-    await sleep (4000);
+    // Include filter settling margins around the retained analysis interval.
+    await sleep (10000);
     board.stopStream();
     const data = board.getBoardData();
     board.releaseSession()

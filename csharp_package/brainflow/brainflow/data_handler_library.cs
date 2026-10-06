@@ -144,6 +144,8 @@ namespace brainflow
         [DllImport ("DataHandler", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int perform_wavelet_transform (double[] data, int data_len, int wavelet, int decomposition_level, int extension, double[] output_data, int[] decomposition_lengths);
         [DllImport ("DataHandler", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        public static extern int perform_inverse_wavelet_transform_checked (double[] coeffs, int coeff_count, int original_data_len, int wavelet, int level, int extension, int[] lengths, int lengths_count, double[] output, int output_count);
+        [DllImport ("DataHandler", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int perform_inverse_wavelet_transform (double[] wavelet_coeffs, int original_data_len, int wavelet, int decomposition_level, int extension,
                                                                     int[] decomposition_lengths, double[] output_data);
         [DllImport ("DataHandler", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
@@ -255,6 +257,8 @@ namespace brainflow
         public static extern int get_num_elements_in_file (string file_name, int[] num_elements);
         [DllImport ("DataHandler32", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int perform_wavelet_transform (double[] data, int data_len, int wavelet, int decomposition_level, int extension, double[] output_data, int[] decomposition_lengths);
+        [DllImport ("DataHandler32", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        public static extern int perform_inverse_wavelet_transform_checked (double[] coeffs, int coeff_count, int original_data_len, int wavelet, int level, int extension, int[] lengths, int lengths_count, double[] output, int output_count);
         [DllImport ("DataHandler32", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int perform_inverse_wavelet_transform (double[] wavelet_coeffs, int original_data_len, int wavelet, int decomposition_level, int extension,
                                                                     int[] decomposition_lengths, double[] output_data);
@@ -586,6 +590,18 @@ namespace brainflow
                     return DataHandlerLibrary32.perform_wavelet_transform (data, data_len, wavelet, decomposition_level, extension, output_data, decomposition_lengths);
             }
 
+            return (int)BrainFlowExitCodes.GENERAL_ERROR;
+        }
+
+        public static int perform_inverse_wavelet_transform_checked (double[] coeffs, int coeff_count, int original_data_len, int wavelet, int level, int extension, int[] lengths, int lengths_count, double[] output, int output_count)
+        {
+            switch (PlatformHelper.get_library_environment ())
+            {
+                case LibraryEnvironment.x64:
+                    return DataHandlerLibrary64.perform_inverse_wavelet_transform_checked (coeffs, coeff_count, original_data_len, wavelet, level, extension, lengths, lengths_count, output, output_count);
+                case LibraryEnvironment.x86:
+                    return DataHandlerLibrary32.perform_inverse_wavelet_transform_checked (coeffs, coeff_count, original_data_len, wavelet, level, extension, lengths, lengths_count, output, output_count);
+            }
             return (int)BrainFlowExitCodes.GENERAL_ERROR;
         }
 

@@ -1,25 +1,11 @@
-BoardShim.enable_dev_board_logger();
-DataFilter.enable_dev_data_logger();
-DataFilter.set_log_file('data.log');
+% Fifteen seconds of shared red/IR pulsatility, including filter settling margins.
+sampling_rate = int32(128);
+time = (0:(15 * double(sampling_rate) - 1)) / double(sampling_rate);
+pulse = sin(2 * pi * 1.2 * time) + 0.15 * sin(2 * pi * 2.4 * time);
+ir_data = 100000 + 1000 * pulse;
+red_data = 80000 + 400 * pulse;
 
-params = BrainFlowInputParams();
-board_shim = BoardShim(int32(BoardIds.SYNTHETIC_BOARD), params);
-board_id = int32(BoardIds.SYNTHETIC_BOARD);
-preset = int32(BrainFlowPresets.DEFAULT_PRESET);
-board_descr = BoardShim.get_board_descr(board_id, preset);
-sampling_rate = int32(board_descr.sampling_rate);
-board_shim.prepare_session();
-board_shim.start_stream(45000, '');
-pause(200);
-board_shim.stop_stream();
-nfft = DataFilter.get_nearest_power_of_two(sampling_rate);
-data = board_shim.get_board_data(board_shim.get_board_data_count(preset), preset);
-board_shim.release_session();
-
-ppg_channels = board_descr.ppg_channels;
-ir_channel = ppg_channels(1);
-red_channel = ppg_channels(2);
-ir_data = data(ir_channel, :);
-red_data = data(red_channel, :);
+% Example calibration coefficients; real sensors require their own calibration.
 spo2 = DataFilter.get_oxygen_level(ir_data, red_data, sampling_rate, 0.0, -37.663, 114.91);
 heart_rate = DataFilter.get_heart_rate(ir_data, red_data, sampling_rate, 1024);
+fprintf('Synthetic SpO2: %.2f; heart rate: %.2f bpm\n', spo2, heart_rate);

@@ -63,8 +63,14 @@ public:
     static std::pair<double *, int *> perform_wavelet_transform (
         double *data, int data_len, int wavelet, int decomposition_level, int extension_type = (int)WaveletExtensionTypes::SYMMETRIC);
     // clang-format on
-    /// performs inverse wavelet transform
+    /// Performs inverse wavelet transform. The legacy pointer API requires callers to supply
+    /// coefficient and length buffers matching the original transform; capacities cannot be checked.
     static double *perform_inverse_wavelet_transform (std::pair<double *, int *> wavelet_output,
+        int original_data_len, int wavelet, int decomposition_level,
+        int extension_type = (int)WaveletExtensionTypes::SYMMETRIC);
+    /// Inverse wavelet transform with checked buffer lengths and transform metadata.
+    static std::vector<double> perform_inverse_wavelet_transform (
+        const std::vector<double> &coefficients, const std::vector<int> &lengths,
         int original_data_len, int wavelet, int decomposition_level,
         int extension_type = (int)WaveletExtensionTypes::SYMMETRIC);
     // clanf-format off
@@ -161,25 +167,37 @@ public:
     static double get_band_power (
         std::pair<double *, double *> psd, int data_len, double freq_start, double freq_end);
     /**
-     * calculate avg and stddev of BandPowers across all channels
+     * Calculate normalized mean powers for bands 2-4, 4-8, 8-13, 13-30, 30-45 Hz.
+     * Uses get_custom_band_powers preprocessing and minimum retained data length.
      * @param data input 2d array
-     * @param cols number of cols in 2d array - number of datapoints
      * @param channels vector of rows - eeg channels which should be used
      * @param sampling_rate sampling rate
-     * @param apply_filters set to true to apply filters before band power calculations
-     * @return pair of double arrays of size 5, first of them - avg band powers, second stddev
+     * @param apply_filters preprocess and discard edge margins to reduce filter transients
+     * @return pair of double arrays of size 5: normalized means and coefficients of variation
      */
     static std::pair<double *, double *> get_avg_band_powers (const BrainFlowArray<double, 2> &data,
         std::vector<int> channels, int sampling_rate, bool apply_filters);
     /**
-     * calculate avg and stddev of BandPowers across all channels
+     * Calculate normalized mean band powers and variation across selected channels.
+     * Filtering removes DC and applies padded, initialized zero-phase 48-52 and 58-62 Hz
+     * notches only when their upper edges are below 0.9 * Nyquist. Preprocessing is independent
+     * of the requested output bands; no automatic passband is applied. Margins estimated from
+     * the filter cascade's impulse tail are excluded from both ends before Welch estimation.
+     * Mains notches attenuate overlapping custom bands; use external preprocessing and
+     * disable filtering to customize this behavior.
+     * Supply extra surrounding data; excluding newest samples adds delay in live use.
+     * Without filtering, no preprocessing or trimming is performed.
+     * At least max(8, 2 * get_nearest_power_of_two(sampling_rate)) samples must remain.
+     * Data and band edges must be finite; bands must satisfy 0 <= start < stop <= Nyquist.
+     * Means are absolute channel-mean powers divided by their sum across requested bands.
+     * The second output is population stddev / mean of absolute powers across channels.
+     * Zero-power bands return zero variation; a zero total returns zero normalized means.
      * @param data input 2d array
      * @param bands input bands
-     * @param cols number of cols in 2d array - number of datapoints
      * @param channels vector of rows - eeg channels which should be used
      * @param sampling_rate sampling rate
-     * @param apply_filters set to true to apply filters before band power calculations
-     * @return pair of float arrays with the same size as bands argument
+     * @param apply_filters preprocess and discard edge margins to reduce filter transients
+     * @return pair of double arrays matching bands: normalized means and coefficients of variation
      */
     static std::pair<double *, double *> get_custom_band_powers (
         const BrainFlowArray<double, 2> &data, std::vector<std::pair<double, double>> bands,

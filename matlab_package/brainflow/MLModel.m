@@ -5,6 +5,11 @@ classdef MLModel
         input_params
     end
 
+    properties(Access = private)
+        model_json
+        output_capacity
+    end
+
     methods(Static)
         
         function lib_name = load_lib()
@@ -96,15 +101,25 @@ classdef MLModel
     methods
 
         function obj = MLModel(params)
+            capacity = params.max_array_size;
+            if ~isnumeric(capacity) || ~isreal(capacity) || ~isscalar(capacity) || ...
+                    ~isfinite(capacity) || capacity < 1 || capacity ~= fix(capacity) || ...
+                    capacity > double(intmax('int32'))
+                error('max_array_size must be a positive int32 integer');
+            end
             obj.input_json = params.to_json();
             obj.input_params = params;
+            % Public parameter copies remain available for inspection. Native
+            % lookup and allocation always use the original matching snapshot.
+            obj.model_json = obj.input_json;
+            obj.output_capacity = double(capacity);
         end
 
         function prepare(obj)
             % prepare model
             task_name = 'prepare';
             lib_name = MLModel.load_lib();
-            exit_code = calllib(lib_name, task_name, obj.input_json);
+            exit_code = calllib(lib_name, task_name, obj.model_json);
             MLModel.check_ec(exit_code, task_name);
         end
         
@@ -112,20 +127,30 @@ classdef MLModel
             % release model
             task_name = 'release';
             lib_name = MLModel.load_lib();
-            exit_code = calllib(lib_name, task_name, obj.input_json);
+            exit_code = calllib(lib_name, task_name, obj.model_json);
             MLModel.check_ec(exit_code, task_name);
         end
 
         function score = predict(obj, input_data)
             % perform inference for input data
+            if ~isnumeric(input_data) || ~isreal(input_data) || ~isvector(input_data) || ...
+                    isempty(input_data) || numel(input_data) > double(intmax('int32')) || ...
+                    any(~isfinite(input_data(:)))
+                error('Prediction input must be a nonempty finite real vector');
+            end
+            input_data = full(double(input_data(:).'));
             task_name = 'predict';
             lib_name = MLModel.load_lib();
-            score_temp = libpointer('doublePtr', obj.input_params.max_array_size);
+            score_temp = libpointer('doublePtr', zeros(1, obj.output_capacity, 'double'));
             len = libpointer('int32Ptr', 0);
             input_data_temp = libpointer('doublePtr', input_data);
-            exit_code = calllib(lib_name, task_name, input_data_temp, size(input_data, 2), score_temp, len, obj.input_json);
+            exit_code = calllib(lib_name, task_name, input_data_temp, numel(input_data), score_temp, len, obj.model_json);
             MLModel.check_ec(exit_code, task_name);
-            score = score_temp.Value(1,1:len.Value);
+            output_length = double(len.Value);
+            if output_length < 0 || output_length > obj.output_capacity
+                error('Native prediction length exceeds the output buffer');
+            end
+            score = score_temp.Value(1, 1:output_length);
         end
         
     end

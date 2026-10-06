@@ -10,7 +10,7 @@ namespace brainflow
     public class MLModel
     {
         private string input_json;
-        BrainFlowModelParams input_params;
+        private readonly int output_capacity;
 
 
         /// <summary>
@@ -19,8 +19,19 @@ namespace brainflow
         /// <param name="input_params"></param>
         public MLModel (BrainFlowModelParams input_params)
         {
-            this.input_json = input_params.to_json ();
-            this.input_params = input_params;
+            if (input_params == null)
+                throw new BrainFlowError ((int)BrainFlowExitCodes.INVALID_ARGUMENTS_ERROR);
+            var snapshot = new BrainFlowModelParams (input_params.metric, input_params.classifier)
+            {
+                file = input_params.file,
+                other_info = input_params.other_info,
+                output_name = input_params.output_name,
+                max_array_size = input_params.max_array_size
+            };
+            if (snapshot.max_array_size <= 0)
+                throw new BrainFlowError ((int)BrainFlowExitCodes.INVALID_ARGUMENTS_ERROR);
+            this.input_json = snapshot.to_json ();
+            this.output_capacity = snapshot.max_array_size;
         }
 
         /// <summary>
@@ -128,13 +139,15 @@ namespace brainflow
         /// </summary>
         public double[] predict (double[] data)
         {
-            double[] val = new double[input_params.max_array_size];
+            double[] val = new double[output_capacity];
             int[] val_len = new int[1];
             int res = MLModuleLibrary.predict (data, data.Length, val, val_len, input_json);
             if (res != (int)BrainFlowExitCodes.STATUS_OK)
             {
                 throw new BrainFlowError (res);
             }
+            if (val_len[0] < 0 || val_len[0] > output_capacity)
+                throw new BrainFlowError ((int)BrainFlowExitCodes.INVALID_BUFFER_SIZE_ERROR);
             double[] result = new double[val_len[0]];
             for (int i = 0; i < val_len[0]; i++)
             {

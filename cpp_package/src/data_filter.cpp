@@ -1,4 +1,6 @@
 #include <cstdarg>
+#include <limits>
+#include <memory>
 #include <stdlib.h>
 #include <string.h>
 
@@ -6,6 +8,37 @@
 #include "data_filter.h"
 #include "data_handler.h"
 
+namespace
+{
+    int wavelet_capacity (int data_len, int decomposition_level)
+    {
+        if (data_len <= 0 || decomposition_level <= 0 || decomposition_level > 100 ||
+            data_len > std::numeric_limits<int>::max () - 82 * decomposition_level)
+        {
+            throw BrainFlowException (
+                "invalid wavelet dimensions", (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR);
+        }
+        return data_len + 82 * decomposition_level;
+    }
+
+    void validate_channels (const BrainFlowArray<double, 2> &data, const std::vector<int> &channels)
+    {
+        if (data.empty () || channels.empty () ||
+            channels.size () > (size_t)std::numeric_limits<int>::max () / data.get_size (1))
+        {
+            throw BrainFlowException (
+                "invalid channel dimensions", (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR);
+        }
+        for (int channel : channels)
+        {
+            if (channel < 0 || channel >= data.get_size (0))
+            {
+                throw BrainFlowException (
+                    "invalid channel index", (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR);
+            }
+        }
+    }
+}
 
 double DataFilter::get_oxygen_level (double *ppg_ir, double *ppg_red, int data_len,
     int sampling_rate, double coef1, double coef2, double coef3)
@@ -118,7 +151,8 @@ void DataFilter::perform_rolling_filter (double *data, int data_len, int period,
 double *DataFilter::perform_downsampling (
     double *data, int data_len, int period, int agg_operation, int *filtered_size)
 {
-    if ((data == NULL) || (data_len == 0) || (period == 0) || (data_len / period == 0))
+    if ((data == NULL) || (data_len <= 0) || (period <= 0) || (data_len / period == 0) ||
+        (filtered_size == NULL))
     {
         throw BrainFlowException (
             "invalid input params", (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR);
@@ -137,30 +171,28 @@ double *DataFilter::perform_downsampling (
 std::pair<double *, int *> DataFilter::perform_wavelet_transform (
     double *data, int data_len, int wavelet, int decomposition_level, int extension_type)
 {
-    if (data_len <= 0)
+    if (data == NULL)
     {
         throw BrainFlowException (
             "invalid input params", (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR);
     }
 
-    double *wavelet_output = new double[data_len +
-        2 * decomposition_level * (40 + 1)]; // I get this formula from wavelib sources
-    int *decomposition_lengths = new int[decomposition_level + 1];
+    std::unique_ptr<double[]> wavelet_output (new double[wavelet_capacity (data_len, decomposition_level)]);
+    std::unique_ptr<int[]> decomposition_lengths (new int[decomposition_level + 1]);
     int res = ::perform_wavelet_transform (data, data_len, wavelet, decomposition_level,
-        extension_type, wavelet_output, decomposition_lengths);
+        extension_type, wavelet_output.get (), decomposition_lengths.get ());
     if (res != (int)BrainFlowExitCodes::STATUS_OK)
     {
-        delete[] wavelet_output;
-        delete[] decomposition_lengths;
         throw BrainFlowException ("failed to perform wavelet", res);
     }
-    return std::make_pair (wavelet_output, decomposition_lengths);
+    return std::make_pair (wavelet_output.release (), decomposition_lengths.release ());
 }
 
 double *DataFilter::perform_inverse_wavelet_transform (std::pair<double *, int *> wavelet_output,
     int original_data_len, int wavelet, int decomposition_level, int extension_type)
 {
-    if (original_data_len <= 0)
+    wavelet_capacity (original_data_len, decomposition_level);
+    if (wavelet_output.first == NULL || wavelet_output.second == NULL)
     {
         throw BrainFlowException (
             "invalid input params", (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR);
@@ -175,6 +207,41 @@ double *DataFilter::perform_inverse_wavelet_transform (std::pair<double *, int *
         throw BrainFlowException ("failed to perform inverse wavelet", res);
     }
     return original_data;
+}
+
+std::vector<double> DataFilter::perform_inverse_wavelet_transform (
+    const std::vector<double> &coefficients, const std::vector<int> &lengths,
+    int original_data_len, int wavelet, int decomposition_level, int extension_type)
+{
+    wavelet_capacity (original_data_len, decomposition_level);
+    if (lengths.size () != (size_t)decomposition_level + 1 ||
+        (size_t)original_data_len > coefficients.size () ||
+        coefficients.size () > (size_t)std::numeric_limits<int>::max ())
+    {
+        throw BrainFlowException ("invalid wavelet buffers", (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR);
+    }
+    size_t total = 0;
+    for (int length : lengths)
+    {
+        if (length <= 0 || (size_t)length > coefficients.size () - total)
+        {
+            throw BrainFlowException ("invalid wavelet lengths", (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR);
+        }
+        total += length;
+    }
+    if (total != coefficients.size ())
+    {
+        throw BrainFlowException ("invalid coefficient count", (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR);
+    }
+    std::vector<double> output (original_data_len);
+    int res = ::perform_inverse_wavelet_transform_checked (const_cast<double *> (coefficients.data ()),
+        (int)coefficients.size (), original_data_len, wavelet, decomposition_level, extension_type,
+        const_cast<int *> (lengths.data ()), (int)lengths.size (), output.data (), original_data_len);
+    if (res != (int)BrainFlowExitCodes::STATUS_OK)
+    {
+        throw BrainFlowException ("failed to perform inverse wavelet", res);
+    }
+    return output;
 }
 
 void DataFilter::perform_wavelet_denoising (double *data, int data_len, int wavelet,
@@ -192,7 +259,7 @@ void DataFilter::perform_wavelet_denoising (double *data, int data_len, int wave
 std::pair<BrainFlowArray<double, 2>, BrainFlowArray<double, 1>> DataFilter::get_csp (
     const BrainFlowArray<double, 3> &data, const BrainFlowArray<double, 1> &labels)
 {
-    if ((data.empty ()) || (labels.empty ()))
+    if ((data.empty ()) || (labels.empty ()) || labels.get_size (0) != data.get_size (0))
     {
         throw BrainFlowException (
             "Invalid params", (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR);
@@ -214,6 +281,10 @@ std::pair<BrainFlowArray<double, 2>, BrainFlowArray<double, 1>> DataFilter::get_
 
 double *DataFilter::get_window (int window_function, int window_len)
 {
+    if (window_len <= 0)
+    {
+        throw BrainFlowException ("invalid window length", (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR);
+    }
     double *window_data = new double[window_len];
     int res = ::get_window (window_function, window_len, window_data);
     if (res != (int)BrainFlowExitCodes::STATUS_OK)
@@ -226,7 +297,7 @@ double *DataFilter::get_window (int window_function, int window_len)
 
 std::complex<double> *DataFilter::perform_fft (double *data, int data_len, int window, int *fft_len)
 {
-    if ((data_len % 2 == 1) || (data_len <= 0))
+    if ((data_len % 2 == 1) || (data_len <= 0) || (fft_len == NULL))
     {
         throw BrainFlowException (
             "data len must be even", (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR);
@@ -268,7 +339,7 @@ void DataFilter::detrend (double *data, int data_len, int detrend_operation)
 std::pair<double *, double *> DataFilter::get_psd (
     double *data, int data_len, int sampling_rate, int window, int *psd_len)
 {
-    if ((data_len % 2 == 1) || (data_len <= 0))
+    if ((data_len % 2 == 1) || (data_len <= 0) || (psd_len == NULL))
     {
         throw BrainFlowException (
             "data len must be even", (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR);
@@ -289,7 +360,8 @@ std::pair<double *, double *> DataFilter::get_psd (
 std::pair<double *, double *> DataFilter::get_psd_welch (
     double *data, int data_len, int nfft, int overlap, int sampling_rate, int window, int *psd_len)
 {
-    if ((nfft % 2 == 1) || (data_len <= 0))
+    if ((nfft % 2 != 0) || (nfft <= 0) || (data_len < nfft) || (overlap < 0) ||
+        (overlap >= nfft) || (psd_len == NULL))
     {
         throw BrainFlowException (
             "nfft must be even", (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR);
@@ -324,45 +396,36 @@ std::pair<double *, double *> DataFilter::get_custom_band_powers (
     const BrainFlowArray<double, 2> &data, std::vector<std::pair<double, double>> bands,
     std::vector<int> channels, int sampling_rate, bool apply_filters)
 {
-    if ((data.empty ()) || (channels.empty ()) || (bands.empty ()))
+    validate_channels (data, channels);
+    if (bands.empty () || bands.size () > (size_t)std::numeric_limits<int>::max ())
     {
-        throw BrainFlowException (
-            "Invalid params", (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR);
+        throw BrainFlowException ("invalid bands", (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR);
     }
     int cols = data.get_size (1);
     int channels_len = (int)channels.size ();
-    double *data_1d = new double[cols * channels_len];
-    double *avg_bands = new double[bands.size ()];
-    double *stddev_bands = new double[bands.size ()];
-    double *start_freqs = new double[bands.size ()];
-    double *stop_freqs = new double[bands.size ()];
-    for (int i = 0; i < (int)bands.size (); i++)
+    std::vector<double> data_1d ((size_t)cols * channels_len);
+    std::unique_ptr<double[]> avg_bands (new double[bands.size ()] ());
+    std::unique_ptr<double[]> stddev_bands (new double[bands.size ()] ());
+    std::vector<double> start_freqs (bands.size ());
+    std::vector<double> stop_freqs (bands.size ());
+    for (size_t i = 0; i < bands.size (); i++)
     {
-        start_freqs[i] = std::get<0> (bands[i]);
-        stop_freqs[i] = std::get<1> (bands[i]);
-        avg_bands[i] = 0.0;
-        stddev_bands[i] = 0.0;
+        start_freqs[i] = bands[i].first;
+        stop_freqs[i] = bands[i].second;
     }
     for (int i = 0; i < channels_len; i++)
     {
-        for (int j = 0; j < cols; j++)
-        {
-            data_1d[j + cols * i] = data.at (channels[i], j);
-        }
+        std::copy (data.get_address (channels[i]), data.get_address (channels[i]) + cols,
+            data_1d.begin () + (size_t)cols * i);
     }
-    int res = ::get_custom_band_powers (data_1d, channels_len, cols, start_freqs, stop_freqs,
-        (int)bands.size (), sampling_rate, (int)apply_filters, avg_bands, stddev_bands);
-    delete[] start_freqs;
-    delete[] stop_freqs;
+    int res = ::get_custom_band_powers (data_1d.data (), channels_len, cols, start_freqs.data (),
+        stop_freqs.data (), (int)bands.size (), sampling_rate, (int)apply_filters,
+        avg_bands.get (), stddev_bands.get ());
     if (res != (int)BrainFlowExitCodes::STATUS_OK)
     {
-        delete[] avg_bands;
-        delete[] stddev_bands;
-        delete[] data_1d;
-        throw BrainFlowException ("failed to get_avg_band_powers", res);
+        throw BrainFlowException ("failed to get custom band powers", res);
     }
-    delete[] data_1d;
-    return std::make_pair (avg_bands, stddev_bands);
+    return std::make_pair (avg_bands.release (), stddev_bands.release ());
 }
 
 double DataFilter::get_band_power (
@@ -379,7 +442,7 @@ double DataFilter::get_band_power (
 
 double *DataFilter::perform_ifft (std::complex<double> *fft_data, int fft_len, int *data_len)
 {
-    if ((fft_len <= 0) || (fft_data == NULL) || (data_len == NULL))
+    if ((fft_len < 2) || (fft_len > std::numeric_limits<int>::max () / 2 + 1) || (fft_data == NULL) || (data_len == NULL))
     {
         throw BrainFlowException ("invalid args", (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR);
     }
@@ -520,47 +583,30 @@ std::tuple<BrainFlowArray<double, 2>, BrainFlowArray<double, 2>, BrainFlowArray<
 DataFilter::perform_ica (
     const BrainFlowArray<double, 2> &data, int num_components, std::vector<int> channels)
 {
-    if ((data.empty ()) || (channels.empty ()) || (num_components < 1))
-    {
-        throw BrainFlowException (
-            "Invalid params", (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR);
-    }
-
+    validate_channels (data, channels);
     int cols = data.get_size (1);
     int channels_len = (int)channels.size ();
-    double *data_1d = new double[cols * channels_len];
-    double *w = new double[num_components * num_components];
-    double *k = new double[channels_len * num_components];
-    double *a = new double[num_components * channels_len];
-    double *s = new double[cols * num_components];
-
+    if (num_components < 2 || num_components > channels_len || cols < 2)
+    {
+        throw BrainFlowException ("invalid ICA dimensions", (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR);
+    }
+    BrainFlowArray<double, 2> selected (channels_len, cols);
+    BrainFlowArray<double, 2> w (num_components, num_components);
+    BrainFlowArray<double, 2> k (num_components, channels_len);
+    BrainFlowArray<double, 2> a (channels_len, num_components);
+    BrainFlowArray<double, 2> s (num_components, cols);
     for (int i = 0; i < channels_len; i++)
     {
-        for (int j = 0; j < cols; j++)
-        {
-            data_1d[j + cols * i] = data.at (channels[i], j);
-        }
+        std::copy (data.get_address (channels[i]), data.get_address (channels[i]) + cols,
+            selected.get_address (i));
     }
-    int res = ::perform_ica (data_1d, channels_len, cols, num_components, w, k, a, s);
+    int res = ::perform_ica (selected.get_raw_ptr (), channels_len, cols, num_components,
+        w.get_raw_ptr (), k.get_raw_ptr (), a.get_raw_ptr (), s.get_raw_ptr ());
     if (res != (int)BrainFlowExitCodes::STATUS_OK)
     {
-        delete[] data_1d;
-        delete[] w;
-        delete[] k;
-        delete[] a;
-        delete[] s;
-        throw BrainFlowException ("failed to perform_ica", res);
+        throw BrainFlowException ("failed to perform ICA", res);
     }
-    BrainFlowArray<double, 2> w_mat (w, num_components, num_components);
-    BrainFlowArray<double, 2> k_mat (k, num_components, channels_len);
-    BrainFlowArray<double, 2> a_mat (a, channels_len, num_components);
-    BrainFlowArray<double, 2> s_mat (s, num_components, cols);
-    delete[] data_1d;
-    delete[] w;
-    delete[] k;
-    delete[] a;
-    delete[] s;
-    return std::make_tuple (w_mat, k_mat, a_mat, s_mat);
+    return std::make_tuple (std::move (w), std::move (k), std::move (a), std::move (s));
 }
 
 std::tuple<BrainFlowArray<double, 2>, BrainFlowArray<double, 2>, BrainFlowArray<double, 2>,

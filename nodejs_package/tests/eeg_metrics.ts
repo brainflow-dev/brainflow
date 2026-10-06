@@ -18,7 +18,8 @@ async function runExample (): Promise<void>
     const board = new BoardShim (boardId, {});
     board.prepareSession();
     board.startStream();
-    await sleep (3000);
+    // Include enough data for Welch estimation after trimming filter transients.
+    await sleep (8000);
     board.stopStream();
     const data = board.getBoardData();
     board.releaseSession();

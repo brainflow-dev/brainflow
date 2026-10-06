@@ -24,7 +24,9 @@ jobs:
     - name: Install dotnet
       uses: actions/setup-dotnet@v3
       with:
-        dotnet-version: '7.0.x'
+        dotnet-version: |
+          7.0.x
+          8.0.x
     - name: Install Python 3.10
       uses: actions/setup-python@v5
       with:
@@ -378,6 +380,27 @@ jobs:
       run: sudo -H python3 $GITHUB_WORKSPACE/python_package/examples/tests/band_power.py
     - name: BandPowerAll Python
       run: sudo -H python3 $GITHUB_WORKSPACE/python_package/examples/tests/band_power_all.py
+    - name: Band Power Regression Python
+      run: sudo -H python3 $GITHUB_WORKSPACE/python_package/examples/tests/band_power_regression.py
+    - name: Signal Processing Regression Python
+      run: |
+        sudo -H python3 $GITHUB_WORKSPACE/python_package/examples/tests/signal_processing_regression.py
+        sudo -H python3 $GITHUB_WORKSPACE/python_package/examples/tests/decomposition_regression.py
+        sudo -H python3 $GITHUB_WORKSPACE/python_package/examples/tests/signal_metrics_regression.py
+        sudo -H python3 $GITHUB_WORKSPACE/python_package/examples/tests/binding_validation_regression.py
+    - name: Signal Processing Regression Cpp
+      run: $GITHUB_WORKSPACE/cpp_package/examples/signal_processing/build/signal_processing_regression
+      env:
+        LD_LIBRARY_PATH: ${{ github.workspace }}/installed/lib
+    - name: Signal Processing Regression Csharp
+      run: dotnet run --project $GITHUB_WORKSPACE/csharp_package/brainflow/examples/signal_processing_regression
+      env:
+        LD_LIBRARY_PATH: ${{ github.workspace }}/installed/lib
+    - name: Signal Processing Regression Rust
+      run: cargo test --manifest-path $GITHUB_WORKSPACE/rust_package/brainflow/Cargo.toml data_filter::tests
+      env:
+        LD_LIBRARY_PATH: ${{ github.workspace }}/installed/lib
+        DYLD_LIBRARY_PATH: ${{ github.workspace }}/installed/lib
     - name: Activity Index Python
       run: sudo -H python3 $GITHUB_WORKSPACE/python_package/examples/tests/activity_index.py
     - name: Denoising Cpp
@@ -456,6 +479,12 @@ jobs:
         mvn exec:java -Dexec.mainClass="brainflow.examples.BandPower"
       env:
         LD_LIBRARY_PATH: ${{ github.workspace }}/installed/lib
+    - name: Binding Validation Java
+      run: |
+        cd $GITHUB_WORKSPACE/java_package/brainflow
+        mvn test-compile exec:java -Dexec.mainClass="brainflow.BindingValidationRegression" -Dexec.classpathScope=test
+      env:
+        LD_LIBRARY_PATH: ${{ github.workspace }}/installed/lib
     - name: EEG Metrics Python
       run: sudo -H python3 $GITHUB_WORKSPACE/python_package/examples/tests/eeg_metrics.py --board-id -1
     - name: EEG Metrics Custom Python
@@ -485,6 +514,10 @@ jobs:
       run: |
         cd $GITHUB_WORKSPACE/nodejs_package/tests
         npm run signal_filtering
+    - name: Binding Validation Node
+      run: |
+        cd $GITHUB_WORKSPACE/nodejs_package/tests
+        npx ts-node binding_validation_regression.ts
     - name: Serialization Node
       run: |
         cd $GITHUB_WORKSPACE/nodejs_package/tests

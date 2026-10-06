@@ -1,3 +1,4 @@
+import copy
 import ctypes
 import enum
 import json
@@ -169,11 +170,22 @@ class MLModel(object):
     """
 
     def __init__(self, model_params: BrainFlowModelParams) -> None:
+        capacity = model_params.max_array_size
+        if (isinstance(capacity, (bool, numpy.bool_)) or
+                not isinstance(capacity, (int, numpy.integer)) or
+                capacity <= 0 or capacity > numpy.iinfo(numpy.int32).max):
+            raise BrainFlowError('max_array_size must be a positive int32 integer',
+                                 BrainFlowExitCodes.INVALID_ARGUMENTS_ERROR.value)
         self.model_params = model_params
+        # Native model settings are serialized once. Keep allocation capacity tied
+        # to that same snapshot even when callers later reuse or mutate the params.
+        self._output_capacity = int(capacity)
+        snapshot = copy.copy(model_params)
+        snapshot.max_array_size = self._output_capacity
         try:
-            self.serialized_params = model_params.to_json().encode()
+            self.serialized_params = snapshot.to_json().encode()
         except BaseException:
-            self.serialized_params = model_params.to_json()
+            self.serialized_params = snapshot.to_json()
 
     @classmethod
     def set_log_level(cls, log_level: int) -> None:
@@ -274,14 +286,28 @@ class MLModel(object):
     def predict(self, data) -> List:
         """calculate metric from data
 
-        :param data: input array
+        :param data: finite one-dimensional input, converted to contiguous float64
         :type data: NDArray[Shape["*"], Float64]
         :return: metric value
         :rtype: List
         """
-        output = numpy.zeros(self.model_params.max_array_size).astype(numpy.float64)
-        output_len = numpy.zeros(1).astype(numpy.int32)
+        try:
+            data = numpy.asarray(data)
+            if (data.ndim != 1 or data.size == 0 or data.size > numpy.iinfo(numpy.int32).max or
+                    numpy.iscomplexobj(data)):
+                raise ValueError('input must be a nonempty one-dimensional real array')
+            data = numpy.ascontiguousarray(data, dtype=numpy.float64)
+            if not numpy.isfinite(data).all():
+                raise ValueError('input must contain only finite values')
+        except (TypeError, ValueError, OverflowError) as error:
+            raise BrainFlowError('invalid prediction input: %s' % error,
+                                 BrainFlowExitCodes.INVALID_ARGUMENTS_ERROR.value) from error
+        output = numpy.zeros(self._output_capacity, dtype=numpy.float64)
+        output_len = numpy.zeros(1, dtype=numpy.int32)
         res = MLModuleDLL.get_instance().predict(data, data.shape[0], output, output_len, self.serialized_params)
         if res != BrainFlowExitCodes.STATUS_OK.value:
             raise BrainFlowError('unable to calc metric', res)
+        if output_len[0] < 0 or output_len[0] > self._output_capacity:
+            raise BrainFlowError('invalid prediction output length',
+                                 BrainFlowExitCodes.INVALID_BUFFER_SIZE_ERROR.value)
         return output[0:output_len[0]]

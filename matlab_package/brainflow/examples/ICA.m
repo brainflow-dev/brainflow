@@ -1,15 +1,8 @@
-params = BrainFlowInputParams();
-board_shim = BoardShim(int32(BoardIds.SYNTHETIC_BOARD), params);
-preset = int32(BrainFlowPresets.DEFAULT_PRESET);
-board_shim.prepare_session();
-board_shim.start_stream(45000, '');
-pause(10);
-board_shim.stop_stream();
-data = board_shim.get_board_data(500, preset);
-board_shim.release_session();
-
-eeg_channels = BoardShim.get_eeg_channels(int32(BoardIds.SYNTHETIC_BOARD), preset);
-selected_channel = eeg_channels(4);
-original_data = data(selected_channel, :);
-original_data = transpose(reshape(original_data, [100, 5]));
-[w,k,a,s] = DataFilter.perform_ica(original_data, 2);
+% Two simultaneous mixtures: rows are channels and columns are samples.
+time = (0:1023) / 256;
+first = sin(2 * pi * 7 * time);
+second = sin(2 * pi * 13 * time).^3;
+data = [first + 0.3 * second; 0.2 * first + second];
+[w, k, a, s] = DataFilter.perform_ica(data, 2);
+% Component order and sign are arbitrary.
+fprintf('Recovered %d sources from %d samples\n', size(s, 1), size(s, 2));

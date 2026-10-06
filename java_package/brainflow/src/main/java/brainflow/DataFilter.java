@@ -21,6 +21,38 @@ import com.sun.jna.Native;
 @SuppressWarnings ("deprecation")
 public class DataFilter
 {
+    private static int checked_product (int first, int second) throws BrainFlowError
+    {
+        long count = (long) first * second;
+        if (first < 0 || second < 0 || count > Integer.MAX_VALUE)
+        {
+            throw new BrainFlowError ("Array dimensions exceed the native integer range",
+                    BrainFlowExitCode.INVALID_ARGUMENTS_ERROR.get_code ());
+        }
+        return (int) count;
+    }
+
+    private static int selected_columns (double[][] data, int[] channels) throws BrainFlowError
+    {
+        if (data == null || channels == null || channels.length == 0)
+        {
+            throw new BrainFlowError ("Channels must select nonempty data",
+                    BrainFlowExitCode.INVALID_ARGUMENTS_ERROR.get_code ());
+        }
+        int columns = -1;
+        for (int channel : channels)
+        {
+            if (channel < 0 || channel >= data.length || data[channel] == null ||
+                    data[channel].length == 0 || (columns >= 0 && data[channel].length != columns))
+            {
+                throw new BrainFlowError ("Selected channels must have equal nonzero sample counts",
+                        BrainFlowExitCode.INVALID_ARGUMENTS_ERROR.get_code ());
+            }
+            columns = data[channel].length;
+        }
+        checked_product (channels.length, columns);
+        return columns;
+    }
 
     private interface DllInterface extends Library
     {
@@ -53,8 +85,9 @@ public class DataFilter
         int perform_wavelet_transform (double[] data, int data_len, int wavelet, int decomposition_level, int extention,
                 double[] output_data, int[] decomposition_lengths);
 
-        int perform_inverse_wavelet_transform (double[] wavelet_coeffs, int original_data_len, int wavelet,
-                int decomposition_level, int extension, int[] decomposition_lengths, double[] output_data);
+        int perform_inverse_wavelet_transform_checked (double[] wavelet_coeffs, int coeff_count,
+                int original_data_len, int wavelet, int decomposition_level, int extension,
+                int[] decomposition_lengths, int lengths_count, double[] output_data, int output_count);
 
         int perform_wavelet_denoising (double[] data, int data_len, int wavelet, int decomposition_level,
                 int wavelet_denoising, int threshold, int extenstion_type, int noise_level);
@@ -200,6 +233,11 @@ public class DataFilter
      */
     public static double calc_stddev (double[] data, int start_pos, int end_pos) throws BrainFlowError
     {
+        if (data == null || start_pos < 0 || end_pos <= start_pos || end_pos > data.length)
+        {
+            throw new BrainFlowError ("Invalid standard deviation span",
+                    BrainFlowExitCode.INVALID_ARGUMENTS_ERROR.get_code ());
+        }
         double[] output = new double[1];
         int ec = instance.calc_stddev (data, start_pos, end_pos, output);
         if (ec != BrainFlowExitCode.STATUS_OK.get_code ())
@@ -559,7 +597,9 @@ public class DataFilter
     public static Pair<double[], int[]> perform_wavelet_transform (double[] data, int wavelet, int decomposition_level,
             int extension) throws BrainFlowError
     {
-        if (decomposition_level <= 0)
+        if (data == null || data.length == 0 || decomposition_level <= 0 ||
+                decomposition_level > 100 ||
+                (long) data.length + 82L * decomposition_level > Integer.MAX_VALUE)
         {
             throw new BrainFlowError ("Invalid decomposition level",
                     BrainFlowExitCode.INVALID_ARGUMENTS_ERROR.get_code ());
@@ -598,14 +638,33 @@ public class DataFilter
     public static double[] perform_inverse_wavelet_transform (Pair<double[], int[]> wavelet_output,
             int original_data_len, int wavelet, int decomposition_level, int extension) throws BrainFlowError
     {
-        if (decomposition_level <= 0)
+        if (decomposition_level <= 0 || decomposition_level > 100 || original_data_len <= 0 ||
+                wavelet_output == null || wavelet_output.getLeft () == null ||
+                wavelet_output.getRight () == null || wavelet_output.getRight ().length != decomposition_level + 1 ||
+                original_data_len > wavelet_output.getLeft ().length)
         {
-            throw new BrainFlowError ("Invalid decomposition level",
+            throw new BrainFlowError ("Invalid wavelet metadata",
+                    BrainFlowExitCode.INVALID_ARGUMENTS_ERROR.get_code ());
+        }
+        long coeff_count = 0;
+        for (int length : wavelet_output.getRight ())
+        {
+            if (length <= 0)
+            {
+                throw new BrainFlowError ("Invalid wavelet block length",
+                        BrainFlowExitCode.INVALID_ARGUMENTS_ERROR.get_code ());
+            }
+            coeff_count += length;
+        }
+        if (coeff_count != wavelet_output.getLeft ().length)
+        {
+            throw new BrainFlowError ("Wavelet coefficient lengths do not match",
                     BrainFlowExitCode.INVALID_ARGUMENTS_ERROR.get_code ());
         }
         double[] output_array = new double[original_data_len];
-        int ec = instance.perform_inverse_wavelet_transform (wavelet_output.getLeft (), original_data_len, wavelet,
-                decomposition_level, extension, wavelet_output.getRight (), output_array);
+        int ec = instance.perform_inverse_wavelet_transform_checked (wavelet_output.getLeft (),
+                wavelet_output.getLeft ().length, original_data_len, wavelet, decomposition_level, extension,
+                wavelet_output.getRight (), wavelet_output.getRight ().length, output_array, output_array.length);
         if (ec != BrainFlowExitCode.STATUS_OK.get_code ())
         {
             throw new BrainFlowError ("Failed to perform inverse wavelet transform", ec);
@@ -629,15 +688,31 @@ public class DataFilter
      */
     public static Pair<double[][], double[]> get_csp (double[][][] data, double[] labels) throws BrainFlowError
     {
+        if (data == null || data.length == 0 || labels == null || labels.length != data.length ||
+                data[0] == null || data[0].length == 0 || data[0][0] == null || data[0][0].length == 0)
+        {
+            throw new BrainFlowError ("CSP requires one label per nonempty epoch",
+                    BrainFlowExitCode.INVALID_ARGUMENTS_ERROR.get_code ());
+        }
         int n_epochs = data.length;
         int n_channels = data[0].length;
         int n_times = data[0][0].length;
 
-        double[] temp_data1d = new double[n_epochs * n_channels * n_times];
+        double[] temp_data1d = new double[checked_product (checked_product (n_epochs, n_channels), n_times)];
         for (int e = 0; e < n_epochs; e++)
         {
+            if (data[e] == null || data[e].length != n_channels)
+            {
+                throw new BrainFlowError ("CSP epochs must have equal channel counts",
+                        BrainFlowExitCode.INVALID_ARGUMENTS_ERROR.get_code ());
+            }
             for (int c = 0; c < n_channels; c++)
             {
+                if (data[e][c] == null || data[e][c].length != n_times)
+                {
+                    throw new BrainFlowError ("CSP channels must have equal sample counts",
+                            BrainFlowExitCode.INVALID_ARGUMENTS_ERROR.get_code ());
+                }
                 for (int t = 0; t < n_times; t++)
                 {
                     int idx = e * n_channels * n_times + c * n_times + t;
@@ -646,7 +721,7 @@ public class DataFilter
             }
         }
 
-        double[] temp_filters = new double[n_channels * n_channels];
+        double[] temp_filters = new double[checked_product (n_channels, n_channels)];
         double[] output_eigenvalues = new double[n_channels];
 
         int ec = instance.get_csp (temp_data1d, labels, n_epochs, n_channels, n_times, temp_filters,
@@ -769,13 +844,14 @@ public class DataFilter
     }
 
     /**
-     * calc average and stddev of band powers across all channels
+     * Calculate normalized mean powers for bands 2-4, 4-8, 8-13, 13-30, 30-45 Hz.
+     * Uses get_custom_band_powers preprocessing and minimum retained data length.
      * 
      * @param data          data to process
      * @param channels      rows of data arrays which should be used in calculation
      * @param sampling_rate sampling rate
-     * @param apply_filters apply bandpass and bandstop filters before calculation
-     * @return pair of avgs and stddevs for bandpowers
+     * @param apply_filters preprocess and discard edge margins to reduce filter transients
+     * @return normalized mean band powers and coefficients of variation
      */
     public static Pair<double[], double[]> get_avg_band_powers (double[][] data, int[] channels, int sampling_rate,
             boolean apply_filters) throws BrainFlowError
@@ -790,14 +866,26 @@ public class DataFilter
     }
 
     /**
-     * calc average and stddev of band powers across all channels
+     * Calculate normalized mean band powers and coefficients of variation across channels.
+     * Filtering demeans and applies padded, initialized zero-phase 48-52 and 58-62 Hz
+     * notches only when their upper edges are below 90% of Nyquist. No automatic passband
+     * is applied, so preprocessing is independent of the integration bands.
+     * Margins estimated from the complete cascade impulse-response tail are excluded
+     * at both ends; this estimate is not a guaranteed artifact bound. Mains notches
+     * attenuate overlapping bands. Supply surrounding samples; excluding the newest
+     * samples adds delay in live analysis. Without filtering, no preprocessing or trimming
+     * is performed. At least max(8, 2 * get_nearest_power_of_two(sampling_rate)) samples
+     * must remain. Data and edges must be finite; bands require
+     * 0 &lt;= start &lt; stop &lt;= Nyquist. Means are normalized by their sum.
+     * The second array is population stddev / mean of absolute channel powers, with zero
+     * for zero-power bands. A zero total returns zero normalized means.
      * 
      * @param data          data to process
      * @param bands         bands to calculate
      * @param channels      rows of data arrays which should be used in calculation
      * @param sampling_rate sampling rate
-     * @param apply_filters apply bandpass and bandstop filters before calculation
-     * @return pair of avgs and stddevs for bandpowers
+     * @param apply_filters preprocess and discard edge margins to reduce filter transients
+     * @return normalized mean band powers and coefficients of variation
      */
     public static Pair<double[], double[]> get_custom_band_powers (double[][] data, List<Pair<Double, Double>> bands,
             int[] channels, int sampling_rate, boolean apply_filters) throws BrainFlowError
@@ -807,13 +895,11 @@ public class DataFilter
             throw new BrainFlowError ("data or channels or bands are null",
                     BrainFlowExitCode.INVALID_ARGUMENTS_ERROR.get_code ());
         }
-        double[] data_1d = new double[channels.length * data[channels[0]].length];
+        int cols = selected_columns (data, channels);
+        double[] data_1d = new double[checked_product (channels.length, cols)];
         for (int i = 0; i < channels.length; i++)
         {
-            for (int j = 0; j < data[channels[i]].length; j++)
-            {
-                data_1d[j + i * data[channels[i]].length] = data[channels[i]][j];
-            }
+            System.arraycopy (data[channels[i]], 0, data_1d, i * cols, cols);
         }
         double[] avgs = new double[bands.size ()];
         double[] stddevs = new double[bands.size ()];
@@ -825,7 +911,7 @@ public class DataFilter
             stop_freqs[i] = bands.get (i).getValue ();
         }
         int filters = (apply_filters) ? 1 : 0;
-        int ec = instance.get_custom_band_powers (data_1d, channels.length, data[channels[0]].length, start_freqs,
+        int ec = instance.get_custom_band_powers (data_1d, channels.length, cols, start_freqs,
                 stop_freqs, bands.size (), sampling_rate, filters, avgs, stddevs);
         if (ec != BrainFlowExitCode.STATUS_OK.get_code ())
         {
@@ -868,27 +954,24 @@ public class DataFilter
     public static List<double[][]> perform_ica (double[][] data, int num_components, int[] channels)
             throws BrainFlowError
     {
-        if ((data == null) || (channels == null) || (num_components < 1))
+        int cols = selected_columns (data, channels);
+        if (num_components < 2 || num_components > Math.min (channels.length, cols - 1))
         {
             throw new BrainFlowError ("invalid args for perform_ica",
                     BrainFlowExitCode.INVALID_ARGUMENTS_ERROR.get_code ());
         }
-        double[] data_1d = new double[channels.length * data[channels[0]].length];
+        double[] data_1d = new double[checked_product (channels.length, cols)];
         for (int i = 0; i < channels.length; i++)
         {
-            for (int j = 0; j < data[channels[i]].length; j++)
-            {
-                data_1d[j + i * data[channels[i]].length] = data[channels[i]][j];
-            }
+            System.arraycopy (data[channels[i]], 0, data_1d, i * cols, cols);
         }
-        int cols = data[0].length;
         int channels_len = channels.length;
-        double[] w = new double[num_components * num_components];
-        double[] k = new double[channels_len * num_components];
-        double[] a = new double[num_components * channels_len];
-        double[] s = new double[cols * num_components];
+        double[] w = new double[checked_product (num_components, num_components)];
+        double[] k = new double[checked_product (channels_len, num_components)];
+        double[] a = new double[checked_product (num_components, channels_len)];
+        double[] s = new double[checked_product (cols, num_components)];
 
-        int ec = instance.perform_ica (data_1d, channels.length, data[channels[0]].length, num_components, w, k, a, s);
+        int ec = instance.perform_ica (data_1d, channels.length, cols, num_components, w, k, a, s);
         if (ec != BrainFlowExitCode.STATUS_OK.get_code ())
         {
             throw new BrainFlowError ("Failed to perform_ica", ec);
@@ -1013,6 +1096,12 @@ public class DataFilter
     public static double get_band_power (Pair<double[], double[]> psd, double freq_start, double freq_end)
             throws BrainFlowError
     {
+        if (psd == null || psd.getLeft () == null || psd.getRight () == null ||
+                psd.getLeft ().length != psd.getRight ().length)
+        {
+            throw new BrainFlowError ("PSD amplitude and frequency lengths must match",
+                    BrainFlowExitCode.INVALID_ARGUMENTS_ERROR.get_code ());
+        }
         double[] res = new double[1];
         int ec = instance.get_band_power (psd.getLeft (), psd.getRight (), psd.getLeft ().length, freq_start, freq_end,
                 res);

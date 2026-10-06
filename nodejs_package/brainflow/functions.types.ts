@@ -338,8 +338,8 @@ export enum DataHandlerCLikeFunctions {
         'int perform_downsampling (double *data, int data_len, int period, int agg_operation, _Inout_ double *output_data)',
     perform_wavelet_transform =
         'int perform_wavelet_transform (double *data, int data_len, int wavelet, int decomposition_level, int extension, _Inout_ double *output_data, _Inout_ int *decomposition_lengths)',
-    perform_inverse_wavelet_transform =
-        'int perform_inverse_wavelet_transform (double *wavelet_coeffs, int original_data_len, int wavelet, int decomposition_level, int extension, int *decomposition_lengths, _Inout_ double *output_data)',
+    perform_inverse_wavelet_transform_checked =
+        'int perform_inverse_wavelet_transform_checked (double *wavelet_coeffs, int coeff_count, int original_data_len, int wavelet, int decomposition_level, int extension, int *decomposition_lengths, int lengths_count, _Inout_ double *output_data, int output_count)',
     perform_wavelet_denoising =
         'int perform_wavelet_denoising (_Inout_ double *data, int data_len, int wavelet, int decomposition_level, int wavelet_denoising, int threshold, int extenstion_type, int noise_level)',
     get_window =
@@ -411,9 +411,9 @@ export class DataHandlerFunctions
     performWaveletTransform!: (data: number[], dataLen: number, wavelet: WaveletTypes,
         decompositionLevel: number, extension: WaveletExtensionTypes, outputData: number[],
         decompositionLengths: number[]) => BrainFlowExitCodes;
-    performInverseWaveletTransform!: (waveletCoeffs: number[], originalDataLen: number,
+    performInverseWaveletTransformChecked!: (waveletCoeffs: number[], coeffCount: number, originalDataLen: number,
         wavelet: WaveletTypes, decompositionLevel: number, extension: WaveletExtensionTypes,
-        decompositionLengths: number[], outputData: number[]) => BrainFlowExitCodes;
+        decompositionLengths: number[], lengthsCount: number, outputData: number[], outputCount: number) => BrainFlowExitCodes;
     performWaveletDenoising!: (data: number[], dataLen: number, wavelet: WaveletTypes,
         decompositionLevel: number, waveletDenoising: WaveletDenoisingTypes,
         threshold: ThresholdTypes, extenstionType: WaveletExtensionTypes,

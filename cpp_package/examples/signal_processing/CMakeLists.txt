@@ -50,6 +50,12 @@ find_package (
     brainflow CONFIG REQUIRED
 )
 
+add_executable (signal_processing_regression src/signal_processing_regression.cpp)
+target_include_directories (signal_processing_regression PUBLIC ${brainflow_INCLUDE_DIRS})
+target_link_libraries (signal_processing_regression PUBLIC ${BrainflowPath} ${DataHandlerPath} ${BoardControllerPath})
+enable_testing ()
+add_test (NAME signal_processing_regression COMMAND signal_processing_regression)
+
 ##############################
 ## Demo for read write file ##
 ##############################

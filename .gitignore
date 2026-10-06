@@ -343,6 +343,18 @@ ASALocalRun/
 *.pickle
 *.onnx
 
+# Reviewed classifier release artifacts (raw recordings and work caches stay ignored).
+!src/ml/train/logreg_mindfulness.onnx
+!src/ml/train/svm_mindfulness.onnx
+!src/ml/train/forest_mindfulness.onnx
+!src/ml/train/knn_mindfulness.onnx
+!src/ml/train/mlp_mindfulness.onnx
+!src/ml/train/stacking_mindfulness.onnx
+!src/ml/train/extra_trees_mindfulness.onnx
+!src/ml/train/hist_gradient_boosting_mindfulness.onnx
+!src/ml/train/polynomial_logreg_mindfulness.onnx
+!src/ml/train/gradient_boosting_mindfulness.onnx
+
 #Environment file
 .env
 .vscode/
