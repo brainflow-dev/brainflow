@@ -1,7 +1,6 @@
 #include <cstdint>
 #include <cstring>
 #include <limits>
-#include <math.h>
 #include <vector>
 
 #include "custom_cast.h"
@@ -35,7 +34,6 @@ void KnightIMU::read_thread ()
 
     unsigned char b[frame_payload_size] = {0};
 
-    float eeg_scale = 4 / float ((pow (2, 15) - 1)) / 12 * 1000000.;
     int num_rows = board_descr["default"]["num_rows"];
     double *package = new double[num_rows];
     for (int i = 0; i < num_rows; i++)
@@ -91,7 +89,8 @@ void KnightIMU::read_thread ()
         const int exg_offset = 1;
         for (unsigned int i = 0; i < eeg_channels.size () && i < exg_channels_count; i++)
         {
-            package[eeg_channels[i]] = eeg_scale * cast_16bit_to_int32 (b + exg_offset + 2 * i);
+            package[eeg_channels[i]] =
+                KnightBase::eeg_scale * cast_16bit_to_int32 (b + exg_offset + 2 * i);
         }
 
         // other channel data retrieval (keep old behavior)

@@ -39,4 +39,6 @@ public:
 
     static constexpr int start_byte = 0xA0;
     static constexpr int end_byte = 0xC0;
+    // 4 Vref / (2^15 - 1) / gain / 79.57 * 1e6 -> uV. Gain is fixed at 12.
+    static constexpr double eeg_scale = 4.0 / (32768.0 - 1.0) / 12.0 / 79.57 * 1000000.0;
 };

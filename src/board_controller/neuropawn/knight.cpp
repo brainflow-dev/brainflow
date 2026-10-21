@@ -1,4 +1,3 @@
-#include <math.h>
 #include <vector>
 
 #include "custom_cast.h"
@@ -29,7 +28,6 @@ void Knight::read_thread ()
 
     int res;
     unsigned char b[20] = {0};
-    float eeg_scale = 4 / float ((pow (2, 15) - 1)) / 12 * 1000000.;
     int num_rows = board_descr["default"]["num_rows"];
     double *package = new double[num_rows];
     for (int i = 0; i < num_rows; i++)
@@ -81,8 +79,8 @@ void Knight::read_thread ()
         // exg data retrieval
         for (unsigned int i = 0; i < eeg_channels.size (); i++)
         {
-            package[eeg_channels[i]] =
-                eeg_scale * cast_16bit_to_int32 (b + 1 + 2 * i); // CHANGE TO 2+2*i if not working
+            package[eeg_channels[i]] = KnightBase::eeg_scale *
+                cast_16bit_to_int32 (b + 1 + 2 * i); // CHANGE TO 2+2*i if not working
         }
 
         // other channel data retrieval

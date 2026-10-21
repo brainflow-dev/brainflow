@@ -12,6 +12,7 @@ using json = nlohmann::json;
 
 constexpr int KnightBase::start_byte;
 constexpr int KnightBase::end_byte;
+constexpr double KnightBase::eeg_scale;
 
 KnightBase::KnightBase (int board_id, struct BrainFlowInputParams params) : Board (board_id, params)
 {
