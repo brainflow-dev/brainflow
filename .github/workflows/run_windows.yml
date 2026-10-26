@@ -267,6 +267,9 @@ jobs:
     - name: Windowing Python Test
       run: python %GITHUB_WORKSPACE%\python_package\examples\tests\windowing.py
       shell: cmd
+    - name: Blackman-Harris Window Regression Python Test
+      run: python %GITHUB_WORKSPACE%\python_package\examples\tests\blackman_harris_window.py
+      shell: cmd
     - name: BrainFlow to MNE Python Test
       run: python %GITHUB_WORKSPACE%\python_package\examples\tests\brainflow_to_mne.py
       shell: cmd

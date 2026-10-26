@@ -31,12 +31,13 @@ inline void hamming_function (int window_len, double *wind)
     }
 }
 
+// four-term Blackman-Harris, F. J. Harris (1978)
 inline void blackman_harris_function (int window_len, double *wind)
 {
     for (int i = 0; i < window_len; i++)
     {
-        wind[i] = 0.355768 - 0.487396 * cos (2.0 * M_PI * i / window_len) +
-            0.144232 * cos (4.0 * M_PI * i / window_len) -
-            0.012604 * cos (6.0 * M_PI * i / window_len);
+        wind[i] = 0.35875 - 0.48829 * cos (2.0 * M_PI * i / window_len) +
+            0.14128 * cos (4.0 * M_PI * i / window_len) -
+            0.01168 * cos (6.0 * M_PI * i / window_len);
     }
 }

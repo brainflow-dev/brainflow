@@ -374,6 +374,8 @@ jobs:
       run: sudo -H python3 $GITHUB_WORKSPACE/python_package/examples/tests/csp.py
     - name: Windowing Python
       run: sudo -H python3 $GITHUB_WORKSPACE/python_package/examples/tests/windowing.py
+    - name: Blackman-Harris Window Regression Python
+      run: sudo -H python3 $GITHUB_WORKSPACE/python_package/examples/tests/blackman_harris_window.py
     - name: MNE Python
       run: sudo -H python3 $GITHUB_WORKSPACE/python_package/examples/tests/brainflow_to_mne.py
     - name: BandPower Python
