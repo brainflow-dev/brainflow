@@ -28,6 +28,7 @@ SET (BOARD_CONTROLLER_SRC
     ${CMAKE_CURRENT_SOURCE_DIR}/src/utils/os_serial.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/utils/os_serial_ioctl.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/utils/serial.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/utils/serial_port_info.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/utils/libftdi_serial.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/utils/socket_client_tcp.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/utils/socket_client_udp.cpp
@@ -39,6 +40,7 @@ SET (BOARD_CONTROLLER_SRC
     ${CMAKE_CURRENT_SOURCE_DIR}/src/utils/broadcast_server.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/board_controller/openbci/galea.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/board_controller/openbci/openbci_serial_board.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/board_controller/openbci/openbci_serial_helpers.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/board_controller/openbci/openbci_wifi_shield_board.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/board_controller/openbci/ganglion_wifi.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/board_controller/openbci/cyton_wifi.cpp
@@ -161,6 +163,9 @@ target_include_directories (
 )
 
 target_compile_definitions(${BOARD_CONTROLLER_NAME} PRIVATE NOMINMAX BRAINFLOW_VERSION=${BRAINFLOW_VERSION})
+
+include (${CMAKE_CURRENT_SOURCE_DIR}/cmake/serial_port_info.cmake)
+link_serial_port_info (${BOARD_CONTROLLER_NAME})
 
 if (BUILD_BLE)
     target_compile_definitions (${BOARD_CONTROLLER_NAME} PRIVATE BRAINFLOW_BUILD_BLE)

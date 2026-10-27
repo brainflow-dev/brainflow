@@ -22,6 +22,7 @@ It provides a **uniform data acquisition API for all supported boards**, it mean
     Examples
     GameEngines
     BrainFlowDev
+    SerialPortDiscovery
     AskHelp
     Partners
     License

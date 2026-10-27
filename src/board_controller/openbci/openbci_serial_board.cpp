@@ -2,6 +2,7 @@
 
 #include "openbci_sampling_tracker.h"
 #include "openbci_serial_board.h"
+#include "openbci_serial_helpers.h"
 #include "serial.h"
 #ifdef _WIN32
 #include "windows_registry.h"
@@ -137,49 +138,24 @@ int OpenBCISerialBoard::set_port_settings ()
     int set_latency_res = serial->set_custom_latency (1);
     safe_logger (spdlog::level::info, "set_latency_res is: {}", set_latency_res);
 #endif
+    // Clear stale input before requesting a fresh welcome, never after sending "v".
+    // Older optional libftdi versions do not implement flushing.
+    if (serial->flush_buffer () != SerialExitCodes::OK)
+    {
+        safe_logger (spdlog::level::warn, "Unable to flush serial buffer before board reset");
+    }
     return send_to_board ("v");
 }
 
 int OpenBCISerialBoard::status_check ()
 {
-    unsigned char buf[1];
-    int count = 0;
-    int max_empty_seq = 5;
-    int num_empty_attempts = 0;
-    std::string resp = "";
-
-    for (int i = 0; i < 500; i++)
+    std::string response;
+    int timeout = params.timeout > 0 ? params.timeout : 6;
+    if (wait_for_openbci_welcome (*serial, std::chrono::seconds (timeout), response))
     {
-        int res = serial->read_from_serial_port (buf, 1);
-        if (res > 0)
-        {
-            resp += buf[0];
-            num_empty_attempts = 0;
-            // board is ready if there are '$$$'
-            if (buf[0] == '$')
-            {
-                count++;
-            }
-            else
-            {
-                count = 0;
-            }
-            if (count == 3)
-            {
-                return (int)BrainFlowExitCodes::STATUS_OK;
-            }
-        }
-        else
-        {
-            num_empty_attempts++;
-            if (num_empty_attempts > max_empty_seq)
-            {
-                safe_logger (spdlog::level::err, "board doesnt send welcome characters! Msg: {}",
-                    resp.c_str ());
-                return (int)BrainFlowExitCodes::BOARD_NOT_READY_ERROR;
-            }
-        }
+        return (int)BrainFlowExitCodes::STATUS_OK;
     }
+    safe_logger (spdlog::level::err, "board doesnt send welcome characters! Msg: {}", response);
     return (int)BrainFlowExitCodes::BOARD_NOT_READY_ERROR;
 }
 
@@ -190,13 +166,42 @@ int OpenBCISerialBoard::prepare_session ()
         safe_logger (spdlog::level::info, "Session already prepared");
         return (int)BrainFlowExitCodes::STATUS_OK;
     }
-    if (params.serial_port.empty ())
+    if (params.timeout < 0 || params.timeout > 600)
     {
-        safe_logger (spdlog::level::err, "serial port is empty");
+        safe_logger (spdlog::level::err, "timeout must be between 0 and 600 seconds");
         return (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR;
     }
+    std::string port_name = params.serial_port;
+    if (port_name.empty ())
+    {
+        std::vector<SerialPortInfo> ports;
+        int enumeration_result = Serial::get_port_info (ports);
+        if (enumeration_result != SerialExitCodes::OK)
+        {
+            safe_logger (spdlog::level::err,
+                "Unable to enumerate serial ports ({}); specify serial_port explicitly",
+                enumeration_result);
+            return (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR;
+        }
+        auto candidates = get_openbci_serial_candidates (board_id, ports, params.serial_number);
+        if (candidates.size () != 1)
+        {
+            safe_logger (spdlog::level::err,
+                "Found {} matching Cyton USB ports; specify serial_port or a unique USB "
+                "serial_number",
+                candidates.size ());
+            for (const auto &candidate : candidates)
+            {
+                safe_logger (spdlog::level::info, "candidate port: {}, USB serial_number: {}",
+                    candidate.port, candidate.serial_number);
+            }
+            return (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR;
+        }
+        port_name = candidates[0].port;
+        safe_logger (spdlog::level::info, "discovered Cyton candidate port {}", port_name);
+    }
 #ifdef _WIN32
-    LONG res = set_ftdi_latency_in_registry (1, params.serial_port);
+    LONG res = set_ftdi_latency_in_registry (1, port_name);
     if (res != ERROR_SUCCESS)
     {
         safe_logger (spdlog::level::warn,
@@ -204,7 +209,7 @@ int OpenBCISerialBoard::prepare_session ()
             "reconnection may be needed.");
     }
 #endif
-    serial = Serial::create (params.serial_port.c_str (), this);
+    serial = Serial::create (port_name.c_str (), this);
     int port_open = open_port ();
     if (port_open != (int)BrainFlowExitCodes::STATUS_OK)
     {
@@ -232,6 +237,8 @@ int OpenBCISerialBoard::prepare_session ()
     int send_res = send_to_board ("d");
     if (send_res != (int)BrainFlowExitCodes::STATUS_OK)
     {
+        delete serial;
+        serial = NULL;
         return send_res;
     }
     // cyton sends response back, clean serial buffer and analyze response
