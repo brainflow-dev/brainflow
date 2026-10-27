@@ -5,9 +5,10 @@
 #include "serial_port_info.h"
 
 #ifdef _WIN32
+#include <windows.h>
+
 #include <cfgmgr32.h>
 #include <setupapi.h>
-#include <windows.h>
 #elif defined(__APPLE__)
 #include <TargetConditionals.h>
 #if TARGET_OS_OSX
@@ -303,7 +304,7 @@ static int enumerate_native (std::vector<SerialPortInfo> &ports)
     return serial_port_info::enumerate_linux (ports, "/sys/class/tty", "/dev");
 }
 #else
-static int enumerate_native (std::vector<SerialPortInfo> &ports)
+static int enumerate_native (std::vector<SerialPortInfo> &)
 {
     return SerialExitCodes::NO_SYSTEM_HEADERS_FOUND_ERROR;
 }
