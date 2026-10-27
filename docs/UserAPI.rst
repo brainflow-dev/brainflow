@@ -74,7 +74,7 @@ PSD and Welch return one-sided power density in input-units squared per Hz, norm
 by ``sampling_rate * sum(window**2)``. DC and Nyquist are not doubled. This corrects
 the historical underestimation with nonrectangular windows and integer overflow for
 large FFTs. Absolute powers therefore change. Windows are periodic; the four-term
-Blackman-Harris coefficients are 0.355768, 0.487396, 0.144232, and 0.012604.
+Blackman-Harris coefficients are 0.35875, 0.48829, 0.14128, and 0.01168.
 
 Public filters require positive finite cutoffs strictly below Nyquist, ascending
 band edges, order 1-8, and positive finite Chebyshev ripple. Zero-phase methods
