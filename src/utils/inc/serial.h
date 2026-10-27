@@ -1,5 +1,16 @@
 #pragma once
 
+#include <string>
+#include <vector>
+
+// Metadata only: enumeration must never open a port or send device commands.
+struct SerialPortInfo
+{
+    std::string port;
+    int vid = -1;
+    int pid = -1;
+    std::string serial_number;
+};
 
 enum SerialExitCodes : int
 {
@@ -11,7 +22,8 @@ enum SerialExitCodes : int
     CLOSE_ERROR = -5,
     NO_SYSTEM_HEADERS_FOUND_ERROR = -6,
     PORT_NAME_ERROR = -7,
-    NO_LIBFTDI_ERROR = -8
+    NO_LIBFTDI_ERROR = -8,
+    ENUMERATION_ERROR = -9
 };
 
 class Board;
@@ -20,6 +32,9 @@ class Serial
 {
 public:
     static Serial *create (const char *port_name, Board *board = nullptr);
+    // USB serial ports with OS device nodes. Does not enumerate libftdi URLs.
+    // An empty successful result differs from an unsupported/failed enumeration.
+    static int get_port_info (std::vector<SerialPortInfo> &ports);
 
     virtual ~Serial ()
     {

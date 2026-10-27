@@ -1,0 +1,27 @@
+name: Serial discovery
+
+on: [push, pull_request]
+
+jobs:
+  native-tests:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-2022, macos-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Configure hardware-independent serial tests
+        run: cmake -S src/tests/serial -B build/serial-tests -DCMAKE_BUILD_TYPE=Release
+      - name: Build
+        run: cmake --build build/serial-tests --config Release --parallel 2
+      - name: Test
+        run: ctest --test-dir build/serial-tests -C Release --output-on-failure --timeout 30
+      - name: Build BoardController for POSIX integration
+        if: runner.os == 'Linux'
+        run: |
+          cmake -S . -B build/serial-integration -DBUILD_SYNCHRONI_SDK=OFF -DBRAINFLOW_COPY_TO_PACKAGE_DIRS=OFF -DWARNINGS_AS_ERRORS=ON
+          cmake --build build/serial-integration --target BoardController --parallel 2
+      - name: Test OpenBCI startup through pseudo terminals
+        if: runner.os == 'Linux'
+        run: python3 src/tests/serial/openbci_serial_pty.py compiled/libBoardController.so

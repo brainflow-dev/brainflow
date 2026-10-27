@@ -230,6 +230,10 @@ To create such board you need to specify the following board ID and fields of Br
 - :code:`BoardIds.CYTON_BOARD`
 - :code:`serial_port`, e.g. COM3, /dev/ttyUSB0, etc
 
+On Windows, Linux and macOS, ``serial_port`` may be empty to discover a unique FT231X USB dongle.
+If several match, set ``serial_number`` to the desired USB dongle serial or specify the port explicitly.
+See :doc:`SerialPortDiscovery` for selection rules, timeout settings and limitations.
+
 Initialization Example:
 
 .. code-block:: python
@@ -308,6 +312,9 @@ To create such board you need to specify the following board ID and fields of Br
 
 - :code:`BoardIds.CYTON_DAISY_BOARD`
 - :code:`serial_port`, e.g. COM3, /dev/ttyUSB0, etc
+
+The same automatic USB-port discovery and USB ``serial_number`` selection as Cyton are available.
+See :doc:`SerialPortDiscovery`.
 
 Initialization Example:
 
