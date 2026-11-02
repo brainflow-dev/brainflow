@@ -3,7 +3,7 @@ import enum
 import os
 import platform
 import struct
-from typing import List, Tuple
+from typing import List, Optional, Tuple, Union
 
 import numpy
 from importlib.resources import files
@@ -1586,6 +1586,81 @@ class DataFilter(object):
         s = s.reshape(num_components, data.shape[1])
 
         return w, k, a, s
+
+    @staticmethod
+    def _parse_channel_indices(channels, num_channels: int, arg_name: str,
+                               allow_empty: bool = False) -> numpy.ndarray:
+        if channels is None:
+            indices = numpy.asarray([], dtype=numpy.int64)
+        else:
+            indices = numpy.atleast_1d(numpy.asarray(channels))
+            if indices.ndim != 1:
+                raise ValueError('%s must be a 1D sequence of channel indices' % arg_name)
+            if indices.size > 0 and not numpy.issubdtype(indices.dtype, numpy.integer):
+                raise ValueError('%s must contain integer channel indices' % arg_name)
+            indices = indices.astype(numpy.int64, copy=False)
+
+        if indices.size == 0:
+            if allow_empty:
+                return indices
+            raise ValueError('%s must not be empty' % arg_name)
+
+        if numpy.any(indices < 0) or numpy.any(indices >= num_channels):
+            raise ValueError('%s contains out-of-range channel index' % arg_name)
+
+        return indices
+
+    @classmethod
+    def rereference_channels(cls, data, reference: Union[List, Tuple, numpy.ndarray],
+                             excluded_channels: Optional[Union[List, Tuple, numpy.ndarray]] = None):
+        """re-reference EEG/EXG channels by subtracting a shared reference signal
+
+        Computes an element-wise mean across the selected reference channels and
+        subtracts that reference from every non-excluded channel. This is useful for
+        common average referencing and similar EEG/EXG re-referencing workflows.
+        Channel indices are zero-based. The input array is not modified.
+
+        :param data: 2d array with shape (channels, samples)
+        :type data: NDArray[Shape["*, *"], Float64]
+        :param reference: zero-based indices of channels used to compute the reference
+        :type reference: list or tuple or ndarray
+        :param excluded_channels: zero-based indices of channels that remain unchanged, empty by default
+        :type excluded_channels: list or tuple or ndarray or None
+        :return: new 2d array with the same shape as ``data``
+        :rtype: NDArray[Shape["*, *"], Float64]
+        :raises ValueError: if ``data`` is not a non-empty 2d array, ``reference`` is empty,
+            any channel index is out of range, reference indices are duplicated, or a channel
+            appears in both ``reference`` and ``excluded_channels``
+        """
+        data_arr = numpy.asarray(data)
+        if data_arr.ndim != 2:
+            raise ValueError('data must be a 2D array with shape (channels, samples)')
+        num_channels, num_samples = data_arr.shape
+        if num_channels == 0 or num_samples == 0:
+            raise ValueError('data must have at least one channel and one sample')
+
+        ref_indices = cls._parse_channel_indices(reference, num_channels, 'reference')
+        if ref_indices.size != numpy.unique(ref_indices).size:
+            raise ValueError('reference must not contain duplicate indices')
+
+        excl_indices = cls._parse_channel_indices(
+            excluded_channels, num_channels, 'excluded_channels', allow_empty=True)
+        if numpy.intersect1d(ref_indices, excl_indices).size > 0:
+            raise ValueError(
+                'a channel cannot appear in both reference and excluded_channels')
+
+        work = data_arr.astype(numpy.float64, copy=True)
+        reference_signal = numpy.mean(work[ref_indices], axis=0)
+        update_mask = numpy.ones(num_channels, dtype=bool)
+        update_mask[excl_indices] = False
+        work[update_mask] -= reference_signal
+
+        if numpy.issubdtype(data_arr.dtype, numpy.floating):
+            result = work.astype(data_arr.dtype, copy=False)
+            if excl_indices.size > 0:
+                result[excl_indices] = data_arr[excl_indices]
+            return result
+        return work
 
     @classmethod
     def perform_ifft(cls, data):

@@ -136,6 +136,11 @@ Data files accept rectangular tab- or comma-separated finite numeric values, inc
 a final line without a newline. Invalid tokens and insufficient destination capacity
 return errors. Writing uses enough decimal precision to round-trip doubles.
 
+Python ``DataFilter.rereference_channels`` subtracts the element-wise mean of selected
+reference channels from every non-excluded channel of a ``(channels, samples)`` array.
+It returns a new array and does not mutate the input. Channel indices are zero-based.
+This helper is currently implemented only in the Python binding.
+
 Python API Reference
 ----------------------
 

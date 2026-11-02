@@ -250,6 +250,7 @@ jobs:
         python python_package\examples\tests\decomposition_regression.py
         python python_package\examples\tests\signal_metrics_regression.py
         python python_package\examples\tests\binding_validation_regression.py
+        python python_package\examples\tests\rereference_channels.py
       shell: cmd
     - name: Signal Processing Regression Csharp
       run: dotnet run --project csharp_package\brainflow\examples\signal_processing_regression
