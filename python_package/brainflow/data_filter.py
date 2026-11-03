@@ -3,7 +3,7 @@ import enum
 import os
 import platform
 import struct
-from typing import List, Optional, Tuple, Union
+from typing import List, Tuple
 
 import numpy
 from importlib.resources import files
@@ -485,6 +485,18 @@ class DataHandlerDLL(object):
         self.perform_ica_with_options.restype = ctypes.c_int
         self.perform_ica_with_options.argtypes = self.perform_ica.argtypes + [
             ctypes.c_int, ctypes.c_double, ctypes.c_int]
+
+        self.rereference_channels = self.lib.rereference_channels
+        self.rereference_channels.restype = ctypes.c_int
+        self.rereference_channels.argtypes = [
+            ndpointer(ctypes.c_double, flags=('C_CONTIGUOUS', 'WRITEABLE')),
+            ctypes.c_int,
+            ctypes.c_int,
+            ndpointer(ctypes.c_int32),
+            ctypes.c_int,
+            ndpointer(ctypes.c_int32),
+            ctypes.c_int,
+        ]
 
         self.create_streaming_filter = self.lib.create_streaming_filter
         self.create_streaming_filter.restype = ctypes.c_int
@@ -1587,80 +1599,36 @@ class DataFilter(object):
 
         return w, k, a, s
 
-    @staticmethod
-    def _parse_channel_indices(channels, num_channels: int, arg_name: str,
-                               allow_empty: bool = False) -> numpy.ndarray:
-        if channels is None:
-            indices = numpy.asarray([], dtype=numpy.int64)
-        else:
-            indices = numpy.atleast_1d(numpy.asarray(channels))
-            if indices.ndim != 1:
-                raise ValueError('%s must be a 1D sequence of channel indices' % arg_name)
-            if indices.size > 0 and not numpy.issubdtype(indices.dtype, numpy.integer):
-                raise ValueError('%s must contain integer channel indices' % arg_name)
-            indices = indices.astype(numpy.int64, copy=False)
-
-        if indices.size == 0:
-            if allow_empty:
-                return indices
-            raise ValueError('%s must not be empty' % arg_name)
-
-        if numpy.any(indices < 0) or numpy.any(indices >= num_channels):
-            raise ValueError('%s contains out-of-range channel index' % arg_name)
-
-        return indices
-
     @classmethod
-    def rereference_channels(cls, data, reference: Union[List, Tuple, numpy.ndarray],
-                             excluded_channels: Optional[Union[List, Tuple, numpy.ndarray]] = None):
-        """re-reference EEG/EXG channels by subtracting a shared reference signal
+    def rereference_channels(cls, data, channels: List, reference_channels: List) -> None:
+        """re-reference selected EEG/EXG channels in-place
 
-        Computes an element-wise mean across the selected reference channels and
-        subtracts that reference from every non-excluded channel. This is useful for
-        common average referencing and similar EEG/EXG re-referencing workflows.
-        Channel indices are zero-based. The input array is not modified.
+        Computes an element-wise mean across ``reference_channels`` and subtracts that
+        reference from each channel listed in ``channels``. Overlap between the two lists
+        is allowed and is the usual pattern for common average referencing. Channel indices
+        are zero-based.
 
-        :param data: 2d array with shape (channels, samples)
+        :param data: writable float64 2d array with shape (channels, samples)
         :type data: NDArray[Shape["*, *"], Float64]
-        :param reference: zero-based indices of channels used to compute the reference
-        :type reference: list or tuple or ndarray
-        :param excluded_channels: zero-based indices of channels that remain unchanged, empty by default
-        :type excluded_channels: list or tuple or ndarray or None
-        :return: new 2d array with the same shape as ``data``
-        :rtype: NDArray[Shape["*, *"], Float64]
-        :raises ValueError: if ``data`` is not a non-empty 2d array, ``reference`` is empty,
-            any channel index is out of range, reference indices are duplicated, or a channel
-            appears in both ``reference`` and ``excluded_channels``
+        :param channels: zero-based indices of channels to update
+        :type channels: List
+        :param reference_channels: zero-based indices used to compute the mean reference
+        :type reference_channels: List
         """
-        data_arr = numpy.asarray(data)
-        if data_arr.ndim != 2:
-            raise ValueError('data must be a 2D array with shape (channels, samples)')
-        num_channels, num_samples = data_arr.shape
-        if num_channels == 0 or num_samples == 0:
-            raise ValueError('data must have at least one channel and one sample')
-
-        ref_indices = cls._parse_channel_indices(reference, num_channels, 'reference')
-        if ref_indices.size != numpy.unique(ref_indices).size:
-            raise ValueError('reference must not contain duplicate indices')
-
-        excl_indices = cls._parse_channel_indices(
-            excluded_channels, num_channels, 'excluded_channels', allow_empty=True)
-        if numpy.intersect1d(ref_indices, excl_indices).size > 0:
-            raise ValueError(
-                'a channel cannot appear in both reference and excluded_channels')
-
-        work = data_arr.astype(numpy.float64, copy=True)
-        reference_signal = numpy.mean(work[ref_indices], axis=0)
-        update_mask = numpy.ones(num_channels, dtype=bool)
-        update_mask[excl_indices] = False
-        work[update_mask] -= reference_signal
-
-        if numpy.issubdtype(data_arr.dtype, numpy.floating):
-            result = work.astype(data_arr.dtype, copy=False)
-            if excl_indices.size > 0:
-                result[excl_indices] = data_arr[excl_indices]
-            return result
-        return work
+        check_memory_layout_row_major(data, 2)
+        if data.dtype != numpy.float64 or not data.flags.writeable:
+            raise BrainFlowError('data must be a writable float64 array',
+                                 BrainFlowExitCodes.INVALID_ARGUMENTS_ERROR.value)
+        channels_arr = numpy.asarray(channels, dtype=numpy.int32)
+        reference_arr = numpy.asarray(reference_channels, dtype=numpy.int32)
+        if channels_arr.ndim != 1 or reference_arr.ndim != 1:
+            raise BrainFlowError('channel index arrays must be 1d',
+                                 BrainFlowExitCodes.INVALID_ARGUMENTS_ERROR.value)
+        res = DataHandlerDLL.get_instance().rereference_channels(
+            data, data.shape[0], data.shape[1], channels_arr, channels_arr.size,
+            reference_arr, reference_arr.size)
+        if res != BrainFlowExitCodes.STATUS_OK.value:
+            raise BrainFlowError('unable to rereference channels', res)
 
     @classmethod
     def perform_ifft(cls, data):

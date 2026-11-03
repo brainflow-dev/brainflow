@@ -66,6 +66,7 @@ class DataHandlerDLL extends DataHandlerFunctions
         this.detectPeaksZScore = this.lib.func(CLike.detect_peaks_z_score);
         this.performIca = this.lib.func(CLike.perform_ica);
         this.getActivityIndex = this.lib.func(CLike.get_activity_index);
+        this.rereferenceChannels = this.lib.func(CLike.rereference_channels);
         this.getCsp = this.lib.func(CLike.get_csp);
         this.detrend = this.lib.func(CLike.detrend);
         this.calcStddev = this.lib.func(CLike.calc_stddev);
@@ -782,5 +783,30 @@ export class DataFilter
             throw new BrainFlowError (res, 'Could not calc activity index');
         }
         return output;
+    }
+
+    public static rereferenceChannels(
+        data: number[][], channels: number[], referenceChannels: number[]): void
+    {
+        const columns = DataFilter.checkMatrix(data, true);
+        DataFilter.checkChannels(data, channels, columns);
+        DataFilter.checkChannels(data, referenceChannels, columns);
+        const flat = data.flat();
+        const res = DataHandlerDLL.getInstance().rereferenceChannels(
+            flat, data.length, columns, channels, channels.length, referenceChannels,
+            referenceChannels.length);
+        if (res !== BrainFlowExitCodes.STATUS_OK)
+        {
+            throw new BrainFlowError (res, 'Could not rereference channels');
+        }
+        var i: number;
+        var j: number;
+        for (i = 0; i < data.length; i++)
+        {
+            for (j = 0; j < columns; j++)
+            {
+                data[i][j] = flat[i * columns + j];
+            }
+        }
     }
 }

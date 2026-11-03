@@ -597,6 +597,22 @@ classdef DataFilter
             DataFilter.check_ec(exit_code, task_name);
             output = temp_output.Value;
         end
+
+        function data = rereference_channels(data, channels, reference_channels)
+            % re-reference selected channels in-place
+            channels = DataFilter.checked_channels(data, channels);
+            reference_channels = DataFilter.checked_channels(data, reference_channels);
+            task_name = 'rereference_channels';
+            transposed = transpose(data);
+            flatten = transpose(transposed(:));
+            temp_input = libpointer('doublePtr', flatten);
+            temp_channels = libpointer('int32Ptr', int32(channels - 1));
+            temp_reference = libpointer('int32Ptr', int32(reference_channels - 1));
+            lib_name = DataFilter.load_lib();
+            exit_code = calllib(lib_name, task_name, temp_input, size(data, 1), size(data, 2), temp_channels, numel(channels), temp_reference, numel(reference_channels));
+            DataFilter.check_ec(exit_code, task_name);
+            data = reshape(temp_input.Value, [size(data, 2), size(data, 1)])';
+        end
         
     end
     

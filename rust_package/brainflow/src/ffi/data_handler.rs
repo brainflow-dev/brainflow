@@ -299,6 +299,17 @@ extern "C" {
     ) -> ::std::os::raw::c_int;
 }
 extern "C" {
+    pub fn rereference_channels(
+        data: *mut f64,
+        rows: ::std::os::raw::c_int,
+        cols: ::std::os::raw::c_int,
+        channels: *mut ::std::os::raw::c_int,
+        channels_len: ::std::os::raw::c_int,
+        reference_channels: *mut ::std::os::raw::c_int,
+        reference_channels_len: ::std::os::raw::c_int,
+    ) -> ::std::os::raw::c_int;
+}
+extern "C" {
     pub fn set_log_level_data_handler(log_level: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
 }
 extern "C" {

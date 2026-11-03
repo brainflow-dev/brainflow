@@ -137,6 +137,9 @@ public class DataFilter
         int perform_ica (double[] data, int rows, int cols, int num_components, double[] w, double[] k, double[] a,
                 double[] s);
 
+        int rereference_channels (double[] data, int rows, int cols, int[] channels, int channels_len,
+                int[] reference_channels, int reference_channels_len);
+
         int get_activity_index (double[] accel_x, double[] accel_y, double[] accel_z, int data_len, int sampling_rate, int period,
                 double noise_var_x, double noise_var_y, double noise_var_z, double[] output);
 
@@ -986,6 +989,41 @@ public class DataFilter
         res.add (a_mat);
         res.add (s_mat);
         return res;
+    }
+
+    public static void rereference_channels (double[][] data, int[] channels, int[] reference_channels)
+            throws BrainFlowError
+    {
+        if (data == null || data.length == 0 || channels == null || reference_channels == null)
+        {
+            throw new BrainFlowError ("invalid args for rereference_channels",
+                    BrainFlowExitCode.INVALID_ARGUMENTS_ERROR.get_code ());
+        }
+        int cols = data[0].length;
+        for (int i = 0; i < data.length; i++)
+        {
+            if (data[i] == null || data[i].length != cols)
+            {
+                throw new BrainFlowError ("invalid args for rereference_channels",
+                        BrainFlowExitCode.INVALID_ARGUMENTS_ERROR.get_code ());
+            }
+        }
+        int rows = data.length;
+        double[] data_1d = new double[checked_product (rows, cols)];
+        for (int i = 0; i < rows; i++)
+        {
+            System.arraycopy (data[i], 0, data_1d, i * cols, cols);
+        }
+        int ec = instance.rereference_channels (data_1d, rows, cols, channels, channels.length,
+                reference_channels, reference_channels.length);
+        if (ec != BrainFlowExitCode.STATUS_OK.get_code ())
+        {
+            throw new BrainFlowError ("Failed to rereference_channels", ec);
+        }
+        for (int i = 0; i < rows; i++)
+        {
+            System.arraycopy (data_1d, i * cols, data[i], 0, cols);
+        }
     }
 
     /**
