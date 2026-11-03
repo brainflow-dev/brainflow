@@ -60,6 +60,15 @@ class SignalProcessingRegression(unittest.TestCase):
                 np.testing.assert_allclose(DataFilter.perform_ifft(actual), data * weights, atol=1e-12)
         np.testing.assert_array_equal(data, original)
 
+    def test_ifft_accepts_strided_complex_input_without_modifying_it(self):
+        signal_data = np.random.default_rng(31).normal(size=256)
+        spectrum = np.fft.rfft(signal_data)
+        storage = np.zeros(spectrum.size * 2, dtype=np.complex128)
+        storage[::2] = spectrum
+        before = storage.copy()
+        np.testing.assert_allclose(DataFilter.perform_ifft(storage[::2]), signal_data, atol=1e-12)
+        np.testing.assert_array_equal(storage, before)
+
     def test_spectral_nonfinite_inputs_are_rejected(self):
         for value in (np.nan, np.inf, -np.inf):
             data = np.ones(256)
