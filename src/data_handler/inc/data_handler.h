@@ -120,6 +120,14 @@ extern "C"
         const char *file_name, int *num_elements); // its an internal method for bindings its not
                                                    // available via high level api
 
+    // Parse once into an immutable snapshot. Dimensions use BrainFlow's channel-major layout.
+    // copy_file_read writes into caller-owned memory; capacity is measured in doubles.
+    // Always release a successful handle, including when allocation or copying fails.
+    SHARED_EXPORT int CALLING_CONVENTION prepare_file_read (
+        const char *file_name, int *handle, int *num_rows, int *num_cols);
+    SHARED_EXPORT int CALLING_CONVENTION copy_file_read (int handle, double *data, int capacity);
+    SHARED_EXPORT int CALLING_CONVENTION release_file_read (int handle);
+
     // platform types and methods
     SHARED_EXPORT int CALLING_CONVENTION get_version_data_handler (
         char *version, int *num_chars, int max_chars);

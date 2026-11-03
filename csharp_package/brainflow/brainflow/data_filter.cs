@@ -605,23 +605,24 @@ namespace brainflow
         /// <returns></returns>
         public static double[,] read_file (string file_name)
         {
-            int[] num_elements = new int[1];
-            int res = DataHandlerLibrary.get_num_elements_in_file (file_name, num_elements);
+            int[] handle = new int[1];
+            int[] rows = new int[1];
+            int[] cols = new int[1];
+            int res = DataHandlerLibrary.prepare_file_read (file_name, handle, rows, cols);
             if (res != (int)BrainFlowExitCodes.STATUS_OK)
-            {
                 throw new BrainFlowError (res);
-            }
-            double[] data_arr = new double[num_elements[0]];
-            int[] num_rows = new int[1];
-            int[] num_cols = new int[1];
-            res = DataHandlerLibrary.read_file (data_arr, num_rows, num_cols, file_name, num_elements[0]);
-            if (res != (int)BrainFlowExitCodes.STATUS_OK)
+            try
             {
-                throw new BrainFlowError (res);
+                double[,] data = new double[rows[0], cols[0]];
+                res = DataHandlerLibrary.copy_file_read (handle[0], data, data.Length);
+                if (res != (int)BrainFlowExitCodes.STATUS_OK)
+                    throw new BrainFlowError (res);
+                return data;
             }
-
-            double[,] result = data_arr.Reshape(num_rows[0], num_cols[0]);
-            return result;
+            finally
+            {
+                DataHandlerLibrary.release_file_read (handle[0]);
+            }
         }
 
         /// <summary>

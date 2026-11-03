@@ -137,48 +137,75 @@ namespace
         return ok;
     }
 
-    int parse_file (const char *name, std::vector<double> &values, int &rows, int &cols)
+    struct FileReadState
+    {
+        std::vector<double> values;
+        int rows, cols;
+    };
+    std::mutex file_registry_mutex;
+    std::map<int, std::shared_ptr<FileReadState>> file_reads;
+    int64_t next_file_handle = 1;
+
+    bool file_space (int ch)
+    {
+        return ch == ' ' || ch == '\t' || ch == '\r' || ch == '\n' || ch == '\f' || ch == '\v';
+    }
+
+    int parse_file (const char *name, std::vector<double> *values, int &rows, int &cols)
     {
         if (!name)
             return invalid;
         std::ifstream stream (name);
-        stream.imbue (std::locale::classic ());
         if (!stream)
             return invalid;
         rows = cols = 0;
+        size_t count = 0;
         std::string line;
+        // Reuse one classic-locale stream instead of constructing one per number.
+        std::istringstream row;
+        row.imbue (std::locale::classic ());
         while (std::getline (stream, line))
         {
-            if (!line.empty () && line.back () == '\r')
-                line.pop_back ();
-            if (line.empty ())
-                return invalid;
             const char separator = line.find ('\t') != std::string::npos ? '\t' : ',';
-            if (line.back () == separator)
-                return invalid;
-            std::istringstream row (line);
-            std::string token;
+            row.clear ();
+            row.str (line);
             int width = 0;
-            while (std::getline (row, token, separator))
+            while (true)
             {
-                std::istringstream number (token);
-                number.imbue (std::locale::classic ());
+                while (file_space (row.peek ()) && row.peek () != separator)
+                    row.get ();
+                if (row.peek () == separator || row.peek () == std::char_traits<char>::eof ())
+                    return invalid;
                 double value;
-                if (!(number >> value) || !std::isfinite (value))
+                if (!(row >> value) || !std::isfinite (value) ||
+                    count >= (size_t)std::numeric_limits<int>::max ())
                     return invalid;
-                number >> std::ws;
-                if (!number.eof () || values.size () >= (size_t)std::numeric_limits<int>::max ())
-                    return invalid;
-                values.push_back (value);
+                if (values)
+                    values->push_back (value);
+                count++;
                 width++;
+                while (file_space (row.peek ()) && row.peek () != separator)
+                    row.get ();
+                if (row.peek () == std::char_traits<char>::eof ())
+                    break;
+                if (row.get () != separator)
+                    return invalid;
             }
-            if (!width || (cols && cols != width))
+            if (cols && cols != width)
                 return invalid;
             cols = width;
             rows++;
         }
         return stream.bad () || !rows ? invalid : ok;
     }
+
+    void copy_file_values (const std::vector<double> &values, int rows, int cols, double *data)
+    {
+        for (int i = 0; i < rows; i++)
+            for (int j = 0; j < cols; j++)
+                data[(size_t)j * rows + i] = values[(size_t)i * cols + j];
+    }
+
 }
 
 int perform_lowpass (double *data, int n, int fs, double cutoff, int order, int type, double ripple)
@@ -692,11 +719,10 @@ try
 {
     if (!count)
         return invalid;
-    std::vector<double> values;
     int rows, cols;
-    int res = parse_file (name, values, rows, cols);
+    int res = parse_file (name, nullptr, rows, cols);
     if (res == ok)
-        *count = (int)values.size ();
+        *count = rows * cols;
     return res;
 }
 catch (...)
@@ -711,17 +737,73 @@ try
         return invalid;
     std::vector<double> values;
     int file_rows, file_cols;
-    int res = parse_file (name, values, file_rows, file_cols);
+    int res = parse_file (name, &values, file_rows, file_cols);
     if (res != ok)
         return res;
     if (values.size () > (size_t)capacity)
         return short_buffer;
-    for (int i = 0; i < file_rows; i++)
-        for (int j = 0; j < file_cols; j++)
-            data[(size_t)j * file_rows + i] = values[(size_t)i * file_cols + j];
+    copy_file_values (values, file_rows, file_cols, data);
     *rows = file_cols;
     *cols = file_rows;
     return ok;
+}
+catch (...)
+{
+    return failure;
+}
+
+int prepare_file_read (const char *name, int *handle, int *rows, int *cols)
+try
+{
+    if (!handle || !rows || !cols)
+        return invalid;
+    auto state = std::make_shared<FileReadState> ();
+    int res = parse_file (name, &state->values, state->rows, state->cols);
+    if (res != ok)
+        return res;
+    std::lock_guard<std::mutex> lock (file_registry_mutex);
+    if (next_file_handle > std::numeric_limits<int>::max ())
+        return failure;
+    const int id = (int)next_file_handle++;
+    file_reads.emplace (id, state);
+    *handle = id;
+    *rows = state->cols;
+    *cols = state->rows;
+    return ok;
+}
+catch (...)
+{
+    return failure;
+}
+
+int copy_file_read (int handle, double *data, int capacity)
+try
+{
+    if (!data || capacity < 0)
+        return invalid;
+    std::shared_ptr<FileReadState> state;
+    {
+        std::lock_guard<std::mutex> lock (file_registry_mutex);
+        auto found = file_reads.find (handle);
+        if (found == file_reads.end ())
+            return invalid;
+        state = found->second;
+    }
+    if (state->values.size () > (size_t)capacity)
+        return short_buffer;
+    copy_file_values (state->values, state->rows, state->cols, data);
+    return ok;
+}
+catch (...)
+{
+    return failure;
+}
+
+int release_file_read (int handle)
+try
+{
+    std::lock_guard<std::mutex> lock (file_registry_mutex);
+    return file_reads.erase (handle) ? ok : invalid;
 }
 catch (...)
 {

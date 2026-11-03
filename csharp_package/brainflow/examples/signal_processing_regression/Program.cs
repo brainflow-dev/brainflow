@@ -32,6 +32,18 @@ class Program
 
     static void Main(string[] args)
     {
+        string path = System.IO.Path.GetTempFileName();
+        try
+        {
+            System.IO.File.WriteAllText(path, "1,2\n3,4");
+            var loaded = DataFilter.read_file(path);
+            if (loaded.GetLength(0) != 2 || loaded.GetLength(1) != 2 ||
+                loaded[0, 1] != 3 || loaded[1, 0] != 2)
+                throw new Exception("File read layout changed");
+            System.IO.File.WriteAllText(path, "1,,2");
+            Reject(() => DataFilter.read_file(path));
+        }
+        finally { System.IO.File.Delete(path); }
         var data = new double[2, 256];
         Reject(() => DataFilter.perform_fft(data, 1, 0, 512, 0));
         Reject(() => DataFilter.get_psd(data, 1, 0, 512, 256, 0));

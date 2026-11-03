@@ -319,6 +319,18 @@ class DataHandlerDLL(object):
             ctypes.c_char_p
         ]
 
+        self.prepare_file_read = self.lib.prepare_file_read
+        self.prepare_file_read.restype = ctypes.c_int
+        self.prepare_file_read.argtypes = [ctypes.c_char_p, ndpointer(ctypes.c_int32),
+                                          ndpointer(ctypes.c_int32), ndpointer(ctypes.c_int32)]
+        self.copy_file_read = self.lib.copy_file_read
+        self.copy_file_read.restype = ctypes.c_int
+        self.copy_file_read.argtypes = [ctypes.c_int,
+            ndpointer(ctypes.c_double, ndim=1, flags=('C_CONTIGUOUS', 'WRITEABLE')), ctypes.c_int]
+        self.release_file_read = self.lib.release_file_read
+        self.release_file_read.restype = ctypes.c_int
+        self.release_file_read.argtypes = [ctypes.c_int]
+
         self.get_num_elements_in_file = self.lib.get_num_elements_in_file
         self.get_num_elements_in_file.restype = ctypes.c_int
         self.get_num_elements_in_file.argtypes = [
@@ -1726,24 +1738,21 @@ class DataFilter(object):
         except BaseException:
             file = file_name
 
-        num_elements = numpy.zeros(1).astype(numpy.int32)
-        res = DataHandlerDLL.get_instance().get_num_elements_in_file(file, num_elements)
-        if res != BrainFlowExitCodes.STATUS_OK.value:
-            raise BrainFlowError('unable to determine number of elements in file', res)
-
-        data_arr = numpy.zeros(num_elements[0]).astype(numpy.float64)
-        num_rows = numpy.zeros(1).astype(numpy.int32)
-        num_cols = numpy.zeros(1).astype(numpy.int32)
-
-        res = DataHandlerDLL.get_instance().read_file(data_arr, num_rows, num_cols, file, num_elements[0])
+        native = DataHandlerDLL.get_instance()
+        handle = numpy.zeros(1, dtype=numpy.int32)
+        rows = numpy.zeros(1, dtype=numpy.int32)
+        cols = numpy.zeros(1, dtype=numpy.int32)
+        res = native.prepare_file_read(file, handle, rows, cols)
         if res != BrainFlowExitCodes.STATUS_OK.value:
             raise BrainFlowError('unable to read file', res)
-
-        if len(num_rows) == 0 or len(num_cols) == 0:
-            return None
-
-        data_arr = data_arr[0:num_rows[0] * num_cols[0]].reshape(num_rows[0], num_cols[0])
-        return data_arr
+        try:
+            data = numpy.empty(int(rows[0]) * int(cols[0]), dtype=numpy.float64)
+            res = native.copy_file_read(handle[0], data, data.size)
+            if res != BrainFlowExitCodes.STATUS_OK.value:
+                raise BrainFlowError('unable to read file', res)
+            return data.reshape(rows[0], cols[0])
+        finally:
+            native.release_file_read(handle[0])
 
     @classmethod
     def get_version(cls) -> str:

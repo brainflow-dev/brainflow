@@ -140,6 +140,12 @@ namespace brainflow
         [DllImport ("DataHandler", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int read_file (double[] data, int[] num_rows, int[] num_cols, string file_name, int max_elements);
         [DllImport ("DataHandler", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        public static extern int prepare_file_read (string file_name, int[] handle, int[] rows, int[] cols);
+        [DllImport ("DataHandler", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        public static extern int copy_file_read (int handle, double[,] data, int capacity);
+        [DllImport ("DataHandler", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        public static extern int release_file_read (int handle);
+        [DllImport ("DataHandler", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int get_num_elements_in_file (string file_name, int[] num_elements);
         [DllImport ("DataHandler", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int perform_wavelet_transform (double[] data, int data_len, int wavelet, int decomposition_level, int extension, double[] output_data, int[] decomposition_lengths);
@@ -253,6 +259,12 @@ namespace brainflow
         public static extern int write_file (double[] data, int num_rows, int num_cols, string file_name, string file_mode);
         [DllImport ("DataHandler32", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int read_file (double[] data, int[] num_rows, int[] num_cols, string file_name, int max_elements);
+        [DllImport ("DataHandler32", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        public static extern int prepare_file_read (string file_name, int[] handle, int[] rows, int[] cols);
+        [DllImport ("DataHandler32", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        public static extern int copy_file_read (int handle, double[,] data, int capacity);
+        [DllImport ("DataHandler32", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        public static extern int release_file_read (int handle);
         [DllImport ("DataHandler32", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int get_num_elements_in_file (string file_name, int[] num_elements);
         [DllImport ("DataHandler32", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
@@ -525,6 +537,42 @@ namespace brainflow
                     return DataHandlerLibrary32.perform_downsampling (data, len, period, operation, filtered_data);
             }
 
+            return (int)BrainFlowExitCodes.GENERAL_ERROR;
+        }
+
+        public static int prepare_file_read (string file_name, int[] handle, int[] rows, int[] cols)
+        {
+            switch (PlatformHelper.get_library_environment ())
+            {
+                case LibraryEnvironment.x64:
+                    return DataHandlerLibrary64.prepare_file_read (file_name, handle, rows, cols);
+                case LibraryEnvironment.x86:
+                    return DataHandlerLibrary32.prepare_file_read (file_name, handle, rows, cols);
+            }
+            return (int)BrainFlowExitCodes.GENERAL_ERROR;
+        }
+
+        public static int copy_file_read (int handle, double[,] data, int capacity)
+        {
+            switch (PlatformHelper.get_library_environment ())
+            {
+                case LibraryEnvironment.x64:
+                    return DataHandlerLibrary64.copy_file_read (handle, data, capacity);
+                case LibraryEnvironment.x86:
+                    return DataHandlerLibrary32.copy_file_read (handle, data, capacity);
+            }
+            return (int)BrainFlowExitCodes.GENERAL_ERROR;
+        }
+
+        public static int release_file_read (int handle)
+        {
+            switch (PlatformHelper.get_library_environment ())
+            {
+                case LibraryEnvironment.x64:
+                    return DataHandlerLibrary64.release_file_read (handle);
+                case LibraryEnvironment.x86:
+                    return DataHandlerLibrary32.release_file_read (handle);
+            }
             return (int)BrainFlowExitCodes.GENERAL_ERROR;
         }
 

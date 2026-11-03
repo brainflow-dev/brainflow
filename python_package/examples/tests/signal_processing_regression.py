@@ -179,10 +179,31 @@ class SignalProcessingRegression(unittest.TestCase):
     def test_file_parser_rejects_partial_tokens_and_ragged_rows(self):
         with tempfile.TemporaryDirectory() as directory:
             path = Path(directory) / 'invalid.tsv'
-            for content in ('1x\t2\n', '1\t2\n3\n', '1\t2\t\n', '1\tNaN\n'):
+            for content in ('1x\t2\n', '1\t2\n3\n', '1\t2\t\n', '1\tNaN\n', '', ' \n', '1,,2', '1\t\t2',
+                            ',1', '1,', '1,2,  ', '1 2', '1e999,2', '1,inf', '1e,2'):
                 with self.subTest(content=content):
                     path.write_text(content)
                     self.assert_invalid(DataFilter.read_file, str(path))
+
+    def test_file_snapshot_survives_file_changes_and_checks_capacity(self):
+        native = DataHandlerDLL.get_instance()
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / 'data.csv'
+            path.write_text(' +1.25, -2e-3 \r\n3,4')
+            handle, rows, cols = (np.zeros(1, dtype=np.int32) for _ in range(3))
+            self.assertEqual(native.prepare_file_read(str(path).encode(), handle, rows, cols), 0)
+            try:
+                path.unlink()
+                self.assertEqual((rows[0], cols[0]), (2, 2))
+                output = np.full(4, 99.0)
+                self.assertEqual(native.copy_file_read(handle[0], output, 3), 9)
+                np.testing.assert_array_equal(output, np.full(4, 99.0))
+                self.assertEqual(native.copy_file_read(handle[0], output, 4), 0)
+                np.testing.assert_array_equal(output, [1.25, 3, -0.002, 4])
+            finally:
+                self.assertEqual(native.release_file_read(handle[0]), 0)
+            self.assertEqual(native.copy_file_read(handle[0], output, 4), 13)
+            self.assertEqual(native.release_file_read(handle[0]), 13)
 
     def test_native_file_read_enforces_actual_capacity_without_writing(self):
         with tempfile.TemporaryDirectory() as directory:
