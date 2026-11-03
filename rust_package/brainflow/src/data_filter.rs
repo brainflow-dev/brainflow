@@ -1011,6 +1011,46 @@ pub fn get_activity_index(
     Ok(output)
 }
 
+/// Re-reference selected channels in-place by subtracting the element-wise mean of
+/// ``reference_channels`` from each channel listed in ``channels``.
+pub fn rereference_channels(
+    data: &mut Array2<f64>,
+    channels: &[usize],
+    reference_channels: &[usize],
+) -> Result<()> {
+    let shape = data.shape();
+    let (rows, cols) = (shape[0], shape[1]);
+    for &ch in channels.iter().chain(reference_channels.iter()) {
+        if ch >= rows {
+            return Err(invalid_arguments());
+        }
+    }
+    let channels_i32: Vec<c_int> = channels
+        .iter()
+        .map(|&c| native_int(c))
+        .collect::<Result<Vec<_>>>()?;
+    let reference_i32: Vec<c_int> = reference_channels
+        .iter()
+        .map(|&c| native_int(c))
+        .collect::<Result<Vec<_>>>()?;
+    let slice = data
+        .as_slice_mut()
+        .ok_or_else(invalid_arguments)?;
+    let res = unsafe {
+        data_handler::rereference_channels(
+            slice.as_mut_ptr() as *mut c_double,
+            native_int(rows)?,
+            native_int(cols)?,
+            channels_i32.as_ptr() as *mut c_int,
+            native_int(channels_i32.len())?,
+            reference_i32.as_ptr() as *mut c_int,
+            native_int(reference_i32.len())?,
+        )
+    };
+    check_brainflow_exit_code(res)?;
+    Ok(())
+}
+
 /// Get DataFilter version.
 pub fn get_version() -> Result<String> {
     const MAX_CHARS: usize = 64;

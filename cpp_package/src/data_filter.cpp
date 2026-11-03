@@ -670,6 +670,28 @@ double *DataFilter::get_activity_index (const double *accel_x, const double *acc
     return output;
 }
 
+void DataFilter::rereference_channels (BrainFlowArray<double, 2> &data,
+    const std::vector<int> &channels, const std::vector<int> &reference_channels)
+{
+    validate_channels (data, channels);
+    validate_channels (data, reference_channels);
+    if (channels.size () > (size_t)std::numeric_limits<int>::max () ||
+        reference_channels.size () > (size_t)std::numeric_limits<int>::max ())
+    {
+        throw BrainFlowException (
+            "invalid channel dimensions", (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR);
+    }
+    std::vector<int> channels_copy (channels.begin (), channels.end ());
+    std::vector<int> reference_copy (reference_channels.begin (), reference_channels.end ());
+    int res = ::rereference_channels (data.get_raw_ptr (), data.get_size (0), data.get_size (1),
+        channels_copy.data (), (int)channels_copy.size (), reference_copy.data (),
+        (int)reference_copy.size ());
+    if (res != (int)BrainFlowExitCodes::STATUS_OK)
+    {
+        throw BrainFlowException ("failed to rereference channels", res);
+    }
+}
+
 std::string DataFilter::get_version ()
 {
     char version[64];

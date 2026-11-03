@@ -71,5 +71,41 @@ int main ()
     lengths[0]++;
     reject (
         [&] { DataFilter::perform_inverse_wavelet_transform (coefficients, lengths, 256, 3, 3); });
+
+    BrainFlowArray<double, 2> reref_data (4, 3);
+    double values[12] = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12};
+    for (int i = 0; i < 4; i++)
+        for (int j = 0; j < 3; j++)
+            reref_data.at (i, j) = values[i * 3 + j];
+    DataFilter::rereference_channels (reref_data, {0, 1}, {0, 1});
+    for (int j = 0; j < 3; j++)
+        if (std::abs (reref_data.at (0, j) + 1.5) > 1e-12 ||
+            std::abs (reref_data.at (1, j) - 1.5) > 1e-12 ||
+            std::abs (reref_data.at (2, j) - values[6 + j]) > 1e-12)
+            throw std::runtime_error ("Two-channel average reference failed");
+
+    for (int i = 0; i < 4; i++)
+        for (int j = 0; j < 3; j++)
+            reref_data.at (i, j) = values[i * 3 + j];
+    DataFilter::rereference_channels (reref_data, {0, 1, 2, 3}, {1});
+    for (int j = 0; j < 3; j++)
+        if (std::abs (reref_data.at (1, j)) > 1e-12 ||
+            std::abs (reref_data.at (0, j) - (values[j] - values[3 + j])) > 1e-12)
+            throw std::runtime_error ("Single-channel reference failed");
+
+    for (int i = 0; i < 4; i++)
+        for (int j = 0; j < 3; j++)
+            reref_data.at (i, j) = values[i * 3 + j];
+    DataFilter::rereference_channels (reref_data, {0, 1, 2, 3}, {0, 1, 2, 3});
+    for (int j = 0; j < 3; j++)
+    {
+        double mean = (values[j] + values[3 + j] + values[6 + j] + values[9 + j]) / 4.0;
+        for (int i = 0; i < 4; i++)
+            if (std::abs (reref_data.at (i, j) - (values[i * 3 + j] - mean)) > 1e-12)
+                throw std::runtime_error ("Common average reference failed");
+    }
+    reject ([&] { DataFilter::rereference_channels (reref_data, {0}, {4}); });
+    reject ([&] { DataFilter::rereference_channels (reref_data, {0, 0}, {1}); });
+
     std::cout << "Signal-processing binding validation passed." << std::endl;
 }

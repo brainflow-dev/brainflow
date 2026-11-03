@@ -540,6 +540,26 @@ function perform_ica(data, num_components::Integer)
     return perform_ica_select_channels(data, num_components, channels)
 end
 
+@brainflow_rethrow function rereference_channels(data, channels, reference_channels)
+    if !(data isa StridedMatrix{Float64})
+        throw(BrainFlowError("In-place processing requires a StridedMatrix{Float64}", Integer(INVALID_ARGUMENTS_ERROR)))
+    end
+    shape = size(data)
+    if !(0 < length(data) <= typemax(Cint)) || prod(shape) > typemax(Cint)
+        throw(BrainFlowError("Expected a nonempty real matrix", Integer(INVALID_ARGUMENTS_ERROR)))
+    end
+    channels = _dsp_channels(data, channels)
+    reference_channels = _dsp_channels(data, reference_channels)
+    channels_c = Int32.(channels .- 1)
+    reference_c = Int32.(reference_channels .- 1)
+    data_1d = copy(reshape(transpose(data), (1, prod(shape))))
+    ccall((:rereference_channels, DATA_HANDLER_INTERFACE), Cint,
+            (Ptr{Float64}, Cint, Cint, Ptr{Int32}, Cint, Ptr{Int32}, Cint),
+            data_1d, Int32(shape[1]), Int32(shape[2]), channels_c, length(channels_c), reference_c, length(reference_c))
+    copyto!(data, transpose(reshape(data_1d, shape[2], shape[1])))
+    return
+end
+
 @brainflow_rethrow function get_psd(data, sampling_rate::Integer, window::WinType)
     data = _dsp_signal(data)
 
