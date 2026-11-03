@@ -607,6 +607,24 @@ class DataHandlerDLL(object):
             ndpointer(ctypes.c_double)
         ]
 
+        self.create_band_power_context = self.lib.create_band_power_context
+        self.create_band_power_context.restype = ctypes.c_int
+        self.create_band_power_context.argtypes = [ctypes.c_int, ctypes.c_int,
+            ndpointer(ctypes.c_double), ndpointer(ctypes.c_double), ctypes.c_int,
+            ctypes.c_int, ctypes.c_int, ctypes.c_int, ctypes.c_double, ctypes.c_double,
+            ctypes.c_int, ctypes.c_int, ctypes.c_int, ndpointer(ctypes.c_int32)]
+        self.process_band_power_context = self.lib.process_band_power_context
+        self.process_band_power_context.restype = ctypes.c_int
+        self.process_band_power_context.argtypes = [ctypes.c_int,
+            ndpointer(ctypes.c_double, ndim=2, flags='C_CONTIGUOUS'), ctypes.c_int,
+            ctypes.c_int, ctypes.c_int, ctypes.c_int,
+            ndpointer(ctypes.c_int32, ndim=1, flags='C_CONTIGUOUS'), ctypes.c_int,
+            ndpointer(ctypes.c_double, ndim=1, flags=('C_CONTIGUOUS', 'WRITEABLE')),
+            ndpointer(ctypes.c_double, ndim=1, flags=('C_CONTIGUOUS', 'WRITEABLE')), ctypes.c_int]
+        self.release_band_power_context = self.lib.release_band_power_context
+        self.release_band_power_context.restype = ctypes.c_int
+        self.release_band_power_context.argtypes = [ctypes.c_int]
+
         self.get_version_data_handler = self.lib.get_version_data_handler
         self.get_version_data_handler.restype = ctypes.c_int
         self.get_version_data_handler.argtypes = [
@@ -682,6 +700,102 @@ class StreamingFilter:
             self.close()
         except Exception:
             # Finalizers may run after the native library has been torn down.
+            pass
+
+
+class BandPowerContext:
+    """Reusable batch band-power workspace with the existing windowed DSP semantics.
+
+    Bounds limit memory use. workers=0 chooses up to four persistent native workers;
+    workers=1 is serial. Small batches run serially. No OpenMP runtime is required.
+    Use as a context manager to release scratch buffers and workers promptly.
+    Calls on one context serialize; different contexts can execute concurrently.
+    """
+
+    def __init__(self, bands, sampling_rate, max_channels, max_samples, apply_filters=True,
+                 nfft=0, low_cutoff=0.0, high_cutoff=0.0, mains=-1,
+                 detrend_operation=None, workers=0):
+        self._handle = None
+        if detrend_operation is None:
+            detrend_operation = 1 if apply_filters else 0
+        for value in (sampling_rate, max_channels, max_samples, nfft, mains,
+                      detrend_operation, workers):
+            self._check_integer(value)
+        band_array = numpy.asarray(bands, dtype=numpy.float64)
+        if band_array.ndim != 2 or band_array.shape[1] != 2 or band_array.shape[0] == 0:
+            self._invalid('bands must contain start/end pairs')
+        self._band_count = band_array.shape[0]
+        self._dll = DataHandlerDLL.get_instance()
+        handle = numpy.zeros(1, dtype=numpy.int32)
+        res = self._dll.create_band_power_context(max_channels, max_samples,
+            numpy.ascontiguousarray(band_array[:, 0]), numpy.ascontiguousarray(band_array[:, 1]),
+            self._band_count, sampling_rate, int(apply_filters), nfft, low_cutoff,
+            high_cutoff, mains, detrend_operation, workers, handle)
+        self._check_result(res)
+        self._handle = int(handle[0])
+
+    @staticmethod
+    def _invalid(message):
+        raise BrainFlowError(message, BrainFlowExitCodes.INVALID_ARGUMENTS_ERROR.value)
+
+    @staticmethod
+    def _check_integer(value):
+        if not isinstance(value, (int, numpy.integer)) or not -2147483648 <= value <= 2147483647:
+            BandPowerContext._invalid('invalid context integer parameter')
+
+    @staticmethod
+    def _check_result(result):
+        if result != BrainFlowExitCodes.STATUS_OK.value:
+            raise BrainFlowError('band-power context operation failed', result)
+
+    def process(self, data, channels, out=None):
+        """Read selected rows without packing them. Optional out=(averages, variations)
+        supplies two writable float64 arrays of len(bands), reusable between calls.
+        Input must be a contiguous float64 matrix. Inputs and outputs must not overlap.
+        """
+        if self._handle is None:
+            self._invalid('band-power context is closed')
+        check_memory_layout_row_major(data, 2)
+        if data.dtype != numpy.float64 or data.size > 2147483647:
+            self._invalid('data must be a float64 matrix with a supported size')
+        for channel in channels:
+            self._check_integer(channel)
+        selected = numpy.ascontiguousarray(channels, dtype=numpy.int32)
+        if selected.ndim != 1 or selected.size > 2147483647:
+            self._invalid('channels must be a vector')
+        if out is None:
+            out = (numpy.empty(self._band_count), numpy.empty(self._band_count))
+        if len(out) != 2:
+            self._invalid('out must contain two arrays')
+        for target in out:
+            DataFilter._check_inplace_array(target)
+            if target.size != self._band_count or numpy.shares_memory(target, data):
+                self._invalid('output size or memory overlap is invalid')
+        if numpy.shares_memory(out[0], out[1]):
+            self._invalid('outputs must not overlap')
+        res = self._dll.process_band_power_context(self._handle, data, data.size,
+            data.shape[0], data.shape[1], data.shape[1], selected, selected.size,
+            out[0], out[1], self._band_count)
+        self._check_result(res)
+        return out
+
+    def close(self):
+        if self._handle is not None:
+            self._check_result(self._dll.release_band_power_context(self._handle))
+            self._handle = None
+
+    def __enter__(self):
+        if self._handle is None:
+            self._invalid('band-power context is closed')
+        return self
+
+    def __exit__(self, exc_type, exc_value, traceback):
+        self.close()
+
+    def __del__(self):
+        try:
+            self.close()
+        except Exception:
             pass
 
 

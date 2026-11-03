@@ -8,7 +8,7 @@ import unittest
 
 import numpy as np
 
-from brainflow.data_filter import DataFilter
+from brainflow.data_filter import BandPowerContext, DataFilter
 from brainflow.exit_codes import BrainFlowError, BrainFlowExitCodes
 
 
@@ -208,6 +208,72 @@ class BandPowerRegression(unittest.TestCase):
             with self.subTest(filtered=filtered):
                 DataFilter.get_avg_band_powers(data, [0, 1], 128, filtered)
                 np.testing.assert_array_equal(data, original)
+
+
+class BandPowerContextRegression(unittest.TestCase):
+    def test_matches_legacy_across_workers_options_and_repeated_calls(self):
+        rng = np.random.default_rng(601)
+        bands = [(2.0, 8.0), (8.0, 13.0), (13.0, 30.0)]
+        for workers in (1, 4):
+            for filters in (False, True):
+                with BandPowerContext(bands, 250, 12, 2048,
+                                      apply_filters=filters, workers=workers) as context:
+                    for count in (3, 12, 8, 1, 12):
+                        data = rng.normal(size=(14, 2048))
+                        original = data.copy()
+                        channels = ([11, 2, 11, 0] * 3)[:count]
+                        expected = DataFilter.get_custom_band_powers(data, bands, channels, 250, filters)
+                        output = (np.empty(3), np.empty(3))
+                        actual = context.process(data, channels, out=output)
+                        self.assertIs(actual, output)
+                        np.testing.assert_allclose(actual, expected, rtol=1e-12, atol=1e-14)
+                        np.testing.assert_array_equal(data, original)
+
+    def test_failure_preserves_outputs_and_context_can_be_reused(self):
+        data = np.ones((8, 2048))
+        with BandPowerContext([(2.0, 30.0)], 250, 8, 2048, workers=4) as context:
+            out = (np.full(1, 99.0), np.full(1, 99.0))
+            data[6, 200] = np.nan
+            with self.assertRaises(BrainFlowError):
+                context.process(data, list(range(8)), out=out)
+            np.testing.assert_array_equal(out, [[99.0], [99.0]])
+            data.fill(0)
+            np.testing.assert_array_equal(context.process(data, list(range(8))), [[0.0], [0.0]])
+            for channels in ([-1], [8]):
+                with self.assertRaises(BrainFlowError):
+                    context.process(data, channels)
+        context.close()
+        with self.assertRaises(BrainFlowError):
+            context.process(data, [0])
+
+    def test_custom_settings_and_native_capacities(self):
+        data = np.random.default_rng(603).normal(size=(2, 2000))
+        bands = [(5.0, 13.0), (13.0, 35.0)]
+        with BandPowerContext(bands, 250, 2, 2000, nfft=256,
+                              low_cutoff=3, high_cutoff=40, mains=1,
+                              detrend_operation=2, workers=1) as context:
+            expected = DataFilter.get_custom_band_powers_with_options(data, bands, [1, 0],
+                250, True, nfft=256, low_cutoff=3, high_cutoff=40, mains=1, detrend_operation=2)
+            np.testing.assert_allclose(context.process(data, [1, 0]), expected, rtol=1e-12)
+            selected = np.array([0, 1], dtype=np.int32)
+            for capacity, stride, output_capacity in ((3999, 2000, 2), (4000, 1999, 2), (4000, 2000, 1)):
+                outputs = (np.full(2, 99.0), np.full(2, 99.0))
+                result = context._dll.process_band_power_context(context._handle, data, capacity,
+                    2, 2000, stride, selected, 2, *outputs, output_capacity)
+                self.assertNotEqual(result, 0)
+                np.testing.assert_array_equal(outputs, [[99, 99], [99, 99]])
+
+    def test_concurrent_calls_and_independent_contexts(self):
+        from concurrent.futures import ThreadPoolExecutor
+        data = np.random.default_rng(602).normal(size=(8, 1024))
+        with BandPowerContext([(2.0, 30.0)], 250, 8, 1024, apply_filters=False, workers=4) as first:
+            with BandPowerContext([(2.0, 30.0)], 250, 8, 1024, apply_filters=False, workers=4) as second:
+                expected = first.process(data, list(range(8)))
+                with ThreadPoolExecutor(4) as executor:
+                    results = list(executor.map(lambda i: (first if i % 2 else second).process(
+                        data, list(range(8))), range(24)))
+                for result in results:
+                    np.testing.assert_array_equal(result, expected)
 
 
 if __name__ == '__main__':
