@@ -731,10 +731,10 @@ static snapshot_t resize_buffer(pipe_t* p, size_t new_size)
 
     // This API cannot report a failed resize to its callers, which require the
     // requested capacity. Stop before copying into an invalid allocation.
-    if(unlikely(new_size > SIZE_MAX - elem_size))
+    if(new_size > SIZE_MAX - elem_size)
         abort();
     char* new_buf = malloc(new_size + elem_size);
-    if(unlikely(new_buf == NULL))
+    if(new_buf == NULL)
         abort();
     p->end = copy_pipe_into_new_buf(make_snapshot(p), new_buf);
 
