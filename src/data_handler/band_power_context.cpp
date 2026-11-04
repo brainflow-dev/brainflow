@@ -106,7 +106,11 @@ namespace
                     return;
                 }
                 worker.data.assign (source, source + samples);
-                int res = detrend (worker.data.data (), samples, detrend_operation);
+                int res = ok;
+                if (detrend_operation != 0 &&
+                    !detrend_signal (worker.data.data (), samples, detrend_operation,
+                        signal_scale (worker.data.data (), samples), worker.data.data ()))
+                    res = invalid;
                 if (res == ok && !sections.empty () &&
                     !band_power_helpers::filter_with_padding (
                         worker.data, sections, guard, worker.padded))
@@ -221,7 +225,8 @@ try
     context->bands.assign (num_bands, std::vector<double> (max_channels));
     if (workers == 0)
         workers = (int)std::max (1u, std::min (4u, std::thread::hardware_concurrency ()));
-    context->start (std::min (workers, max_channels), fs);
+    // Small contexts always process serially; do not retain idle threads and scratch buffers.
+    context->start (max_channels < 8 ? 1 : std::min (workers, max_channels), fs);
     std::lock_guard<std::mutex> lock (registry_mutex);
     if (next_handle > std::numeric_limits<int>::max ())
         return failure;

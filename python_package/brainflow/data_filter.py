@@ -3,6 +3,7 @@ import enum
 import os
 import platform
 import struct
+import threading
 from typing import List, Tuple
 
 import numpy
@@ -716,6 +717,7 @@ class BandPowerContext:
                  nfft=0, low_cutoff=0.0, high_cutoff=0.0, mains=-1,
                  detrend_operation=None, workers=0):
         self._handle = None
+        self._handle_lock = threading.Lock()
         if detrend_operation is None:
             detrend_operation = 1 if apply_filters else 0
         for value in (sampling_rate, max_channels, max_samples, nfft, mains,
@@ -753,8 +755,7 @@ class BandPowerContext:
         supplies two writable float64 arrays of len(bands), reusable between calls.
         Input must be a contiguous float64 matrix. Inputs and outputs must not overlap.
         """
-        if self._handle is None:
-            self._invalid('band-power context is closed')
+        handle = self._get_handle()
         check_memory_layout_row_major(data, 2)
         if data.dtype != numpy.float64 or data.size > 2147483647:
             self._invalid('data must be a float64 matrix with a supported size')
@@ -773,20 +774,27 @@ class BandPowerContext:
                 self._invalid('output size or memory overlap is invalid')
         if numpy.shares_memory(out[0], out[1]):
             self._invalid('outputs must not overlap')
-        res = self._dll.process_band_power_context(self._handle, data, data.size,
+        res = self._dll.process_band_power_context(handle, data, data.size,
             data.shape[0], data.shape[1], data.shape[1], selected, selected.size,
             out[0], out[1], self._band_count)
         self._check_result(res)
         return out
 
     def close(self):
-        if self._handle is not None:
-            self._check_result(self._dll.release_band_power_context(self._handle))
+        with self._handle_lock:
+            handle = self._handle
             self._handle = None
+        if handle is not None:
+            self._check_result(self._dll.release_band_power_context(handle))
+
+    def _get_handle(self):
+        with self._handle_lock:
+            if self._handle is None:
+                self._invalid('band-power context is closed')
+            return self._handle
 
     def __enter__(self):
-        if self._handle is None:
-            self._invalid('band-power context is closed')
+        self._get_handle()
         return self
 
     def __exit__(self, exc_type, exc_value, traceback):
@@ -796,6 +804,7 @@ class BandPowerContext:
         try:
             self.close()
         except Exception:
+            # Finalizers may run after the native library has been torn down.
             pass
 
 

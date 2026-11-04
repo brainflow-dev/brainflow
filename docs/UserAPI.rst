@@ -30,7 +30,8 @@ in elements. Outputs must be disjoint from input and each other. Calls on one
 context serialize; independent contexts can run concurrently.
 
 ``workers=0`` chooses up to four persistent native threads; ``workers=1`` is
-serial. Batches below eight channels run serially. No OpenMP runtime is required.
+serial. Batches below eight channels run serially; contexts whose ``max_channels``
+is below eight allocate one workspace and no worker threads. No OpenMP runtime is required.
 Close/dispose the context promptly; Python context managers and C# ``using`` are
 recommended. This remains windowed zero-phase processing, not causal streaming.
 
@@ -49,6 +50,8 @@ Each call may use fewer channels/samples within the configured bounds, provided
 it still satisfies the FFT and filter-settling minimum. Failed calls leave outputs
 unchanged. The context allocates bounded scratch memory at creation, so choose
 bounds for the actual workload rather than the entire recording length.
+Closing a context removes its handle. A call that has already acquired the native
+context can finish; a call racing with close before acquisition may report an invalid handle.
 
 Band power preprocessing and data length
 ----------------------------------------

@@ -211,6 +211,62 @@ class BandPowerRegression(unittest.TestCase):
 
 
 class BandPowerContextRegression(unittest.TestCase):
+    def test_close_during_process_validation_reports_brainflow_error(self):
+        from unittest.mock import patch
+
+        with BandPowerContext([(2.0, 30.0)], 250, 1, 1024, apply_filters=False) as context:
+            output = (np.full(1, 99.0), np.full(1, 99.0))
+            with patch('brainflow.data_filter.check_memory_layout_row_major',
+                       side_effect=lambda *_: context.close()):
+                with self.assertRaises(BrainFlowError) as error:
+                    context.process(np.ones((1, 1024)), [0], out=output)
+            self.assertEqual(error.exception.exit_code, BrainFlowExitCodes.INVALID_ARGUMENTS_ERROR.value)
+            np.testing.assert_array_equal(output, [[99.0], [99.0]])
+
+    def test_concurrent_close_releases_handle_once(self):
+        from concurrent.futures import ThreadPoolExecutor
+        from threading import Event
+        from unittest.mock import patch
+
+        context = BandPowerContext([(2.0, 30.0)], 250, 1, 1024,
+                                   apply_filters=False, workers=1)
+        release = context._dll.release_band_power_context
+        entered, resume = Event(), Event()
+        calls = []
+
+        def delayed_release(handle):
+            calls.append(handle)
+            if len(calls) == 1:
+                entered.set()
+                if not resume.wait(5):
+                    raise TimeoutError('release was not resumed')
+            return release(handle)
+
+        with patch.object(context._dll, 'release_band_power_context', side_effect=delayed_release):
+            with ThreadPoolExecutor(1) as executor:
+                first = executor.submit(context.close)
+                try:
+                    self.assertTrue(entered.wait(5))
+                    context.close()
+                finally:
+                    resume.set()
+                first.result(timeout=5)
+        self.assertEqual(len(calls), 1)
+
+    def test_detrending_scratch_matches_public_api_across_lengths(self):
+        bands = [(2.0, 13.0), (13.0, 40.0)]
+        for operation in (0, 1, 2):
+            with BandPowerContext(bands, 250, 2, 2048, apply_filters=False,
+                                  detrend_operation=operation, workers=4) as context:
+                for length in (2048, 512, 1024):
+                    time = np.arange(length) / 250.0
+                    data = np.ascontiguousarray([2.0 + time + np.sin(20 * np.pi * time),
+                                                1e100 * np.cos(40 * np.pi * time)])
+                    expected = DataFilter.get_custom_band_powers_with_options(
+                        data, bands, [1, 0], 250, False, detrend_operation=operation)
+                    np.testing.assert_allclose(context.process(data, [1, 0]), expected,
+                                               rtol=1e-12, atol=1e-14)
+
     def test_matches_legacy_across_workers_options_and_repeated_calls(self):
         rng = np.random.default_rng(601)
         bands = [(2.0, 8.0), (8.0, 13.0), (13.0, 30.0)]

@@ -481,25 +481,8 @@ try
     const double scale = signal_scale (data, n);
     if (scale == 0.0)
         return ok;
-    const double average = mean (data, n) / scale;
-    double slope = 0.0;
-    if (operation == 2 && n > 1)
-    {
-        const double center = (n - 1) / 2.0;
-        double covariance = 0.0, correction = 0.0;
-        for (int i = 0; i < n; i++)
-        {
-            const double value = ((i - center) / n) * (data[i] / scale - average) / n - correction;
-            const double next = covariance + value;
-            correction = (next - covariance) - value;
-            covariance = next;
-        }
-        slope = covariance / ((1.0 - 1.0 / ((double)n * n)) / 12.0);
-    }
     std::vector<double> result (n);
-    for (int i = 0; i < n; i++)
-        result[i] = ((data[i] / scale - average) - slope * ((i - (n - 1) / 2.0) / n)) * scale;
-    if (!finite_signal (result.data (), n))
+    if (!detrend_signal (data, n, operation, scale, result.data ()))
         return invalid;
     std::copy (result.begin (), result.end (), data);
     return ok;
