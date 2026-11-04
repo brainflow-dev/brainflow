@@ -206,6 +206,7 @@ class SignalProcessingRegression(unittest.TestCase):
             self.assertEqual(native.release_file_read(handle[0]), 13)
 
     def test_native_file_read_enforces_actual_capacity_without_writing(self):
+        # The legacy API remains available alongside snapshots.
         with tempfile.TemporaryDirectory() as directory:
             path = Path(directory) / 'data.tsv'
             path.write_text('1\t2\n3\t4')
@@ -215,6 +216,41 @@ class SignalProcessingRegression(unittest.TestCase):
             result = DataHandlerDLL.get_instance().read_file(output, rows, cols, str(path).encode(), len(output))
             self.assertEqual(result, BrainFlowExitCodes.INVALID_BUFFER_SIZE_ERROR.value)
             np.testing.assert_array_equal(output, np.full(3, 99.0))
+
+    def test_snapshot_copy_can_race_release_without_partial_output(self):
+        from concurrent.futures import ThreadPoolExecutor
+        from threading import Barrier
+
+        native = DataHandlerDLL.get_instance()
+        with tempfile.TemporaryDirectory() as directory, ThreadPoolExecutor(3) as executor:
+            path = Path(directory) / 'snapshot.tsv'
+            data = np.arange(8192, dtype=np.float64).reshape(4, 2048)
+            DataFilter.write_file(data, str(path), 'w')
+            for _ in range(20):
+                handle, rows, cols = (np.zeros(1, dtype=np.int32) for _ in range(3))
+                self.assertEqual(native.prepare_file_read(str(path).encode(), handle, rows, cols), 0)
+                start = Barrier(3)
+
+                def copy():
+                    output = np.full(data.size, -99.0)
+                    start.wait(timeout=5)
+                    result = native.copy_file_read(handle[0], output, output.size)
+                    if result == 0:
+                        np.testing.assert_array_equal(output, data.ravel())
+                    else:
+                        self.assertEqual(result, BrainFlowExitCodes.INVALID_ARGUMENTS_ERROR.value)
+                        np.testing.assert_array_equal(output, np.full(data.size, -99.0))
+
+                def release():
+                    start.wait(timeout=5)
+                    self.assertEqual(native.release_file_read(handle[0]), 0)
+
+                futures = [executor.submit(copy), executor.submit(copy), executor.submit(release)]
+                try:
+                    for future in futures:
+                        future.result(timeout=10)
+                finally:
+                    native.release_file_read(handle[0])
 
 
 if __name__ == '__main__':
