@@ -14,6 +14,45 @@ This abstraction allows you to switch boards without any changes in code.
 
 In BoardShim, all board data is returned as a 2d array. Rows in this array may contain timestamps, EEG and EMG data and so on. To see instructions how to query specific kind of data check :ref:`data-format-label` and :ref:`code-samples-label`.
 
+Reusable band-power workspaces
+------------------------------
+
+Python and C# provide ``BandPowerContext`` for repeatedly processing windows with
+fixed band/filter settings. The native C API exposes ``create_band_power_context``,
+``process_band_power_context`` and ``release_band_power_context``. Existing APIs
+remain available and use the same spectral and preprocessing definitions.
+
+A context retains filter coefficients, FFT plans, windows and scratch arrays.
+``max_channels`` bounds the number of selected channels; ``max_samples`` bounds
+samples per input row. Select rows directly from a channel-major matrix without
+packing them first. Native callers supply row stride and input/output capacities
+in elements. Outputs must be disjoint from input and each other. Calls on one
+context serialize; independent contexts can run concurrently.
+
+``workers=0`` chooses up to four persistent native threads; ``workers=1`` is
+serial. Batches below eight channels run serially; contexts whose ``max_channels``
+is below eight allocate one workspace and no worker threads. No OpenMP runtime is required.
+Close/dispose the context promptly; Python context managers and C# ``using`` are
+recommended. This remains windowed zero-phase processing, not causal streaming.
+
+.. code-block:: python
+
+    from brainflow.data_filter import BandPowerContext
+    import numpy as np
+
+    bands = [(2.0, 8.0), (8.0, 13.0), (13.0, 30.0)]
+    output = (np.empty(len(bands)), np.empty(len(bands)))
+    with BandPowerContext(bands, 250, max_channels=16, max_samples=2000) as context:
+        # data is a contiguous float64 matrix; eeg_channels selects source rows.
+        averages, variations = context.process(data, eeg_channels, out=output)
+
+Each call may use fewer channels/samples within the configured bounds, provided
+it still satisfies the FFT and filter-settling minimum. Failed calls leave outputs
+unchanged. The context allocates bounded scratch memory at creation, so choose
+bounds for the actual workload rather than the entire recording length.
+Closing a context removes its handle. A call that has already acquired the native
+context can finish; a call racing with close before acquisition may report an invalid handle.
+
 Band power preprocessing and data length
 ----------------------------------------
 
