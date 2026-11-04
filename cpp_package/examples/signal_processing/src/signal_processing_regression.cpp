@@ -20,6 +20,7 @@ static void reject (const std::function<void ()> &action)
 }
 
 int main ()
+try
 {
     BrainFlowArray<double, 2> data (2, 256);
     reject ([&] { data.at (-1, 0); });
@@ -72,4 +73,10 @@ int main ()
     reject (
         [&] { DataFilter::perform_inverse_wavelet_transform (coefficients, lengths, 256, 3, 3); });
     std::cout << "Signal-processing binding validation passed." << std::endl;
+    return 0;
+}
+catch (const std::exception &error)
+{
+    std::cerr << "Signal-processing binding validation failed: " << error.what () << std::endl;
+    return 1;
 }
