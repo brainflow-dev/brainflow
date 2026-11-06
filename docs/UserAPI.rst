@@ -67,6 +67,98 @@ Overlapping bands contribute separately to the normalization sum.
 These preprocessing and integration changes affect extracted features. Classifiers trained
 with earlier band power behavior should be revalidated before using the new features.
 
+Quality-aware band powers
+-------------------------
+
+The C, C++ and Python APIs provide opt-in quality checks. Existing band-power
+functions keep their behavior. ``get_signal_quality`` inspects each selected raw
+channel before filtering. ``get_custom_band_powers_with_quality`` performs these
+checks and calls the existing DSP on whole accepted channel windows; the C++ and
+Python ``get_avg_band_powers_with_quality`` convenience method uses the five
+standard bands. All operations preserve the input samples and channel order.
+Channel indices in the high-level APIs must be unique.
+
+``SignalQualityOptions`` (C++/Python) configures these checks:
+
+* Nonfinite samples always reject their channel (flag ``1``).
+* Clipping (flag ``2``) is checked only when enabled with caller-provided limits
+  in the input's units. Values at or beyond either bound count as clipped.
+  Reject when the clipped percentage is **strictly greater** than
+  ``max_clipped_percentage``; the default ``0`` rejects any clipped sample.
+* Flatline (flag ``4``) means consecutive finite adjacent differences no larger
+  than ``flatline_tolerance``. Reject when their duration is **at least**
+  ``max_flatline_seconds``. Defaults are exact equality and 0.5 seconds;
+  setting the duration to ``0`` disables flatline rejection. NaN/infinity breaks
+  the run. A run of N samples spans ``(N-1)/sampling_rate`` seconds.
+* ``min_channels`` defaults to ``1`` and applies only to band-power calculation.
+  Choose the required channel set/count for the application; this default does
+  not establish that a single channel is sufficient for a particular use.
+
+Flags combine as a bit mask; zero means no enabled check rejected that channel.
+Diagnostics include nonfinite/clipped percentages of all input samples, the
+percentage of qualifying adjacent pairs out of ``cols-1`` (including pairs with
+nonfinite values in the denominator), and longest flatline duration. Disabled
+clipping reports zero together with an explicit disabled policy; it does not
+assert the absence of clipping. These checks inspect the complete supplied window,
+including filter settling margins, because faults there can affect retained data.
+They require at least two samples. Band powers additionally require the ordinary
+FFT and filter-settling length, even if every channel is rejected.
+
+Python returns a dictionary with ``quality``, ``quality_policy``, ``used_channels``
+and ``rejected_channels``. The combined calculation also returns ``valid``,
+``reason``, ``avg_band_powers`` and ``stddev_band_powers``. With too few accepted
+channels, ``valid=False``, ``reason='insufficient_channels'``, and both powers
+arrays are ``None``. Zero total band power similarly returns ``no_band_power``.
+C++ returns owning ``SignalQualityResult``/``BandPowerQualityResult`` structures;
+invalid powers are empty vectors. Malformed options, bands, or buffer sizes remain
+API errors. A valid result exactly follows the existing normalization and
+coefficient-of-variation calculation for the accepted channel set.
+
+.. code-block:: python
+
+   from brainflow.data_filter import DataFilter, SignalQualityOptions
+
+   # Example Athena limits in microvolts; not appropriate for every board.
+   policy = SignalQualityOptions(clipping_bounds=(-724.8, 724.8),
+                                 max_flatline_seconds=0.5, min_channels=3)
+   result = DataFilter.get_avg_band_powers_with_quality(
+       data, eeg_channels, sampling_rate, True, policy)
+   if result['valid']:
+       powers = result['avg_band_powers']
+       used_channels = result['used_channels']
+   else:
+       # Suppress dependent outputs; do not substitute zeros or stale good values.
+       print(result['reason'], result['quality'])
+
+For the native C ABI, initialize ``BrainFlowSignalQualityParams`` with
+``struct_size=sizeof(BrainFlowSignalQualityParams)`` and ``version=1``.
+All other fields must be initialized explicitly. ``enable_clipping`` is 0 or 1;
+bounds are finite and ascending when enabled; percentages lie in [0,100];
+tolerance/duration are finite and nonnegative; ``min_channels`` is positive.
+Allocate one ``BrainFlowChannelQuality`` per supplied row and one double per
+requested band in each powers output. A successful call can have ``valid=0``;
+in that case powers and variation contain NaN. If fewer than ``min_channels``
+reports have ``flags==0``, the reason is insufficient channels; otherwise it is
+zero total band power. As with other native methods, outputs must not be used
+after an API error. The current policy/report ABI is version 1.
+
+Library diagnostics for rejected channels are emitted at DEBUG level (row indices
+refer to the packed selected-channel matrix). Returned quality data is the primary
+machine-readable interface. The example
+``python_package/examples/tests/quality_band_powers.py`` replays a raw file, saves
+per-window JSONL with policy/measurements/channel membership, and uses BrainFlow's
+logger for rejection/recovery and aggregate-validity transitions. It does not
+repeat identical warnings on each overlapping window. Keep any recovery dwell
+state per stream in the application; these DSP calls have no persistent blacklist.
+
+Clipping bounds and tolerances are device/application settings. These numerical
+checks do not detect every movement, contact, muscle, or mains artifact. Neither
+large amplitude nor a large band fraction alone proves bad data. Timestamp gaps
+are not inspected by this API: validate acquisition continuity before supplying
+the window. No samples are spliced, interpolated, or removed from raw recordings.
+Changing accepted channels changes features; expose degraded channel coverage
+and revalidate classifier behavior before driving outputs with these features.
+
 Signal-processing conventions and validation
 --------------------------------------------
 

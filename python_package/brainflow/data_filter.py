@@ -10,6 +10,9 @@ from importlib.resources import files
 from brainflow.exit_codes import BrainFlowExitCodes, BrainFlowError
 from brainflow.utils import check_memory_layout_row_major, LogLevels
 from numpy.ctypeslib import ndpointer
+from brainflow.signal_quality import (SignalQualityOptions, SignalQualityFlags,
+                                     _NativeQualityParams, _NativeChannelQuality,
+                                     _quality_input, _quality_result)
 
 
 class FilterTypes(enum.IntEnum):
@@ -520,6 +523,20 @@ class DataHandlerDLL(object):
         self.get_flatline_percentage.argtypes = [
             ndpointer(ctypes.c_double, ndim=1, flags='C_CONTIGUOUS'), ctypes.c_int,
             ctypes.c_double, ndpointer(ctypes.c_double)]
+
+        self.get_signal_quality = self.lib.get_signal_quality
+        self.get_signal_quality.restype = ctypes.c_int
+        self.get_signal_quality.argtypes = [
+            ndpointer(ctypes.c_double), ctypes.c_int, ctypes.c_int, ctypes.c_int,
+            ctypes.POINTER(_NativeQualityParams), ctypes.POINTER(_NativeChannelQuality)]
+        self.get_custom_band_powers_with_quality = self.lib.get_custom_band_powers_with_quality
+        self.get_custom_band_powers_with_quality.restype = ctypes.c_int
+        self.get_custom_band_powers_with_quality.argtypes = [
+            ndpointer(ctypes.c_double), ctypes.c_int, ctypes.c_int,
+            ndpointer(ctypes.c_double), ndpointer(ctypes.c_double), ctypes.c_int,
+            ctypes.c_int, ctypes.c_int, ctypes.POINTER(_NativeQualityParams),
+            ndpointer(ctypes.c_double), ndpointer(ctypes.c_double),
+            ctypes.POINTER(_NativeChannelQuality), ctypes.POINTER(ctypes.c_int)]
 
         self.get_custom_band_powers = self.lib.get_custom_band_powers
         self.get_custom_band_powers.restype = ctypes.c_int
@@ -1475,6 +1492,67 @@ class DataFilter(object):
             raise BrainFlowError('unable to get_avg_band_powers', res)
 
         return avg_bands, stddev_bands
+
+    @classmethod
+    def get_signal_quality(cls, data, channels, sampling_rate,
+                           options=SignalQualityOptions()):
+        """Inspect raw channels and return flags, measurements and the policy used.
+
+        No samples are modified and no session/recovery state is retained. Channels
+        must be unique. min_channels is used only by the quality-aware band-power API.
+        Clipping is not checked unless device-appropriate bounds are supplied.
+        """
+        selected, gathered, params, reports = _quality_input(data, channels, sampling_rate, options)
+        res = DataHandlerDLL.get_instance().get_signal_quality(
+            gathered, len(selected), data.shape[1], sampling_rate, ctypes.byref(params), reports)
+        if res != BrainFlowExitCodes.STATUS_OK.value:
+            raise BrainFlowError('unable to calculate signal quality', res)
+        return _quality_result(selected, params, reports)
+
+    @classmethod
+    def get_avg_band_powers_with_quality(cls, data, channels, sampling_rate, apply_filter=True,
+                                        options=SignalQualityOptions()):
+        """Five-band equivalent of get_custom_band_powers_with_quality."""
+        return cls.get_custom_band_powers_with_quality(
+            data, [(2., 4.), (4., 8.), (8., 13.), (13., 30.), (30., 45.)],
+            channels, sampling_rate, apply_filter, options)
+
+    @classmethod
+    def get_custom_band_powers_with_quality(cls, data, bands, channels, sampling_rate,
+                                           apply_filter=True, options=SignalQualityOptions()):
+        """Reject bad whole channel-windows before the existing band-power DSP.
+
+        Returns a dict containing valid, reason, avg_band_powers, stddev_band_powers,
+        used/rejected channels, per-channel quality and the exact policy. Too few
+        acceptable channels or zero total band power is an ordinary quality result: valid=False and powers
+        are None. API errors (including insufficient samples for DSP) still raise.
+        Filtering, normalization and variation match get_custom_band_powers on
+        exactly used_channels. Raw input and existing APIs are unchanged. Exclusion
+        changes classifier inputs; revalidate model behavior before using them.
+        """
+        selected, gathered, params, reports = _quality_input(data, channels, sampling_rate, options)
+        edges = numpy.asarray(bands, dtype=numpy.float64)
+        if (edges.ndim != 2 or edges.shape[0] == 0 or edges.shape[1] != 2 or
+                len(selected) * edges.shape[0] > 2147483647 or
+                not isinstance(apply_filter, (bool, numpy.bool_))):
+            raise BrainFlowError('invalid bands or filter flag', BrainFlowExitCodes.INVALID_ARGUMENTS_ERROR.value)
+        starts = numpy.ascontiguousarray(edges[:, 0])
+        stops = numpy.ascontiguousarray(edges[:, 1])
+        averages = numpy.empty(len(edges), dtype=numpy.float64)
+        variation = numpy.empty(len(edges), dtype=numpy.float64)
+        valid = ctypes.c_int(0)
+        res = DataHandlerDLL.get_instance().get_custom_band_powers_with_quality(
+            gathered, len(selected), data.shape[1], starts, stops, len(edges), sampling_rate,
+            int(apply_filter), ctypes.byref(params), averages, variation, reports, ctypes.byref(valid))
+        if res != BrainFlowExitCodes.STATUS_OK.value:
+            raise BrainFlowError('unable to calculate quality-aware band powers', res)
+        result = _quality_result(selected, params, reports)
+        reason = ('ok' if valid.value else 'insufficient_channels'
+                  if len(result['used_channels']) < options.min_channels else 'no_band_power')
+        result.update(valid=bool(valid.value), reason=reason,
+                      avg_band_powers=averages if valid.value else None,
+                      stddev_band_powers=variation if valid.value else None)
+        return result
 
     @classmethod
     def get_band_power_info(cls, sampling_rate: int, apply_filter=True, *, nfft=0,
