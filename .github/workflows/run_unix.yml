@@ -384,6 +384,8 @@ jobs:
       run: sudo -H python3 $GITHUB_WORKSPACE/python_package/examples/tests/band_power_all.py
     - name: Band Power Regression Python
       run: sudo -H python3 $GITHUB_WORKSPACE/python_package/examples/tests/band_power_regression.py
+    - name: Signal Quality Regression Python
+      run: sudo -H python3 $GITHUB_WORKSPACE/python_package/examples/tests/signal_quality_regression.py
     - name: Signal Processing Regression Python
       run: |
         sudo -H python3 $GITHUB_WORKSPACE/python_package/examples/tests/signal_processing_regression.py
