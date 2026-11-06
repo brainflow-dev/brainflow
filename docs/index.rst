@@ -15,9 +15,6 @@ It provides a **uniform data acquisition API for all supported boards**, it mean
     SupportedBoards
     BuildBrainFlow
     UserAPI
-    SwiftAPIParity
-    AppleBinaryDistribution
-    AppStoreReadiness
     DataFormatDesc
     Examples
     GameEngines
