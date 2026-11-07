@@ -32,6 +32,27 @@ class Program
 
     static void Main(string[] args)
     {
+        var batch = new double[8, 2048];
+        for (int row = 0; row < 8; row++)
+            for (int col = 0; col < 2048; col++)
+                batch[row, col] = Math.Sin((row + 1) * col * 0.1);
+        var bands = new[] {Tuple.Create(2.0, 13.0), Tuple.Create(13.0, 40.0)};
+        int[] channels = {7, 1, 2, 3, 4, 5, 6, 7};
+        var expected = DataFilter.get_custom_band_powers(batch, bands, channels, 250, true);
+        using (var context = new BandPowerContext(bands, 250, 8, 2048, workers: 4))
+        {
+            var averages = new double[2];
+            var variations = new double[2];
+            for (int repeat = 0; repeat < 5; repeat++)
+            {
+                context.process(batch, channels, averages, variations);
+                for (int band = 0; band < 2; band++)
+                    if (Math.Abs(averages[band] - expected.Item1[band]) > 1e-12 ||
+                        Math.Abs(variations[band] - expected.Item2[band]) > 1e-12)
+                        throw new Exception("Context differs from band-power API");
+            }
+            Reject(() => context.process(batch, new[] {8}, averages, variations));
+        }
         var data = new double[2, 256];
         Reject(() => DataFilter.perform_fft(data, 1, 0, 512, 0));
         Reject(() => DataFilter.get_psd(data, 1, 0, 512, 256, 0));
