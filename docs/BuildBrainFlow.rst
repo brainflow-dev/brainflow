@@ -149,6 +149,8 @@ Rust
         cd brainflow
         cargo build --features generate_binding
 
+.. _swift-installation-label:
+
 Swift
 -------
 
@@ -190,6 +192,12 @@ The macOS demo can be built with:
 iOS and Mac App Store sample source is available in :code:`swift_package/examples/apps`. See :ref:`apple-binary-distribution-label` and :ref:`app-store-readiness-label` for release-preparation notes. App runtime support requires matching BrainFlow native frameworks embedded and signed inside the app bundle; App Store builds should not depend on :code:`BRAINFLOW_LIB_DIR` or local development directories.
 
 For dedicated iOS build, installation, and integration instructions, see :ref:`ios-label`.
+
+.. toctree::
+    :maxdepth: 1
+
+    AppleBinaryDistribution
+    AppStoreReadiness
 
 Docker Image
 --------------

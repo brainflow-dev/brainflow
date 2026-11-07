@@ -397,7 +397,13 @@ jobs:
       env:
         LD_LIBRARY_PATH: ${{ github.workspace }}/installed/lib
     - name: Signal Processing Regression Csharp
-      run: dotnet run --project $GITHUB_WORKSPACE/csharp_package/brainflow/examples/signal_processing_regression
+      run: |
+        project=$GITHUB_WORKSPACE/csharp_package/brainflow/examples/signal_processing_regression
+        dotnet build "$project" --configuration Release
+        if [[ "$RUNNER_OS" == "macOS" ]]; then
+          cp "$GITHUB_WORKSPACE/installed/lib/"*.dylib "$project/bin/Release/net8.0/"
+        fi
+        dotnet run --project "$project" --configuration Release --no-build
       env:
         LD_LIBRARY_PATH: ${{ github.workspace }}/installed/lib
     - name: Signal Processing Regression Rust

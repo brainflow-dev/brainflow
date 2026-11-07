@@ -114,9 +114,10 @@ try
     reject (
         [&] { DataFilter::perform_inverse_wavelet_transform (coefficients, lengths, 256, 3, 3); });
     std::cout << "Signal-processing binding validation passed." << std::endl;
+    return 0;
 }
 catch (const std::exception &error)
 {
-    std::cerr << error.what () << std::endl;
+    std::cerr << "Signal-processing binding validation failed: " << error.what () << std::endl;
     return 1;
 }

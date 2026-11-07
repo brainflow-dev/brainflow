@@ -115,6 +115,19 @@ extern "C"
         int rows, int cols, double *start_freqs, double *stop_freqs, int num_bands,
         int sampling_rate, int apply_filters, int nfft, double low_cutoff, double high_cutoff,
         int mains, int detrend_operation, double *avg_band_powers, double *stddev_band_powers);
+    // Reusable, bounded batch workspace. workers=0 chooses up to four persistent workers;
+    // workers=1 is serial. Calls on the same handle serialize; separate handles are independent.
+    SHARED_EXPORT int CALLING_CONVENTION create_band_power_context (int max_channels,
+        int max_samples, const double *start_freqs, const double *stop_freqs, int num_bands,
+        int sampling_rate, int apply_filters, int nfft, double low_cutoff, double high_cutoff,
+        int mains, int detrend_operation, int workers, int *handle);
+    // Input is channel-major; stride and all capacities count doubles. channels select source rows.
+    // Outputs have num_bands entries and are unchanged on failure. Input is never modified.
+    SHARED_EXPORT int CALLING_CONVENTION process_band_power_context (int handle, const double *data,
+        int data_capacity, int rows, int samples, int stride, const int *channels, int num_channels,
+        double *averages, double *deviations, int output_capacity);
+    SHARED_EXPORT int CALLING_CONVENTION release_band_power_context (int handle);
+
     SHARED_EXPORT int CALLING_CONVENTION get_railed_percentage (
         double *raw_data, int data_len, int gain, double *output);
     SHARED_EXPORT int CALLING_CONVENTION get_clipping_percentage (
