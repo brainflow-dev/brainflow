@@ -286,10 +286,19 @@ Example:
 .. literalinclude:: ../nodejs_package/tests/brainflow_get_data.ts
    :language: javascript
 
+.. _swift-api-label:
+
 Swift
 ------
 
 Swift binding calls C/C++ code as any other binding. The Swift package exposes BoardShim, DataFilter, MLModel, params, errors, and BrainFlow constants using the same public API groups as Python and Java. In-place signal-processing methods use Swift :code:`inout [Double]` arguments.
+
+For native library setup and iOS/macOS app integration, see :ref:`swift-installation-label`.
+
+.. toctree::
+    :maxdepth: 1
+
+    SwiftAPIParity
 
 Example:
 
