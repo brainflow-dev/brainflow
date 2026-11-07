@@ -140,6 +140,12 @@ namespace brainflow
         [DllImport ("DataHandler", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int read_file (double[] data, int[] num_rows, int[] num_cols, string file_name, int max_elements);
         [DllImport ("DataHandler", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        public static extern int create_band_power_context (int max_channels, int max_samples, double[] starts, double[] stops, int bands, int fs, int apply, int nfft, double low, double high, int mains, int detrend, int workers, int[] handle);
+        [DllImport ("DataHandler", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        public static extern int process_band_power_context (int handle, double[,] data, int capacity, int rows, int samples, int stride, int[] channels, int count, double[] averages, double[] deviations, int output_capacity);
+        [DllImport ("DataHandler", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        public static extern int release_band_power_context (int handle);
+        [DllImport ("DataHandler", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int get_num_elements_in_file (string file_name, int[] num_elements);
         [DllImport ("DataHandler", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int perform_wavelet_transform (double[] data, int data_len, int wavelet, int decomposition_level, int extension, double[] output_data, int[] decomposition_lengths);
@@ -253,6 +259,12 @@ namespace brainflow
         public static extern int write_file (double[] data, int num_rows, int num_cols, string file_name, string file_mode);
         [DllImport ("DataHandler32", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int read_file (double[] data, int[] num_rows, int[] num_cols, string file_name, int max_elements);
+        [DllImport ("DataHandler32", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        public static extern int create_band_power_context (int max_channels, int max_samples, double[] starts, double[] stops, int bands, int fs, int apply, int nfft, double low, double high, int mains, int detrend, int workers, int[] handle);
+        [DllImport ("DataHandler32", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        public static extern int process_band_power_context (int handle, double[,] data, int capacity, int rows, int samples, int stride, int[] channels, int count, double[] averages, double[] deviations, int output_capacity);
+        [DllImport ("DataHandler32", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        public static extern int release_band_power_context (int handle);
         [DllImport ("DataHandler32", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int get_num_elements_in_file (string file_name, int[] num_elements);
         [DllImport ("DataHandler32", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
@@ -525,6 +537,42 @@ namespace brainflow
                     return DataHandlerLibrary32.perform_downsampling (data, len, period, operation, filtered_data);
             }
 
+            return (int)BrainFlowExitCodes.GENERAL_ERROR;
+        }
+
+        public static int create_band_power_context (int max_channels, int max_samples, double[] starts, double[] stops, int bands, int fs, int apply, int nfft, double low, double high, int mains, int detrend, int workers, int[] handle)
+        {
+            switch (PlatformHelper.get_library_environment ())
+            {
+                case LibraryEnvironment.x64:
+                    return DataHandlerLibrary64.create_band_power_context (max_channels, max_samples, starts, stops, bands, fs, apply, nfft, low, high, mains, detrend, workers, handle);
+                case LibraryEnvironment.x86:
+                    return DataHandlerLibrary32.create_band_power_context (max_channels, max_samples, starts, stops, bands, fs, apply, nfft, low, high, mains, detrend, workers, handle);
+            }
+            return (int)BrainFlowExitCodes.GENERAL_ERROR;
+        }
+
+        public static int process_band_power_context (int handle, double[,] data, int capacity, int rows, int samples, int stride, int[] channels, int count, double[] averages, double[] deviations, int output_capacity)
+        {
+            switch (PlatformHelper.get_library_environment ())
+            {
+                case LibraryEnvironment.x64:
+                    return DataHandlerLibrary64.process_band_power_context (handle, data, capacity, rows, samples, stride, channels, count, averages, deviations, output_capacity);
+                case LibraryEnvironment.x86:
+                    return DataHandlerLibrary32.process_band_power_context (handle, data, capacity, rows, samples, stride, channels, count, averages, deviations, output_capacity);
+            }
+            return (int)BrainFlowExitCodes.GENERAL_ERROR;
+        }
+
+        public static int release_band_power_context (int handle)
+        {
+            switch (PlatformHelper.get_library_environment ())
+            {
+                case LibraryEnvironment.x64:
+                    return DataHandlerLibrary64.release_band_power_context (handle);
+                case LibraryEnvironment.x86:
+                    return DataHandlerLibrary32.release_band_power_context (handle);
+            }
             return (int)BrainFlowExitCodes.GENERAL_ERROR;
         }
 

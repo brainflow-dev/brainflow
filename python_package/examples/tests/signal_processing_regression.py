@@ -69,6 +69,14 @@ class SignalProcessingRegression(unittest.TestCase):
         np.testing.assert_allclose(DataFilter.perform_ifft(storage[::2]), signal_data, atol=1e-12)
         np.testing.assert_array_equal(storage, before)
 
+    def test_ifft_accepts_complex_values_in_object_arrays(self):
+        signal_data = np.random.default_rng(31).normal(size=256)
+        spectrum = np.fft.rfft(signal_data).astype(object)
+        np.testing.assert_allclose(DataFilter.perform_ifft(spectrum), signal_data, atol=1e-12)
+
+    def test_ifft_rejects_multidimensional_input(self):
+        self.assert_invalid(DataFilter.perform_ifft, np.empty((129, 0), dtype=np.complex128))
+
     def test_spectral_nonfinite_inputs_are_rejected(self):
         for value in (np.nan, np.inf, -np.inf):
             data = np.ones(256)

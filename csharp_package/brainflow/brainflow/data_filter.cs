@@ -687,19 +687,36 @@ namespace brainflow
             return output[0];
         }
 
-        private static double[] pack_channels (double[,] data, int[] channels)
+        private static unsafe double[] pack_channels (double[,] data, int[] channels)
         {
-            if (data == null || channels == null || channels.Length == 0 || data.GetLength (1) == 0 ||
-                (long)channels.Length * data.GetLength (1) > int.MaxValue / sizeof (double) ||
-                data.LongLength > int.MaxValue / sizeof (double))
+            if (data == null || channels == null || channels.Length == 0)
                 throw new BrainFlowError ((int)BrainFlowExitCodes.INVALID_ARGUMENTS_ERROR);
-            int row_bytes = data.GetLength (1) * sizeof (double);
-            double[] packed = new double[channels.Length * data.GetLength (1)];
-            for (int i = 0; i < channels.Length; i++)
+
+            int cols = data.GetLength (1);
+            long packed_length = (long)channels.Length * cols;
+            if (cols == 0 || data.GetLowerBound (1) != 0 || packed_length > int.MaxValue)
+                throw new BrainFlowError ((int)BrainFlowExitCodes.INVALID_ARGUMENTS_ERROR);
+
+            int rows = data.GetLength (0);
+            int first_row = data.GetLowerBound (0);
+            int last_row = data.GetUpperBound (0);
+            long row_bytes = (long)cols * sizeof (double);
+            double[] packed = new double[(int)packed_length];
+            fixed (double* destination = packed)
             {
-                if (channels[i] < 0 || channels[i] >= data.GetLength (0))
-                    throw new BrainFlowError ((int)BrainFlowExitCodes.INVALID_ARGUMENTS_ERROR);
-                Buffer.BlockCopy (data, channels[i] * row_bytes, packed, i * row_bytes, row_bytes);
+                for (int i = 0; i < channels.Length; i++)
+                {
+                    int row = channels[i];
+                    // Preserve GetRow's indexing from the end of the array.
+                    if (row < 0)
+                        row += rows;
+                    if (row < first_row || row > last_row)
+                        throw new BrainFlowError ((int)BrainFlowExitCodes.INVALID_ARGUMENTS_ERROR);
+                    fixed (double* source = &data[row, 0])
+                    {
+                        Buffer.MemoryCopy (source, destination + i * cols, row_bytes, row_bytes);
+                    }
+                }
             }
             return packed;
         }
