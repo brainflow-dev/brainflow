@@ -33,6 +33,8 @@ Implemented:
   noise removal, rolling filter, and detrend.
 - Transforms and features: downsampling, wavelet transform/inverse/denoising, CSP, windowing,
   FFT/IFFT, PSD/Welch, band powers, and ICA.
+- Signal quality checks and band powers over accepted channels use :code:`SignalQualityOptions`.
+  See :ref:`quality-aware-band-powers-label` for the result and policy fields.
 - Helpers: standard deviation, railed percentage, oxygen level, heart rate, peak detection,
   nearest power of two, file I/O, reshape helpers, logging, and version.
 

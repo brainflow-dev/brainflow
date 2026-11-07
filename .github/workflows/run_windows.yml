@@ -251,6 +251,9 @@ jobs:
         python python_package\examples\tests\signal_metrics_regression.py
         python python_package\examples\tests\binding_validation_regression.py
       shell: cmd
+    - name: Signal Quality Regression Python
+      run: python python_package\examples\tests\signal_quality_regression.py
+      shell: cmd
     - name: Signal Processing Regression Csharp
       run: dotnet run --project csharp_package\brainflow\examples\signal_processing_regression
     - name: Signal Processing Regression Rust

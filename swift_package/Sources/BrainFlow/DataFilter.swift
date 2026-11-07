@@ -1,6 +1,14 @@
 import Foundation
 
 public enum DataFilter {
+    private static let standardBands = [
+        FrequencyBand(start: 2.0, stop: 4.0),
+        FrequencyBand(start: 4.0, stop: 8.0),
+        FrequencyBand(start: 8.0, stop: 13.0),
+        FrequencyBand(start: 13.0, stop: 30.0),
+        FrequencyBand(start: 30.0, stop: 45.0)
+    ]
+
     public static func set_log_level(_ log_level: Int) throws {
         try DataFilterNative.withData { native in
             try checkBrainFlowExitCode(native.set_log_level_data_handler(checkedCInt(log_level)), "Error in set_log_level")
@@ -529,14 +537,7 @@ public enum DataFilter {
     /// Calculate normalized mean powers for bands 2-4, 4-8, 8-13, 13-30, 30-45 Hz.
     /// Uses get_custom_band_powers preprocessing, minimum retained length, and variation semantics.
     public static func get_avg_band_powers(data: [[Double]], channels: [Int], sampling_rate: Int, apply_filter: Bool) throws -> BandPowerResult {
-        let defaultBands = [
-            FrequencyBand(start: 2.0, stop: 4.0),
-            FrequencyBand(start: 4.0, stop: 8.0),
-            FrequencyBand(start: 8.0, stop: 13.0),
-            FrequencyBand(start: 13.0, stop: 30.0),
-            FrequencyBand(start: 30.0, stop: 45.0)
-        ]
-        return try get_custom_band_powers(data: data, bands: defaultBands, channels: channels, sampling_rate: sampling_rate, apply_filter: apply_filter)
+        try get_custom_band_powers(data: data, bands: standardBands, channels: channels, sampling_rate: sampling_rate, apply_filter: apply_filter)
     }
 
     /// Return normalized channel-mean band powers and coefficients of variation (population
@@ -586,6 +587,99 @@ public enum DataFilter {
             }
         }
         return BandPowerResult(average: avg, stddev: stddev)
+    }
+
+    private static func qualityInput(_ data: [[Double]], _ channels: [Int]) throws -> (samples: [Double], cols: CInt) {
+        let (rows, cols) = try BrainFlowArray.validateRectangular(data)
+        guard cols >= 2, !channels.isEmpty, Set(channels).count == channels.count,
+              channels.allSatisfy({ $0 >= 0 && $0 < rows }) else {
+            throw invalidArguments("Signal quality requires unique channels with at least two samples each")
+        }
+        _ = try checkedBufferCount(channels.count, cols)
+        return (channels.flatMap { data[$0] }, try checkedCInt(cols))
+    }
+
+    private static func qualityResult(_ channels: [Int], _ flags: [CInt], _ measurements: [Double],
+                                      _ options: SignalQualityOptions) -> SignalQualityResult {
+        let quality = channels.enumerated().map { row, channel in
+            let offset = 4 * row
+            return ChannelQuality(channel: channel, flags: SignalQualityFlags(rawValue: flags[row]),
+                                  nonfinite_percentage: measurements[offset],
+                                  clipped_percentage: measurements[offset + 1],
+                                  flatline_percentage: measurements[offset + 2],
+                                  longest_flatline_seconds: measurements[offset + 3])
+        }
+        return SignalQualityResult(channels: channels, quality: quality,
+                                   used_channels: quality.filter { $0.flags.isEmpty }.map(\.channel),
+                                   rejected_channels: quality.filter { !$0.flags.isEmpty }.map(\.channel),
+                                   quality_policy: options)
+    }
+
+    /// Inspect unique raw channels and return per-channel flags and measurements.
+    public static func get_signal_quality(
+        data: [[Double]], channels: [Int], sampling_rate: Int, options: SignalQualityOptions = .init()
+    ) throws -> SignalQualityResult {
+        let input = try qualityInput(data, channels)
+        let rows = try checkedCInt(channels.count)
+        let rate = try checkedCInt(sampling_rate)
+        let minChannels = try checkedCInt(options.min_channels)
+        var flags = [CInt](repeating: 0, count: channels.count)
+        var measurements = [Double](repeating: 0, count: try checkedBufferCount(channels.count, 4))
+        try DataFilterNative.withData { native in
+            let function = try native.get_signal_quality_flat.get()
+            let ec = function(input.samples, rows, input.cols, rate, options.enable_clipping ? 1 : 0,
+                              options.lower_bound, options.upper_bound, options.max_clipped_percentage,
+                              options.flatline_tolerance, options.max_flatline_seconds, minChannels,
+                              &flags, &measurements)
+            try checkBrainFlowExitCode(ec, "Failed to calculate signal quality")
+        }
+        return qualityResult(channels, flags, measurements, options)
+    }
+
+    /// Calculate band powers over whole accepted channels. Invalid results have nil powers.
+    public static func get_custom_band_powers_with_quality(
+        data: [[Double]], bands: [FrequencyBand], channels: [Int], sampling_rate: Int,
+        apply_filter: Bool = true, options: SignalQualityOptions = .init()
+    ) throws -> BandPowerQualityResult {
+        guard !bands.isEmpty else { throw invalidArguments("Bands must be non-empty") }
+        _ = try checkedBufferCount(channels.count, bands.count)
+        let input = try qualityInput(data, channels)
+        let rows = try checkedCInt(channels.count)
+        let rate = try checkedCInt(sampling_rate)
+        let minChannels = try checkedCInt(options.min_channels)
+        let numBands = try checkedCInt(bands.count)
+        let starts = bands.map(\.start)
+        let stops = bands.map(\.stop)
+        var flags = [CInt](repeating: 0, count: channels.count)
+        var measurements = [Double](repeating: 0, count: try checkedBufferCount(channels.count, 4))
+        var avg = [Double](repeating: 0, count: bands.count)
+        var stddev = [Double](repeating: 0, count: bands.count)
+        var nativeValid: CInt = 0
+        try DataFilterNative.withData { native in
+            let function = try native.get_custom_band_powers_with_quality_flat.get()
+            let ec = function(input.samples, rows, input.cols, starts, stops, numBands, rate,
+                              apply_filter ? 1 : 0, options.enable_clipping ? 1 : 0,
+                              options.lower_bound, options.upper_bound, options.max_clipped_percentage,
+                              options.flatline_tolerance, options.max_flatline_seconds, minChannels,
+                              &avg, &stddev, &flags, &measurements, &nativeValid)
+            try checkBrainFlowExitCode(ec, "Failed to calculate quality-aware band powers")
+        }
+        let quality = qualityResult(channels, flags, measurements, options)
+        let valid = nativeValid != 0
+        let reason: BandPowerQualityReason = valid ? .ok :
+            (quality.used_channels.count < options.min_channels ? .insufficientChannels : .noBandPower)
+        return BandPowerQualityResult(signal_quality: quality, valid: valid, reason: reason,
+                                      avg_band_powers: valid ? avg : nil, stddev_band_powers: valid ? stddev : nil)
+    }
+
+    /// Calculate the five standard bands over whole accepted channels.
+    public static func get_avg_band_powers_with_quality(
+        data: [[Double]], channels: [Int], sampling_rate: Int, apply_filter: Bool = true,
+        options: SignalQualityOptions = .init()
+    ) throws -> BandPowerQualityResult {
+        try get_custom_band_powers_with_quality(data: data, bands: standardBands, channels: channels,
+                                               sampling_rate: sampling_rate, apply_filter: apply_filter,
+                                               options: options)
     }
 
     public static func perform_ica(data: [[Double]], num_components: Int, channels: [Int]? = nil) throws -> ICAResult {
@@ -820,6 +914,16 @@ public enum DataFilter {
 
 final class DataFilterNative {
     typealias VersionFunction = @convention(c) (UnsafeMutablePointer<CChar>?, UnsafeMutablePointer<CInt>?, CInt) -> CInt
+    typealias SignalQualityFunction = @convention(c) (
+        UnsafePointer<Double>, CInt, CInt, CInt, CInt, Double, Double, Double, Double, Double, CInt,
+        UnsafeMutablePointer<CInt>, UnsafeMutablePointer<Double>
+    ) -> CInt
+    typealias QualityBandPowersFunction = @convention(c) (
+        UnsafePointer<Double>, CInt, CInt, UnsafePointer<Double>, UnsafePointer<Double>, CInt, CInt,
+        CInt, CInt, Double, Double, Double, Double, Double, CInt, UnsafeMutablePointer<Double>,
+        UnsafeMutablePointer<Double>, UnsafeMutablePointer<CInt>, UnsafeMutablePointer<Double>,
+        UnsafeMutablePointer<CInt>
+    ) -> CInt
 
     let perform_lowpass: @convention(c) (UnsafeMutablePointer<Double>?, CInt, CInt, Double, CInt, CInt, Double) -> CInt
     let perform_highpass: @convention(c) (UnsafeMutablePointer<Double>?, CInt, CInt, Double, CInt, CInt, Double) -> CInt
@@ -842,6 +946,8 @@ final class DataFilterNative {
     let get_psd_welch: @convention(c) (UnsafeMutablePointer<Double>?, CInt, CInt, CInt, CInt, CInt, UnsafeMutablePointer<Double>?, UnsafeMutablePointer<Double>?) -> CInt
     let get_band_power: @convention(c) (UnsafeMutablePointer<Double>?, UnsafeMutablePointer<Double>?, CInt, Double, Double, UnsafeMutablePointer<Double>?) -> CInt
     let get_custom_band_powers: @convention(c) (UnsafeMutablePointer<Double>?, CInt, CInt, UnsafeMutablePointer<Double>?, UnsafeMutablePointer<Double>?, CInt, CInt, CInt, UnsafeMutablePointer<Double>?, UnsafeMutablePointer<Double>?) -> CInt
+    let get_signal_quality_flat: Result<SignalQualityFunction, Error>
+    let get_custom_band_powers_with_quality_flat: Result<QualityBandPowersFunction, Error>
     let get_railed_percentage: @convention(c) (UnsafeMutablePointer<Double>?, CInt, CInt, UnsafeMutablePointer<Double>?) -> CInt
     let get_oxygen_level: @convention(c) (UnsafeMutablePointer<Double>?, UnsafeMutablePointer<Double>?, CInt, CInt, Double, Double, Double, UnsafeMutablePointer<Double>?) -> CInt
     let get_heart_rate: @convention(c) (UnsafeMutablePointer<Double>?, UnsafeMutablePointer<Double>?, CInt, CInt, CInt, UnsafeMutablePointer<Double>?) -> CInt
@@ -895,6 +1001,10 @@ final class DataFilterNative {
         get_psd_welch = try library.symbol("get_psd_welch", as: type(of: get_psd_welch))
         get_band_power = try library.symbol("get_band_power", as: type(of: get_band_power))
         get_custom_band_powers = try library.symbol("get_custom_band_powers", as: type(of: get_custom_band_powers))
+        get_signal_quality_flat = Result { try library.symbol("get_signal_quality_flat", as: SignalQualityFunction.self) }
+        get_custom_band_powers_with_quality_flat = Result {
+            try library.symbol("get_custom_band_powers_with_quality_flat", as: QualityBandPowersFunction.self)
+        }
         get_railed_percentage = try library.symbol("get_railed_percentage", as: type(of: get_railed_percentage))
         get_oxygen_level = try library.symbol("get_oxygen_level", as: type(of: get_oxygen_level))
         get_heart_rate = try library.symbol("get_heart_rate", as: type(of: get_heart_rate))

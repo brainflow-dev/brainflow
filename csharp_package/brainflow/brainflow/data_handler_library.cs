@@ -117,6 +117,18 @@ namespace brainflow
 
     class DataHandlerLibrary64
     {
+        [DllImport ("DataHandler", CallingConvention = CallingConvention.Cdecl)]
+        internal static extern int get_signal_quality_flat (double[] data, int rows, int cols, int sampling_rate,
+            int enable_clipping, double lower_bound, double upper_bound, double max_clipped_percentage,
+            double flatline_tolerance, double max_flatline_seconds, int min_channels, [Out] int[] flags,
+            [Out] double[] measurements);
+        [DllImport ("DataHandler", CallingConvention = CallingConvention.Cdecl)]
+        internal static extern int get_custom_band_powers_with_quality_flat (double[] data, int rows, int cols,
+            double[] starts, double[] stops, int num_bands, int sampling_rate, int apply_filters,
+            int enable_clipping, double lower_bound, double upper_bound, double max_clipped_percentage,
+            double flatline_tolerance, double max_flatline_seconds, int min_channels, [Out] double[] avgs,
+            [Out] double[] stddevs, [Out] int[] flags, [Out] double[] measurements, out int valid);
+
         [DllImport ("DataHandler", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int set_log_file_data_handler (string log_file);
         [DllImport ("DataHandler", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
@@ -237,6 +249,18 @@ namespace brainflow
 
     class DataHandlerLibrary32
     {
+        [DllImport ("DataHandler32", CallingConvention = CallingConvention.Cdecl)]
+        internal static extern int get_signal_quality_flat (double[] data, int rows, int cols, int sampling_rate,
+            int enable_clipping, double lower_bound, double upper_bound, double max_clipped_percentage,
+            double flatline_tolerance, double max_flatline_seconds, int min_channels, [Out] int[] flags,
+            [Out] double[] measurements);
+        [DllImport ("DataHandler32", CallingConvention = CallingConvention.Cdecl)]
+        internal static extern int get_custom_band_powers_with_quality_flat (double[] data, int rows, int cols,
+            double[] starts, double[] stops, int num_bands, int sampling_rate, int apply_filters,
+            int enable_clipping, double lower_bound, double upper_bound, double max_clipped_percentage,
+            double flatline_tolerance, double max_flatline_seconds, int min_channels, [Out] double[] avgs,
+            [Out] double[] stddevs, [Out] int[] flags, [Out] double[] measurements, out int valid);
+
         [DllImport ("DataHandler32", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int set_log_file_data_handler (string log_file);
         [DllImport ("DataHandler32", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
@@ -357,6 +381,47 @@ namespace brainflow
 
     class DataHandlerLibrary
     {
+        internal static int get_signal_quality (double[] data, int rows, int cols, int sampling_rate,
+            SignalQualityOptions options, int[] flags, double[] measurements)
+        {
+            int clipping = options.enable_clipping ? 1 : 0;
+            switch (PlatformHelper.get_library_environment ())
+            {
+                case LibraryEnvironment.x64:
+                    return DataHandlerLibrary64.get_signal_quality_flat (data, rows, cols, sampling_rate,
+                        clipping, options.lower_bound, options.upper_bound, options.max_clipped_percentage,
+                        options.flatline_tolerance, options.max_flatline_seconds, options.min_channels, flags, measurements);
+                case LibraryEnvironment.x86:
+                    return DataHandlerLibrary32.get_signal_quality_flat (data, rows, cols, sampling_rate,
+                        clipping, options.lower_bound, options.upper_bound, options.max_clipped_percentage,
+                        options.flatline_tolerance, options.max_flatline_seconds, options.min_channels, flags, measurements);
+            }
+            return (int)BrainFlowExitCodes.GENERAL_ERROR;
+        }
+
+        internal static int get_custom_band_powers_with_quality (double[] data, int rows, int cols,
+            double[] starts, double[] stops, int sampling_rate, bool apply_filters, SignalQualityOptions options,
+            double[] avgs, double[] stddevs, int[] flags, double[] measurements, out int valid)
+        {
+            int filters = apply_filters ? 1 : 0;
+            int clipping = options.enable_clipping ? 1 : 0;
+            switch (PlatformHelper.get_library_environment ())
+            {
+                case LibraryEnvironment.x64:
+                    return DataHandlerLibrary64.get_custom_band_powers_with_quality_flat (data, rows, cols,
+                        starts, stops, starts.Length, sampling_rate, filters, clipping, options.lower_bound,
+                        options.upper_bound, options.max_clipped_percentage, options.flatline_tolerance,
+                        options.max_flatline_seconds, options.min_channels, avgs, stddevs, flags, measurements, out valid);
+                case LibraryEnvironment.x86:
+                    return DataHandlerLibrary32.get_custom_band_powers_with_quality_flat (data, rows, cols,
+                        starts, stops, starts.Length, sampling_rate, filters, clipping, options.lower_bound,
+                        options.upper_bound, options.max_clipped_percentage, options.flatline_tolerance,
+                        options.max_flatline_seconds, options.min_channels, avgs, stddevs, flags, measurements, out valid);
+            }
+            valid = 0;
+            return (int)BrainFlowExitCodes.GENERAL_ERROR;
+        }
+
         public static int set_log_level_data_handler (int log_level)
         {
             switch (PlatformHelper.get_library_environment ())

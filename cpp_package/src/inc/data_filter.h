@@ -1,6 +1,7 @@
 #pragma once
 
 #include <complex>
+#include <string>
 #include <tuple>
 #include <utility>
 #include <vector>
@@ -10,6 +11,34 @@
 #include "brainflow_exception.h"
 #include "data_handler.h"
 
+/// Caller-selected quality thresholds; these are not universal EEG quality limits.
+struct SignalQualityOptions
+{
+    bool enable_clipping = false;
+    double lower_bound = 0;
+    double upper_bound = 0;
+    double max_clipped_percentage = 0;
+    double flatline_tolerance = 0;
+    double max_flatline_seconds = 0.5;
+    int min_channels = 1;
+};
+
+struct SignalQualityResult
+{
+    std::vector<int> channels;
+    std::vector<int> used_channels;
+    std::vector<int> rejected_channels;
+    std::vector<BrainFlowChannelQuality> quality;
+};
+
+struct BandPowerQualityResult : SignalQualityResult
+{
+    bool valid = false;
+    std::string reason;
+    // Empty when valid is false. Variation is coefficient of variation, as in the legacy API.
+    std::vector<double> avg_band_powers;
+    std::vector<double> stddev_band_powers;
+};
 
 /// DataFilter class to perform signal processing
 class DataFilter
@@ -202,6 +231,19 @@ public:
     static std::pair<double *, double *> get_custom_band_powers (
         const BrainFlowArray<double, 2> &data, std::vector<std::pair<double, double>> bands,
         std::vector<int> channels, int sampling_rate, bool apply_filters);
+    /// Raw per-channel diagnostics, before any filtering. Does not mutate samples or keep state.
+    static SignalQualityResult get_signal_quality (const BrainFlowArray<double, 2> &data,
+        std::vector<int> channels, int sampling_rate,
+        const SignalQualityOptions &options = SignalQualityOptions ());
+    /// Opt-in whole-channel-window exclusion. Inspect valid and used_channels before using powers.
+    static BandPowerQualityResult get_custom_band_powers_with_quality (
+        const BrainFlowArray<double, 2> &data, std::vector<std::pair<double, double>> bands,
+        std::vector<int> channels, int sampling_rate, bool apply_filters,
+        const SignalQualityOptions &options = SignalQualityOptions ());
+    /// Quality-aware five-band equivalent of get_avg_band_powers; existing APIs are unchanged.
+    static BandPowerQualityResult get_avg_band_powers_with_quality (
+        const BrainFlowArray<double, 2> &data, std::vector<int> channels, int sampling_rate,
+        bool apply_filters, const SignalQualityOptions &options = SignalQualityOptions ());
     /**
      * calculate oxygen level
      * @param ppg_ir input 1d array

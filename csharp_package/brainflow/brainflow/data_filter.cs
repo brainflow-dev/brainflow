@@ -1,6 +1,7 @@
 using brainflow.math;
 
 using System;
+using System.Collections.Generic;
 using System.Numerics;
 
 
@@ -11,6 +12,12 @@ namespace brainflow
     /// </summary>
     public class DataFilter
     {
+        private static readonly Tuple<double, double>[] standard_bands =
+        {
+            Tuple.Create (2.0, 4.0), Tuple.Create (4.0, 8.0), Tuple.Create (8.0, 13.0),
+            Tuple.Create (13.0, 30.0), Tuple.Create (30.0, 45.0)
+        };
+
         private static void validate_span (int length, int start_pos, int end_pos)
         {
             if (start_pos < 0 || end_pos > length || start_pos >= end_pos)
@@ -831,14 +838,96 @@ namespace brainflow
         /// <returns>Normalized mean band powers and coefficients of variation</returns>
         public static Tuple<double[], double[]> get_avg_band_powers (double[,] data, int[] channels, int sampling_rate, bool apply_filters)
         {
-            Tuple<double, double>[] bands = new Tuple<double, double>[5];
-            bands[0] = new Tuple<double, double> (2.0, 4.0);
-            bands[1] = new Tuple<double, double> (4.0, 8.0);
-            bands[2] = new Tuple<double, double> (8.0, 13.0);
-            bands[3] = new Tuple<double, double> (13.0, 30.0);
-            bands[4] = new Tuple<double, double> (30.0, 45.0);
+            return get_custom_band_powers (data, standard_bands, channels, sampling_rate, apply_filters);
+        }
 
-            return get_custom_band_powers (data, bands, channels, sampling_rate, apply_filters);
+        private static double[] quality_input (double[,] data, int[] channels, int sampling_rate)
+        {
+            if (data == null || channels == null || channels.Length == 0 || sampling_rate < 1 ||
+                data.GetLength (1) < 2 || (long)channels.Length * data.GetLength (1) > int.MaxValue ||
+                channels.Length > int.MaxValue / 4)
+            {
+                throw new BrainFlowError ((int)BrainFlowExitCodes.INVALID_ARGUMENTS_ERROR);
+            }
+            var seen = new HashSet<int> ();
+            foreach (int channel in channels)
+            {
+                if (channel < 0 || channel >= data.GetLength (0) || !seen.Add (channel))
+                {
+                    throw new BrainFlowError ((int)BrainFlowExitCodes.INVALID_ARGUMENTS_ERROR);
+                }
+            }
+            int cols = data.GetLength (1);
+            double[] input = new double[channels.Length * cols];
+            double[] row = new double[cols];
+            for (int i = 0; i < channels.Length; i++)
+            {
+                data.GetRow (channels[i], row);
+                Array.Copy (row, 0, input, i * cols, cols);
+            }
+            return input;
+        }
+
+        /// <summary>Inspect unique raw channels and return per-channel flags and measurements.</summary>
+        public static SignalQualityResult get_signal_quality (double[,] data, int[] channels,
+            int sampling_rate, SignalQualityOptions options = null)
+        {
+            options = options ?? new SignalQualityOptions ();
+            double[] input = quality_input (data, channels, sampling_rate);
+            int[] flags = new int[channels.Length];
+            double[] measurements = new double[channels.Length * 4];
+            int res = DataHandlerLibrary.get_signal_quality (input, channels.Length, data.GetLength (1),
+                sampling_rate, options, flags, measurements);
+            if (res != (int)BrainFlowExitCodes.STATUS_OK)
+            {
+                throw new BrainFlowError (res);
+            }
+            return new SignalQualityResult (channels, flags, measurements, options);
+        }
+
+        /// <summary>Calculate band powers over whole accepted channels. Invalid results have null powers.</summary>
+        public static BandPowerQualityResult get_custom_band_powers_with_quality (double[,] data,
+            Tuple<double, double>[] bands, int[] channels, int sampling_rate, bool apply_filters = true,
+            SignalQualityOptions options = null)
+        {
+            options = options ?? new SignalQualityOptions ();
+            if (bands == null || bands.Length == 0 || channels == null || (long)channels.Length * bands.Length > int.MaxValue)
+            {
+                throw new BrainFlowError ((int)BrainFlowExitCodes.INVALID_ARGUMENTS_ERROR);
+            }
+            double[] starts = new double[bands.Length];
+            double[] stops = new double[bands.Length];
+            for (int i = 0; i < bands.Length; i++)
+            {
+                if (bands[i] == null)
+                {
+                    throw new BrainFlowError ((int)BrainFlowExitCodes.INVALID_ARGUMENTS_ERROR);
+                }
+                starts[i] = bands[i].Item1;
+                stops[i] = bands[i].Item2;
+            }
+            double[] input = quality_input (data, channels, sampling_rate);
+            int[] flags = new int[channels.Length];
+            double[] measurements = new double[channels.Length * 4];
+            double[] avgs = new double[bands.Length];
+            double[] stddevs = new double[bands.Length];
+            int valid;
+            int res = DataHandlerLibrary.get_custom_band_powers_with_quality (input, channels.Length,
+                data.GetLength (1), starts, stops, sampling_rate, apply_filters, options,
+                avgs, stddevs, flags, measurements, out valid);
+            if (res != (int)BrainFlowExitCodes.STATUS_OK)
+            {
+                throw new BrainFlowError (res);
+            }
+            return new BandPowerQualityResult (channels, flags, measurements, options, valid, avgs, stddevs);
+        }
+
+        /// <summary>Calculate the five standard bands over whole accepted channels.</summary>
+        public static BandPowerQualityResult get_avg_band_powers_with_quality (double[,] data,
+            int[] channels, int sampling_rate, bool apply_filters = true, SignalQualityOptions options = null)
+        {
+            return get_custom_band_powers_with_quality (data, standard_bands, channels, sampling_rate,
+                apply_filters, options);
         }
 
         /// <summary>
