@@ -21,6 +21,52 @@ import {complex} from './complex';
 import {DataHandlerCLikeFunctions as CLike, DataHandlerFunctions} from './functions.types';
 import {resolveLibPath} from './lib_path';
 
+export enum SignalQualityFlags
+{
+    GOOD = 0,
+    NONFINITE = 1,
+    CLIPPED = 2,
+    FLATLINE = 4
+}
+
+export interface SignalQualityOptions
+{
+    clippingBounds?: readonly [number, number] | null;
+    maxClippedPercentage?: number;
+    flatlineTolerance?: number;
+    maxFlatlineSeconds?: number;
+    minChannels?: number;
+}
+
+export interface ChannelQuality
+{
+    channel: number;
+    flags: SignalQualityFlags;
+    nonfinitePercentage: number;
+    clippedPercentage: number;
+    flatlinePercentage: number;
+    longestFlatlineSeconds: number;
+}
+
+export interface SignalQualityResult
+{
+    channels: number[];
+    quality: ChannelQuality[];
+    usedChannels: number[];
+    rejectedChannels: number[];
+    qualityPolicy: Required<SignalQualityOptions>;
+}
+
+export interface BandPowerQualityResult extends SignalQualityResult
+{
+    valid: boolean;
+    reason: 'ok' | 'insufficient_channels' | 'no_band_power';
+    avgBandPowers: number[] | null;
+    stddevBandPowers: number[] | null;
+}
+
+const standardBands = [[2, 4], [4, 8], [8, 13], [13, 30], [30, 45]];
+
 class DataHandlerDLL extends DataHandlerFunctions
 {
 
@@ -59,6 +105,8 @@ class DataHandlerDLL extends DataHandlerFunctions
         this.getPsdWelch = this.lib.func(CLike.get_psd_welch);
         this.getBandPower = this.lib.func(CLike.get_band_power);
         this.getCustomBandPowers = this.lib.func(CLike.get_custom_band_powers);
+        this.getSignalQuality = this.lib.func(CLike.get_signal_quality_flat);
+        this.getCustomBandPowersWithQuality = this.lib.func(CLike.get_custom_band_powers_with_quality_flat);
         this.getOxygenLevel = this.lib.func(CLike.get_oxygen_level);
         this.getHeartRate = this.lib.func(CLike.get_heart_rate);
         this.restoreDataFromWaveletDetailedCoeffs =
@@ -153,7 +201,8 @@ export class DataFilter
         return columns;
     }
 
-    private static checkChannels(data: number[][], channels: number[], columns: number): void
+    private static checkChannels(data: number[][], channels: number[], columns: number,
+        allowNonfinite = false): void
     {
         if (!Array.isArray(channels) || channels.length === 0 || channels.length * columns > 2147483647)
         {
@@ -167,12 +216,78 @@ export class DataFilter
             }
             for (const value of data[channel])
             {
-                if (!Number.isFinite(value))
+                if (typeof value !== 'number' || (!allowNonfinite && !Number.isFinite(value)))
                 {
-                    throw new BrainFlowError (BrainFlowExitCodes.INVALID_ARGUMENTS_ERROR, 'Selected channels must contain finite numbers');
+                    throw new BrainFlowError (BrainFlowExitCodes.INVALID_ARGUMENTS_ERROR,
+                        allowNonfinite ? 'Selected channels must contain numbers' :
+                            'Selected channels must contain finite numbers');
                 }
             }
         }
+    }
+
+    private static checkBands(bands: number[][]): void
+    {
+        if (!Array.isArray(bands) || bands.length === 0 || bands.length > 2147483647)
+        {
+            throw new BrainFlowError (BrainFlowExitCodes.INVALID_ARGUMENTS_ERROR, 'Bands must contain finite start/stop pairs');
+        }
+        for (const band of bands)
+        {
+            if (!Array.isArray(band) || band.length !== 2 || !Number.isFinite(band[0]) || !Number.isFinite(band[1]))
+            {
+                throw new BrainFlowError (BrainFlowExitCodes.INVALID_ARGUMENTS_ERROR, 'Bands must contain finite start/stop pairs');
+            }
+        }
+    }
+
+    private static qualityInput(data: number[][], channels: number[], samplingRate: number,
+        options: SignalQualityOptions)
+    {
+        const columns = DataFilter.checkMatrix(data);
+        DataFilter.checkChannels(data, channels, columns, true);
+        if (columns < 2 || new Set(channels).size !== channels.length ||
+            channels.length * 4 > 2147483647 || !Number.isInteger(samplingRate) ||
+            samplingRate < 1 || samplingRate > 2147483647 || !options || typeof options !== 'object')
+        {
+            throw new BrainFlowError (BrainFlowExitCodes.INVALID_ARGUMENTS_ERROR, 'Invalid signal quality input');
+        }
+        const {clippingBounds = null, maxClippedPercentage = 0, flatlineTolerance = 0,
+            maxFlatlineSeconds = 0.5, minChannels = 1} = options;
+        if ((clippingBounds !== null && (!Array.isArray(clippingBounds) || clippingBounds.length !== 2 ||
+                !Number.isFinite(clippingBounds[0]) || !Number.isFinite(clippingBounds[1]))) ||
+            ![maxClippedPercentage, flatlineTolerance, maxFlatlineSeconds].every(Number.isFinite) ||
+            !Number.isInteger(minChannels) || minChannels < 1 || minChannels > 2147483647)
+        {
+            throw new BrainFlowError (BrainFlowExitCodes.INVALID_ARGUMENTS_ERROR, 'Invalid signal quality policy');
+        }
+        const bounds = clippingBounds === null ? null : [clippingBounds[0], clippingBounds[1]] as const;
+        return {
+            columns,
+            selected: channels.flatMap(channel => data[channel]),
+            flags: new Array<number>(channels.length).fill(0),
+            measurements: new Array<number>(channels.length * 4).fill(0),
+            policy: {clippingBounds: bounds, maxClippedPercentage, flatlineTolerance,
+                maxFlatlineSeconds, minChannels},
+            nativeOptions: [Number(bounds !== null), bounds?.[0] ?? 0, bounds?.[1] ?? 0,
+                maxClippedPercentage, flatlineTolerance, maxFlatlineSeconds, minChannels] as const
+        };
+    }
+
+    private static qualityResult(channels: number[], flags: number[], measurements: number[],
+        qualityPolicy: Required<SignalQualityOptions>): SignalQualityResult
+    {
+        const quality = channels.map((channel, row) => ({
+            channel,
+            flags: flags[row],
+            nonfinitePercentage: measurements[4 * row],
+            clippedPercentage: measurements[4 * row + 1],
+            flatlinePercentage: measurements[4 * row + 2],
+            longestFlatlineSeconds: measurements[4 * row + 3]
+        }));
+        return {channels: channels.slice(), quality, qualityPolicy,
+            usedChannels: channels.filter((_, row) => flags[row] === SignalQualityFlags.GOOD),
+            rejectedChannels: channels.filter((_, row) => flags[row] !== SignalQualityFlags.GOOD)};
     }
 
     private static checkPairedArrays(first: number[], second: number[]): void
@@ -407,17 +522,7 @@ export class DataFilter
     {
         const columns = DataFilter.checkMatrix(data);
         DataFilter.checkChannels(data, channels, columns);
-        if (!Array.isArray(bands) || bands.length === 0 || bands.length > 2147483647)
-        {
-            throw new BrainFlowError (BrainFlowExitCodes.INVALID_ARGUMENTS_ERROR, 'Bands must contain finite start/stop pairs');
-        }
-        for (const band of bands)
-        {
-            if (!Array.isArray(band) || band.length !== 2 || !Number.isFinite(band[0]) || !Number.isFinite(band[1]))
-            {
-                throw new BrainFlowError (BrainFlowExitCodes.INVALID_ARGUMENTS_ERROR, 'Bands must contain finite start/stop pairs');
-            }
-        }
+        DataFilter.checkBands(bands);
         var i: number;
         var j: number;
         const avgBands = [...new Array (bands.length).fill(0)];
@@ -454,8 +559,58 @@ export class DataFilter
     public static getAvgBandPowers(data: number[][], channels: number[], samplingRate: number,
         applyFilters = true): [number[], number[]]
     {
-        const bands = [[2.0, 4.0], [4.0, 8.0], [8.0, 13.0], [13.0, 30.0], [30.0, 45.0]];
-        return DataFilter.getCustomBandPowers(data, bands, channels, samplingRate, applyFilters);
+        return DataFilter.getCustomBandPowers(data, standardBands, channels, samplingRate, applyFilters);
+    }
+
+    /** Inspect unique raw channels and return per-channel flags and measurements. */
+    public static getSignalQuality(data: number[][], channels: number[], samplingRate: number,
+        options: SignalQualityOptions = {}): SignalQualityResult
+    {
+        const input = DataFilter.qualityInput(data, channels, samplingRate, options);
+        const res = DataHandlerDLL.getInstance().getSignalQuality(input.selected, channels.length,
+            input.columns, samplingRate, ...input.nativeOptions, input.flags, input.measurements);
+        if (res !== BrainFlowExitCodes.STATUS_OK)
+        {
+            throw new BrainFlowError (res, 'Could not calculate signal quality');
+        }
+        return DataFilter.qualityResult(channels, input.flags, input.measurements, input.policy);
+    }
+
+    /** Calculate powers over whole accepted channels. Invalid results have null powers. */
+    public static getCustomBandPowersWithQuality(data: number[][], bands: number[][], channels: number[],
+        samplingRate: number, applyFilters = true, options: SignalQualityOptions = {}): BandPowerQualityResult
+    {
+        DataFilter.checkBands(bands);
+        const input = DataFilter.qualityInput(data, channels, samplingRate, options);
+        if (typeof applyFilters !== 'boolean' || bands.length * channels.length > 2147483647)
+        {
+            throw new BrainFlowError (BrainFlowExitCodes.INVALID_ARGUMENTS_ERROR, 'Invalid band-power input');
+        }
+        const starts = bands.map(band => band[0]);
+        const stops = bands.map(band => band[1]);
+        const avg = new Array<number>(bands.length).fill(0);
+        const stddev = new Array<number>(bands.length).fill(0);
+        const nativeValid = [0];
+        const res = DataHandlerDLL.getInstance().getCustomBandPowersWithQuality(input.selected,
+            channels.length, input.columns, starts, stops, bands.length, samplingRate, Number(applyFilters),
+            ...input.nativeOptions, avg, stddev, input.flags, input.measurements, nativeValid);
+        if (res !== BrainFlowExitCodes.STATUS_OK)
+        {
+            throw new BrainFlowError (res, 'Could not calculate quality-aware band powers');
+        }
+        const quality = DataFilter.qualityResult(channels, input.flags, input.measurements, input.policy);
+        const valid = nativeValid[0] !== 0;
+        const reason = valid ? 'ok' :
+            quality.usedChannels.length < input.policy.minChannels ? 'insufficient_channels' : 'no_band_power';
+        return {...quality, valid, reason, avgBandPowers: valid ? avg : null, stddevBandPowers: valid ? stddev : null};
+    }
+
+    /** Calculate the five standard bands over whole accepted channels. */
+    public static getAvgBandPowersWithQuality(data: number[][], channels: number[], samplingRate: number,
+        applyFilters = true, options: SignalQualityOptions = {}): BandPowerQualityResult
+    {
+        return DataFilter.getCustomBandPowersWithQuality(data, standardBands, channels, samplingRate,
+            applyFilters, options);
     }
 
     public static getNearestPowerOfTwo(value: number): number

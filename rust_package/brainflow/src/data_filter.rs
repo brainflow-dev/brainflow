@@ -2,6 +2,7 @@ use getset::Getters;
 use ndarray::{Array1, Array2, Array3, ArrayBase};
 use num::Complex;
 use num_complex::Complex64;
+use std::collections::HashSet;
 use std::os::raw::c_int;
 use std::{ffi::CString, ffi::CStr, os::raw::c_double};
 use std::os::raw::c_char;
@@ -760,6 +761,80 @@ pub struct Band {
     pub freq_stop: f64,
 }
 
+const STANDARD_BANDS: [Band; 5] = [
+    Band { freq_start: 2.0, freq_stop: 4.0 },
+    Band { freq_start: 4.0, freq_stop: 8.0 },
+    Band { freq_start: 8.0, freq_stop: 13.0 },
+    Band { freq_start: 13.0, freq_stop: 30.0 },
+    Band { freq_start: 30.0, freq_stop: 45.0 },
+];
+
+/// Thresholds for opt-in, whole-channel quality checks.
+#[derive(Clone, Copy, Debug, PartialEq)]
+pub struct SignalQualityOptions {
+    pub clipping_bounds: Option<(f64, f64)>,
+    pub max_clipped_percentage: f64,
+    pub flatline_tolerance: f64,
+    pub max_flatline_seconds: f64,
+    pub min_channels: usize,
+}
+
+impl Default for SignalQualityOptions {
+    fn default() -> Self {
+        Self {
+            clipping_bounds: None,
+            max_clipped_percentage: 0.0,
+            flatline_tolerance: 0.0,
+            max_flatline_seconds: 0.5,
+            min_channels: 1,
+        }
+    }
+}
+
+#[derive(Clone, Debug, PartialEq)]
+pub struct ChannelQuality {
+    pub channel: usize,
+    /// Bit mask of the quality flags. Zero means the channel was accepted.
+    pub flags: i32,
+    pub nonfinite_percentage: f64,
+    pub clipped_percentage: f64,
+    pub flatline_percentage: f64,
+    pub longest_flatline_seconds: f64,
+}
+
+impl ChannelQuality {
+    pub const NONFINITE: i32 = 1;
+    pub const CLIPPED: i32 = 2;
+    pub const FLATLINE: i32 = 4;
+}
+
+#[derive(Clone, Debug, PartialEq)]
+pub struct SignalQualityResult {
+    pub channels: Vec<usize>,
+    pub quality: Vec<ChannelQuality>,
+    pub used_channels: Vec<usize>,
+    pub rejected_channels: Vec<usize>,
+    pub quality_policy: SignalQualityOptions,
+}
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum BandPowerQualityReason {
+    Ok,
+    InsufficientChannels,
+    NoBandPower,
+}
+
+#[derive(Clone, Debug, PartialEq)]
+pub struct BandPowerQualityResult {
+    pub signal_quality: SignalQualityResult,
+    pub valid: bool,
+    pub reason: BandPowerQualityReason,
+    /// Normalized means, or None when invalid.
+    pub avg_band_powers: Option<Vec<f64>>,
+    /// Coefficients of variation, or None when invalid.
+    pub stddev_band_powers: Option<Vec<f64>>,
+}
+
 /// Calculate ICA
 pub fn perform_ica_select_channels(
     data: Array2<f64>,
@@ -869,14 +944,157 @@ pub fn get_avg_band_powers(
     sampling_rate: usize,
     apply_filters: bool,
 ) -> Result<(Vec<f64>, Vec<f64>)> {
-    let vector = vec![
-       Band { freq_start: 2.0, freq_stop: 4.0 },
-       Band { freq_start: 4.0, freq_stop: 8.0 },
-       Band { freq_start: 8.0, freq_stop: 13.0 },
-       Band { freq_start: 13.0, freq_stop: 30.0 },
-       Band { freq_start: 30.0, freq_stop: 45.0 },
-    ];
-    get_custom_band_powers(data, vector, eeg_channels, sampling_rate, apply_filters)
+    get_custom_band_powers(data, STANDARD_BANDS.to_vec(), eeg_channels, sampling_rate, apply_filters)
+}
+
+fn quality_input(data: &Array2<f64>, channels: &[usize]) -> Result<Vec<f64>> {
+    let mut seen = HashSet::new();
+    if data.ncols() < 2 || !channels.iter().all(|&channel| seen.insert(channel)) {
+        return Err(invalid_arguments());
+    }
+    checked_product(channels.len(), 4)?;
+    selected_data(data, channels)
+}
+
+fn quality_result(
+    channels: &[usize],
+    flags: &[c_int],
+    measurements: &[f64],
+    options: SignalQualityOptions,
+) -> SignalQualityResult {
+    let mut result = SignalQualityResult {
+        channels: channels.to_vec(),
+        quality: Vec::with_capacity(channels.len()),
+        used_channels: Vec::new(),
+        rejected_channels: Vec::new(),
+        quality_policy: options,
+    };
+    for (row, &channel) in channels.iter().enumerate() {
+        let flags = flags[row];
+        let offset = 4 * row;
+        result.quality.push(ChannelQuality {
+            channel,
+            flags,
+            nonfinite_percentage: measurements[offset],
+            clipped_percentage: measurements[offset + 1],
+            flatline_percentage: measurements[offset + 2],
+            longest_flatline_seconds: measurements[offset + 3],
+        });
+        if flags == 0 {
+            result.used_channels.push(channel);
+        } else {
+            result.rejected_channels.push(channel);
+        }
+    }
+    result
+}
+
+/// Inspect unique raw channels and return per-channel flags and measurements.
+pub fn get_signal_quality(
+    data: &Array2<f64>,
+    channels: &[usize],
+    sampling_rate: usize,
+    options: SignalQualityOptions,
+) -> Result<SignalQualityResult> {
+    let input = quality_input(data, channels)?;
+    let (lower_bound, upper_bound) = options.clipping_bounds.unwrap_or((0.0, 0.0));
+    let mut flags = vec![0; channels.len()];
+    let mut measurements = vec![0.0; 4 * channels.len()];
+    let ec = unsafe {
+        data_handler::get_signal_quality_flat(
+            input.as_ptr(),
+            native_int(channels.len())?,
+            native_int(data.ncols())?,
+            native_int(sampling_rate)?,
+            c_int::from(options.clipping_bounds.is_some()),
+            lower_bound,
+            upper_bound,
+            options.max_clipped_percentage,
+            options.flatline_tolerance,
+            options.max_flatline_seconds,
+            native_int(options.min_channels)?,
+            flags.as_mut_ptr(),
+            measurements.as_mut_ptr(),
+        )
+    };
+    check_brainflow_exit_code(ec)?;
+    Ok(quality_result(channels, &flags, &measurements, options))
+}
+
+/// Calculate band powers over whole accepted channels. Invalid results have no powers.
+pub fn get_custom_band_powers_with_quality(
+    data: &Array2<f64>,
+    bands: &[Band],
+    channels: &[usize],
+    sampling_rate: usize,
+    apply_filters: bool,
+    options: SignalQualityOptions,
+) -> Result<BandPowerQualityResult> {
+    if bands.is_empty() {
+        return Err(invalid_arguments());
+    }
+    checked_product(channels.len(), bands.len())?;
+    let input = quality_input(data, channels)?;
+    let (lower_bound, upper_bound) = options.clipping_bounds.unwrap_or((0.0, 0.0));
+    let (starts, stops): (Vec<_>, Vec<_>) =
+        bands.iter().map(|band| (band.freq_start, band.freq_stop)).unzip();
+    let mut flags = vec![0; channels.len()];
+    let mut measurements = vec![0.0; 4 * channels.len()];
+    let mut avg = vec![0.0; bands.len()];
+    let mut stddev = vec![0.0; bands.len()];
+    let mut valid = 0;
+    let ec = unsafe {
+        data_handler::get_custom_band_powers_with_quality_flat(
+            input.as_ptr(),
+            native_int(channels.len())?,
+            native_int(data.ncols())?,
+            starts.as_ptr(),
+            stops.as_ptr(),
+            native_int(bands.len())?,
+            native_int(sampling_rate)?,
+            c_int::from(apply_filters),
+            c_int::from(options.clipping_bounds.is_some()),
+            lower_bound,
+            upper_bound,
+            options.max_clipped_percentage,
+            options.flatline_tolerance,
+            options.max_flatline_seconds,
+            native_int(options.min_channels)?,
+            avg.as_mut_ptr(),
+            stddev.as_mut_ptr(),
+            flags.as_mut_ptr(),
+            measurements.as_mut_ptr(),
+            &mut valid,
+        )
+    };
+    check_brainflow_exit_code(ec)?;
+    let signal_quality = quality_result(channels, &flags, &measurements, options);
+    let valid = valid != 0;
+    let reason = if valid {
+        BandPowerQualityReason::Ok
+    } else if signal_quality.used_channels.len() < options.min_channels {
+        BandPowerQualityReason::InsufficientChannels
+    } else {
+        BandPowerQualityReason::NoBandPower
+    };
+    Ok(BandPowerQualityResult {
+        signal_quality,
+        valid,
+        reason,
+        avg_band_powers: valid.then_some(avg),
+        stddev_band_powers: valid.then_some(stddev),
+    })
+}
+
+/// Calculate the five standard bands over whole accepted channels.
+pub fn get_avg_band_powers_with_quality(
+    data: &Array2<f64>,
+    channels: &[usize],
+    sampling_rate: usize,
+    apply_filters: bool,
+    options: SignalQualityOptions,
+) -> Result<BandPowerQualityResult> {
+    get_custom_band_powers_with_quality(data, &STANDARD_BANDS, channels, sampling_rate, apply_filters, options)
 }
 
 /// Calculate band power.
@@ -1034,6 +1252,51 @@ mod tests {
     use crate::test_helpers::assertions::assert_regex_matches;
     use crate::test_helpers::consts::VERSION_PATTERN;
     use super::*;
+
+    #[test]
+    fn signal_quality_matches_the_accepted_channel_subset() {
+        let samples = 1024;
+        let rate = 128;
+        let mut data = Array2::from_shape_fn((3, samples), |(row, sample)| {
+            let time = sample as f64 / rate as f64;
+            match row {
+                0 => (2.0 * PI * 10.0 * time).sin(),
+                2 => 2.0 * (2.0 * PI * 20.0 * time).sin(),
+                _ => 0.0,
+            }
+        });
+        data[[1, 0]] = f64::NAN;
+        data[[1, 1]] = 100.0;
+        data[[1, 2]] = -100.0;
+        let channels = [2, 1, 0];
+        let mut options = SignalQualityOptions {
+            clipping_bounds: Some((-10.0, 10.0)),
+            min_channels: 2,
+            ..Default::default()
+        };
+        let quality = get_signal_quality(&data, &channels, rate, options).unwrap();
+        let report = &quality.quality[1];
+        assert_eq!(report.channel, 1);
+        assert_eq!(report.flags, ChannelQuality::NONFINITE | ChannelQuality::CLIPPED | ChannelQuality::FLATLINE);
+        assert_eq!(report.nonfinite_percentage, 100.0 / samples as f64);
+        assert_eq!(report.clipped_percentage, 200.0 / samples as f64);
+        assert_eq!(report.longest_flatline_seconds, (samples - 4) as f64 / rate as f64);
+        let result = get_avg_band_powers_with_quality(&data, &channels, rate, false, options).unwrap();
+        let (avg, stddev) = get_avg_band_powers(data.clone(), vec![2, 0], rate, false).unwrap();
+        assert!(result.valid);
+        assert_eq!(result.signal_quality, quality);
+        assert_eq!(result.signal_quality.used_channels, [2, 0]);
+        assert_eq!(result.signal_quality.rejected_channels, [1]);
+        assert_eq!(result.avg_band_powers, Some(avg));
+        assert_eq!(result.stddev_band_powers, Some(stddev));
+        options.min_channels = 3;
+        let invalid = get_avg_band_powers_with_quality(&data, &channels, rate, false, options).unwrap();
+        assert!(!invalid.valid);
+        assert_eq!(invalid.reason, BandPowerQualityReason::InsufficientChannels);
+        assert!(invalid.avg_band_powers.is_none());
+        assert!(invalid.stddev_band_powers.is_none());
+        assert!(get_signal_quality(&data, &[0, 0], rate, options).is_err());
+    }
 
     #[test]
     fn test_it_gets_the_version() {

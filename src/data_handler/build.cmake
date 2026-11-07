@@ -31,6 +31,7 @@ SET (DATA_HANDLER_SRC
     ${CMAKE_CURRENT_SOURCE_DIR}/src/data_handler/data_handler.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/data_handler/signal_processing.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/data_handler/signal_metrics.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/data_handler/signal_quality.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/data_handler/decomposition.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/data_handler/fastica.cpp
 )

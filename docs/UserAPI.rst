@@ -106,6 +106,112 @@ Overlapping bands contribute separately to the normalization sum.
 These preprocessing and integration changes affect extracted features. Classifiers trained
 with earlier band power behavior should be revalidated before using the new features.
 
+.. _quality-aware-band-powers-label:
+
+Quality-aware band powers
+-------------------------
+
+The bindings provide opt-in quality checks alongside the existing band-power APIs.
+``get_signal_quality`` inspects each selected raw channel before filtering.
+``get_custom_band_powers_with_quality`` performs these checks and calls the existing
+DSP on whole accepted channel windows. The high-level
+``get_avg_band_powers_with_quality`` method uses the five standard bands. All
+operations preserve the input samples and channel order. Channel indices in the
+high-level APIs must be unique. Julia and MATLAB use one-based indices.
+
+TypeScript names these methods ``getSignalQuality``, ``getCustomBandPowersWithQuality``
+and ``getAvgBandPowersWithQuality``. MATLAB accepts a struct of policy fields.
+R accesses the Python API through reticulate.
+
+``SignalQualityOptions`` configures these checks:
+
+* Nonfinite samples always reject their channel (flag ``1``).
+* Clipping (flag ``2``) is checked only when enabled with caller-provided limits
+  in the input's units. Values at or beyond either bound count as clipped.
+  Reject when the clipped percentage is **strictly greater** than
+  ``max_clipped_percentage``; the default ``0`` rejects any clipped sample.
+* Flatline (flag ``4``) means consecutive finite adjacent differences no larger
+  than ``flatline_tolerance``. Reject when their duration is **at least**
+  ``max_flatline_seconds``. Defaults are exact equality and 0.5 seconds;
+  setting the duration to ``0`` disables flatline rejection. NaN/infinity breaks
+  the run. A run of N samples spans ``(N-1)/sampling_rate`` seconds.
+* ``min_channels`` defaults to ``1`` and applies only to band-power calculation.
+  Choose the required channel set/count for the application; this default does
+  not establish that a single channel is sufficient for a particular use.
+
+Flags combine as a bit mask; zero means no enabled check rejected that channel.
+Diagnostics include nonfinite/clipped percentages of all input samples, the
+percentage of qualifying adjacent pairs out of ``cols-1`` (including pairs with
+nonfinite values in the denominator), and longest flatline duration. Disabled
+clipping reports zero together with an explicit disabled policy; it does not
+assert the absence of clipping. These checks inspect the complete supplied window,
+including filter settling margins, because faults there can affect retained data.
+They require at least two samples. Band powers additionally require the ordinary
+FFT and filter-settling length, even if every channel is rejected.
+
+The high-level results contain a report per selected channel and the lists of used
+and rejected channels. The combined calculation also returns a validity flag, a
+reason, normalized means, and coefficients of variation. The reason is
+``insufficient_channels`` when too few channels pass the checks and
+``no_band_power`` when total power is zero. Invalid results retain the reports
+and omit usable powers. C++ and MATLAB use empty arrays, C#, Java, and TypeScript
+use ``null``, Python uses ``None``, Julia uses ``nothing``, and Swift uses
+``nil``. Rust returns ``Option`` values. Rust and Swift put the reports and
+channel lists in the combined result's ``signal_quality`` field. Malformed
+options, bands, or buffer sizes raise API errors. A valid result follows the
+existing normalization and coefficient-of-variation calculation for the
+accepted channel set.
+
+.. code-block:: python
+
+   from brainflow.data_filter import DataFilter, SignalQualityOptions
+
+   # Example Athena limits in microvolts; not appropriate for every board.
+   policy = SignalQualityOptions(clipping_bounds=(-724.8, 724.8),
+                                 max_flatline_seconds=0.5, min_channels=3)
+   result = DataFilter.get_avg_band_powers_with_quality(
+       data, eeg_channels, sampling_rate, True, policy)
+   if result['valid']:
+       powers = result['avg_band_powers']
+       used_channels = result['used_channels']
+   else:
+       # Suppress dependent outputs; do not substitute zeros or stale good values.
+       print(result['reason'], result['quality'])
+
+For the native C ABI, initialize ``BrainFlowSignalQualityParams`` with
+``struct_size=sizeof(BrainFlowSignalQualityParams)`` and ``version=1``.
+All other fields must be initialized explicitly. ``enable_clipping`` is 0 or 1;
+bounds are finite and ascending when enabled; percentages lie in [0,100];
+tolerance/duration are finite and nonnegative; ``min_channels`` is positive.
+Allocate one ``BrainFlowChannelQuality`` per supplied row and one double per
+requested band in each powers output. A successful call can have ``valid=0``;
+in that case powers and variation contain NaN. If fewer than ``min_channels``
+reports have ``flags==0``, the reason is insufficient channels; otherwise it is
+zero total band power. As with other native methods, outputs must not be used
+after an API error. The current policy/report ABI is version 1.
+
+The C functions ending in ``_flat`` expose the same checks for bindings that
+pass primitive buffers. Allocate one integer flag and four doubles per row. The
+four measurements for each row are nonfinite percentage, clipped percentage,
+flatline percentage, and longest flatline duration in seconds.
+
+Library diagnostics for rejected channels are emitted at DEBUG level (row indices
+refer to the packed selected-channel matrix). Returned quality data is the primary
+machine-readable interface. The example
+``python_package/examples/tests/quality_band_powers.py`` replays a raw file, saves
+per-window JSONL with policy/measurements/channel membership, and uses BrainFlow's
+logger for rejection/recovery and aggregate-validity transitions. It does not
+repeat identical warnings on each overlapping window. Keep any recovery dwell
+state per stream in the application; these DSP calls have no persistent blacklist.
+
+Clipping bounds and tolerances are device/application settings. These numerical
+checks do not detect every movement, contact, muscle, or mains artifact. Neither
+large amplitude nor a large band fraction alone proves bad data. Timestamp gaps
+are not inspected by this API: validate acquisition continuity before supplying
+the window. No samples are spliced, interpolated, or removed from raw recordings.
+Changing accepted channels changes features; expose degraded channel coverage
+and revalidate classifier behavior before driving outputs with these features.
+
 Signal-processing conventions and validation
 --------------------------------------------
 

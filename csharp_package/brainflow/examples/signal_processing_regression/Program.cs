@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using brainflow;
 
 class Program
@@ -30,8 +31,44 @@ class Program
         Console.WriteLine("ML capacity snapshot validation passed.");
     }
 
+    static void CheckSignalQuality()
+    {
+        const int samples = 1024;
+        const int rate = 128;
+        var data = new double[3, samples];
+        for (int i = 0; i < samples; i++)
+        {
+            data[0, i] = Math.Sin(2 * Math.PI * 10 * i / rate);
+            data[2, i] = 2 * Math.Sin(2 * Math.PI * 20 * i / rate);
+        }
+        data[1, 0] = double.NaN;
+        data[1, 1] = 100;
+        data[1, 2] = -100;
+        var options = new SignalQualityOptions(true, -10, 10, min_channels: 2);
+        int[] channels = {2, 1, 0};
+        var result = DataFilter.get_avg_band_powers_with_quality(data, channels, rate, false, options);
+        var expected = DataFilter.get_avg_band_powers(data, new[] {2, 0}, rate, false);
+        if (!result.valid || !result.used_channels.SequenceEqual(new[] {2, 0}) ||
+            !result.rejected_channels.SequenceEqual(new[] {1}) ||
+            !result.avg_band_powers.SequenceEqual(expected.Item1) ||
+            !result.stddev_band_powers.SequenceEqual(expected.Item2))
+            throw new Exception("Quality-aware powers differ from the accepted channel subset");
+        var report = DataFilter.get_signal_quality(data, channels, rate, options).quality[1];
+        if (report.channel != 1 || report.flags != (SignalQualityFlags.NONFINITE | SignalQualityFlags.CLIPPED | SignalQualityFlags.FLATLINE) ||
+            report.nonfinite_percentage != 100.0 / samples || report.clipped_percentage != 200.0 / samples ||
+            report.longest_flatline_seconds != (samples - 4.0) / rate)
+            throw new Exception("Signal quality report was marshaled incorrectly");
+        var invalid = DataFilter.get_avg_band_powers_with_quality(data, channels, rate, false,
+            new SignalQualityOptions(true, -10, 10, min_channels: 3));
+        if (invalid.valid || invalid.reason != "insufficient_channels" ||
+            invalid.avg_band_powers != null || invalid.stddev_band_powers != null)
+            throw new Exception("Rejected window returned usable powers");
+        Reject(() => DataFilter.get_signal_quality(data, new[] {0, 0}, rate));
+    }
+
     static void Main(string[] args)
     {
+        CheckSignalQuality();
         var batch = new double[8, 2048];
         for (int row = 0; row < 8; row++)
             for (int col = 0; col < 2048; col++)
