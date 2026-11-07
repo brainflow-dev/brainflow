@@ -24,8 +24,50 @@ public class BindingValidationRegression
         throw new AssertionError ("Expected BrainFlowError");
     }
 
+    private static void check_signal_quality () throws Exception
+    {
+        int samples = 1024;
+        int rate = 128;
+        double[][] data = new double[3][samples];
+        for (int i = 0; i < samples; i++)
+        {
+            data[0][i] = Math.sin (2 * Math.PI * 10 * i / rate);
+            data[2][i] = 2 * Math.sin (2 * Math.PI * 20 * i / rate);
+        }
+        data[1][0] = Double.NaN;
+        data[1][1] = 100;
+        data[1][2] = -100;
+        int[] channels = {2, 1, 0};
+        SignalQualityOptions options = new SignalQualityOptions (true, -10, 10, 0, 0, 0.5, 2);
+        BandPowerQualityResult result = DataFilter.get_avg_band_powers_with_quality (data, channels, rate, false, options);
+        Pair<double[], double[]> expected = DataFilter.get_avg_band_powers (data, new int[] {2, 0}, rate, false);
+        if (!result.valid || !Arrays.equals (result.used_channels, new int[] {2, 0}) ||
+                !Arrays.equals (result.rejected_channels, new int[] {1}) ||
+                !Arrays.equals (result.avg_band_powers, expected.getLeft ()) ||
+                !Arrays.equals (result.stddev_band_powers, expected.getRight ()))
+        {
+            throw new AssertionError ("Quality-aware powers differ from the accepted channel subset");
+        }
+        SignalQualityResult.ChannelQuality report = DataFilter.get_signal_quality (data, channels, rate, options).quality[1];
+        if (report.channel != 1 || report.flags != (SignalQualityResult.NONFINITE | SignalQualityResult.CLIPPED | SignalQualityResult.FLATLINE) ||
+                report.nonfinite_percentage != 100.0 / samples || report.clipped_percentage != 200.0 / samples ||
+                report.longest_flatline_seconds != (samples - 4.0) / rate)
+        {
+            throw new AssertionError ("Signal quality report was marshaled incorrectly");
+        }
+        BandPowerQualityResult invalid = DataFilter.get_avg_band_powers_with_quality (data, channels, rate, false,
+                new SignalQualityOptions (true, -10, 10, 0, 0, 0.5, 3));
+        if (invalid.valid || !"insufficient_channels".equals (invalid.reason) ||
+                invalid.avg_band_powers != null || invalid.stddev_band_powers != null)
+        {
+            throw new AssertionError ("Rejected window returned usable powers");
+        }
+        rejects (() -> DataFilter.get_signal_quality (data, new int[] {0, 0}, rate));
+    }
+
     public static void main (String[] args) throws Exception
     {
+        check_signal_quality ();
         rejects (() -> DataFilter.calc_stddev (new double[2], -1, 2));
         rejects (() -> DataFilter.calc_stddev (new double[2], 0, 3));
         rejects (() -> DataFilter.get_band_power (Pair.of (new double[2], new double[1]), 0, 1));

@@ -135,6 +135,20 @@ extern "C"
         int sampling_rate, int apply_filters, const BrainFlowSignalQualityParams *params,
         double *avg_band_powers, double *stddev_band_powers, BrainFlowChannelQuality *quality,
         int *valid);
+    // Primitive-buffer variants for FFIs that cannot marshal arrays of C structs.
+    // flags has rows entries. measurements has four doubles per row, in this order:
+    // nonfinite percentage, clipped percentage, flatline percentage, longest flatline seconds.
+    SHARED_EXPORT int CALLING_CONVENTION get_signal_quality_flat (const double *data, int rows,
+        int cols, int sampling_rate, int enable_clipping, double lower_bound, double upper_bound,
+        double max_clipped_percentage, double flatline_tolerance, double max_flatline_seconds,
+        int min_channels, int *flags, double *measurements);
+    SHARED_EXPORT int CALLING_CONVENTION get_custom_band_powers_with_quality_flat (
+        const double *data, int rows, int cols, const double *start_freqs, const double *stop_freqs,
+        int num_bands, int sampling_rate, int apply_filters, int enable_clipping,
+        double lower_bound, double upper_bound, double max_clipped_percentage,
+        double flatline_tolerance, double max_flatline_seconds, int min_channels,
+        double *avg_band_powers, double *stddev_band_powers, int *flags, double *measurements,
+        int *valid);
     SHARED_EXPORT int CALLING_CONVENTION get_oxygen_level (double *ppg_ir, double *ppg_red,
         int data_size, int sampling_rate, double callib_coef1, double callib_coef2,
         double callib_coef3, double *oxygen_level);

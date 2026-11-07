@@ -10,7 +10,8 @@ from importlib.resources import files
 from brainflow.exit_codes import BrainFlowExitCodes, BrainFlowError
 from brainflow.utils import check_memory_layout_row_major, LogLevels
 from numpy.ctypeslib import ndpointer
-from brainflow.signal_quality import (SignalQualityOptions, SignalQualityFlags,
+from brainflow.signal_quality import SignalQualityFlags as SignalQualityFlags
+from brainflow.signal_quality import (SignalQualityOptions,
                                      _NativeQualityParams, _NativeChannelQuality,
                                      _quality_input, _quality_result)
 

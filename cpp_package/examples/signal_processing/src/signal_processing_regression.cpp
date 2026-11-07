@@ -60,6 +60,7 @@ static void quality_tests ()
 }
 
 int main ()
+try
 {
     quality_tests ();
     BrainFlowArray<double, 2> data (2, 256);
@@ -113,4 +114,9 @@ int main ()
     reject (
         [&] { DataFilter::perform_inverse_wavelet_transform (coefficients, lengths, 256, 3, 3); });
     std::cout << "Signal-processing binding validation passed." << std::endl;
+}
+catch (const std::exception &error)
+{
+    std::cerr << error.what () << std::endl;
+    return 1;
 }

@@ -3,7 +3,9 @@ package brainflow;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.apache.commons.lang3.SystemUtils;
 import org.apache.commons.lang3.tuple.ImmutablePair;
@@ -21,6 +23,10 @@ import com.sun.jna.Native;
 @SuppressWarnings ("deprecation")
 public class DataFilter
 {
+    private static final List<Pair<Double, Double>> STANDARD_BANDS = Arrays.asList (
+            ImmutablePair.of (2.0, 4.0), ImmutablePair.of (4.0, 8.0), ImmutablePair.of (8.0, 13.0),
+            ImmutablePair.of (13.0, 30.0), ImmutablePair.of (30.0, 45.0));
+
     private static int checked_product (int first, int second) throws BrainFlowError
     {
         long count = (long) first * second;
@@ -52,6 +58,35 @@ public class DataFilter
         }
         checked_product (channels.length, columns);
         return columns;
+    }
+
+    private static double[] select_data (double[][] data, int[] channels, int cols) throws BrainFlowError
+    {
+        double[] selected = new double[checked_product (channels.length, cols)];
+        for (int i = 0; i < channels.length; i++)
+        {
+            System.arraycopy (data[channels[i]], 0, selected, i * cols, cols);
+        }
+        return selected;
+    }
+
+    private static int quality_columns (double[][] data, int[] channels, int sampling_rate,
+            SignalQualityOptions options) throws BrainFlowError
+    {
+        int cols = selected_columns (data, channels);
+        if (cols < 2 || sampling_rate < 1 || options == null)
+        {
+            throw new BrainFlowError ("Invalid signal quality input", BrainFlowExitCode.INVALID_ARGUMENTS_ERROR.get_code ());
+        }
+        Set<Integer> seen = new HashSet<> ();
+        for (int channel : channels)
+        {
+            if (!seen.add (channel))
+            {
+                throw new BrainFlowError ("Duplicate channel", BrainFlowExitCode.INVALID_ARGUMENTS_ERROR.get_code ());
+            }
+        }
+        return cols;
     }
 
     private interface DllInterface extends Library
@@ -124,6 +159,15 @@ public class DataFilter
 
         int get_custom_band_powers (double[] data, int rows, int cols, double[] start_freqs, double[] stop_freqs,
                 int num_bands, int sampling_rate, int apply_filters, double[] avgs, double[] stddevs);
+
+        int get_signal_quality_flat (double[] data, int rows, int cols, int sampling_rate, int enable_clipping,
+                double lower_bound, double upper_bound, double max_clipped_percentage, double flatline_tolerance,
+                double max_flatline_seconds, int min_channels, int[] flags, double[] measurements);
+
+        int get_custom_band_powers_with_quality_flat (double[] data, int rows, int cols, double[] starts, double[] stops,
+                int num_bands, int sampling_rate, int apply_filters, int enable_clipping, double lower_bound,
+                double upper_bound, double max_clipped_percentage, double flatline_tolerance, double max_flatline_seconds,
+                int min_channels, double[] avgs, double[] stddevs, int[] flags, double[] measurements, int[] valid);
 
         int get_band_power (double[] ampls, double[] freqs, int len, double start_freq, double stop_freq,
                 double[] output);
@@ -856,13 +900,7 @@ public class DataFilter
     public static Pair<double[], double[]> get_avg_band_powers (double[][] data, int[] channels, int sampling_rate,
             boolean apply_filters) throws BrainFlowError
     {
-        List<Pair<Double, Double>> bands = new ArrayList<Pair<Double, Double>> ();
-        bands.add (new ImmutablePair<Double, Double> (2.0, 4.0));
-        bands.add (new ImmutablePair<Double, Double> (4.0, 8.0));
-        bands.add (new ImmutablePair<Double, Double> (8.0, 13.0));
-        bands.add (new ImmutablePair<Double, Double> (13.0, 30.0));
-        bands.add (new ImmutablePair<Double, Double> (30.0, 45.0));
-        return get_custom_band_powers (data, bands, channels, sampling_rate, apply_filters);
+        return get_custom_band_powers (data, STANDARD_BANDS, channels, sampling_rate, apply_filters);
     }
 
     /**
@@ -896,11 +934,7 @@ public class DataFilter
                     BrainFlowExitCode.INVALID_ARGUMENTS_ERROR.get_code ());
         }
         int cols = selected_columns (data, channels);
-        double[] data_1d = new double[checked_product (channels.length, cols)];
-        for (int i = 0; i < channels.length; i++)
-        {
-            System.arraycopy (data[channels[i]], 0, data_1d, i * cols, cols);
-        }
+        double[] data_1d = select_data (data, channels, cols);
         double[] avgs = new double[bands.size ()];
         double[] stddevs = new double[bands.size ()];
         double[] start_freqs = new double[bands.size ()];
@@ -919,6 +953,93 @@ public class DataFilter
         }
         Pair<double[], double[]> res = new MutablePair<double[], double[]> (avgs, stddevs);
         return res;
+    }
+
+    /** Inspect unique raw channels and return per-channel flags and measurements. */
+    public static SignalQualityResult get_signal_quality (double[][] data, int[] channels, int sampling_rate,
+            SignalQualityOptions options) throws BrainFlowError
+    {
+        int cols = quality_columns (data, channels, sampling_rate, options);
+        int[] flags = new int[channels.length];
+        double[] measurements = new double[checked_product (channels.length, 4)];
+        double[] selected = select_data (data, channels, cols);
+        int ec = instance.get_signal_quality_flat (selected, channels.length, cols, sampling_rate,
+                options.enable_clipping ? 1 : 0, options.lower_bound, options.upper_bound,
+                options.max_clipped_percentage, options.flatline_tolerance, options.max_flatline_seconds,
+                options.min_channels, flags, measurements);
+        if (ec != BrainFlowExitCode.STATUS_OK.get_code ())
+        {
+            throw new BrainFlowError ("Failed to calculate signal quality", ec);
+        }
+        return new SignalQualityResult (channels, flags, measurements, options);
+    }
+
+    public static SignalQualityResult get_signal_quality (double[][] data, int[] channels, int sampling_rate)
+            throws BrainFlowError
+    {
+        return get_signal_quality (data, channels, sampling_rate, new SignalQualityOptions ());
+    }
+
+    /** Calculate band powers over whole accepted channels. Invalid results have null powers. */
+    public static BandPowerQualityResult get_custom_band_powers_with_quality (double[][] data,
+            List<Pair<Double, Double>> bands, int[] channels, int sampling_rate, boolean apply_filters,
+            SignalQualityOptions options) throws BrainFlowError
+    {
+        int cols = quality_columns (data, channels, sampling_rate, options);
+        if (bands == null || bands.isEmpty ())
+        {
+            throw new BrainFlowError ("Bands must contain frequency pairs", BrainFlowExitCode.INVALID_ARGUMENTS_ERROR.get_code ());
+        }
+        checked_product (channels.length, bands.size ());
+        double[] starts = new double[bands.size ()];
+        double[] stops = new double[bands.size ()];
+        int i = 0;
+        for (Pair<Double, Double> band : bands)
+        {
+            if (band == null || band.getLeft () == null || band.getRight () == null)
+            {
+                throw new BrainFlowError ("Bands must contain frequency pairs", BrainFlowExitCode.INVALID_ARGUMENTS_ERROR.get_code ());
+            }
+            starts[i] = band.getLeft ();
+            stops[i] = band.getRight ();
+            i++;
+        }
+        int[] flags = new int[channels.length];
+        double[] measurements = new double[checked_product (channels.length, 4)];
+        double[] avgs = new double[bands.size ()];
+        double[] stddevs = new double[bands.size ()];
+        int[] valid = new int[1];
+        double[] selected = select_data (data, channels, cols);
+        int ec = instance.get_custom_band_powers_with_quality_flat (selected, channels.length, cols, starts,
+                stops, starts.length, sampling_rate, apply_filters ? 1 : 0, options.enable_clipping ? 1 : 0,
+                options.lower_bound, options.upper_bound, options.max_clipped_percentage, options.flatline_tolerance,
+                options.max_flatline_seconds, options.min_channels, avgs, stddevs, flags, measurements, valid);
+        if (ec != BrainFlowExitCode.STATUS_OK.get_code ())
+        {
+            throw new BrainFlowError ("Failed to calculate quality-aware band powers", ec);
+        }
+        return new BandPowerQualityResult (channels, flags, measurements, options, valid[0], avgs, stddevs);
+    }
+
+    public static BandPowerQualityResult get_custom_band_powers_with_quality (double[][] data,
+            List<Pair<Double, Double>> bands, int[] channels, int sampling_rate, boolean apply_filters)
+            throws BrainFlowError
+    {
+        return get_custom_band_powers_with_quality (data, bands, channels, sampling_rate, apply_filters,
+                new SignalQualityOptions ());
+    }
+
+    /** Calculate the five standard bands over whole accepted channels. */
+    public static BandPowerQualityResult get_avg_band_powers_with_quality (double[][] data, int[] channels,
+            int sampling_rate, boolean apply_filters, SignalQualityOptions options) throws BrainFlowError
+    {
+        return get_custom_band_powers_with_quality (data, STANDARD_BANDS, channels, sampling_rate, apply_filters, options);
+    }
+
+    public static BandPowerQualityResult get_avg_band_powers_with_quality (double[][] data, int[] channels,
+            int sampling_rate, boolean apply_filters) throws BrainFlowError
+    {
+        return get_avg_band_powers_with_quality (data, channels, sampling_rate, apply_filters, new SignalQualityOptions ());
     }
 
     /**

@@ -70,15 +70,19 @@ with earlier band power behavior should be revalidated before using the new feat
 Quality-aware band powers
 -------------------------
 
-The C, C++ and Python APIs provide opt-in quality checks. Existing band-power
-functions keep their behavior. ``get_signal_quality`` inspects each selected raw
-channel before filtering. ``get_custom_band_powers_with_quality`` performs these
-checks and calls the existing DSP on whole accepted channel windows; the C++ and
-Python ``get_avg_band_powers_with_quality`` convenience method uses the five
-standard bands. All operations preserve the input samples and channel order.
-Channel indices in the high-level APIs must be unique.
+The bindings provide opt-in quality checks alongside the existing band-power APIs.
+``get_signal_quality`` inspects each selected raw channel before filtering.
+``get_custom_band_powers_with_quality`` performs these checks and calls the existing
+DSP on whole accepted channel windows. The high-level
+``get_avg_band_powers_with_quality`` method uses the five standard bands. All
+operations preserve the input samples and channel order. Channel indices in the
+high-level APIs must be unique. Julia and MATLAB use one-based indices.
 
-``SignalQualityOptions`` (C++/Python) configures these checks:
+TypeScript names these methods ``getSignalQuality``, ``getCustomBandPowersWithQuality``
+and ``getAvgBandPowersWithQuality``. MATLAB accepts a struct of policy fields.
+R accesses the Python API through reticulate.
+
+``SignalQualityOptions`` configures these checks:
 
 * Nonfinite samples always reject their channel (flag ``1``).
 * Clipping (flag ``2``) is checked only when enabled with caller-provided limits
@@ -104,15 +108,18 @@ including filter settling margins, because faults there can affect retained data
 They require at least two samples. Band powers additionally require the ordinary
 FFT and filter-settling length, even if every channel is rejected.
 
-Python returns a dictionary with ``quality``, ``quality_policy``, ``used_channels``
-and ``rejected_channels``. The combined calculation also returns ``valid``,
-``reason``, ``avg_band_powers`` and ``stddev_band_powers``. With too few accepted
-channels, ``valid=False``, ``reason='insufficient_channels'``, and both powers
-arrays are ``None``. Zero total band power similarly returns ``no_band_power``.
-C++ returns owning ``SignalQualityResult``/``BandPowerQualityResult`` structures;
-invalid powers are empty vectors. Malformed options, bands, or buffer sizes remain
-API errors. A valid result exactly follows the existing normalization and
-coefficient-of-variation calculation for the accepted channel set.
+The high-level results contain a report per selected channel and the lists of used
+and rejected channels. The combined calculation also returns a validity flag, a
+reason, normalized means, and coefficients of variation. The reason is
+``insufficient_channels`` when too few channels pass the checks and
+``no_band_power`` when total power is zero. Invalid results retain the reports
+and omit usable powers. C++ and MATLAB use empty arrays, C#, Java, and TypeScript
+use ``null``, Python uses ``None``, Julia uses ``nothing``, and Swift uses
+``nil``. Rust returns ``Option`` values. Rust and Swift put the reports and
+channel lists in the combined result's ``signal_quality`` field. Malformed
+options, bands, or buffer sizes raise API errors. A valid result follows the
+existing normalization and coefficient-of-variation calculation for the
+accepted channel set.
 
 .. code-block:: python
 
@@ -141,6 +148,11 @@ in that case powers and variation contain NaN. If fewer than ``min_channels``
 reports have ``flags==0``, the reason is insufficient channels; otherwise it is
 zero total band power. As with other native methods, outputs must not be used
 after an API error. The current policy/report ABI is version 1.
+
+The C functions ending in ``_flat`` expose the same checks for bindings that
+pass primitive buffers. Allocate one integer flag and four doubles per row. The
+four measurements for each row are nonfinite percentage, clipped percentage,
+flatline percentage, and longest flatline duration in seconds.
 
 Library diagnostics for rejected channels are emitted at DEBUG level (row indices
 refer to the packed selected-channel matrix). Returned quality data is the primary

@@ -40,6 +40,74 @@ public struct BandPowerResult: Equatable, Sendable {
     }
 }
 
+public struct SignalQualityFlags: OptionSet, Sendable {
+    public let rawValue: CInt
+
+    public init(rawValue: CInt) {
+        self.rawValue = rawValue
+    }
+
+    public static let nonfinite = Self(rawValue: 1)
+    public static let clipped = Self(rawValue: 2)
+    public static let flatline = Self(rawValue: 4)
+}
+
+/// Thresholds for opt-in, whole-channel quality checks.
+public struct SignalQualityOptions: Equatable, Sendable {
+    public var enable_clipping: Bool
+    public var lower_bound: Double
+    public var upper_bound: Double
+    public var max_clipped_percentage: Double
+    public var flatline_tolerance: Double
+    public var max_flatline_seconds: Double
+    public var min_channels: Int
+
+    public init(enable_clipping: Bool = false, lower_bound: Double = 0, upper_bound: Double = 0,
+                max_clipped_percentage: Double = 0, flatline_tolerance: Double = 0,
+                max_flatline_seconds: Double = 0.5, min_channels: Int = 1) {
+        self.enable_clipping = enable_clipping
+        self.lower_bound = lower_bound
+        self.upper_bound = upper_bound
+        self.max_clipped_percentage = max_clipped_percentage
+        self.flatline_tolerance = flatline_tolerance
+        self.max_flatline_seconds = max_flatline_seconds
+        self.min_channels = min_channels
+    }
+}
+
+public struct ChannelQuality: Equatable, Sendable {
+    public let channel: Int
+    public let flags: SignalQualityFlags
+    public let nonfinite_percentage: Double
+    public let clipped_percentage: Double
+    public let flatline_percentage: Double
+    public let longest_flatline_seconds: Double
+}
+
+public struct SignalQualityResult: Equatable, Sendable {
+    public let channels: [Int]
+    public let quality: [ChannelQuality]
+    public let used_channels: [Int]
+    public let rejected_channels: [Int]
+    public let quality_policy: SignalQualityOptions
+}
+
+public enum BandPowerQualityReason: String, Sendable {
+    case ok
+    case insufficientChannels = "insufficient_channels"
+    case noBandPower = "no_band_power"
+}
+
+public struct BandPowerQualityResult: Equatable, Sendable {
+    public let signal_quality: SignalQualityResult
+    public let valid: Bool
+    public let reason: BandPowerQualityReason
+    /// Normalized means, or nil when invalid.
+    public let avg_band_powers: [Double]?
+    /// Coefficients of variation, or nil when invalid.
+    public let stddev_band_powers: [Double]?
+}
+
 public struct CSPResult: Equatable, Sendable {
     public var filters: [[Double]]
     public var eigenvalues: [Double]

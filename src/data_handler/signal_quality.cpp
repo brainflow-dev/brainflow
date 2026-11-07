@@ -12,6 +12,12 @@ extern std::shared_ptr<spdlog::logger> data_logger;
 
 namespace
 {
+    bool valid_window (const double *data, int rows, int cols, int sampling_rate)
+    {
+        return data && rows > 0 && cols >= 2 && sampling_rate > 0 &&
+            (int64_t)rows * cols <= (std::numeric_limits<int>::max) ();
+    }
+
     bool valid_policy (const BrainFlowSignalQualityParams *p)
     {
         return p && p->struct_size == sizeof (BrainFlowSignalQualityParams) && p->version == 1 &&
@@ -29,8 +35,7 @@ int get_signal_quality (const double *data, int rows, int cols, int sampling_rat
     const BrainFlowSignalQualityParams *params, BrainFlowChannelQuality *output)
 try
 {
-    if (!data || !output || rows < 1 || cols < 2 || sampling_rate < 1 ||
-        (int64_t)rows * cols > (std::numeric_limits<int>::max) () || !valid_policy (params))
+    if (!output || !valid_window (data, rows, cols, sampling_rate) || !valid_policy (params))
         return (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR;
 
     for (int row = 0; row < rows; ++row)
@@ -93,10 +98,9 @@ try
 {
     if (valid)
         *valid = 0;
-    if (!data || !start_freqs || !stop_freqs || !avg_band_powers || !stddev_band_powers ||
-        !quality || !valid || rows < 1 || cols < 2 || num_bands < 1 || sampling_rate < 1 ||
+    if (!start_freqs || !stop_freqs || !avg_band_powers || !stddev_band_powers || !quality ||
+        !valid || !valid_window (data, rows, cols, sampling_rate) || num_bands < 1 ||
         sampling_rate > (std::numeric_limits<int>::max) () / 4 ||
-        (int64_t)rows * cols > (std::numeric_limits<int>::max) () ||
         (int64_t)rows * num_bands > (std::numeric_limits<int>::max) () ||
         (apply_filters != 0 && apply_filters != 1) || !valid_policy (params) ||
         params->min_channels > rows)
@@ -152,6 +156,72 @@ try
                 std::numeric_limits<double>::quiet_NaN ());
         }
     }
+    return ec;
+}
+catch (...)
+{
+    return (int)BrainFlowExitCodes::GENERAL_ERROR;
+}
+
+namespace
+{
+    void copy_quality_reports (
+        const std::vector<BrainFlowChannelQuality> &reports, int *flags, double *measurements)
+    {
+        for (const auto &report : reports)
+        {
+            *flags++ = report.flags;
+            *measurements++ = report.nonfinite_percentage;
+            *measurements++ = report.clipped_percentage;
+            *measurements++ = report.flatline_percentage;
+            *measurements++ = report.longest_flatline_seconds;
+        }
+    }
+}
+
+int get_signal_quality_flat (const double *data, int rows, int cols, int sampling_rate,
+    int enable_clipping, double lower_bound, double upper_bound, double max_clipped_percentage,
+    double flatline_tolerance, double max_flatline_seconds, int min_channels, int *flags,
+    double *measurements)
+try
+{
+    if (!flags || !measurements || !valid_window (data, rows, cols, sampling_rate))
+        return (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR;
+    const BrainFlowSignalQualityParams params = {sizeof (BrainFlowSignalQualityParams), 1,
+        enable_clipping, lower_bound, upper_bound, max_clipped_percentage, flatline_tolerance,
+        max_flatline_seconds, min_channels};
+    std::vector<BrainFlowChannelQuality> reports (rows);
+    int ec = get_signal_quality (data, rows, cols, sampling_rate, &params, reports.data ());
+    if (ec == (int)BrainFlowExitCodes::STATUS_OK)
+        copy_quality_reports (reports, flags, measurements);
+    return ec;
+}
+catch (...)
+{
+    return (int)BrainFlowExitCodes::GENERAL_ERROR;
+}
+
+int get_custom_band_powers_with_quality_flat (const double *data, int rows, int cols,
+    const double *start_freqs, const double *stop_freqs, int num_bands, int sampling_rate,
+    int apply_filters, int enable_clipping, double lower_bound, double upper_bound,
+    double max_clipped_percentage, double flatline_tolerance, double max_flatline_seconds,
+    int min_channels, double *avg_band_powers, double *stddev_band_powers, int *flags,
+    double *measurements, int *valid)
+try
+{
+    if (valid)
+        *valid = 0;
+    if (!flags || !measurements || !valid_window (data, rows, cols, sampling_rate))
+        return (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR;
+    const BrainFlowSignalQualityParams params = {sizeof (BrainFlowSignalQualityParams), 1,
+        enable_clipping, lower_bound, upper_bound, max_clipped_percentage, flatline_tolerance,
+        max_flatline_seconds, min_channels};
+    std::vector<BrainFlowChannelQuality> reports (rows);
+    int ec = get_custom_band_powers_with_quality (data, rows, cols, start_freqs, stop_freqs,
+        num_bands, sampling_rate, apply_filters, &params, avg_band_powers, stddev_band_powers,
+        reports.data (), valid);
+    if (ec == (int)BrainFlowExitCodes::STATUS_OK)
+        copy_quality_reports (reports, flags, measurements);
     return ec;
 }
 catch (...)
