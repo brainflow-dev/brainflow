@@ -22,4 +22,8 @@ function signal_quality_regression()
     invalid = DataFilter.get_avg_band_powers_with_quality(data, channels, rate, false, options);
     assert(~invalid.valid && strcmp(invalid.reason, 'insufficient_channels'));
     assert(isempty(invalid.avg_band_powers) && isempty(invalid.stddev_band_powers));
+    silent = DataFilter.get_avg_band_powers_with_quality(zeros(1, samples), 1, rate, 0, ...
+        struct('enable_clipping', 0, 'max_flatline_seconds', 0));
+    assert(~silent.valid && strcmp(silent.reason, 'no_band_power'));
+    assert(isequal(silent.used_channels, 1));
 end

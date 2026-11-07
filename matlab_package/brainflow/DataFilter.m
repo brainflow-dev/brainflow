@@ -34,6 +34,14 @@ classdef DataFilter
             input = libpointer('doublePtr', packed(:));
         end
 
+        function value = quality_switch(value, name)
+            if ~(islogical(value) || isnumeric(value)) || ~isscalar(value) || ...
+                    ~isreal(value) || (value ~= 0 && value ~= 1)
+                error('%s must be true, false, 0, or 1', name);
+            end
+            value = logical(full(value));
+        end
+
         function [policy, args] = quality_options(options)
             policy = struct('enable_clipping', false, 'lower_bound', 0, 'upper_bound', 0, ...
                 'max_clipped_percentage', 0, 'flatline_tolerance', 0, ...
@@ -47,8 +55,7 @@ classdef DataFilter
                 end
                 policy.(name) = options.(name);
             end
-            validateattributes(policy.enable_clipping, {'logical', 'numeric'}, ...
-                {'real', 'scalar', 'integer', '>=', 0, '<=', 1});
+            policy.enable_clipping = DataFilter.quality_switch(policy.enable_clipping, 'enable_clipping');
             thresholds = {'lower_bound', 'upper_bound', 'max_clipped_percentage', ...
                 'flatline_tolerance', 'max_flatline_seconds'};
             for i = 1:numel(thresholds)
@@ -58,7 +65,6 @@ classdef DataFilter
             end
             validateattributes(policy.min_channels, {'numeric'}, ...
                 {'real', 'scalar', 'integer', 'positive', '<=', double(intmax('int32'))});
-            policy.enable_clipping = logical(policy.enable_clipping);
             policy.min_channels = double(policy.min_channels);
             args = {int32(policy.enable_clipping), policy.lower_bound, policy.upper_bound, ...
                 policy.max_clipped_percentage, policy.flatline_tolerance, policy.max_flatline_seconds, ...
@@ -518,8 +524,7 @@ classdef DataFilter
             % Calculate band powers over whole accepted channels. Invalid powers are empty.
             if nargin < 6; apply_filters = true; end
             if nargin < 7; options = struct(); end
-            validateattributes(apply_filters, {'logical', 'numeric'}, ...
-                {'real', 'scalar', 'integer', '>=', 0, '<=', 1});
+            apply_filters = DataFilter.quality_switch(apply_filters, 'apply_filters');
             [policy, policy_args] = DataFilter.quality_options(options);
             [channels, input] = DataFilter.quality_input(data, channels, sampling_rate);
             rows = numel(channels);
