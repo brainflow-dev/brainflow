@@ -246,11 +246,11 @@ std::vector<double> DataFilter::perform_inverse_wavelet_transform (
 }
 
 void DataFilter::perform_wavelet_denoising (double *data, int data_len, int wavelet,
-    int decomposition_level, int wavelet_denoising, int threshold, int extenstion_type,
+    int decomposition_level, int wavelet_denoising, int threshold, int extension_type,
     int noise_level)
 {
     int res = ::perform_wavelet_denoising (data, data_len, wavelet, decomposition_level,
-        wavelet_denoising, threshold, extenstion_type, noise_level);
+        wavelet_denoising, threshold, extension_type, noise_level);
     if (res != (int)BrainFlowExitCodes::STATUS_OK)
     {
         throw BrainFlowException ("failed to perform wavelet denoising", res);

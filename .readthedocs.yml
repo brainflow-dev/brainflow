@@ -8,11 +8,9 @@ version: 2
 build:
   os: ubuntu-22.04
   tools:
-    python: "3.8"
-    # You can also specify other tool versions:
-    # nodejs: "20"
-    # rust: "1.70"
-    # golang: "1.20"
+    python: "3.12"
+  apt_packages:
+    - doxygen
 
 # Build documentation in the "docs/" directory with Sphinx
 sphinx:

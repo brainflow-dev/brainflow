@@ -212,12 +212,12 @@ namespace brainflow
         }
 
         /// <summary>
-        /// perform moving average or moving median filter, unlike other bindings instead in-place calculation it returns new array
+        /// Apply a moving average or moving median filter to a copy of the input.
         /// </summary>
         /// <param name="data"></param>
         /// <param name="period"></param>
         /// <param name="operation"></param>
-        /// <returns>filered data</returns>
+        /// <returns>Filtered data.</returns>
         public static double[] perform_rolling_filter (double[] data, int period, int operation)
         {
             double[] filtered_data = new double[data.Length];
@@ -231,7 +231,7 @@ namespace brainflow
         }
 
         /// <summary>
-        /// detrend, unlike other bindings instead in-place calculation it returns new array
+        /// Remove the trend from a copy of the input.
         /// </summary>
         /// <param name="data"></param>
         /// <param name="operation"></param>
@@ -329,10 +329,13 @@ namespace brainflow
         /// <summary>
         /// calc oxygen level from ppg values
         /// </summary>
-        /// <param name="coef1">appxorimation coef for power of 2</param>
-        /// <param name="coef2">approximation coef</param>
-        /// /// <param name="coef3">intercept for approximation</param>
-        /// <returns>stddev</returns>
+        /// <param name="ppg_ir">Infrared PPG samples.</param>
+        /// <param name="ppg_red">Red PPG samples.</param>
+        /// <param name="sampling_rate">Sampling rate in Hz.</param>
+        /// <param name="coef1">Quadratic calibration coefficient.</param>
+        /// <param name="coef2">Linear calibration coefficient.</param>
+        /// <param name="coef3">Calibration intercept.</param>
+        /// <returns>Estimated oxygen saturation as a percentage.</returns>
         public static double get_oxygen_level (double[] ppg_ir, double[] ppg_red, int sampling_rate, double coef1 = 1.5958422, double coef2 = -34.6596622, double coef3 = 112.6898759)
         {
             if (ppg_ir.Length != ppg_red.Length)
@@ -351,8 +354,11 @@ namespace brainflow
         /// <summary>
         /// calc heart rate
         /// </summary>
-        /// <param name="fft_size">recommended 8192</param>
-        /// <returns>stddev</returns>
+        /// <param name="ppg_ir">Infrared PPG samples.</param>
+        /// <param name="ppg_red">Red PPG samples.</param>
+        /// <param name="sampling_rate">Sampling rate in Hz.</param>
+        /// <param name="fft_size">FFT size. The recommended size is 8192.</param>
+        /// <returns>Estimated heart rate in beats per minute.</returns>
         public static double get_heart_rate (double[] ppg_ir, double[] ppg_red, int sampling_rate, int fft_size)
         {
             if (ppg_ir.Length != ppg_red.Length)
@@ -1086,6 +1092,7 @@ namespace brainflow
         /// perform highpass filter in-place
         /// </summary>
         /// <param name="data"></param>
+        /// <param name="row_num">Index of the channel row to filter.</param>
         /// <param name="sampling_rate"></param>
         /// <param name="cutoff"></param>
         /// <param name="order"></param>
@@ -1147,7 +1154,6 @@ namespace brainflow
         /// <param name="order"></param>
         /// <param name="filter_type"></param>
         /// <param name="ripple"></param>
-        /// <returns>filtered data</returns>
         public static unsafe void perform_bandstop (double[,] data, int row_num, int sampling_rate, double start_freq, double stop_freq, int order, int filter_type, double ripple)
         {
             int res = (int)BrainFlowExitCodes.STATUS_OK;
@@ -1166,13 +1172,12 @@ namespace brainflow
         }
 
         /// <summary>
-        /// perform moving average or moving median filter, unlike other bindings instead in-place calculation it returns new array
+        /// Apply a moving average or moving median filter to the selected row in place.
         /// </summary>
         /// <param name="data"></param>
         /// <param name="row_num"></param>
         /// <param name="period"></param>
         /// <param name="operation"></param>
-        /// <returns>filered data</returns>
         public static unsafe void perform_rolling_filter (double[,] data, int row_num, int period, int operation)
         {
             int res = (int)BrainFlowExitCodes.STATUS_OK;
@@ -1191,12 +1196,11 @@ namespace brainflow
         }
 
         /// <summary>
-        /// detrend, unlike other bindings instead in-place calculation it returns new array
+        /// Remove the trend from the selected row in place.
         /// </summary>
         /// <param name="data"></param>
         /// <param name="row_num"></param>
         /// <param name="operation"></param>
-        /// <returns>data with removed trend</returns>
         public static unsafe void detrend (double[,] data, int row_num, int operation)
         {
             int res = (int)BrainFlowExitCodes.STATUS_OK;
