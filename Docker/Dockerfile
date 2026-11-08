@@ -13,7 +13,7 @@ echo "deb https://cloud.r-project.org/bin/linux/ubuntu focal-cran40/" | tee /etc
 echo "deb https://download.mono-project.com/repo/ubuntu vs-bionic main" | tee /etc/apt/sources.list.d/mono-official-vs.list && \
 apt-get -qq update
 # Installing Dependencies
-RUN apt-get install -yqq python3 python3-pip python3-venv openjdk-13-jdk maven git curl wget build-essential python3-jira r-base rustc cargo nuget nuget mono-devel mono-complete monodevelop libxml2-dev libbluetooth-dev libdbus-1-dev dotnet-sdk-7.0 dotnet-runtime-7.0 dotnet-runtime-3.1 aspnetcore-runtime-7.0 nodejs npm
+RUN apt-get install -yqq python3 python3-pip python3-venv openjdk-13-jdk maven git curl wget build-essential python3-jira r-base rustc cargo nuget nuget mono-devel mono-complete monodevelop libxml2-dev libpng-dev libbluetooth-dev libdbus-1-dev dotnet-sdk-7.0 dotnet-runtime-7.0 dotnet-runtime-3.1 aspnetcore-runtime-7.0 nodejs npm
 RUN mkdir -p /root/local/bin
 WORKDIR /root/local/bin
 # install latest cmake
@@ -58,8 +58,10 @@ RUN /root/local/bin/julia/julia-1.5.3/bin/julia -e "import Pkg; Pkg.activate()"
 
 # R Binding
 WORKDIR /root/brainflow/r_package/brainflow
-RUN R --vanilla -e 'install.packages("knitr", repos="http://cran.us.r-project.org")'
-RUN R --vanilla -e 'install.packages("reticulate", repos="http://cran.us.r-project.org")'
+RUN Rscript --vanilla \
+    -e 'packages <- c("knitr", "reticulate")' \
+    -e 'install.packages(packages, repos = "https://cloud.r-project.org")' \
+    -e 'invisible(lapply(packages, loadNamespace))'
 RUN R CMD build .
 
 # Node JS Binding
