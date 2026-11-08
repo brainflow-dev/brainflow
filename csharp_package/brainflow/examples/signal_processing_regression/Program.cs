@@ -31,6 +31,34 @@ class Program
         Console.WriteLine("ML capacity snapshot validation passed.");
     }
 
+    static void CheckChannelPacking()
+    {
+        var data = new double[4, 1024];
+        for (int row = 0; row < 4; row++)
+            for (int col = 0; col < 1024; col++)
+                data[row, col] = Math.Sin(2 * Math.PI * (5 + row * 7.0) * col / 256.0);
+        var original = (double[,])data.Clone();
+        int[] rows = {3, 1, 3};
+        var selected = new double[rows.Length, 1024];
+        for (int row = 0; row < rows.Length; row++)
+            for (int col = 0; col < 1024; col++)
+                selected[row, col] = data[rows[row], col];
+        var bands = new[] {Tuple.Create(2.0, 15.0), Tuple.Create(15.0, 40.0)};
+        var actual = DataFilter.get_custom_band_powers(data, bands, new[] {3, 1, -1}, 256, false);
+        var expected = DataFilter.get_custom_band_powers(selected, bands, new[] {0, 1, 2}, 256, false);
+        for (int band = 0; band < bands.Length; band++)
+            if (!(Math.Abs(actual.Item1[band] - expected.Item1[band]) <= 1e-12 &&
+                  Math.Abs(actual.Item2[band] - expected.Item2[band]) <= 1e-12))
+                throw new Exception("Selected/repeated channel powers changed");
+        for (int row = 0; row < 4; row++)
+            for (int col = 0; col < 1024; col++)
+                if (BitConverter.DoubleToInt64Bits(data[row, col]) != BitConverter.DoubleToInt64Bits(original[row, col]))
+                    throw new Exception("Channel packing modified input");
+        Reject(() => DataFilter.get_custom_band_powers(data, bands, new[] {-5}, 256, false));
+        Reject(() => DataFilter.get_custom_band_powers(data, bands, new[] {4}, 256, false));
+        Reject(() => DataFilter.perform_ica(data, 2, new[] {0, 4}));
+    }
+
     static void CheckSignalQuality()
     {
         const int samples = 1024;
@@ -68,6 +96,7 @@ class Program
 
     static void Main(string[] args)
     {
+        CheckChannelPacking();
         CheckSignalQuality();
         var batch = new double[8, 2048];
         for (int row = 0; row < 8; row++)

@@ -694,6 +694,40 @@ namespace brainflow
             return output[0];
         }
 
+        private static unsafe double[] pack_channels (double[,] data, int[] channels)
+        {
+            if (data == null || channels == null || channels.Length == 0)
+                throw new BrainFlowError ((int)BrainFlowExitCodes.INVALID_ARGUMENTS_ERROR);
+
+            int cols = data.GetLength (1);
+            long packed_length = (long)channels.Length * cols;
+            if (cols == 0 || data.GetLowerBound (1) != 0 || packed_length > int.MaxValue)
+                throw new BrainFlowError ((int)BrainFlowExitCodes.INVALID_ARGUMENTS_ERROR);
+
+            int rows = data.GetLength (0);
+            int first_row = data.GetLowerBound (0);
+            int last_row = data.GetUpperBound (0);
+            long row_bytes = (long)cols * sizeof (double);
+            double[] packed = new double[(int)packed_length];
+            fixed (double* destination = packed)
+            {
+                for (int i = 0; i < channels.Length; i++)
+                {
+                    int row = channels[i];
+                    // Preserve GetRow's indexing from the end of the array.
+                    if (row < 0)
+                        row += rows;
+                    if (row < first_row || row > last_row)
+                        throw new BrainFlowError ((int)BrainFlowExitCodes.INVALID_ARGUMENTS_ERROR);
+                    fixed (double* source = &data[row, 0])
+                    {
+                        Buffer.MemoryCopy (source, destination + i * cols, row_bytes, row_bytes);
+                    }
+                }
+            }
+            return packed;
+        }
+
         /// <summary>
         /// Calculate normalized mean band powers and coefficients of variation across channels.
         /// Filtering removes DC and applies padded, initialized zero-phase 48-52 and 58-62 Hz
@@ -718,11 +752,7 @@ namespace brainflow
         /// <returns>Normalized mean band powers and coefficients of variation</returns>
         public static Tuple<double[], double[]> get_custom_band_powers (double[,] data, Tuple<double, double>[] bands, int[] channels, int sampling_rate, bool apply_filters)
         {
-            double[] data_1d = new double[data.GetRow (0).Length * channels.Length];
-            for (int i = 0; i < channels.Length; i++)
-            {
-                Array.Copy (data.GetRow (channels[i]), 0, data_1d, i * data.GetRow (channels[i]).Length, data.GetRow (channels[i]).Length);
-            }
+            double[] data_1d = pack_channels (data, channels);
             double[] avgs = new double[bands.Length];
             double[] stddevs = new double[bands.Length];
             double[] start_freqs = new double[bands.Length];
@@ -733,7 +763,7 @@ namespace brainflow
                 stop_freqs[i] = bands[i].Item2;
             }
 
-            int res = DataHandlerLibrary.get_custom_band_powers (data_1d, channels.Length, data.GetRow (0).Length, start_freqs, stop_freqs, bands.Length, sampling_rate, (apply_filters) ? 1 : 0, avgs, stddevs);
+            int res = DataHandlerLibrary.get_custom_band_powers (data_1d, channels.Length, data.GetLength (1), start_freqs, stop_freqs, bands.Length, sampling_rate, (apply_filters) ? 1 : 0, avgs, stddevs);
             if (res != (int)BrainFlowExitCodes.STATUS_OK)
             {
                 throw new BrainFlowError (res);
@@ -777,11 +807,7 @@ namespace brainflow
                 throw new BrainFlowError((int)BrainFlowExitCodes.INVALID_ARGUMENTS_ERROR);
             }
             int cols = data.GetLength (1);
-            double[] data_1d = new double[cols * channels.Length];
-            for (int i = 0; i < channels.Length; i++)
-            {
-                Array.Copy (data.GetRow (channels[i]), 0, data_1d, i * data.GetRow (channels[i]).Length, data.GetRow (channels[i]).Length);
-            }
+            double[] data_1d = pack_channels (data, channels);
             int channels_len = channels.Length;
             double[] w = new double[num_components * num_components];
             double[] k = new double[channels_len * num_components];

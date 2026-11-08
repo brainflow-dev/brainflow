@@ -1423,15 +1423,15 @@ class DataFilter(object):
 
         check_memory_layout_row_major(data, 1)
 
-        temp_re = numpy.zeros(int(data.shape[0] / 2 + 1)).astype(numpy.float64)
-        temp_im = numpy.zeros(int(data.shape[0] / 2 + 1)).astype(numpy.float64)
+        temp_re = numpy.empty(data.shape[0] // 2 + 1, dtype=numpy.float64)
+        temp_im = numpy.empty(data.shape[0] // 2 + 1, dtype=numpy.float64)
         res = DataHandlerDLL.get_instance().perform_fft(data, data.shape[0], window, temp_re, temp_im)
         if res != BrainFlowExitCodes.STATUS_OK.value:
             raise BrainFlowError('unable to perform fft', res)
 
-        output = numpy.zeros(int(data.shape[0] / 2 + 1)).astype(numpy.complex128)
-        for i in range(output.shape[0]):
-            output[i] = numpy.complex128(complex(temp_re[i], temp_im[i]))
+        output = numpy.empty(temp_re.shape[0], dtype=numpy.complex128)
+        output.real = temp_re
+        output.imag = temp_im
 
         return output
 
@@ -1798,12 +1798,18 @@ class DataFilter(object):
         :return: restored data
         :rtype: NDArray[Shape["*"], Float64]
         """
-        temp_re = numpy.zeros(data.shape[0]).astype(numpy.float64)
-        temp_im = numpy.zeros(data.shape[0]).astype(numpy.float64)
-        for i in range(data.shape[0]):
-            temp_re[i] = data[i].real
-            temp_im[i] = data[i].imag
-        output = numpy.zeros(2 * (data.shape[0] - 1)).astype(numpy.float64)
+        if len(data.shape) != 1:
+            raise BrainFlowError('unable to perform ifft', BrainFlowExitCodes.INVALID_ARGUMENTS_ERROR.value)
+
+        bins = data.shape[0]
+        if isinstance(data, numpy.ndarray) and not data.dtype.hasobject and not numpy.ma.is_masked(data):
+            temp_re = numpy.require(data.real, dtype=numpy.float64, requirements=('C', 'A'))
+            temp_im = numpy.require(data.imag, dtype=numpy.float64, requirements=('C', 'A'))
+        else:
+            # Object arrays and other array-like inputs expose complex parts on each element.
+            temp_re = numpy.fromiter((data[i].real for i in range(bins)), dtype=numpy.float64, count=bins)
+            temp_im = numpy.fromiter((data[i].imag for i in range(bins)), dtype=numpy.float64, count=bins)
+        output = numpy.empty(2 * (bins - 1), dtype=numpy.float64)
 
         res = DataHandlerDLL.get_instance().perform_ifft(temp_re, temp_im, output.shape[0], output)
         if res != BrainFlowExitCodes.STATUS_OK.value:
