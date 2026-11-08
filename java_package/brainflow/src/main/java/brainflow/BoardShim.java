@@ -678,7 +678,7 @@ public class BoardShim
 
     /**
      * get row indices in returned by get_board_data() 2d array which contain EEG
-     * data, for some boards we can not split EEG\EMG\... and return the same array
+     * data, for some boards we can not split EEG, EMG, and other EXG signals and return the same array
      */
     public static int[] get_eeg_channels (int board_id, BrainFlowPresets preset) throws BrainFlowError
     {
@@ -695,7 +695,7 @@ public class BoardShim
 
     /**
      * get row indices in returned by get_board_data() 2d array which contain EEG
-     * data, for some boards we can not split EEG\EMG\... and return the same array
+     * data, for some boards we can not split EEG, EMG, and other EXG signals and return the same array
      */
     public static int[] get_eeg_channels (int board_id) throws BrainFlowError
     {
@@ -704,7 +704,7 @@ public class BoardShim
 
     /**
      * get row indices in returned by get_board_data() 2d array which contain EEG
-     * data, for some boards we can not split EEG\EMG\... and return the same array
+     * data, for some boards we can not split EEG, EMG, and other EXG signals and return the same array
      */
     public static int[] get_eeg_channels (BoardIds board_id, BrainFlowPresets preset) throws BrainFlowError
     {
@@ -713,7 +713,7 @@ public class BoardShim
 
     /**
      * get row indices in returned by get_board_data() 2d array which contain EEG
-     * data, for some boards we can not split EEG\EMG\... and return the same array
+     * data, for some boards we can not split EEG, EMG, and other EXG signals and return the same array
      */
     public static int[] get_eeg_channels (BoardIds board_id) throws BrainFlowError
     {
@@ -722,7 +722,7 @@ public class BoardShim
 
     /**
      * get row indices in returned by get_board_data() 2d array which contain EMG
-     * data, for some boards we can not split EEG\EMG\... and return the same array
+     * data, for some boards we can not split EEG, EMG, and other EXG signals and return the same array
      */
     public static int[] get_emg_channels (int board_id, BrainFlowPresets preset) throws BrainFlowError
     {
@@ -739,7 +739,7 @@ public class BoardShim
 
     /**
      * get row indices in returned by get_board_data() 2d array which contain EMG
-     * data, for some boards we can not split EEG\EMG\... and return the same array
+     * data, for some boards we can not split EEG, EMG, and other EXG signals and return the same array
      */
     public static int[] get_emg_channels (int board_id) throws BrainFlowError
     {
@@ -748,7 +748,7 @@ public class BoardShim
 
     /**
      * get row indices in returned by get_board_data() 2d array which contain EMG
-     * data, for some boards we can not split EEG\EMG\... and return the same array
+     * data, for some boards we can not split EEG, EMG, and other EXG signals and return the same array
      */
     public static int[] get_emg_channels (BoardIds board_id, BrainFlowPresets preset) throws BrainFlowError
     {
@@ -757,7 +757,7 @@ public class BoardShim
 
     /**
      * get row indices in returned by get_board_data() 2d array which contain EMG
-     * data, for some boards we can not split EEG\EMG\... and return the same array
+     * data, for some boards we can not split EEG, EMG, and other EXG signals and return the same array
      */
     public static int[] get_emg_channels (BoardIds board_id) throws BrainFlowError
     {
@@ -766,7 +766,7 @@ public class BoardShim
 
     /**
      * get row indices in returned by get_board_data() 2d array which contain ECG
-     * data, for some boards we can not split EEG\EMG\... and return the same array
+     * data, for some boards we can not split EEG, EMG, and other EXG signals and return the same array
      */
     public static int[] get_ecg_channels (int board_id, BrainFlowPresets preset) throws BrainFlowError
     {
@@ -783,7 +783,7 @@ public class BoardShim
 
     /**
      * get row indices in returned by get_board_data() 2d array which contain ECG
-     * data, for some boards we can not split EEG\EMG\... and return the same array
+     * data, for some boards we can not split EEG, EMG, and other EXG signals and return the same array
      */
     public static int[] get_ecg_channels (int board_id) throws BrainFlowError
     {
@@ -792,7 +792,7 @@ public class BoardShim
 
     /**
      * get row indices in returned by get_board_data() 2d array which contain ECG
-     * data, for some boards we can not split EEG\EMG\... and return the same array
+     * data, for some boards we can not split EEG, EMG, and other EXG signals and return the same array
      */
     public static int[] get_ecg_channels (BoardIds board_id, BrainFlowPresets preset) throws BrainFlowError
     {
@@ -801,7 +801,7 @@ public class BoardShim
 
     /**
      * get row indices in returned by get_board_data() 2d array which contain ECG
-     * data, for some boards we can not split EEG\EMG\... and return the same array
+     * data, for some boards we can not split EEG, EMG, and other EXG signals and return the same array
      */
     public static int[] get_ecg_channels (BoardIds board_id) throws BrainFlowError
     {
@@ -942,7 +942,7 @@ public class BoardShim
 
     /**
      * get row indices in returned by get_board_data() 2d array which contain EOG
-     * data, for some boards we can not split EEG\EMG\... and return the same array
+     * data, for some boards we can not split EEG, EMG, and other EXG signals and return the same array
      */
     public static int[] get_eog_channels (int board_id, BrainFlowPresets preset) throws BrainFlowError
     {
@@ -959,7 +959,7 @@ public class BoardShim
 
     /**
      * get row indices in returned by get_board_data() 2d array which contain EOG
-     * data, for some boards we can not split EEG\EMG\... and return the same array
+     * data, for some boards we can not split EEG, EMG, and other EXG signals and return the same array
      */
     public static int[] get_eog_channels (int board_id) throws BrainFlowError
     {
@@ -968,7 +968,7 @@ public class BoardShim
 
     /**
      * get row indices in returned by get_board_data() 2d array which contain EOG
-     * data, for some boards we can not split EEG\EMG\... and return the same array
+     * data, for some boards we can not split EEG, EMG, and other EXG signals and return the same array
      */
     public static int[] get_eog_channels (BoardIds board_id, BrainFlowPresets preset) throws BrainFlowError
     {
@@ -977,7 +977,7 @@ public class BoardShim
 
     /**
      * get row indices in returned by get_board_data() 2d array which contain EOG
-     * data, for some boards we can not split EEG\EMG\... and return the same array
+     * data, for some boards we can not split EEG, EMG, and other EXG signals and return the same array
      */
     public static int[] get_eog_channels (BoardIds board_id) throws BrainFlowError
     {
@@ -1030,7 +1030,7 @@ public class BoardShim
 
     /**
      * get row indices in returned by get_board_data() 2d array which contain EDA
-     * data, for some boards we can not split EEG\EMG\... and return the same array
+     * data, for some boards we can not split EEG, EMG, and other EXG signals and return the same array
      */
     public static int[] get_eda_channels (int board_id, BrainFlowPresets preset) throws BrainFlowError
     {
@@ -1047,7 +1047,7 @@ public class BoardShim
 
     /**
      * get row indices in returned by get_board_data() 2d array which contain EDA
-     * data, for some boards we can not split EEG\EMG\... and return the same array
+     * data, for some boards we can not split EEG, EMG, and other EXG signals and return the same array
      */
     public static int[] get_eda_channels (int board_id) throws BrainFlowError
     {
@@ -1056,7 +1056,7 @@ public class BoardShim
 
     /**
      * get row indices in returned by get_board_data() 2d array which contain EDA
-     * data, for some boards we can not split EEG\EMG\... and return the same array
+     * data, for some boards we can not split EEG, EMG, and other EXG signals and return the same array
      */
     public static int[] get_eda_channels (BoardIds board_id, BrainFlowPresets preset) throws BrainFlowError
     {
@@ -1065,7 +1065,7 @@ public class BoardShim
 
     /**
      * get row indices in returned by get_board_data() 2d array which contain EDA
-     * data, for some boards we can not split EEG\EMG\... and return the same array
+     * data, for some boards we can not split EEG, EMG, and other EXG signals and return the same array
      */
     public static int[] get_eda_channels (BoardIds board_id) throws BrainFlowError
     {
@@ -1074,7 +1074,7 @@ public class BoardShim
 
     /**
      * get row indices in returned by get_board_data() 2d array which contain PPG
-     * data, for some boards we can not split EEG\EMG\... and return the same array
+     * data, for some boards we can not split EEG, EMG, and other EXG signals and return the same array
      */
     public static int[] get_ppg_channels (int board_id, BrainFlowPresets preset) throws BrainFlowError
     {
@@ -1091,7 +1091,7 @@ public class BoardShim
 
     /**
      * get row indices in returned by get_board_data() 2d array which contain PPG
-     * data, for some boards we can not split EEG\EMG\... and return the same array
+     * data, for some boards we can not split EEG, EMG, and other EXG signals and return the same array
      */
     public static int[] get_ppg_channels (int board_id) throws BrainFlowError
     {
@@ -1100,7 +1100,7 @@ public class BoardShim
 
     /**
      * get row indices in returned by get_board_data() 2d array which contain PPG
-     * data, for some boards we can not split EEG\EMG\... and return the same array
+     * data, for some boards we can not split EEG, EMG, and other EXG signals and return the same array
      */
     public static int[] get_ppg_channels (BoardIds board_id, BrainFlowPresets preset) throws BrainFlowError
     {
@@ -1109,7 +1109,7 @@ public class BoardShim
 
     /**
      * get row indices in returned by get_board_data() 2d array which contain PPG
-     * data, for some boards we can not split EEG\EMG\... and return the same array
+     * data, for some boards we can not split EEG, EMG, and other EXG signals and return the same array
      */
     public static int[] get_ppg_channels (BoardIds board_id) throws BrainFlowError
     {

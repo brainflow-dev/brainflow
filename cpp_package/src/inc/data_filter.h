@@ -84,7 +84,7 @@ public:
      * @param data_len length of input array
      * @param wavelet use WaveletTypes enum
      * @param decomposition_level level of decomposition in wavelet transform
-     * @param extension use WaveletExtensionTypes enum
+     * @param extension_type use WaveletExtensionTypes enum
      * @return std::pair of wavelet coeffs array in format [A(J) D(J) D(J-1) ..... D(1)] where J is
      *              decomposition level A - app coeffs, D - detailed coeffs, and array of lengths for each block
      *              in wavelet coeffs array, length of this array is decomposition_level + 1
@@ -111,14 +111,14 @@ public:
      * @param decomposition_level level of decomposition in wavelet transform
      * @param wavelet_denoising use WaveletDenoisingTypes enum
      * @param threshold use ThresholdTypes enum
-     * @param extension use WaveletExtensionTypes enum
+     * @param extension_type use WaveletExtensionTypes enum
      * @param noise_level use NoiseEstimationLevelTypes enum
      */
     // clang-format on
     static void perform_wavelet_denoising (double *data, int data_len, int wavelet,
         int decomposition_level, int wavelet_denoising = (int)WaveletDenoisingTypes::SURESHRINK,
         int threshold = (int)ThresholdTypes::HARD,
-        int extenstion_type = (int)WaveletExtensionTypes::SYMMETRIC,
+        int extension_type = (int)WaveletExtensionTypes::SYMMETRIC,
         int noise_level = (int)NoiseEstimationLevelTypes::FIRST_LEVEL);
     /// restore data from selected detailed coeffs
     static void restore_data_from_wavelet_detailed_coeffs (double *data, int data_len, int wavelet,
@@ -131,9 +131,6 @@ public:
     * calculate filters and the corresponding eigenvalues using the Common Spatial Patterns
     * @param data [n_epochs x n_channels x n_times]-shaped 3D array of data for two classes
     * @param labels n_epochs-length 1D array of zeros and ones that assigns class labels for each epoch. Zero corresponds to the first class
-    * @param n_epochs the total number of epochs
-    * @param n_channels the number of EEG channels
-    * @param n_times the number of samples (observations) for a single epoch for a single channel 
     * @return pair of two arrays. The first [n_channel x n_channel]-shaped 2D array represents filters. The second n-channel length 1D array represents eigenvalues
     */
     static std::pair<BrainFlowArray<double, 2>, BrainFlowArray<double, 1>> get_csp (
@@ -178,8 +175,7 @@ public:
     /**
      * subtract trend from data
      * @param data input array
-     * @param data_len
-     * @param psd_len output len (data_len / 2 + 1)
+     * @param data_len length of input array
      * @param detrend_operation use DetrendOperations enum
      */
     static void detrend (double *data, int data_len, int detrend_operation);
@@ -250,6 +246,9 @@ public:
      * @param ppg_red input 1d array
      * @param data_len size of array
      * @param sampling_rate sampling rate
+     * @param coef1 quadratic calibration coefficient
+     * @param coef2 linear calibration coefficient
+     * @param coef3 calibration intercept
      * @return oxygen level
      */
     static double get_oxygen_level (double *ppg_ir, double *ppg_red, int data_len,

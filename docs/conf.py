@@ -13,12 +13,16 @@
 # documentation root, use os.path.abspath to make it absolute, like shown here.
 #
 import os
-import sys
 import subprocess
+import sys
+from pathlib import Path
 
-sys.path.insert(0, os.path.abspath('.'))
-sys.path.insert(0, os.path.abspath(os.path.join('..', 'python_package')))
-sys.path.insert(0, os.path.abspath(os.path.join('..', 'python_package', 'brainflow')))
+from docutils import nodes
+
+DOCS_DIR = Path(__file__).resolve().parent
+REPO_DIR = DOCS_DIR.parent
+sys.path.insert(0, str(REPO_DIR / 'python_package'))
+sys.path.insert(0, str(DOCS_DIR / '_ext'))
 
 # -- Project information -----------------------------------------------------
 
@@ -26,10 +30,8 @@ project = u'BrainFlow'
 copyright = u'2019, Andrey Parfenov'
 author = u'Andrey Parfenov'
 
-# The short X.Y version
-version = u''
-# The full version, including alpha/beta/rc tags
-release = u''
+# Label the documentation snapshot in EPUB metadata.
+version = os.environ.get('READTHEDOCS_VERSION') or 'development'
 
 
 # -- General configuration ---------------------------------------------------
@@ -44,52 +46,58 @@ release = u''
 extensions = [
     'sphinx.ext.autodoc',
     'breathe',
+    'breathe_bindings',
+    'sphinx_csharp',
     'sphinxcontrib.ghcontributors',
     'sphinx.ext.mathjax',
-    'sphinxcontrib.matlab'
+    'sphinxcontrib.matlab',
+    'sphinx_rtd_theme',
 ]
 
-matlab_src_dir = os.path.abspath(os.path.join('..', 'matlab_package'))
+matlab_src_dir = str(REPO_DIR / 'matlab_package')
 
 # Breathe and Doxygen setup
 
 breathe_default_project = 'BrainFlowCpp'
+breathe_use_project_refids = True
+breathe_domain_by_extension = {'cs': 'cs', 'java': 'java'}
 
-def configure_doxyfile(input_dir, output_dir, project):
-    with open('Doxyfile.in', 'r') as file :
-        filedata = file.read()
 
-    filedata = filedata.replace('@DOXYGEN_INPUT_DIR@', input_dir)
-    filedata = filedata.replace('@DOXYGEN_OUTPUT_DIR@', output_dir)
-    filedata = filedata.replace('@DOXYGEN_PROJECT@', project)
+def build_doxygen(app):
+    template = (DOCS_DIR / 'Doxyfile.in').read_text(encoding='utf-8')
+    sources = {
+        'BrainFlowCpp': REPO_DIR / 'cpp_package' / 'src',
+        'BrainFlowJava': REPO_DIR / 'java_package' / 'brainflow' / 'src' / 'main' / 'java',
+        'BrainFlowCsharp': REPO_DIR / 'csharp_package' / 'brainflow' / 'brainflow',
+    }
+    output_root = Path(app.doctreedir).resolve() / 'doxygen'
+    output_root.mkdir(parents=True, exist_ok=True)
 
-    with open('Doxyfile', 'w') as file:
-        file.write(filedata)
+    projects = {}
+    for project, source in sources.items():
+        output_dir = output_root / project
+        config = (template.replace('@DOXYGEN_INPUT_DIR@', str(source))
+                  .replace('@DOXYGEN_OUTPUT_DIR@', str(output_dir))
+                  .replace('@DOXYGEN_PROJECT@', project))
+        subprocess.run(['doxygen', '-'], input=config, text=True, cwd=DOCS_DIR, check=True)
+        projects[project] = str(output_dir / 'xml')
 
-# Check if we're running on Read the Docs' servers
-read_the_docs_build = os.environ.get('READTHEDOCS', None) == 'True'
+    app.config.breathe_projects = projects
 
-breathe_projects = {}
 
-if read_the_docs_build:
-    # cpp binding
-    input_dir = '../cpp_package/src'
-    output_dir = 'build-cpp'
-    configure_doxyfile(input_dir, output_dir, 'BrainFlowCpp')
-    subprocess.call('doxygen', shell=True)
-    breathe_projects['BrainFlowCpp'] = output_dir + '/xml'
-    # java binding
-    input_dir = '../java_package'
-    output_dir = 'build-java'
-    configure_doxyfile(input_dir, output_dir, 'BrainFlowJava')
-    subprocess.call('doxygen', shell=True)
-    breathe_projects['BrainFlowJava'] = output_dir + '/xml'
-    # c# binding
-    input_dir = '../csharp_package'
-    output_dir = 'build-csharp'
-    configure_doxyfile(input_dir, output_dir, 'BrainFlowCsharp')
-    subprocess.call('doxygen', shell=True)
-    breathe_projects['BrainFlowCsharp'] = output_dir + '/xml'
+def remove_duplicate_breathe_ids(app, doctree, docname):
+    # Breathe reuses the same rubric ID under different API classes.
+    seen = set()
+    for rubric in doctree.findall(nodes.rubric):
+        if 'breathe-sectiondef-title' in rubric['classes']:
+            ids = rubric['ids']
+            rubric['ids'] = [id_ for id_ in ids if id_ not in seen]
+            seen.update(ids)
+
+
+def setup(app):
+    app.connect('builder-inited', build_doxygen)
+    app.connect('doctree-resolved', remove_duplicate_breathe_ids)
 
 
 # sphinx.ext.autodoc
@@ -105,7 +113,7 @@ templates_path = ['_templates']
 # You can specify multiple suffix as a list of string:
 #
 # source_suffix = ['.rst', '.md']
-source_suffix = '.rst'
+source_suffix = {'.rst': 'restructuredtext'}
 
 # The master toctree document.
 master_doc = 'index'
@@ -115,7 +123,7 @@ master_doc = 'index'
 #
 # This is also used if you do content translation via gettext catalogs.
 # Usually you set 'language' from the command line for these cases.
-language = None
+language = 'en'
 
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.
@@ -131,10 +139,6 @@ pygments_style = None
 # a list of builtin themes.
 #
 
-import sphinx_rtd_theme
-
-extensions.append('sphinx_rtd_theme')
-html_theme_path = [sphinx_rtd_theme.get_html_theme_path()]
 html_theme = 'sphinx_rtd_theme'
 
 # Theme options are theme-specific and customize the look and feel of a theme
@@ -147,9 +151,7 @@ html_show_sourcelink = False
 html_logo = '_static/brainflow_logo_text.png'
 
 html_theme_options = {
-    'canonical_url': 'https://brainflow.readthedocs.io/en/stable/',
     'collapse_navigation': False,
-    'display_version': True,
     'logo_only': False,
 }
 
@@ -157,7 +159,7 @@ html_theme_options = {
 # relative to this directory. They are copied after the builtin static files,
 # so a file named 'default.css' will overwrite the builtin 'default.css'.
 html_static_path = ['_static']
-html_context = {'css_files': ['_static/custom.css']}
+html_css_files = ['custom.css']
 # Custom sidebar templates, must be a dictionary that maps document names
 # to template names.
 #

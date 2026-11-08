@@ -649,7 +649,7 @@ gForcePro ArmBand
     :width: 484px
     :height: 430px
 
-`OYMotion website <http://www.oymotion.com/en/product32/149>`_
+`OYMotion product page <http://www.oymotion.com/en/product32/149>`_
 
 To create such board you need to specify the following board ID and fields of BrainFlowInputParams object:
 
@@ -1186,7 +1186,7 @@ Mentalab
 Explore 4 Channels Board
 ~~~~~~~~~~~~~~~~~~~~~~~~~
 
-.. image:: https://live.staticflickr.com/65535/52349031632_51bc8ea56c.jpg" 
+.. image:: https://live.staticflickr.com/65535/52349031632_51bc8ea56c.jpg
     :width: 500px
     :height: 334px
 
@@ -1237,7 +1237,7 @@ Steps to connect:
 Explore 8 Channels Board
 ~~~~~~~~~~~~~~~~~~~~~~~~~
 
-.. image:: https://live.staticflickr.com/65535/52349031632_51bc8ea56c.jpg" 
+.. image:: https://live.staticflickr.com/65535/52349031632_51bc8ea56c.jpg
     :width: 500px
     :height: 334px
 
@@ -1340,11 +1340,12 @@ PiEEG (Measure EEG with RaspberryPi) – Brain-computer interface (EEG, EMG, and
 To create such a board, you need to specify the following board ID and fields of the BrainFlowInputParams object:
 
 - :code:`BoardIds.PIEEG_BOARD`
-- :code:`serial_port`(optional), e.g. /dev/spidev0.0, etc. More likely you dont need to change the default
+- :code:`serial_port` (optional), e.g. /dev/spidev0.0, etc. More likely you dont need to change the default
 
 Initialization Example:
 
 .. code-block:: python
+
     from brainflow.board_shim import BoardShim, BrainFlowInputParams, BoardIds
     params = BrainFlowInputParams()
     params.serial_port = "/dev/spidev0.0"
@@ -1361,7 +1362,7 @@ Supported platforms:
 **To use this board you need to compile BrainFlow from the source code right on your Raspbery Pi device with flag --build-periphery(build.py) or with -DBUILD_PERIPHERY=ON(CMake) and install desired bindings using local libraries.**
 
 NeuroPawn
---------
+---------
 
 Knight Board
 ~~~~~~~~~~~~~
@@ -1435,7 +1436,7 @@ Supported platforms:
 
 
 BioListener
---------
+-----------
 
 BioListener
 ~~~~~~~~~~~~~

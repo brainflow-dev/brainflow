@@ -1362,7 +1362,7 @@ class DataFilter(object):
         """calculate filters and the corresponding eigenvalues using the Common Spatial Patterns
 
         :param data: [epochs x channels x times]-shaped 3D array of data for two classes
-        :type data: NDArray[Shape["*, *, *"], Float64]
+        :type data: ``NDArray[Shape["*, *, *"], Float64]``
         :param labels: n_epochs-length 1D array of zeros and ones that assigns class labels for each epoch. Zero corresponds to the first class
         :type labels: NDArray[Shape["*"], Float64]
         :return: [channels x channels]-shaped 2D array of filters and [channels]-length 1D array of the corresponding eigenvalues
@@ -1540,7 +1540,7 @@ class DataFilter(object):
         semantics of :meth:`get_custom_band_powers`.
 
         :param data: 2d array for calculation
-        :type data: NDArray[Shape["*, *"], Float64]
+        :type data: ``NDArray[Shape["*, *"], Float64]``
         :param channels: channels - rows of data array which should be used for calculation
         :type channels: List
         :param sampling_rate: sampling rate
@@ -1582,7 +1582,7 @@ class DataFilter(object):
         variation, and an all-zero total returns zero normalized powers.
 
         :param data: 2d array for calculation
-        :type data: NDArray[Shape["*, *"], Float64]
+        :type data: ``NDArray[Shape["*, *"], Float64]``
         :param bands: list of (start, stop) frequency pairs in Hz
         :type bands: List
         :param channels: channels - rows of data array which should be used for calculation
@@ -1746,7 +1746,7 @@ class DataFilter(object):
         """perform ICA
 
         :param data: 2d array for calculation
-        :type data: NDArray[Shape["*, *"], Float64]
+        :type data: ``NDArray[Shape["*, *"], Float64]``
         :param num_components: number of components
         :type num_components: int
         :param channels: channels - rows of data array which should be used for calculation, if None use all
@@ -1899,7 +1899,7 @@ class DataFilter(object):
         """write data to file, in file data will be transposed
 
         :param data: data to store in a file
-        :type data: NDArray[Shape["*, *"], Float64]
+        :type data: ``NDArray[Shape["*, *"], Float64]``
         :param file_name: file name to store data
         :type file_name: str
         :param file_mode: 'w' to rewrite file or 'a' to append data to file
@@ -1927,7 +1927,7 @@ class DataFilter(object):
         :param file_name: file name to read
         :type file_name: str
         :return: 2d numpy array with data from this file, data will be transposed to original dimensions
-        :rtype: NDArray[Shape["*, *"], Float64]
+        :rtype: ``NDArray[Shape["*, *"], Float64]``
         """
         try:
             file = file_name.encode()
@@ -1959,7 +1959,7 @@ class DataFilter(object):
 
         :return: version
         :rtype: str
-        :raises BrainFlowError
+        :raises BrainFlowError: If the version cannot be retrieved.
         """
         string = numpy.zeros(64).astype(numpy.ubyte)
         string_len = numpy.zeros(1).astype(numpy.int32)

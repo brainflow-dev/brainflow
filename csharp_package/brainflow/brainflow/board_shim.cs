@@ -274,7 +274,7 @@ namespace brainflow
         }
 
         /// <summary>
-        /// get row indices of EEG channels for this board, for some board we can not split EMG\EEG\.. data and return the same array for all of them
+        /// get row indices of EEG channels for this board, for some board we can not split EMG, EEG, and other EXG signals and return the same array for all of them
         /// </summary>
         /// <param name="board_id"></param>
         /// <param name="preset">preset for device</param>
@@ -298,7 +298,7 @@ namespace brainflow
         }
 
         /// <summary>
-        /// get row indices of EMG channels for this board, for some board we can not split EMG\EEG\.. data and return the same array for all of them
+        /// get row indices of EMG channels for this board, for some board we can not split EMG, EEG, and other EXG signals and return the same array for all of them
         /// </summary>
         /// <param name="board_id"></param>
         /// <param name="preset">preset for device</param>
@@ -322,7 +322,7 @@ namespace brainflow
         }
 
         /// <summary>
-        /// get row indices of ECG channels for this board, for some board we can not split EMG\EEG\.. data and return the same array for all of them
+        /// get row indices of ECG channels for this board, for some board we can not split EMG, EEG, and other EXG signals and return the same array for all of them
         /// </summary>
         /// <param name="board_id"></param>
         /// <param name="preset">preset for device</param>
@@ -346,7 +346,7 @@ namespace brainflow
         }
 
         /// <summary>
-        /// get row indices of EOG channels for this board, for some board we can not split EMG\EEG\.. data and return the same array for all of them
+        /// get row indices of EOG channels for this board, for some board we can not split EMG, EEG, and other EXG signals and return the same array for all of them
         /// </summary>
         /// <param name="board_id"></param>
         /// <param name="preset">preset for device</param>
@@ -394,7 +394,7 @@ namespace brainflow
         }
 
         /// <summary>
-        /// get row indices of EDA channels for this board, for some board we can not split EMG\EEG\.. data and return the same array for all of them
+        /// get row indices of EDA channels for this board, for some board we can not split EMG, EEG, and other EXG signals and return the same array for all of them
         /// </summary>
         /// <param name="board_id"></param>
         /// <param name="preset">preset for device</param>
@@ -766,7 +766,8 @@ namespace brainflow
         /// <summary>
         /// add streamer
         /// </summary>
-        /// <param name="streamer_params">supoprted formats file://filename:w file://filename:a streaming_board://ip:port</param>
+        /// <param name="streamer_params">Supported formats are file://filename:w, file://filename:a, and streaming_board://ip:port.</param>
+        /// <param name="preset">Data preset from BrainFlowPresets.</param>
         public void add_streamer (string streamer_params, int preset = (int)BrainFlowPresets.DEFAULT_PRESET)
         {
             int res = BoardControllerLibrary.add_streamer (streamer_params, preset, board_id, input_json);
@@ -779,7 +780,8 @@ namespace brainflow
         /// <summary>
         /// delete streamer
         /// </summary>
-        /// <param name="streamer_params">supoprted formats file://filename:w file://filename:a streaming_board://ip:port</param>
+        /// <param name="streamer_params">Supported formats are file://filename:w, file://filename:a, and streaming_board://ip:port.</param>
+        /// <param name="preset">Data preset from BrainFlowPresets.</param>
         public void delete_streamer (string streamer_params, int preset = (int)BrainFlowPresets.DEFAULT_PRESET)
         {
             int res = BoardControllerLibrary.delete_streamer (streamer_params, preset, board_id, input_json);

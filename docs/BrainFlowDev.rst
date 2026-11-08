@@ -114,6 +114,16 @@ BrainFlow Emulator allows you to run all integration tests for some of supported
 
 Emulators are intended to test BrainFlow code for particular device. Also, some advanced emulators are capable to test very device specific features. BrainFlow users should use Synthetic board or Playback board for development.
 
+Building the documentation
+--------------------------
+
+Install Doxygen and use Python 3.12 to build the HTML docs from the repository root.
+
+.. code-block:: sh
+
+    python -m pip install -r docs/requirements.txt
+    make -C docs html SPHINXOPTS=-W
+
 Contributors
 -------------
 
