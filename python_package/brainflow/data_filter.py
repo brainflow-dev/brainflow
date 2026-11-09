@@ -492,9 +492,9 @@ class DataHandlerDLL(object):
             ndpointer(ctypes.c_double, flags=('C_CONTIGUOUS', 'WRITEABLE')),
             ctypes.c_int,
             ctypes.c_int,
-            ndpointer(ctypes.c_int32),
+            ndpointer(ctypes.c_int32, flags='C_CONTIGUOUS'),
             ctypes.c_int,
-            ndpointer(ctypes.c_int32),
+            ndpointer(ctypes.c_int32, flags='C_CONTIGUOUS'),
             ctypes.c_int,
         ]
 
@@ -1619,16 +1619,23 @@ class DataFilter(object):
         if data.dtype != numpy.float64 or not data.flags.writeable:
             raise BrainFlowError('data must be a writable float64 array',
                                  BrainFlowExitCodes.INVALID_ARGUMENTS_ERROR.value)
-        channels_arr = numpy.asarray(channels, dtype=numpy.int32)
-        reference_arr = numpy.asarray(reference_channels, dtype=numpy.int32)
-        if channels_arr.ndim != 1 or reference_arr.ndim != 1:
-            raise BrainFlowError('channel index arrays must be 1d',
-                                 BrainFlowExitCodes.INVALID_ARGUMENTS_ERROR.value)
+        channels_arr = cls._validated_channel_indices(channels, data.shape[0], 'channels')
+        reference_arr = cls._validated_channel_indices(
+            reference_channels, data.shape[0], 'reference_channels')
         res = DataHandlerDLL.get_instance().rereference_channels(
             data, data.shape[0], data.shape[1], channels_arr, channels_arr.size,
             reference_arr, reference_arr.size)
         if res != BrainFlowExitCodes.STATUS_OK.value:
             raise BrainFlowError('unable to rereference channels', res)
+
+    @staticmethod
+    def _validated_channel_indices(channels, num_channels: int, arg_name: str):
+        indices = numpy.asarray(channels)
+        if (indices.ndim != 1 or indices.size == 0 or indices.dtype.kind not in 'iu' or
+                numpy.any(indices < 0) or numpy.any(indices >= num_channels)):
+            raise BrainFlowError('invalid %s' % arg_name,
+                                 BrainFlowExitCodes.INVALID_ARGUMENTS_ERROR.value)
+        return numpy.ascontiguousarray(indices, dtype=numpy.int32)
 
     @classmethod
     def perform_ifft(cls, data):

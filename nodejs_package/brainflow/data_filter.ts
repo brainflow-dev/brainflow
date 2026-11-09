@@ -788,7 +788,7 @@ export class DataFilter
     public static rereferenceChannels(
         data: number[][], channels: number[], referenceChannels: number[]): void
     {
-        const columns = DataFilter.checkMatrix(data, true);
+        const columns = DataFilter.checkMatrix(data);
         DataFilter.checkChannels(data, channels, columns);
         DataFilter.checkChannels(data, referenceChannels, columns);
         const flat = data.flat();

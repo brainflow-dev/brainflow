@@ -78,6 +78,28 @@ class RereferenceChannelsTest(unittest.TestCase):
     def test_non_2d_input_raises(self):
         self.assert_invalid(np.array([1.0, 2.0, 3.0], dtype=np.float64), [0], [0])
 
+    def test_sliced_channel_index_arrays(self):
+        data = self.data.copy()
+        channels = np.arange(4, dtype=np.int32)[::2]
+        DataFilter.rereference_channels(data, channels, [3])
+        expected = self.data.copy()
+        expected[[0, 2]] -= self.data[3]
+        np.testing.assert_allclose(data, expected)
+
+        data = self.data.copy()
+        reference = np.arange(4, dtype=np.int32)[::2]
+        DataFilter.rereference_channels(data, [0, 1, 2, 3], reference)
+        expected = self.data - np.mean(self.data[[0, 2]], axis=0)
+        np.testing.assert_allclose(data, expected)
+
+    def test_non_integer_and_overflowing_indices_raise(self):
+        self.assert_invalid(self.data.copy(), [0.9], [0])
+        self.assert_invalid(self.data.copy(), [-0.5], [0])
+        self.assert_invalid(self.data.copy(), np.array([4294967296], dtype=np.int64), [0])
+        self.assert_invalid(self.data.copy(), [0], [0.9])
+        self.assert_invalid(self.data.copy(), [0], [-0.5])
+        self.assert_invalid(self.data.copy(), [0], np.array([4294967296], dtype=np.int64))
+
 
 if __name__ == '__main__':
     unittest.main()

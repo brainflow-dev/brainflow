@@ -47,4 +47,11 @@ const restored = DataFilter.performInverseWaveletTransform(transformed, signal.l
 assert.ok(restored.every((value, i) => Math.abs(value - signal[i]) < 1e-10));
 assert.throws(() => DataFilter.performInverseWaveletTransform(
     transformed, 64, WaveletTypes.DB3, 2, WaveletExtensionTypes.SYMMETRIC), BrainFlowError);
+
+const rerefData = [[1, 2], [3, 4], [Number.NaN, Number.NaN]];
+DataFilter.rereferenceChannels(rerefData, [0], [1]);
+assert.deepStrictEqual(rerefData[0], [-2, -2]);
+assert.deepStrictEqual(rerefData[1], [3, 4]);
+assert.ok(Number.isNaN(rerefData[2][0]) && Number.isNaN(rerefData[2][1]));
+
 console.log('Binding validation regressions passed');

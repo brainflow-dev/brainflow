@@ -994,7 +994,8 @@ public class DataFilter
     public static void rereference_channels (double[][] data, int[] channels, int[] reference_channels)
             throws BrainFlowError
     {
-        if (data == null || data.length == 0 || channels == null || reference_channels == null)
+        if (data == null || data.length == 0 || data[0] == null || channels == null ||
+                reference_channels == null)
         {
             throw new BrainFlowError ("invalid args for rereference_channels",
                     BrainFlowExitCode.INVALID_ARGUMENTS_ERROR.get_code ());
