@@ -17,6 +17,7 @@
 #include "aavaa_v3.h"
 #include "ant_neuro.h"
 #include "biolistener.h"
+#include "bitalino.h"
 #include "board.h"
 #include "board_controller.h"
 #include "board_info_getter.h"
@@ -314,6 +315,9 @@ int prepare_session (int board_id, const char *json_brainflow_input_params)
         case BoardIds::NEUROPAWN_KNIGHT_BOARD_IMU:
             board = std::shared_ptr<Board> (
                 new KnightIMU ((int)BoardIds::NEUROPAWN_KNIGHT_BOARD_IMU, params));
+            break;
+        case BoardIds::BITALINO_BOARD:
+            board = std::shared_ptr<Board> (new BITalino (params));
             break;
         case BoardIds::SHIMMER3_BOARD:
             board = std::shared_ptr<Board> (new Shimmer3 (params));

@@ -1217,6 +1217,18 @@ BrainFlowBoards::BrainFlowBoards()
         {"battery_channel", 16},
         {"other_channels", {17}}
     };
+    brainflow_boards_json["boards"]["70"]["default"] =
+    {
+        {"name", "BITalino"},
+        {"sampling_rate", 1000},
+        {"package_num_channel", 0},
+        {"analog_channels", {1, 2, 3, 4, 5, 6}},
+        {"other_channels", {7, 8, 9, 10}},
+        {"timestamp_channel", 11},
+        {"marker_channel", 12},
+        {"num_rows", 13}
+    };
+
 }
 
 BrainFlowBoards boards_struct;
