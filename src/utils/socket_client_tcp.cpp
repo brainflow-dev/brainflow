@@ -2,6 +2,15 @@
 
 #include "socket_client_tcp.h"
 
+void SocketClientTCP::shutdown ()
+{
+#ifdef _WIN32
+    ::shutdown (connect_socket, SD_BOTH);
+#else
+    ::shutdown (connect_socket, SHUT_RDWR);
+#endif
+}
+
 ///////////////////////////////
 /////////// WINDOWS ///////////
 //////////////////////////////
@@ -35,6 +44,11 @@ int SocketClientTCP::connect ()
     wsa_initialized = true;
     socket_addr.sin_family = AF_INET;
     socket_addr.sin_port = htons (port);
+#ifdef SO_NOSIGPIPE
+    int suppress_sigpipe = 1;
+    setsockopt (
+        connect_socket, SOL_SOCKET, SO_NOSIGPIPE, &suppress_sigpipe, sizeof (suppress_sigpipe));
+#endif
     if (inet_pton (AF_INET, ip_addr, &socket_addr.sin_addr) == 0)
     {
         return (int)SocketClientTCPReturnCodes::PTON_ERROR;
@@ -118,6 +132,11 @@ int SocketClientTCP::connect ()
 
     socket_addr.sin_family = AF_INET;
     socket_addr.sin_port = htons (port);
+#ifdef SO_NOSIGPIPE
+    int suppress_sigpipe = 1;
+    setsockopt (
+        connect_socket, SOL_SOCKET, SO_NOSIGPIPE, &suppress_sigpipe, sizeof (suppress_sigpipe));
+#endif
     if (inet_pton (AF_INET, ip_addr, &socket_addr.sin_addr) == 0)
     {
         return (int)SocketClientTCPReturnCodes::PTON_ERROR;
@@ -140,7 +159,11 @@ int SocketClientTCP::connect ()
 
 int SocketClientTCP::send (const char *data, int size)
 {
+#ifdef MSG_NOSIGNAL
+    int res = ::send (connect_socket, data, size, MSG_NOSIGNAL);
+#else
     int res = ::send (connect_socket, data, size, 0);
+#endif
     return res;
 }
 

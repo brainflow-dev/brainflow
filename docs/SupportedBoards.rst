@@ -1581,3 +1581,56 @@ Common sensor bits:
 - :code:`0x000008`, EXG2 24-bit
 - :code:`0x000004`, GSR, exposed as EDA
 - :code:`0x002000`, battery
+
+EGI NA400 AmpServer (256 channels, 1000 Hz)
+-----------------------------------------
+
+``BoardIds.EGI_AMP_SERVER_BOARD`` (72) supports the NA400 AmpServer Packet
+Format 2 stream at 1000 Hz with a 256-channel net (net codes 2, 6 or 10), or
+the test connector (14). NA300, NA410, NA500, Packet Format 1, smaller nets,
+impedance mode and PIB/physio channels are not supported by this driver.
+
+Set ``ip_address`` to the AmpServer IPv4 address. ``ip_port`` is the command
+port (default 9877), and ``ip_port_aux`` is the data port (default 9879).
+``other_info`` optionally supplies a numeric amplifier ID (default ``"0"``).
+``timeout`` controls first-sample waiting in seconds (default 5); command replies
+use a five-second socket timeout. This NA400 path does not use the notification
+port or depend on NA500's power-on notifications.
+
+Preparation validates the amplifier's reported model, packet format and channel
+count. Starting stops/resets acquisition, configures a 1000 Hz decimated rate,
+powers on, sets the default acquisition state and starts listening. It therefore
+requires control of the amplifier; close other acquisition clients first.
+Stopping sends ``cmd_Stop``. Releasing closes the sockets. It does not manage
+AmpServer installation or silently reconnect after a lost connection.
+
+EEG rows contain microvolts, using the NA400 reference scaling factor
+0.00015522042 per signed 32-bit count. The 256 streamed EEG slots are returned
+without adding a synthetic Cz channel. ``other_channels`` contains the raw
+16-bit DIN word, its active-low-to-active-high inversion, TR, net code, and the
+raw device timestamp in microseconds. Device timestamps may be zero between
+clock reports and are not assumed to be Unix time. The BrainFlow timestamp is
+host receive time, with unique samples within a block spaced at 1000 Hz.
+Duplicate counters are discarded; counter discontinuities are logged.
+``config_board("get_amp_details")`` returns the preparation reply.
+
+.. code-block:: python
+
+    from brainflow.board_shim import BoardShim, BrainFlowInputParams, BoardIds
+
+    params = BrainFlowInputParams()
+    params.ip_address = "192.168.1.10"
+    board = BoardShim(BoardIds.EGI_AMP_SERVER_BOARD, params)
+    board.prepare_session()
+    try:
+        board.start_stream()
+        # Consume get_board_data() while recording.
+        board.stop_stream()
+    finally:
+        board.release_session()
+
+Protocol fixtures and a command/data loopback server test endian conversion,
+scaling, duplicate suppression, fragmented reads, model/net validation, timeout
+recovery and session restart. Physical NA400 validation remains outstanding.
+
+Reference: https://github.com/labstreaminglayer/App-EGIAmpServer
