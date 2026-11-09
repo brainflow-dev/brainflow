@@ -49,6 +49,7 @@
 #include "muse.h"
 #include "muse_athena.h"
 #include "muse_bled.h"
+#include "neurosky.h"
 #include "notion_osc.h"
 #include "ntl_wifi.h"
 #include "pieeg_board.h"
@@ -314,6 +315,9 @@ int prepare_session (int board_id, const char *json_brainflow_input_params)
         case BoardIds::NEUROPAWN_KNIGHT_BOARD_IMU:
             board = std::shared_ptr<Board> (
                 new KnightIMU ((int)BoardIds::NEUROPAWN_KNIGHT_BOARD_IMU, params));
+            break;
+        case BoardIds::NEUROSKY_BOARD:
+            board = std::shared_ptr<Board> (new NeuroSky (params));
             break;
         case BoardIds::SHIMMER3_BOARD:
             board = std::shared_ptr<Board> (new Shimmer3 (params));

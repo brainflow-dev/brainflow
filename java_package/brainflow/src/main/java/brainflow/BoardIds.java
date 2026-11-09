@@ -74,7 +74,8 @@ public enum BoardIds
     IRONBCI_32_BOARD(65),
     NEUROPAWN_KNIGHT_BOARD_IMU(66),
     MUSE_S_ATHENA_BOARD(67),
-    SHIMMER3_BOARD(68);
+    SHIMMER3_BOARD(68),
+    NEUROSKY_BOARD(69);
 
     private final int board_id;
     private static final Map<Integer, BoardIds> bi_map = new HashMap<Integer, BoardIds> ();
