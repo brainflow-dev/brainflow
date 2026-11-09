@@ -323,7 +323,7 @@ int BrainAlive::config_board (std::string config)
 
     if (simpleble_peripheral_write_command (brainalive_peripheral, write_characteristics.first,
             write_characteristics.second, byte_array.data (),
-            sizeof (byte_array)) != SIMPLEBLE_SUCCESS)
+            byte_array.size ()) != SIMPLEBLE_SUCCESS)
     {
         safe_logger (spdlog::level::err, "failed to send command {} to device", config.c_str ());
         return (int)BrainFlowExitCodes::BOARD_WRITE_ERROR;
@@ -386,18 +386,24 @@ void BrainAlive::read_data (simpleble_uuid_t service, simpleble_uuid_t character
 {
     if (size == brainalive_packet_size)
     {
+        int num_rows = board_descr["default"]["num_rows"];
+        double *package = new double[num_rows];
+        std::vector<int> eeg_channels = board_descr["default"]["eeg_channels"];
+        std::vector<int> accel_channels = board_descr["default"]["accel_channels"];
+        std::vector<int> gyro_channels = board_descr["default"]["gyro_channels"];
+        double eeg_scale = 0.0;
+        int total_gain = get_internal_gain () * get_external_gain ();
+        if (total_gain != 0)
+        {
+            eeg_scale = (get_ref_voltage () * 1000.0) / ((double)total_gain * FSR_Value);
+        }
+
         for (int i = 0; i < (int)size; i += brainalive_single_packet_size)
         {
-
-            int num_rows = board_descr["default"]["num_rows"];
-            double *package = new double[num_rows];
-            for (int i = 0; i < num_rows; i++)
+            for (int row = 0; row < num_rows; row++)
             {
-                package[i] = 0.0;
+                package[row] = 0.0;
             }
-            std::vector<int> eeg_channels = board_descr["default"]["eeg_channels"];
-            std::vector<int> accel_channels = board_descr["default"]["accel_channels"];
-            std::vector<int> gyro_channels = board_descr["default"]["gyro_channels"];
 
             package[board_descr["default"]["package_num_channel"].get<int> ()] =
                 data[brainalive_packet_index + i];
@@ -405,25 +411,18 @@ void BrainAlive::read_data (simpleble_uuid_t service, simpleble_uuid_t character
             for (int j = i + brainalive_eeg_Start_index, k = 0; j < i + brainalive_eeg_end_index;
                  j += 3, k++)
             {
-                package[eeg_channels[k]] =
-                    (float)(((data[j] << 16 | data[j + 1] << 8 | data[j + 2]) << 8) >> 8) *
-                    ((((float)get_ref_voltage () * 1000) /
-                        (float)(get_internal_gain () * get_external_gain () * FSR_Value)));
+                package[eeg_channels[k]] = eeg_scale * cast_24bit_to_int32 (data + j);
             }
 
             for (int j = i + brainalive_axl_start_index, k = 0; j < i + brainalive_axl_end_index;
                  j += 2, k++)
             {
-                package[accel_channels[k]] = (data[j] << 8) | data[j + 1];
-                if (package[accel_channels[k]] > 32767)
-                    package[accel_channels[k]] = package[accel_channels[k]] - 65535;
+                package[accel_channels[k]] = (double)cast_16bit_to_int32 (data + j);
             }
             for (int j = i + brainalive_gyro_start_index, k = 0; j < i + brainalive_gyro_end_index;
                  j += 2, k++)
             {
-                package[gyro_channels[k]] = (data[j] << 8) | data[j + 1];
-                if (package[gyro_channels[k]] > 32767)
-                    package[gyro_channels[k]] = package[gyro_channels[k]] - 65535;
+                package[gyro_channels[k]] = (double)cast_16bit_to_int32 (data + j);
             }
             package[board_descr["default"]["marker_channel"].get<int> ()] =
                 data[(brainalive_packet_index + 1) + i];
@@ -431,6 +430,7 @@ void BrainAlive::read_data (simpleble_uuid_t service, simpleble_uuid_t character
 
             push_package (&package[0]);
         }
+        delete[] package;
     }
     else
     {

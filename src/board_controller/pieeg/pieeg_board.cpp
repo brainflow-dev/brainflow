@@ -216,12 +216,9 @@ void PIEEGBoard::read_thread ()
 
     std::vector<int> eeg_channels = board_descr["default"]["eeg_channels"];
 
-    double eeg_scale = 4.5 / float ((pow (2, 23) - 1)) / 8 * 1000000.;
     double timestamp = 0;
     unsigned int counter = 0;
     int timeout_ms = 1000;
-    uint32_t data_test = 0x7FFFFF;
-    uint32_t data_check = 0xFFFFFF;
 
     while (keep_alive)
     {
@@ -258,15 +255,7 @@ void PIEEGBoard::read_thread ()
             for (size_t i = 0; i < eeg_channels.size (); i++)
             {
                 int offset = 3 * i + 3;
-                uint32_t voltage = (buf[offset] << 8) | buf[offset + 1];
-                voltage = (voltage << 8) | buf[offset + 2];
-                uint32_t voltage_test = voltage | data_test;
-                if (voltage_test == data_check)
-                {
-                    voltage = 16777214 - voltage;
-                }
-
-                package[eeg_channels[i]] = 0.27 * voltage;
+                package[eeg_channels[i]] = 0.27 * cast_24bit_to_int32 (buf + offset);
             }
             package[board_descr["default"]["timestamp_channel"].get<int> ()] = timestamp;
             package[board_descr["default"]["package_num_channel"].get<int> ()] = (double)counter++;

@@ -34,7 +34,6 @@ void Knight::read_thread ()
     {
         package[i] = 0.0;
     }
-    bool first_package_received = false;
 
     std::vector<int> eeg_channels = board_descr["default"]["eeg_channels"];
     std::vector<int> other_channels = board_descr["default"]["other_channels"];
@@ -45,7 +44,7 @@ void Knight::read_thread ()
         res = serial->read_from_serial_port (b, 1);
         if (res != 1)
         {
-            safe_logger (spdlog::level::debug, "unable to read 1 byte, {}");
+            safe_logger (spdlog::level::debug, "unable to read 1 byte, {}", res);
             continue;
         }
         if (b[0] != KnightBase::start_byte)
@@ -58,8 +57,11 @@ void Knight::read_thread ()
         while ((remaining_bytes > 0) && (keep_alive))
         {
             res = serial->read_from_serial_port (b + pos, remaining_bytes);
-            remaining_bytes -= res;
-            pos += res;
+            if (res > 0)
+            {
+                remaining_bytes -= res;
+                pos += res;
+            }
         }
 
         if (!keep_alive)
