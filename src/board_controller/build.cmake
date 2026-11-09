@@ -88,6 +88,7 @@ SET (BOARD_CONTROLLER_SRC
     ${CMAKE_CURRENT_SOURCE_DIR}/src/board_controller/neuropawn/knight_base.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/board_controller/neuropawn/knight_imu.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/board_controller/biolistener/biolistener.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/board_controller/polar/polar_h10.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/board_controller/shimmer/shimmer3.cpp
 )
 
@@ -157,6 +158,7 @@ target_include_directories (
     ${CMAKE_CURRENT_SOURCE_DIR}/src/board_controller/synchroni/inc
     ${CMAKE_CURRENT_SOURCE_DIR}/src/board_controller/neuropawn/inc
     ${CMAKE_CURRENT_SOURCE_DIR}/src/board_controller/biolistener/inc
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/board_controller/polar/inc
     ${CMAKE_CURRENT_SOURCE_DIR}/src/board_controller/shimmer/inc
 )
 

@@ -1217,6 +1217,29 @@ BrainFlowBoards::BrainFlowBoards()
         {"battery_channel", 16},
         {"other_channels", {17}}
     };
+    brainflow_boards_json["boards"]["73"]["default"] =
+    {
+        {"name", "PolarH10"},
+        {"sampling_rate", 130},
+        {"package_num_channel", 0},
+        {"ecg_channels", {1}},
+        {"other_channels", {2}},
+        {"battery_channel", 3},
+        {"timestamp_channel", 4},
+        {"marker_channel", 5},
+        {"num_rows", 6}
+    };
+    brainflow_boards_json["boards"]["73"]["auxiliary"] =
+    {
+        {"name", "PolarH10HeartRate"},
+        {"sampling_rate", 0}, // Irregular HR/RR events, not a uniformly sampled waveform.
+        {"package_num_channel", 0},
+        {"other_channels", {1, 2, 3}},
+        {"timestamp_channel", 4},
+        {"marker_channel", 5},
+        {"num_rows", 6}
+    };
+
 }
 
 BrainFlowBoards boards_struct;

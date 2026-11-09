@@ -34,6 +34,7 @@ SET (TESTS_SRC
     ${CMAKE_CURRENT_SOURCE_DIR}/src/board_controller/brainflow_boards.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/board_controller/ble_lib_board.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/board_controller/brainalive/brainalive.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/board_controller/polar/polar_h10.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/board_controller/file_streamer.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/board_controller/multicast_streamer.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/board_controller/plotjuggler_udp_streamer.cpp
@@ -42,6 +43,7 @@ SET (TESTS_SRC
     ${CMAKE_CURRENT_SOURCE_DIR}/src/utils/multicast_server.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/utils/socket_client_udp.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/utils/timestamp.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/tests/board_controller/polar_h10_unittest.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/tests/board_controller/brainalive_unittest.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/tests/utils/bluetooth/socket_bluetooth_test.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/tests/utils/bluetooth/bluetooth_functions_unittest.cpp
