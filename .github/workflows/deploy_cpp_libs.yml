@@ -102,7 +102,29 @@ jobs:
       if: (matrix.os == 'ubuntu-latest')
       run: |
         docker pull dockcross/manylinux_2_28-x64:20240418-88c04a4
-        docker run -e GITHUB_WORKSPACE=$GITHUB_WORKSPACE -e BUILD=$BUILD -v $GITHUB_WORKSPACE:$GITHUB_WORKSPACE dockcross/manylinux_2_28-x64:20240418-88c04a4 /bin/bash -c "yum install -y bluez-libs-devel dbus-devel && /opt/python/cp36-cp36m/bin/pip3.6 install cmake==3.21.4 && cd $GITHUB_WORKSPACE && mkdir build_docker && cd build_docker && /opt/_internal/cpython-3.6.15/bin/cmake -DBUILD_BLE=ON -DBUILD_BLUETOOTH=ON -DCMAKE_INSTALL_PREFIX=$GITHUB_WORKSPACE/artifacts/linux_${BUILD} -DCMAKE_BUILD_TYPE=$BUILD .. && make && make install"
+        docker run -e GITHUB_WORKSPACE -e BUILD -v "$GITHUB_WORKSPACE:$GITHUB_WORKSPACE" dockcross/manylinux_2_28-x64:20240418-88c04a4 /bin/bash -e -c '
+          for attempt in 1 2 3; do
+            if yum install -y bluez-libs-devel dbus-devel; then
+              break
+            fi
+            if [ "$attempt" -eq 3 ]; then
+              exit 1
+            fi
+            # A mirror can return invalid repomd.xml. Retry with the official HTTPS repo.
+            sed -i -e "s|^mirrorlist=|# mirrorlist=|" \
+              -e "s|^# *baseurl=https://repo.almalinux.org/almalinux/|baseurl=https://repo.almalinux.org/almalinux/|" \
+              /etc/yum.repos.d/almalinux*.repo
+            yum clean metadata
+            sleep 5
+          done
+          /opt/python/cp36-cp36m/bin/pip3.6 install cmake==3.21.4
+          cd "$GITHUB_WORKSPACE"
+          mkdir build_docker
+          cd build_docker
+          /opt/_internal/cpython-3.6.15/bin/cmake -DBUILD_BLE=ON -DBUILD_BLUETOOTH=ON -DCMAKE_INSTALL_PREFIX="$GITHUB_WORKSPACE/artifacts/linux_${BUILD}" -DCMAKE_BUILD_TYPE="$BUILD" ..
+          make
+          make install
+        '
       env:
         BUILD: ${{ matrix.build_type }}
     - name: Upload Artifacts
