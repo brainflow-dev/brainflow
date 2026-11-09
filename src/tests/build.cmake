@@ -30,8 +30,19 @@ FetchContent_MakeAvailable(googletest)
 enable_testing()
 
 SET (TESTS_SRC
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/board_controller/board.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/board_controller/brainflow_boards.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/board_controller/ble_lib_board.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/board_controller/brainalive/brainalive.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/board_controller/file_streamer.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/board_controller/multicast_streamer.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/board_controller/plotjuggler_udp_streamer.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/utils/bluetooth/bluetooth_functions.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/utils/data_buffer.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/utils/multicast_server.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/utils/socket_client_udp.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/utils/timestamp.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/tests/board_controller/brainalive_unittest.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/tests/utils/bluetooth/socket_bluetooth_test.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/tests/utils/bluetooth/bluetooth_functions_unittest.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/tests/utils/custom_cast_unittest.cpp
@@ -43,18 +54,30 @@ add_executable(
     ${TESTS_SRC}
 )
 
+get_target_property (BOARD_TEST_INCLUDE_DIRS ${BOARD_CONTROLLER_NAME} INCLUDE_DIRECTORIES)
 target_include_directories (
     ${TESTS_EXE_NAME} PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/src/utils/inc
     ${CMAKE_CURRENT_SOURCE_DIR}/src/utils/bluetooth/inc
     ${CMAKE_CURRENT_SOURCE_DIR}/src/tests/utils/bluetooth/inc
     ${CMAKE_CURRENT_SOURCE_DIR}/src/utils/bluetooth/macos_third_party
+    ${BOARD_TEST_INCLUDE_DIRS}
 )
+
+target_compile_definitions (${TESTS_EXE_NAME} PRIVATE NOMINMAX)
 
 target_link_libraries(
     ${TESTS_EXE_NAME} PRIVATE
     gmock_main
+    ${CMAKE_DL_LIBS}
 )
+
+if (ANDROID)
+    target_link_libraries (${TESTS_EXE_NAME} PRIVATE log)
+endif (ANDROID)
+if (WIN32)
+    target_link_libraries (${TESTS_EXE_NAME} PRIVATE ws2_32 shlwapi)
+endif (WIN32)
 
 set_target_properties (${TESTS_EXE_NAME}
     PROPERTIES

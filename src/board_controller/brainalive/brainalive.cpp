@@ -25,9 +25,7 @@ static void brainalive_read_notifications (simpleble_peripheral_t peripheral,
     if ((size == BrainAlive::brainalive_handshaking_packet_size) && (data[0] == START_BYTE) &&
         (data[size - 1] == STOP_BYTE) && (data[2] == BrainAlive::brainalive_handshaking_command))
     {
-        ((BrainAlive *)(board))->set_internal_gain (data[3]);
-        ((BrainAlive *)(board))->set_external_gain (data[4]);
-        ((BrainAlive *)(board))->set_ref_Voltage (((data[5] << 8) | data[6]));
+        ((BrainAlive *)(board))->set_eeg_config (data[3], data[4], (data[5] << 8) | data[6]);
     }
     else
     {
@@ -57,6 +55,7 @@ int BrainAlive::prepare_session ()
         safe_logger (spdlog::level::info, "Session is already prepared");
         return (int)BrainFlowExitCodes::STATUS_OK;
     }
+    set_eeg_config (0, 0, 0);
     if (params.timeout < 1)
     {
         params.timeout = 5;
@@ -105,6 +104,7 @@ int BrainAlive::prepare_session ()
         safe_logger (spdlog::level::err, "Failed to find BrainAlive Device");
         res = (int)BrainFlowExitCodes::BOARD_NOT_READY_ERROR;
     }
+    lk.unlock ();
     simpleble_adapter_scan_stop (brainalive_adapter);
     if (res == (int)BrainFlowExitCodes::STATUS_OK)
     {
@@ -212,6 +212,16 @@ int BrainAlive::start_stream (int buffer_size, const char *streamer_params)
     {
         return (int)BrainFlowExitCodes::BOARD_NOT_CREATED_ERROR;
     }
+    {
+        std::unique_lock<std::mutex> lk (m);
+        if (!cv.wait_for (
+                lk, std::chrono::seconds (params.timeout), [this] { return eeg_scale > 0.0; }))
+        {
+            safe_logger (spdlog::level::err,
+                "Timed out waiting for valid BrainAlive gain and reference voltage");
+            return (int)BrainFlowExitCodes::BOARD_NOT_READY_ERROR;
+        }
+    }
     int res = prepare_for_acquisition (buffer_size, streamer_params);
 
     if (res == (int)BrainFlowExitCodes::STATUS_OK)
@@ -295,8 +305,22 @@ int BrainAlive::release_session ()
         simpleble_adapter_release_handle (brainalive_adapter);
         brainalive_adapter = NULL;
     }
-
+    set_eeg_config (0, 0, 0);
     return (int)BrainFlowExitCodes::STATUS_OK;
+}
+
+void BrainAlive::set_eeg_config (int internal_gain, int external_gain, int reference_voltage)
+{
+    {
+        std::lock_guard<std::mutex> lk (m);
+        eeg_scale = 0.0;
+        if ((internal_gain > 0) && (external_gain > 0) && (reference_voltage > 0))
+        {
+            eeg_scale =
+                (reference_voltage * 1000.0) / ((double)internal_gain * external_gain * FSR_Value);
+        }
+    }
+    cv.notify_all ();
 }
 
 int BrainAlive::config_board (std::string config, std::string &response)
@@ -386,18 +410,22 @@ void BrainAlive::read_data (simpleble_uuid_t service, simpleble_uuid_t character
 {
     if (size == brainalive_packet_size)
     {
+        double scale;
+        {
+            std::lock_guard<std::mutex> lk (m);
+            scale = eeg_scale;
+        }
+        if (scale <= 0.0)
+        {
+            safe_logger (spdlog::level::warn,
+                "Discarding BrainAlive data without valid gain and reference voltage");
+            return;
+        }
         int num_rows = board_descr["default"]["num_rows"];
         double *package = new double[num_rows];
         std::vector<int> eeg_channels = board_descr["default"]["eeg_channels"];
         std::vector<int> accel_channels = board_descr["default"]["accel_channels"];
         std::vector<int> gyro_channels = board_descr["default"]["gyro_channels"];
-        double eeg_scale = 0.0;
-        int total_gain = get_internal_gain () * get_external_gain ();
-        if (total_gain != 0)
-        {
-            eeg_scale = (get_ref_voltage () * 1000.0) / ((double)total_gain * FSR_Value);
-        }
-
         for (int i = 0; i < (int)size; i += brainalive_single_packet_size)
         {
             for (int row = 0; row < num_rows; row++)
@@ -411,7 +439,7 @@ void BrainAlive::read_data (simpleble_uuid_t service, simpleble_uuid_t character
             for (int j = i + brainalive_eeg_Start_index, k = 0; j < i + brainalive_eeg_end_index;
                  j += 3, k++)
             {
-                package[eeg_channels[k]] = eeg_scale * cast_24bit_to_int32 (data + j);
+                package[eeg_channels[k]] = scale * cast_24bit_to_int32 (data + j);
             }
 
             for (int j = i + brainalive_axl_start_index, k = 0; j < i + brainalive_axl_end_index;

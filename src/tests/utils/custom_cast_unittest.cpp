@@ -98,4 +98,3 @@ TEST (CustomCastTest, ExtractLsbBitsAndSwapEndians_BitPatterns_ReturnExpectedVal
     EXPECT_EQ (extract_lsb_bits (packed, 4, 12), 0x5AAU);
     EXPECT_EQ (swap_endians (0x12345678), 0x78563412);
 }
-

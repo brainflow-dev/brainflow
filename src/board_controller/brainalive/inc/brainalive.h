@@ -10,9 +10,7 @@ class BrainAlive : public BLELibBoard
 {
 
 private:
-    int internal_gain = 0;
-    int external_gain = 0;
-    int reference_voltage = 0;
+    double eeg_scale = 0.0;
 
 public:
     BrainAlive (struct BrainFlowInputParams params);
@@ -28,35 +26,7 @@ public:
     void adapter_1_on_scan_found (simpleble_adapter_t adapter, simpleble_peripheral_t peripheral);
     void read_data (simpleble_uuid_t service, simpleble_uuid_t characteristic, const uint8_t *data,
         size_t size, int channel_num);
-    void set_internal_gain (int gain)
-    {
-        internal_gain = gain;
-    }
-
-    void set_external_gain (int gain)
-    {
-        external_gain = gain;
-    }
-
-    void set_ref_Voltage (int voltage)
-    {
-        reference_voltage = voltage;
-    }
-
-    int get_internal_gain () const
-    {
-        return internal_gain;
-    }
-
-    int get_external_gain () const
-    {
-        return external_gain;
-    }
-
-    int get_ref_voltage () const
-    {
-        return reference_voltage;
-    }
+    void set_eeg_config (int internal_gain, int external_gain, int reference_voltage);
 
     // common constants
     static constexpr int brainalive_packet_size = 220;
