@@ -1,6 +1,7 @@
 using brainflow.math;
 
 using System;
+using System.Collections.Generic;
 using System.Numerics;
 
 
@@ -11,6 +12,12 @@ namespace brainflow
     /// </summary>
     public class DataFilter
     {
+        private static readonly Tuple<double, double>[] standard_bands =
+        {
+            Tuple.Create (2.0, 4.0), Tuple.Create (4.0, 8.0), Tuple.Create (8.0, 13.0),
+            Tuple.Create (13.0, 30.0), Tuple.Create (30.0, 45.0)
+        };
+
         private static void validate_span (int length, int start_pos, int end_pos)
         {
             if (start_pos < 0 || end_pos > length || start_pos >= end_pos)
@@ -205,12 +212,12 @@ namespace brainflow
         }
 
         /// <summary>
-        /// perform moving average or moving median filter, unlike other bindings instead in-place calculation it returns new array
+        /// Apply a moving average or moving median filter to a copy of the input.
         /// </summary>
         /// <param name="data"></param>
         /// <param name="period"></param>
         /// <param name="operation"></param>
-        /// <returns>filered data</returns>
+        /// <returns>Filtered data.</returns>
         public static double[] perform_rolling_filter (double[] data, int period, int operation)
         {
             double[] filtered_data = new double[data.Length];
@@ -224,7 +231,7 @@ namespace brainflow
         }
 
         /// <summary>
-        /// detrend, unlike other bindings instead in-place calculation it returns new array
+        /// Remove the trend from a copy of the input.
         /// </summary>
         /// <param name="data"></param>
         /// <param name="operation"></param>
@@ -322,10 +329,13 @@ namespace brainflow
         /// <summary>
         /// calc oxygen level from ppg values
         /// </summary>
-        /// <param name="coef1">appxorimation coef for power of 2</param>
-        /// <param name="coef2">approximation coef</param>
-        /// /// <param name="coef3">intercept for approximation</param>
-        /// <returns>stddev</returns>
+        /// <param name="ppg_ir">Infrared PPG samples.</param>
+        /// <param name="ppg_red">Red PPG samples.</param>
+        /// <param name="sampling_rate">Sampling rate in Hz.</param>
+        /// <param name="coef1">Quadratic calibration coefficient.</param>
+        /// <param name="coef2">Linear calibration coefficient.</param>
+        /// <param name="coef3">Calibration intercept.</param>
+        /// <returns>Estimated oxygen saturation as a percentage.</returns>
         public static double get_oxygen_level (double[] ppg_ir, double[] ppg_red, int sampling_rate, double coef1 = 1.5958422, double coef2 = -34.6596622, double coef3 = 112.6898759)
         {
             if (ppg_ir.Length != ppg_red.Length)
@@ -344,8 +354,11 @@ namespace brainflow
         /// <summary>
         /// calc heart rate
         /// </summary>
-        /// <param name="fft_size">recommended 8192</param>
-        /// <returns>stddev</returns>
+        /// <param name="ppg_ir">Infrared PPG samples.</param>
+        /// <param name="ppg_red">Red PPG samples.</param>
+        /// <param name="sampling_rate">Sampling rate in Hz.</param>
+        /// <param name="fft_size">FFT size. The recommended size is 8192.</param>
+        /// <returns>Estimated heart rate in beats per minute.</returns>
         public static double get_heart_rate (double[] ppg_ir, double[] ppg_red, int sampling_rate, int fft_size)
         {
             if (ppg_ir.Length != ppg_red.Length)
@@ -687,6 +700,40 @@ namespace brainflow
             return output[0];
         }
 
+        private static unsafe double[] pack_channels (double[,] data, int[] channels)
+        {
+            if (data == null || channels == null || channels.Length == 0)
+                throw new BrainFlowError ((int)BrainFlowExitCodes.INVALID_ARGUMENTS_ERROR);
+
+            int cols = data.GetLength (1);
+            long packed_length = (long)channels.Length * cols;
+            if (cols == 0 || data.GetLowerBound (1) != 0 || packed_length > int.MaxValue)
+                throw new BrainFlowError ((int)BrainFlowExitCodes.INVALID_ARGUMENTS_ERROR);
+
+            int rows = data.GetLength (0);
+            int first_row = data.GetLowerBound (0);
+            int last_row = data.GetUpperBound (0);
+            long row_bytes = (long)cols * sizeof (double);
+            double[] packed = new double[(int)packed_length];
+            fixed (double* destination = packed)
+            {
+                for (int i = 0; i < channels.Length; i++)
+                {
+                    int row = channels[i];
+                    // Preserve GetRow's indexing from the end of the array.
+                    if (row < 0)
+                        row += rows;
+                    if (row < first_row || row > last_row)
+                        throw new BrainFlowError ((int)BrainFlowExitCodes.INVALID_ARGUMENTS_ERROR);
+                    fixed (double* source = &data[row, 0])
+                    {
+                        Buffer.MemoryCopy (source, destination + i * cols, row_bytes, row_bytes);
+                    }
+                }
+            }
+            return packed;
+        }
+
         /// <summary>
         /// Calculate normalized mean band powers and coefficients of variation across channels.
         /// Filtering removes DC and applies padded, initialized zero-phase 48-52 and 58-62 Hz
@@ -711,11 +758,7 @@ namespace brainflow
         /// <returns>Normalized mean band powers and coefficients of variation</returns>
         public static Tuple<double[], double[]> get_custom_band_powers (double[,] data, Tuple<double, double>[] bands, int[] channels, int sampling_rate, bool apply_filters)
         {
-            double[] data_1d = new double[data.GetRow (0).Length * channels.Length];
-            for (int i = 0; i < channels.Length; i++)
-            {
-                Array.Copy (data.GetRow (channels[i]), 0, data_1d, i * data.GetRow (channels[i]).Length, data.GetRow (channels[i]).Length);
-            }
+            double[] data_1d = pack_channels (data, channels);
             double[] avgs = new double[bands.Length];
             double[] stddevs = new double[bands.Length];
             double[] start_freqs = new double[bands.Length];
@@ -726,7 +769,7 @@ namespace brainflow
                 stop_freqs[i] = bands[i].Item2;
             }
 
-            int res = DataHandlerLibrary.get_custom_band_powers (data_1d, channels.Length, data.GetRow (0).Length, start_freqs, stop_freqs, bands.Length, sampling_rate, (apply_filters) ? 1 : 0, avgs, stddevs);
+            int res = DataHandlerLibrary.get_custom_band_powers (data_1d, channels.Length, data.GetLength (1), start_freqs, stop_freqs, bands.Length, sampling_rate, (apply_filters) ? 1 : 0, avgs, stddevs);
             if (res != (int)BrainFlowExitCodes.STATUS_OK)
             {
                 throw new BrainFlowError (res);
@@ -770,11 +813,7 @@ namespace brainflow
                 throw new BrainFlowError((int)BrainFlowExitCodes.INVALID_ARGUMENTS_ERROR);
             }
             int cols = data.GetLength (1);
-            double[] data_1d = new double[cols * channels.Length];
-            for (int i = 0; i < channels.Length; i++)
-            {
-                Array.Copy (data.GetRow (channels[i]), 0, data_1d, i * data.GetRow (channels[i]).Length, data.GetRow (channels[i]).Length);
-            }
+            double[] data_1d = pack_channels (data, channels);
             int channels_len = channels.Length;
             double[] w = new double[num_components * num_components];
             double[] k = new double[channels_len * num_components];
@@ -833,14 +872,96 @@ namespace brainflow
         /// <returns>Normalized mean band powers and coefficients of variation</returns>
         public static Tuple<double[], double[]> get_avg_band_powers (double[,] data, int[] channels, int sampling_rate, bool apply_filters)
         {
-            Tuple<double, double>[] bands = new Tuple<double, double>[5];
-            bands[0] = new Tuple<double, double> (2.0, 4.0);
-            bands[1] = new Tuple<double, double> (4.0, 8.0);
-            bands[2] = new Tuple<double, double> (8.0, 13.0);
-            bands[3] = new Tuple<double, double> (13.0, 30.0);
-            bands[4] = new Tuple<double, double> (30.0, 45.0);
+            return get_custom_band_powers (data, standard_bands, channels, sampling_rate, apply_filters);
+        }
 
-            return get_custom_band_powers (data, bands, channels, sampling_rate, apply_filters);
+        private static double[] quality_input (double[,] data, int[] channels, int sampling_rate)
+        {
+            if (data == null || channels == null || channels.Length == 0 || sampling_rate < 1 ||
+                data.GetLength (1) < 2 || (long)channels.Length * data.GetLength (1) > int.MaxValue ||
+                channels.Length > int.MaxValue / 4)
+            {
+                throw new BrainFlowError ((int)BrainFlowExitCodes.INVALID_ARGUMENTS_ERROR);
+            }
+            var seen = new HashSet<int> ();
+            foreach (int channel in channels)
+            {
+                if (channel < 0 || channel >= data.GetLength (0) || !seen.Add (channel))
+                {
+                    throw new BrainFlowError ((int)BrainFlowExitCodes.INVALID_ARGUMENTS_ERROR);
+                }
+            }
+            int cols = data.GetLength (1);
+            double[] input = new double[channels.Length * cols];
+            double[] row = new double[cols];
+            for (int i = 0; i < channels.Length; i++)
+            {
+                data.GetRow (channels[i], row);
+                Array.Copy (row, 0, input, i * cols, cols);
+            }
+            return input;
+        }
+
+        /// <summary>Inspect unique raw channels and return per-channel flags and measurements.</summary>
+        public static SignalQualityResult get_signal_quality (double[,] data, int[] channels,
+            int sampling_rate, SignalQualityOptions options = null)
+        {
+            options = options ?? new SignalQualityOptions ();
+            double[] input = quality_input (data, channels, sampling_rate);
+            int[] flags = new int[channels.Length];
+            double[] measurements = new double[channels.Length * 4];
+            int res = DataHandlerLibrary.get_signal_quality (input, channels.Length, data.GetLength (1),
+                sampling_rate, options, flags, measurements);
+            if (res != (int)BrainFlowExitCodes.STATUS_OK)
+            {
+                throw new BrainFlowError (res);
+            }
+            return new SignalQualityResult (channels, flags, measurements, options);
+        }
+
+        /// <summary>Calculate band powers over whole accepted channels. Invalid results have null powers.</summary>
+        public static BandPowerQualityResult get_custom_band_powers_with_quality (double[,] data,
+            Tuple<double, double>[] bands, int[] channels, int sampling_rate, bool apply_filters = true,
+            SignalQualityOptions options = null)
+        {
+            options = options ?? new SignalQualityOptions ();
+            if (bands == null || bands.Length == 0 || channels == null || (long)channels.Length * bands.Length > int.MaxValue)
+            {
+                throw new BrainFlowError ((int)BrainFlowExitCodes.INVALID_ARGUMENTS_ERROR);
+            }
+            double[] starts = new double[bands.Length];
+            double[] stops = new double[bands.Length];
+            for (int i = 0; i < bands.Length; i++)
+            {
+                if (bands[i] == null)
+                {
+                    throw new BrainFlowError ((int)BrainFlowExitCodes.INVALID_ARGUMENTS_ERROR);
+                }
+                starts[i] = bands[i].Item1;
+                stops[i] = bands[i].Item2;
+            }
+            double[] input = quality_input (data, channels, sampling_rate);
+            int[] flags = new int[channels.Length];
+            double[] measurements = new double[channels.Length * 4];
+            double[] avgs = new double[bands.Length];
+            double[] stddevs = new double[bands.Length];
+            int valid;
+            int res = DataHandlerLibrary.get_custom_band_powers_with_quality (input, channels.Length,
+                data.GetLength (1), starts, stops, sampling_rate, apply_filters, options,
+                avgs, stddevs, flags, measurements, out valid);
+            if (res != (int)BrainFlowExitCodes.STATUS_OK)
+            {
+                throw new BrainFlowError (res);
+            }
+            return new BandPowerQualityResult (channels, flags, measurements, options, valid, avgs, stddevs);
+        }
+
+        /// <summary>Calculate the five standard bands over whole accepted channels.</summary>
+        public static BandPowerQualityResult get_avg_band_powers_with_quality (double[,] data,
+            int[] channels, int sampling_rate, bool apply_filters = true, SignalQualityOptions options = null)
+        {
+            return get_custom_band_powers_with_quality (data, standard_bands, channels, sampling_rate,
+                apply_filters, options);
         }
 
         /// <summary>
@@ -999,6 +1120,7 @@ namespace brainflow
         /// perform highpass filter in-place
         /// </summary>
         /// <param name="data"></param>
+        /// <param name="row_num">Index of the channel row to filter.</param>
         /// <param name="sampling_rate"></param>
         /// <param name="cutoff"></param>
         /// <param name="order"></param>
@@ -1060,7 +1182,6 @@ namespace brainflow
         /// <param name="order"></param>
         /// <param name="filter_type"></param>
         /// <param name="ripple"></param>
-        /// <returns>filtered data</returns>
         public static unsafe void perform_bandstop (double[,] data, int row_num, int sampling_rate, double start_freq, double stop_freq, int order, int filter_type, double ripple)
         {
             int res = (int)BrainFlowExitCodes.STATUS_OK;
@@ -1079,13 +1200,12 @@ namespace brainflow
         }
 
         /// <summary>
-        /// perform moving average or moving median filter, unlike other bindings instead in-place calculation it returns new array
+        /// Apply a moving average or moving median filter to the selected row in place.
         /// </summary>
         /// <param name="data"></param>
         /// <param name="row_num"></param>
         /// <param name="period"></param>
         /// <param name="operation"></param>
-        /// <returns>filered data</returns>
         public static unsafe void perform_rolling_filter (double[,] data, int row_num, int period, int operation)
         {
             int res = (int)BrainFlowExitCodes.STATUS_OK;
@@ -1104,12 +1224,11 @@ namespace brainflow
         }
 
         /// <summary>
-        /// detrend, unlike other bindings instead in-place calculation it returns new array
+        /// Remove the trend from the selected row in place.
         /// </summary>
         /// <param name="data"></param>
         /// <param name="row_num"></param>
         /// <param name="operation"></param>
-        /// <returns>data with removed trend</returns>
         public static unsafe void detrend (double[,] data, int row_num, int operation)
         {
             int res = (int)BrainFlowExitCodes.STATUS_OK;

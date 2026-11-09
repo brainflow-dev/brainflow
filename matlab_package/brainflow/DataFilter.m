@@ -16,6 +16,74 @@ classdef DataFilter
                 error('Channel indices must refer to existing rows');
             end
         end
+
+        function [start_freqs, stop_freqs] = standard_bands()
+            start_freqs = [2.0, 4.0, 8.0, 13.0, 30.0];
+            stop_freqs = [4.0, 8.0, 13.0, 30.0, 45.0];
+        end
+
+        function [channels, input] = quality_input(data, channels, sampling_rate)
+            channels = DataFilter.checked_channels(data, channels);
+            if ~isreal(data) || size(data, 2) < 2 || numel(unique(channels)) ~= numel(channels) || ...
+                    numel(channels) * max(4, size(data, 2)) > double(intmax('int32'))
+                error('Signal quality requires unique channels with at least two real samples each');
+            end
+            validateattributes(sampling_rate, {'numeric'}, ...
+                {'real', 'scalar', 'integer', 'positive', '<=', double(intmax('int32'))});
+            packed = full(double(data(channels, :).'));
+            input = libpointer('doublePtr', packed(:));
+        end
+
+        function value = quality_switch(value, name)
+            if ~(islogical(value) || isnumeric(value)) || ~isscalar(value) || ...
+                    ~isreal(value) || (value ~= 0 && value ~= 1)
+                error('%s must be true, false, 0, or 1', name);
+            end
+            value = logical(full(value));
+        end
+
+        function [policy, args] = quality_options(options)
+            policy = struct('enable_clipping', false, 'lower_bound', 0, 'upper_bound', 0, ...
+                'max_clipped_percentage', 0, 'flatline_tolerance', 0, ...
+                'max_flatline_seconds', 0.5, 'min_channels', 1);
+            validateattributes(options, {'struct'}, {'scalar'});
+            names = fieldnames(options);
+            for i = 1:numel(names)
+                name = names{i};
+                if ~isfield(policy, name)
+                    error('Unknown signal quality option %s', name);
+                end
+                policy.(name) = options.(name);
+            end
+            policy.enable_clipping = DataFilter.quality_switch(policy.enable_clipping, 'enable_clipping');
+            thresholds = {'lower_bound', 'upper_bound', 'max_clipped_percentage', ...
+                'flatline_tolerance', 'max_flatline_seconds'};
+            for i = 1:numel(thresholds)
+                name = thresholds{i};
+                validateattributes(policy.(name), {'numeric'}, {'real', 'scalar', 'finite'});
+                policy.(name) = double(policy.(name));
+            end
+            validateattributes(policy.min_channels, {'numeric'}, ...
+                {'real', 'scalar', 'integer', 'positive', '<=', double(intmax('int32'))});
+            policy.min_channels = double(policy.min_channels);
+            args = {int32(policy.enable_clipping), policy.lower_bound, policy.upper_bound, ...
+                policy.max_clipped_percentage, policy.flatline_tolerance, policy.max_flatline_seconds, ...
+                int32(policy.min_channels)};
+        end
+
+        function result = quality_result(channels, flags, measurements, policy)
+            flags = reshape(flags, 1, []);
+            measurements = reshape(measurements, 4, []);
+            result.channels = channels;
+            result.quality = struct('channel', num2cell(channels), 'flags', num2cell(flags), ...
+                'nonfinite_percentage', num2cell(measurements(1, :)), ...
+                'clipped_percentage', num2cell(measurements(2, :)), ...
+                'flatline_percentage', num2cell(measurements(3, :)), ...
+                'longest_flatline_seconds', num2cell(measurements(4, :)));
+            result.used_channels = channels(flags == 0);
+            result.rejected_channels = channels(flags ~= 0);
+            result.quality_policy = policy;
+        end
     end
 
     methods(Static)
@@ -397,8 +465,7 @@ classdef DataFilter
         function [avg_bands, stddev_bands] = get_avg_band_powers(data, channels, sampling_rate, apply_filters)
             % Normalized mean powers for bands 2-4, 4-8, 8-13, 13-30, 30-45 Hz.
             % Uses get_custom_band_powers preprocessing, minimum retained length, and variation semantics.
-            start_freqs = [2.0, 4.0, 8.0, 13.0, 30.0];
-            stop_freqs = [4.0, 8.0, 13.0, 30.0, 45.0];
+            [start_freqs, stop_freqs] = DataFilter.standard_bands();
             [avg_bands, stddev_bands] = DataFilter.get_custom_band_powers(data, start_freqs, stop_freqs, channels, sampling_rate, apply_filters);
         end
             
@@ -435,6 +502,72 @@ classdef DataFilter
             DataFilter.check_ec(exit_code, task_name);
             avg_bands = temp_avgs.Value;
             stddev_bands = temp_stddevs.Value;
+        end
+
+        function result = get_signal_quality(data, channels, sampling_rate, options)
+            % Inspect unique, one-based raw channels and return flags and measurements.
+            if nargin < 4; options = struct(); end
+            [policy, policy_args] = DataFilter.quality_options(options);
+            [channels, input] = DataFilter.quality_input(data, channels, sampling_rate);
+            rows = numel(channels);
+            flags = libpointer('int32Ptr', zeros(1, rows, 'int32'));
+            measurements = libpointer('doublePtr', zeros(4, rows));
+            task_name = 'get_signal_quality_flat';
+            exit_code = calllib(DataFilter.load_lib(), task_name, input, rows, size(data, 2), ...
+                sampling_rate, policy_args{:}, flags, measurements);
+            DataFilter.check_ec(exit_code, task_name);
+            result = DataFilter.quality_result(channels, flags.Value, measurements.Value, policy);
+        end
+
+        function result = get_custom_band_powers_with_quality(data, start_freqs, stop_freqs, ...
+                channels, sampling_rate, apply_filters, options)
+            % Calculate band powers over whole accepted channels. Invalid powers are empty.
+            if nargin < 6; apply_filters = true; end
+            if nargin < 7; options = struct(); end
+            apply_filters = DataFilter.quality_switch(apply_filters, 'apply_filters');
+            [policy, policy_args] = DataFilter.quality_options(options);
+            [channels, input] = DataFilter.quality_input(data, channels, sampling_rate);
+            rows = numel(channels);
+            start_freqs = DataFilter.as_vector(start_freqs);
+            stop_freqs = DataFilter.as_vector(stop_freqs);
+            bands = numel(start_freqs);
+            if bands ~= numel(stop_freqs) || rows * bands > double(intmax('int32'))
+                error('Band start and stop lengths must match and fit native dimensions');
+            end
+            starts = libpointer('doublePtr', full(start_freqs));
+            stops = libpointer('doublePtr', full(stop_freqs));
+            avgs = libpointer('doublePtr', zeros(1, bands));
+            stddevs = libpointer('doublePtr', zeros(1, bands));
+            flags = libpointer('int32Ptr', zeros(1, rows, 'int32'));
+            measurements = libpointer('doublePtr', zeros(4, rows));
+            valid = libpointer('int32Ptr', int32(0));
+            task_name = 'get_custom_band_powers_with_quality_flat';
+            exit_code = calllib(DataFilter.load_lib(), task_name, input, rows, size(data, 2), ...
+                starts, stops, bands, sampling_rate, int32(apply_filters), policy_args{:}, ...
+                avgs, stddevs, flags, measurements, valid);
+            DataFilter.check_ec(exit_code, task_name);
+            result = DataFilter.quality_result(channels, flags.Value, measurements.Value, policy);
+            result.valid = valid.Value ~= 0;
+            result.avg_band_powers = [];
+            result.stddev_band_powers = [];
+            if result.valid
+                result.reason = 'ok';
+                result.avg_band_powers = avgs.Value;
+                result.stddev_band_powers = stddevs.Value;
+            elseif numel(result.used_channels) < policy.min_channels
+                result.reason = 'insufficient_channels';
+            else
+                result.reason = 'no_band_power';
+            end
+        end
+
+        function result = get_avg_band_powers_with_quality(data, channels, sampling_rate, apply_filters, options)
+            % Calculate the five standard bands over whole accepted channels.
+            if nargin < 4; apply_filters = true; end
+            if nargin < 5; options = struct(); end
+            [starts, stops] = DataFilter.standard_bands();
+            result = DataFilter.get_custom_band_powers_with_quality(data, starts, stops, channels, ...
+                sampling_rate, apply_filters, options);
         end
         
         function [w_mat, k_mat, a_mat, s_mat] = perform_ica_select_channels(data, num_components, channels)

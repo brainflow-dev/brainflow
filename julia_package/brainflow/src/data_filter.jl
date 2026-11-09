@@ -469,9 +469,10 @@ Calculate normalized mean powers for bands 2-4, 4-8, 8-13, 13-30, 30-45 Hz.
 Uses `get_custom_band_powers` preprocessing, minimum retained length, and variation semantics.
 """
 function get_avg_band_powers(data, channels, sampling_rate::Integer, apply_filter::Bool)
-    bands = [(2.0, 4.0), (4.0, 8.0), (8.0, 13.0), (13.0, 30.0), (30.0, 45.0)]
-    return get_custom_band_powers(data, bands, channels, sampling_rate, apply_filter)
+    return get_custom_band_powers(data, _standard_bands, channels, sampling_rate, apply_filter)
 end
+
+const _standard_bands = ((2.0, 4.0), (4.0, 8.0), (8.0, 13.0), (13.0, 30.0), (30.0, 45.0))
 
 """
     get_custom_band_powers(data, bands, channels, sampling_rate, apply_filter)
@@ -509,6 +510,98 @@ samples must remain. Data and edges must be finite; bands require
     ccall((:get_custom_band_powers, DATA_HANDLER_INTERFACE), Cint, (Ptr{Float64}, Cint, Cint, Ptr{Float64}, Ptr{Float64}, Cint, Cint, Cint, Ptr{Float64}, Ptr{Float64}),
             data_1d, size(channels)[1], shape[2], start_freqs, stop_freqs, length(start_freqs), Int32(sampling_rate), Int32(apply_filter), temp_avgs, temp_stddevs)
     return temp_avgs, temp_stddevs
+end
+
+"""Thresholds for opt-in, whole-channel quality checks."""
+Base.@kwdef struct SignalQualityOptions
+    clipping_bounds::Union{Nothing, Tuple{Float64, Float64}} = nothing
+    max_clipped_percentage::Float64 = 0.0
+    flatline_tolerance::Float64 = 0.0
+    max_flatline_seconds::Float64 = 0.5
+    min_channels::Int = 1
+end
+
+const QUALITY_GOOD = Cint(0)
+const QUALITY_NONFINITE = Cint(1)
+const QUALITY_CLIPPED = Cint(2)
+const QUALITY_FLATLINE = Cint(4)
+
+function _quality_input(data, channels, sampling_rate, options)
+    data = _dsp_matrix(data)
+    selected = _dsp_channels(data, channels)
+    if size(data, 2) < 2 || !allunique(selected) || any(c -> c isa Bool, channels) ||
+       length(selected) > div(typemax(Cint), 4) || sampling_rate isa Bool ||
+       !(1 <= sampling_rate <= typemax(Cint)) || !(1 <= options.min_channels <= typemax(Cint))
+        throw(BrainFlowError("Invalid signal quality input", Integer(INVALID_ARGUMENTS_ERROR)))
+    end
+    return selected, copy(transpose(data[selected, :]))
+end
+
+function _quality_result(channels, flags, measurements, options)
+    quality = [(channel=channels[row], flags=flags[row],
+                nonfinite_percentage=measurements[1, row], clipped_percentage=measurements[2, row],
+                flatline_percentage=measurements[3, row], longest_flatline_seconds=measurements[4, row])
+               for row in eachindex(channels)]
+    accepted = flags .== QUALITY_GOOD
+    return (channels=channels, quality=quality, quality_policy=options,
+            used_channels=channels[accepted], rejected_channels=channels[.!accepted])
+end
+
+"""Inspect unique, one-based raw channels and return per-channel flags and measurements."""
+@brainflow_rethrow function get_signal_quality(data, channels, sampling_rate::Integer,
+    options::SignalQualityOptions=SignalQualityOptions())
+    channels, input = _quality_input(data, channels, sampling_rate, options)
+    bounds = options.clipping_bounds
+    lower, upper = bounds === nothing ? (0.0, 0.0) : bounds
+    flags = zeros(Cint, length(channels))
+    measurements = zeros(Float64, 4, length(channels))
+    ccall((:get_signal_quality_flat, DATA_HANDLER_INTERFACE), Cint,
+          (Ptr{Float64}, Cint, Cint, Cint, Cint, Float64, Float64, Float64, Float64, Float64, Cint,
+           Ptr{Cint}, Ptr{Float64}),
+          input, length(channels), size(input, 1), sampling_rate, bounds !== nothing, lower, upper,
+          options.max_clipped_percentage, options.flatline_tolerance, options.max_flatline_seconds,
+          options.min_channels, flags, measurements)
+    return _quality_result(channels, flags, measurements, options)
+end
+
+"""Calculate band powers over whole accepted channels. Invalid results have nothing for powers."""
+@brainflow_rethrow function get_custom_band_powers_with_quality(data, bands, channels,
+    sampling_rate::Integer, apply_filter::Bool=true, options::SignalQualityOptions=SignalQualityOptions())
+    channels, input = _quality_input(data, channels, sampling_rate, options)
+    if isempty(bands) || length(bands) > div(typemax(Cint), length(channels)) ||
+       any(band -> length(band) != 2, bands)
+        throw(BrainFlowError("Bands must contain frequency pairs", Integer(INVALID_ARGUMENTS_ERROR)))
+    end
+    starts = Float64[first(band) for band in bands]
+    stops = Float64[last(band) for band in bands]
+    bounds = options.clipping_bounds
+    lower, upper = bounds === nothing ? (0.0, 0.0) : bounds
+    flags = zeros(Cint, length(channels))
+    measurements = zeros(Float64, 4, length(channels))
+    avg = zeros(Float64, length(starts))
+    stddev = zeros(Float64, length(starts))
+    native_valid = Ref{Cint}(0)
+    ccall((:get_custom_band_powers_with_quality_flat, DATA_HANDLER_INTERFACE), Cint,
+          (Ptr{Float64}, Cint, Cint, Ptr{Float64}, Ptr{Float64}, Cint, Cint, Cint, Cint,
+           Float64, Float64, Float64, Float64, Float64, Cint, Ptr{Float64}, Ptr{Float64},
+           Ptr{Cint}, Ptr{Float64}, Ref{Cint}),
+          input, length(channels), size(input, 1), starts, stops, length(starts), sampling_rate,
+          apply_filter, bounds !== nothing, lower, upper, options.max_clipped_percentage,
+          options.flatline_tolerance, options.max_flatline_seconds, options.min_channels, avg, stddev,
+          flags, measurements, native_valid)
+    result = _quality_result(channels, flags, measurements, options)
+    valid = native_valid[] != 0
+    reason = valid ? :ok :
+        (length(result.used_channels) < options.min_channels ? :insufficient_channels : :no_band_power)
+    return merge(result, (valid=valid, reason=reason, avg_band_powers=valid ? avg : nothing,
+                          stddev_band_powers=valid ? stddev : nothing))
+end
+
+"""Calculate the five standard bands over whole accepted channels."""
+function get_avg_band_powers_with_quality(data, channels, sampling_rate::Integer,
+    apply_filter::Bool=true, options::SignalQualityOptions=SignalQualityOptions())
+    return get_custom_band_powers_with_quality(data, _standard_bands, channels, sampling_rate,
+                                               apply_filter, options)
 end
 
 @brainflow_rethrow function perform_ica_select_channels(data, num_components::Integer, channels)

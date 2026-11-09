@@ -189,6 +189,48 @@ final class BrainFlowTests: XCTestCase {
         XCTAssertTrue(power.isFinite)
     }
 
+    func testSignalQuality() throws {
+        try requireNativeLibraries()
+        let samples = 1024
+        let rate = 128
+        let time = (0..<samples).map { Double($0) / Double(rate) }
+        var contaminated = [Double](repeating: 0, count: samples)
+        contaminated[0] = .nan
+        contaminated[1] = 100
+        contaminated[2] = -100
+        let data = [time.map { sin(2 * .pi * 10 * $0) }, contaminated,
+                    time.map { 2 * sin(2 * .pi * 20 * $0) }]
+        let channels = [2, 1, 0]
+        var options = SignalQualityOptions(enable_clipping: true, lower_bound: -10, upper_bound: 10,
+                                           min_channels: 2)
+        let quality = try DataFilter.get_signal_quality(data: data, channels: channels,
+                                                        sampling_rate: rate, options: options)
+        let report = quality.quality[1]
+        XCTAssertEqual(report.channel, 1)
+        XCTAssertEqual(report.flags, [.nonfinite, .clipped, .flatline])
+        XCTAssertEqual(report.nonfinite_percentage, 100.0 / Double(samples))
+        XCTAssertEqual(report.clipped_percentage, 200.0 / Double(samples))
+        XCTAssertEqual(report.longest_flatline_seconds, Double(samples - 4) / Double(rate))
+        let result = try DataFilter.get_avg_band_powers_with_quality(
+            data: data, channels: channels, sampling_rate: rate, apply_filter: false, options: options)
+        let expected = try DataFilter.get_avg_band_powers(
+            data: data, channels: [2, 0], sampling_rate: rate, apply_filter: false)
+        XCTAssertTrue(result.valid)
+        XCTAssertEqual(result.signal_quality, quality)
+        XCTAssertEqual(quality.used_channels, [2, 0])
+        XCTAssertEqual(quality.rejected_channels, [1])
+        XCTAssertEqual(result.avg_band_powers, expected.average)
+        XCTAssertEqual(result.stddev_band_powers, expected.stddev)
+        options.min_channels = 3
+        let invalid = try DataFilter.get_avg_band_powers_with_quality(
+            data: data, channels: channels, sampling_rate: rate, apply_filter: false, options: options)
+        XCTAssertFalse(invalid.valid)
+        XCTAssertEqual(invalid.reason, .insufficientChannels)
+        XCTAssertNil(invalid.avg_band_powers)
+        XCTAssertNil(invalid.stddev_band_powers)
+        assertInvalidArguments(try DataFilter.get_signal_quality(data: data, channels: [0, 0], sampling_rate: rate))
+    }
+
     func testICA() throws {
         try requireNativeLibraries()
         let rows = 4

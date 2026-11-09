@@ -3,6 +3,7 @@ import enum
 import os
 import platform
 import struct
+import threading
 from typing import List, Tuple
 
 import numpy
@@ -10,6 +11,10 @@ from importlib.resources import files
 from brainflow.exit_codes import BrainFlowExitCodes, BrainFlowError
 from brainflow.utils import check_memory_layout_row_major, LogLevels
 from numpy.ctypeslib import ndpointer
+from brainflow.signal_quality import SignalQualityFlags as SignalQualityFlags
+from brainflow.signal_quality import (SignalQualityOptions,
+                                     _NativeQualityParams, _NativeChannelQuality,
+                                     _quality_input, _quality_result)
 
 
 class FilterTypes(enum.IntEnum):
@@ -533,6 +538,20 @@ class DataHandlerDLL(object):
             ndpointer(ctypes.c_double, ndim=1, flags='C_CONTIGUOUS'), ctypes.c_int,
             ctypes.c_double, ndpointer(ctypes.c_double)]
 
+        self.get_signal_quality = self.lib.get_signal_quality
+        self.get_signal_quality.restype = ctypes.c_int
+        self.get_signal_quality.argtypes = [
+            ndpointer(ctypes.c_double), ctypes.c_int, ctypes.c_int, ctypes.c_int,
+            ctypes.POINTER(_NativeQualityParams), ctypes.POINTER(_NativeChannelQuality)]
+        self.get_custom_band_powers_with_quality = self.lib.get_custom_band_powers_with_quality
+        self.get_custom_band_powers_with_quality.restype = ctypes.c_int
+        self.get_custom_band_powers_with_quality.argtypes = [
+            ndpointer(ctypes.c_double), ctypes.c_int, ctypes.c_int,
+            ndpointer(ctypes.c_double), ndpointer(ctypes.c_double), ctypes.c_int,
+            ctypes.c_int, ctypes.c_int, ctypes.POINTER(_NativeQualityParams),
+            ndpointer(ctypes.c_double), ndpointer(ctypes.c_double),
+            ctypes.POINTER(_NativeChannelQuality), ctypes.POINTER(ctypes.c_int)]
+
         self.get_custom_band_powers = self.lib.get_custom_band_powers
         self.get_custom_band_powers.restype = ctypes.c_int
         self.get_custom_band_powers.argtypes = [
@@ -619,6 +638,24 @@ class DataHandlerDLL(object):
             ndpointer(ctypes.c_double)
         ]
 
+        self.create_band_power_context = self.lib.create_band_power_context
+        self.create_band_power_context.restype = ctypes.c_int
+        self.create_band_power_context.argtypes = [ctypes.c_int, ctypes.c_int,
+            ndpointer(ctypes.c_double), ndpointer(ctypes.c_double), ctypes.c_int,
+            ctypes.c_int, ctypes.c_int, ctypes.c_int, ctypes.c_double, ctypes.c_double,
+            ctypes.c_int, ctypes.c_int, ctypes.c_int, ndpointer(ctypes.c_int32)]
+        self.process_band_power_context = self.lib.process_band_power_context
+        self.process_band_power_context.restype = ctypes.c_int
+        self.process_band_power_context.argtypes = [ctypes.c_int,
+            ndpointer(ctypes.c_double, ndim=2, flags='C_CONTIGUOUS'), ctypes.c_int,
+            ctypes.c_int, ctypes.c_int, ctypes.c_int,
+            ndpointer(ctypes.c_int32, ndim=1, flags='C_CONTIGUOUS'), ctypes.c_int,
+            ndpointer(ctypes.c_double, ndim=1, flags=('C_CONTIGUOUS', 'WRITEABLE')),
+            ndpointer(ctypes.c_double, ndim=1, flags=('C_CONTIGUOUS', 'WRITEABLE')), ctypes.c_int]
+        self.release_band_power_context = self.lib.release_band_power_context
+        self.release_band_power_context.restype = ctypes.c_int
+        self.release_band_power_context.argtypes = [ctypes.c_int]
+
         self.get_version_data_handler = self.lib.get_version_data_handler
         self.get_version_data_handler.restype = ctypes.c_int
         self.get_version_data_handler.argtypes = [
@@ -684,6 +721,110 @@ class StreamingFilter:
 
     def __enter__(self):
         self._require_open()
+        return self
+
+    def __exit__(self, exc_type, exc_value, traceback):
+        self.close()
+
+    def __del__(self):
+        try:
+            self.close()
+        except Exception:
+            # Finalizers may run after the native library has been torn down.
+            pass
+
+
+class BandPowerContext:
+    """Reusable batch band-power workspace with the existing windowed DSP semantics.
+
+    Bounds limit memory use. workers=0 chooses up to four persistent native workers;
+    workers=1 is serial. Small batches run serially. No OpenMP runtime is required.
+    Use as a context manager to release scratch buffers and workers promptly.
+    Calls on one context serialize; different contexts can execute concurrently.
+    """
+
+    def __init__(self, bands, sampling_rate, max_channels, max_samples, apply_filters=True,
+                 nfft=0, low_cutoff=0.0, high_cutoff=0.0, mains=-1,
+                 detrend_operation=None, workers=0):
+        self._handle = None
+        self._handle_lock = threading.Lock()
+        if detrend_operation is None:
+            detrend_operation = 1 if apply_filters else 0
+        for value in (sampling_rate, max_channels, max_samples, nfft, mains,
+                      detrend_operation, workers):
+            self._check_integer(value)
+        band_array = numpy.asarray(bands, dtype=numpy.float64)
+        if band_array.ndim != 2 or band_array.shape[1] != 2 or band_array.shape[0] == 0:
+            self._invalid('bands must contain start/end pairs')
+        self._band_count = band_array.shape[0]
+        self._dll = DataHandlerDLL.get_instance()
+        handle = numpy.zeros(1, dtype=numpy.int32)
+        res = self._dll.create_band_power_context(max_channels, max_samples,
+            numpy.ascontiguousarray(band_array[:, 0]), numpy.ascontiguousarray(band_array[:, 1]),
+            self._band_count, sampling_rate, int(apply_filters), nfft, low_cutoff,
+            high_cutoff, mains, detrend_operation, workers, handle)
+        self._check_result(res)
+        self._handle = int(handle[0])
+
+    @staticmethod
+    def _invalid(message):
+        raise BrainFlowError(message, BrainFlowExitCodes.INVALID_ARGUMENTS_ERROR.value)
+
+    @staticmethod
+    def _check_integer(value):
+        if not isinstance(value, (int, numpy.integer)) or not -2147483648 <= value <= 2147483647:
+            BandPowerContext._invalid('invalid context integer parameter')
+
+    @staticmethod
+    def _check_result(result):
+        if result != BrainFlowExitCodes.STATUS_OK.value:
+            raise BrainFlowError('band-power context operation failed', result)
+
+    def process(self, data, channels, out=None):
+        """Read selected rows without packing them. Optional out=(averages, variations)
+        supplies two writable float64 arrays of len(bands), reusable between calls.
+        Input must be a contiguous float64 matrix. Inputs and outputs must not overlap.
+        """
+        handle = self._get_handle()
+        check_memory_layout_row_major(data, 2)
+        if data.dtype != numpy.float64 or data.size > 2147483647:
+            self._invalid('data must be a float64 matrix with a supported size')
+        for channel in channels:
+            self._check_integer(channel)
+        selected = numpy.ascontiguousarray(channels, dtype=numpy.int32)
+        if selected.ndim != 1 or selected.size > 2147483647:
+            self._invalid('channels must be a vector')
+        if out is None:
+            out = (numpy.empty(self._band_count), numpy.empty(self._band_count))
+        if len(out) != 2:
+            self._invalid('out must contain two arrays')
+        for target in out:
+            DataFilter._check_inplace_array(target)
+            if target.size != self._band_count or numpy.shares_memory(target, data):
+                self._invalid('output size or memory overlap is invalid')
+        if numpy.shares_memory(out[0], out[1]):
+            self._invalid('outputs must not overlap')
+        res = self._dll.process_band_power_context(handle, data, data.size,
+            data.shape[0], data.shape[1], data.shape[1], selected, selected.size,
+            out[0], out[1], self._band_count)
+        self._check_result(res)
+        return out
+
+    def close(self):
+        with self._handle_lock:
+            handle = self._handle
+            self._handle = None
+        if handle is not None:
+            self._check_result(self._dll.release_band_power_context(handle))
+
+    def _get_handle(self):
+        with self._handle_lock:
+            if self._handle is None:
+                self._invalid('band-power context is closed')
+            return self._handle
+
+    def __enter__(self):
+        self._get_handle()
         return self
 
     def __exit__(self, exc_type, exc_value, traceback):
@@ -1233,7 +1374,7 @@ class DataFilter(object):
         """calculate filters and the corresponding eigenvalues using the Common Spatial Patterns
 
         :param data: [epochs x channels x times]-shaped 3D array of data for two classes
-        :type data: NDArray[Shape["*, *, *"], Float64]
+        :type data: ``NDArray[Shape["*, *, *"], Float64]``
         :param labels: n_epochs-length 1D array of zeros and ones that assigns class labels for each epoch. Zero corresponds to the first class
         :type labels: NDArray[Shape["*"], Float64]
         :return: [channels x channels]-shaped 2D array of filters and [channels]-length 1D array of the corresponding eigenvalues
@@ -1294,15 +1435,15 @@ class DataFilter(object):
 
         check_memory_layout_row_major(data, 1)
 
-        temp_re = numpy.zeros(int(data.shape[0] / 2 + 1)).astype(numpy.float64)
-        temp_im = numpy.zeros(int(data.shape[0] / 2 + 1)).astype(numpy.float64)
+        temp_re = numpy.empty(data.shape[0] // 2 + 1, dtype=numpy.float64)
+        temp_im = numpy.empty(data.shape[0] // 2 + 1, dtype=numpy.float64)
         res = DataHandlerDLL.get_instance().perform_fft(data, data.shape[0], window, temp_re, temp_im)
         if res != BrainFlowExitCodes.STATUS_OK.value:
             raise BrainFlowError('unable to perform fft', res)
 
-        output = numpy.zeros(int(data.shape[0] / 2 + 1)).astype(numpy.complex128)
-        for i in range(output.shape[0]):
-            output[i] = numpy.complex128(complex(temp_re[i], temp_im[i]))
+        output = numpy.empty(temp_re.shape[0], dtype=numpy.complex128)
+        output.real = temp_re
+        output.imag = temp_im
 
         return output
 
@@ -1411,7 +1552,7 @@ class DataFilter(object):
         semantics of :meth:`get_custom_band_powers`.
 
         :param data: 2d array for calculation
-        :type data: NDArray[Shape["*, *"], Float64]
+        :type data: ``NDArray[Shape["*, *"], Float64]``
         :param channels: channels - rows of data array which should be used for calculation
         :type channels: List
         :param sampling_rate: sampling rate
@@ -1453,7 +1594,7 @@ class DataFilter(object):
         variation, and an all-zero total returns zero normalized powers.
 
         :param data: 2d array for calculation
-        :type data: NDArray[Shape["*, *"], Float64]
+        :type data: ``NDArray[Shape["*, *"], Float64]``
         :param bands: list of (start, stop) frequency pairs in Hz
         :type bands: List
         :param channels: channels - rows of data array which should be used for calculation
@@ -1487,6 +1628,67 @@ class DataFilter(object):
             raise BrainFlowError('unable to get_avg_band_powers', res)
 
         return avg_bands, stddev_bands
+
+    @classmethod
+    def get_signal_quality(cls, data, channels, sampling_rate,
+                           options=SignalQualityOptions()):
+        """Inspect raw channels and return flags, measurements and the policy used.
+
+        No samples are modified and no session/recovery state is retained. Channels
+        must be unique. min_channels is used only by the quality-aware band-power API.
+        Clipping is not checked unless device-appropriate bounds are supplied.
+        """
+        selected, gathered, params, reports = _quality_input(data, channels, sampling_rate, options)
+        res = DataHandlerDLL.get_instance().get_signal_quality(
+            gathered, len(selected), data.shape[1], sampling_rate, ctypes.byref(params), reports)
+        if res != BrainFlowExitCodes.STATUS_OK.value:
+            raise BrainFlowError('unable to calculate signal quality', res)
+        return _quality_result(selected, params, reports)
+
+    @classmethod
+    def get_avg_band_powers_with_quality(cls, data, channels, sampling_rate, apply_filter=True,
+                                        options=SignalQualityOptions()):
+        """Five-band equivalent of get_custom_band_powers_with_quality."""
+        return cls.get_custom_band_powers_with_quality(
+            data, [(2., 4.), (4., 8.), (8., 13.), (13., 30.), (30., 45.)],
+            channels, sampling_rate, apply_filter, options)
+
+    @classmethod
+    def get_custom_band_powers_with_quality(cls, data, bands, channels, sampling_rate,
+                                           apply_filter=True, options=SignalQualityOptions()):
+        """Reject bad whole channel-windows before the existing band-power DSP.
+
+        Returns a dict containing valid, reason, avg_band_powers, stddev_band_powers,
+        used/rejected channels, per-channel quality and the exact policy. Too few
+        acceptable channels or zero total band power is an ordinary quality result: valid=False and powers
+        are None. API errors (including insufficient samples for DSP) still raise.
+        Filtering, normalization and variation match get_custom_band_powers on
+        exactly used_channels. Raw input and existing APIs are unchanged. Exclusion
+        changes classifier inputs; revalidate model behavior before using them.
+        """
+        selected, gathered, params, reports = _quality_input(data, channels, sampling_rate, options)
+        edges = numpy.asarray(bands, dtype=numpy.float64)
+        if (edges.ndim != 2 or edges.shape[0] == 0 or edges.shape[1] != 2 or
+                len(selected) * edges.shape[0] > 2147483647 or
+                not isinstance(apply_filter, (bool, numpy.bool_))):
+            raise BrainFlowError('invalid bands or filter flag', BrainFlowExitCodes.INVALID_ARGUMENTS_ERROR.value)
+        starts = numpy.ascontiguousarray(edges[:, 0])
+        stops = numpy.ascontiguousarray(edges[:, 1])
+        averages = numpy.empty(len(edges), dtype=numpy.float64)
+        variation = numpy.empty(len(edges), dtype=numpy.float64)
+        valid = ctypes.c_int(0)
+        res = DataHandlerDLL.get_instance().get_custom_band_powers_with_quality(
+            gathered, len(selected), data.shape[1], starts, stops, len(edges), sampling_rate,
+            int(apply_filter), ctypes.byref(params), averages, variation, reports, ctypes.byref(valid))
+        if res != BrainFlowExitCodes.STATUS_OK.value:
+            raise BrainFlowError('unable to calculate quality-aware band powers', res)
+        result = _quality_result(selected, params, reports)
+        reason = ('ok' if valid.value else 'insufficient_channels'
+                  if len(result['used_channels']) < options.min_channels else 'no_band_power')
+        result.update(valid=bool(valid.value), reason=reason,
+                      avg_band_powers=averages if valid.value else None,
+                      stddev_band_powers=variation if valid.value else None)
+        return result
 
     @classmethod
     def get_band_power_info(cls, sampling_rate: int, apply_filter=True, *, nfft=0,
@@ -1556,7 +1758,7 @@ class DataFilter(object):
         """perform ICA
 
         :param data: 2d array for calculation
-        :type data: NDArray[Shape["*, *"], Float64]
+        :type data: ``NDArray[Shape["*, *"], Float64]``
         :param num_components: number of components
         :type num_components: int
         :param channels: channels - rows of data array which should be used for calculation, if None use all
@@ -1646,12 +1848,18 @@ class DataFilter(object):
         :return: restored data
         :rtype: NDArray[Shape["*"], Float64]
         """
-        temp_re = numpy.zeros(data.shape[0]).astype(numpy.float64)
-        temp_im = numpy.zeros(data.shape[0]).astype(numpy.float64)
-        for i in range(data.shape[0]):
-            temp_re[i] = data[i].real
-            temp_im[i] = data[i].imag
-        output = numpy.zeros(2 * (data.shape[0] - 1)).astype(numpy.float64)
+        if len(data.shape) != 1:
+            raise BrainFlowError('unable to perform ifft', BrainFlowExitCodes.INVALID_ARGUMENTS_ERROR.value)
+
+        bins = data.shape[0]
+        if isinstance(data, numpy.ndarray) and not data.dtype.hasobject and not numpy.ma.is_masked(data):
+            temp_re = numpy.require(data.real, dtype=numpy.float64, requirements=('C', 'A'))
+            temp_im = numpy.require(data.imag, dtype=numpy.float64, requirements=('C', 'A'))
+        else:
+            # Object arrays and other array-like inputs expose complex parts on each element.
+            temp_re = numpy.fromiter((data[i].real for i in range(bins)), dtype=numpy.float64, count=bins)
+            temp_im = numpy.fromiter((data[i].imag for i in range(bins)), dtype=numpy.float64, count=bins)
+        output = numpy.empty(2 * (bins - 1), dtype=numpy.float64)
 
         res = DataHandlerDLL.get_instance().perform_ifft(temp_re, temp_im, output.shape[0], output)
         if res != BrainFlowExitCodes.STATUS_OK.value:
@@ -1741,7 +1949,7 @@ class DataFilter(object):
         """write data to file, in file data will be transposed
 
         :param data: data to store in a file
-        :type data: NDArray[Shape["*, *"], Float64]
+        :type data: ``NDArray[Shape["*, *"], Float64]``
         :param file_name: file name to store data
         :type file_name: str
         :param file_mode: 'w' to rewrite file or 'a' to append data to file
@@ -1769,7 +1977,7 @@ class DataFilter(object):
         :param file_name: file name to read
         :type file_name: str
         :return: 2d numpy array with data from this file, data will be transposed to original dimensions
-        :rtype: NDArray[Shape["*, *"], Float64]
+        :rtype: ``NDArray[Shape["*, *"], Float64]``
         """
         try:
             file = file_name.encode()
@@ -1801,7 +2009,7 @@ class DataFilter(object):
 
         :return: version
         :rtype: str
-        :raises BrainFlowError
+        :raises BrainFlowError: If the version cannot be retrieved.
         """
         string = numpy.zeros(64).astype(numpy.ubyte)
         string_len = numpy.zeros(1).astype(numpy.int32)

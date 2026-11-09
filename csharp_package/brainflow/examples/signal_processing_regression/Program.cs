@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using brainflow;
 
 class Program
@@ -30,8 +31,94 @@ class Program
         Console.WriteLine("ML capacity snapshot validation passed.");
     }
 
+    static void CheckChannelPacking()
+    {
+        var data = new double[4, 1024];
+        for (int row = 0; row < 4; row++)
+            for (int col = 0; col < 1024; col++)
+                data[row, col] = Math.Sin(2 * Math.PI * (5 + row * 7.0) * col / 256.0);
+        var original = (double[,])data.Clone();
+        int[] rows = {3, 1, 3};
+        var selected = new double[rows.Length, 1024];
+        for (int row = 0; row < rows.Length; row++)
+            for (int col = 0; col < 1024; col++)
+                selected[row, col] = data[rows[row], col];
+        var bands = new[] {Tuple.Create(2.0, 15.0), Tuple.Create(15.0, 40.0)};
+        var actual = DataFilter.get_custom_band_powers(data, bands, new[] {3, 1, -1}, 256, false);
+        var expected = DataFilter.get_custom_band_powers(selected, bands, new[] {0, 1, 2}, 256, false);
+        for (int band = 0; band < bands.Length; band++)
+            if (!(Math.Abs(actual.Item1[band] - expected.Item1[band]) <= 1e-12 &&
+                  Math.Abs(actual.Item2[band] - expected.Item2[band]) <= 1e-12))
+                throw new Exception("Selected/repeated channel powers changed");
+        for (int row = 0; row < 4; row++)
+            for (int col = 0; col < 1024; col++)
+                if (BitConverter.DoubleToInt64Bits(data[row, col]) != BitConverter.DoubleToInt64Bits(original[row, col]))
+                    throw new Exception("Channel packing modified input");
+        Reject(() => DataFilter.get_custom_band_powers(data, bands, new[] {-5}, 256, false));
+        Reject(() => DataFilter.get_custom_band_powers(data, bands, new[] {4}, 256, false));
+        Reject(() => DataFilter.perform_ica(data, 2, new[] {0, 4}));
+    }
+
+    static void CheckSignalQuality()
+    {
+        const int samples = 1024;
+        const int rate = 128;
+        var data = new double[3, samples];
+        for (int i = 0; i < samples; i++)
+        {
+            data[0, i] = Math.Sin(2 * Math.PI * 10 * i / rate);
+            data[2, i] = 2 * Math.Sin(2 * Math.PI * 20 * i / rate);
+        }
+        data[1, 0] = double.NaN;
+        data[1, 1] = 100;
+        data[1, 2] = -100;
+        var options = new SignalQualityOptions(true, -10, 10, min_channels: 2);
+        int[] channels = {2, 1, 0};
+        var result = DataFilter.get_avg_band_powers_with_quality(data, channels, rate, false, options);
+        var expected = DataFilter.get_avg_band_powers(data, new[] {2, 0}, rate, false);
+        if (!result.valid || !result.used_channels.SequenceEqual(new[] {2, 0}) ||
+            !result.rejected_channels.SequenceEqual(new[] {1}) ||
+            !result.avg_band_powers.SequenceEqual(expected.Item1) ||
+            !result.stddev_band_powers.SequenceEqual(expected.Item2))
+            throw new Exception("Quality-aware powers differ from the accepted channel subset");
+        var report = DataFilter.get_signal_quality(data, channels, rate, options).quality[1];
+        if (report.channel != 1 || report.flags != (SignalQualityFlags.NONFINITE | SignalQualityFlags.CLIPPED | SignalQualityFlags.FLATLINE) ||
+            report.nonfinite_percentage != 100.0 / samples || report.clipped_percentage != 200.0 / samples ||
+            report.longest_flatline_seconds != (samples - 4.0) / rate)
+            throw new Exception("Signal quality report was marshaled incorrectly");
+        var invalid = DataFilter.get_avg_band_powers_with_quality(data, channels, rate, false,
+            new SignalQualityOptions(true, -10, 10, min_channels: 3));
+        if (invalid.valid || invalid.reason != "insufficient_channels" ||
+            invalid.avg_band_powers != null || invalid.stddev_band_powers != null)
+            throw new Exception("Rejected window returned usable powers");
+        Reject(() => DataFilter.get_signal_quality(data, new[] {0, 0}, rate));
+    }
+
     static void Main(string[] args)
     {
+        CheckChannelPacking();
+        CheckSignalQuality();
+        var batch = new double[8, 2048];
+        for (int row = 0; row < 8; row++)
+            for (int col = 0; col < 2048; col++)
+                batch[row, col] = Math.Sin((row + 1) * col * 0.1);
+        var bands = new[] {Tuple.Create(2.0, 13.0), Tuple.Create(13.0, 40.0)};
+        int[] channels = {7, 1, 2, 3, 4, 5, 6, 7};
+        var expected = DataFilter.get_custom_band_powers(batch, bands, channels, 250, true);
+        using (var context = new BandPowerContext(bands, 250, 8, 2048, workers: 4))
+        {
+            var averages = new double[2];
+            var variations = new double[2];
+            for (int repeat = 0; repeat < 5; repeat++)
+            {
+                context.process(batch, channels, averages, variations);
+                for (int band = 0; band < 2; band++)
+                    if (Math.Abs(averages[band] - expected.Item1[band]) > 1e-12 ||
+                        Math.Abs(variations[band] - expected.Item2[band]) > 1e-12)
+                        throw new Exception("Context differs from band-power API");
+            }
+            Reject(() => context.process(batch, new[] {8}, averages, variations));
+        }
         var data = new double[2, 256];
         Reject(() => DataFilter.perform_fft(data, 1, 0, 512, 0));
         Reject(() => DataFilter.get_psd(data, 1, 0, 512, 256, 0));

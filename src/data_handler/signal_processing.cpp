@@ -17,6 +17,7 @@
 #include "data_handler.h"
 #include "filter_helpers.h"
 #include "kiss_fftr.h"
+#include "psd_workspace.h"
 
 namespace
 {
@@ -97,44 +98,9 @@ namespace
         if (!amplitudes || !frequencies || nfft < 2 || nfft % 2 || n < nfft || fs < 1 ||
             overlap < 0 || overlap >= nfft || !finite_signal (data, n))
             return invalid;
-        std::vector<double> weights (nfft), input (nfft), result (nfft / 2 + 1, 0.0);
-        std::vector<kiss_fft_cpx> output (nfft / 2 + 1);
-        int res = get_window (window, nfft, weights.data ());
-        if (res != ok)
-            return res;
-        double energy = 0.0;
-        for (double value : weights)
-            energy += value * value;
-        if (!(energy > 0.0))
-            return invalid;
-        const double denominator = std::sqrt ((double)fs * energy);
-        const int step = nfft - overlap;
-        const int count = 1 + (n - nfft) / step;
-        FftPlan plan (nfft);
-        for (int segment = 0; segment < count; segment++)
-        {
-            const size_t start = (size_t)segment * step;
-            // Normalize before the transform to avoid overflowing an otherwise representable PSD.
-            for (int i = 0; i < nfft; i++)
-                input[i] = data[start + i] * (weights[i] / denominator);
-            kiss_fftr (plan.cfg, input.data (), output.data ());
-            for (int i = 0; i <= nfft / 2; i++)
-            {
-                const double magnitude = std::hypot (output[i].r, output[i].i);
-                const double factor = (i == 0 || i == nfft / 2) ? 1.0 : 2.0;
-                const double averaged_magnitude = magnitude / std::sqrt ((double)count);
-                const double value = averaged_magnitude * averaged_magnitude * factor;
-                if (!std::isfinite (value))
-                    return invalid;
-                result[i] += value;
-                if (!std::isfinite (result[i]))
-                    return invalid;
-            }
-        }
-        std::copy (result.begin (), result.end (), amplitudes);
-        for (int i = 0; i <= nfft / 2; i++)
-            frequencies[i] = i * ((double)fs / nfft);
-        return ok;
+        PsdWorkspace workspace (nfft, fs);
+        int res = workspace.prepare (window);
+        return res == ok ? workspace.process (data, n, overlap, amplitudes, frequencies) : res;
     }
 
     int parse_file (const char *name, std::vector<double> &values, int &rows, int &cols)
@@ -515,25 +481,8 @@ try
     const double scale = signal_scale (data, n);
     if (scale == 0.0)
         return ok;
-    const double average = mean (data, n) / scale;
-    double slope = 0.0;
-    if (operation == 2 && n > 1)
-    {
-        const double center = (n - 1) / 2.0;
-        double covariance = 0.0, correction = 0.0;
-        for (int i = 0; i < n; i++)
-        {
-            const double value = ((i - center) / n) * (data[i] / scale - average) / n - correction;
-            const double next = covariance + value;
-            correction = (next - covariance) - value;
-            covariance = next;
-        }
-        slope = covariance / ((1.0 - 1.0 / ((double)n * n)) / 12.0);
-    }
     std::vector<double> result (n);
-    for (int i = 0; i < n; i++)
-        result[i] = ((data[i] / scale - average) - slope * ((i - (n - 1) / 2.0) / n)) * scale;
-    if (!finite_signal (result.data (), n))
+    if (!detrend_signal (data, n, operation, scale, result.data ()))
         return invalid;
     std::copy (result.begin (), result.end (), data);
     return ok;

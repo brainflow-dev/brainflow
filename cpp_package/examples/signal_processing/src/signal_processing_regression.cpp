@@ -2,6 +2,7 @@
 #include <functional>
 #include <iostream>
 #include <limits>
+#include <memory>
 #include <stdexcept>
 
 #include "data_filter.h"
@@ -19,8 +20,49 @@ static void reject (const std::function<void ()> &action)
     throw std::runtime_error ("Expected invalid input to be rejected");
 }
 
-int main ()
+static void quality_tests ()
 {
+    BrainFlowArray<double, 2> data (3, 1024);
+    for (int row = 0; row < 3; ++row)
+        for (int i = 0; i < 1024; ++i)
+            data.at (row, i) = (row + 1) * std::sin (2 * 3.141592653589793 * 10 * i / 128 + .1);
+    SignalQualityOptions options;
+    options.enable_clipping = true;
+    options.lower_bound = -10;
+    options.upper_bound = 10;
+    options.min_channels = 2;
+    data.at (1, 200) = 1000;
+    auto result =
+        DataFilter::get_avg_band_powers_with_quality (data, {2, 1, 0}, 128, false, options);
+    if (!result.valid || result.used_channels != std::vector<int> ({2, 0}) ||
+        result.rejected_channels != std::vector<int> ({1}) ||
+        result.quality[1].flags != BRAINFLOW_QUALITY_CLIPPED || data.at (1, 200) != 1000)
+        throw std::runtime_error ("Quality exclusion, channel identity or raw preservation failed");
+    auto expected = DataFilter::get_avg_band_powers (data, {2, 0}, 128, false);
+    std::unique_ptr<double[]> means (expected.first), variation (expected.second);
+    for (int i = 0; i < 5; ++i)
+        if (result.avg_band_powers[i] != means[i] || result.stddev_band_powers[i] != variation[i])
+            throw std::runtime_error ("Quality-aware calculation changed the accepted-channel DSP");
+    data.at (0, 100) = std::numeric_limits<double>::quiet_NaN ();
+    result = DataFilter::get_avg_band_powers_with_quality (data, {0, 1, 2}, 128, false, options);
+    if (result.valid || !result.avg_band_powers.empty () || !result.stddev_band_powers.empty ())
+        throw std::runtime_error ("Insufficient channels exposed usable powers");
+    auto quality = DataFilter::get_signal_quality (data, {0, 1, 2}, 128, options);
+    if (quality.quality[0].flags != BRAINFLOW_QUALITY_NONFINITE)
+        throw std::runtime_error ("Nonfinite diagnosis missing");
+    reject ([&] { DataFilter::get_signal_quality (data, {0, 0}, 128); });
+    reject ([&] { DataFilter::get_signal_quality (data, {-1}, 128); });
+    options.min_channels = 0;
+    reject (
+        [&] {
+            DataFilter::get_avg_band_powers_with_quality (data, {0, 1}, 128, false, options);
+        });
+}
+
+int main ()
+try
+{
+    quality_tests ();
     BrainFlowArray<double, 2> data (2, 256);
     reject ([&] { data.at (-1, 0); });
     reject ([&] { data.at (0, 256); });
@@ -108,4 +150,10 @@ int main ()
     reject ([&] { DataFilter::rereference_channels (reref_data, {0, 0}, {1}); });
 
     std::cout << "Signal-processing binding validation passed." << std::endl;
+    return 0;
+}
+catch (const std::exception &error)
+{
+    std::cerr << "Signal-processing binding validation failed: " << error.what () << std::endl;
+    return 1;
 }

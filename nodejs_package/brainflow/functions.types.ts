@@ -360,6 +360,10 @@ export enum DataHandlerCLikeFunctions {
         'int get_band_power (double *ampl, double *freq, int data_len, double freq_start, double freq_end, _Inout_ double *band_power)',
     get_custom_band_powers =
         'int get_custom_band_powers (double *raw_data, int rows, int cols, double *start_freqs, double *stop_freqs, int num_bands, int sampling_rate, int apply_filters, _Inout_ double *avg_band_powers, _Inout_ double *stddev_band_powers)',
+    get_signal_quality_flat =
+        'int get_signal_quality_flat (const double *data, int rows, int cols, int sampling_rate, int enable_clipping, double lower_bound, double upper_bound, double max_clipped_percentage, double flatline_tolerance, double max_flatline_seconds, int min_channels, _Out_ int *flags, _Out_ double *measurements)',
+    get_custom_band_powers_with_quality_flat =
+        'int get_custom_band_powers_with_quality_flat (const double *data, int rows, int cols, const double *start_freqs, const double *stop_freqs, int num_bands, int sampling_rate, int apply_filters, int enable_clipping, double lower_bound, double upper_bound, double max_clipped_percentage, double flatline_tolerance, double max_flatline_seconds, int min_channels, _Out_ double *avg_band_powers, _Out_ double *stddev_band_powers, _Out_ int *flags, _Out_ double *measurements, _Out_ int *valid)',
     get_oxygen_level =
         'int get_oxygen_level (double *ppg_ir, double *ppg_red, int data_size, int sampling_rate, double callib_coef1, double callib_coef2, double callib_coef3, _Inout_ double *oxygen_level)',
     get_heart_rate =
@@ -438,6 +442,16 @@ export class DataHandlerFunctions
     getCustomBandPowers!: (data: number[], rows: number, cols: number, startFreqs: number[],
         stopFreqs: number[], numBands: number, samplingRate: number, applyFilters: number,
         avgBandPowers: number[], stddevBandPowers: number[]) => BrainFlowExitCodes;
+    getSignalQuality!: (data: number[], rows: number, cols: number, samplingRate: number,
+        enableClipping: number, lowerBound: number, upperBound: number, maxClippedPercentage: number,
+        flatlineTolerance: number, maxFlatlineSeconds: number, minChannels: number,
+        flags: number[], measurements: number[]) => BrainFlowExitCodes;
+    getCustomBandPowersWithQuality!: (data: number[], rows: number, cols: number,
+        startFreqs: number[], stopFreqs: number[], numBands: number, samplingRate: number,
+        applyFilters: number, enableClipping: number, lowerBound: number, upperBound: number,
+        maxClippedPercentage: number, flatlineTolerance: number, maxFlatlineSeconds: number,
+        minChannels: number, avgBandPowers: number[], stddevBandPowers: number[],
+        flags: number[], measurements: number[], valid: number[]) => BrainFlowExitCodes;
     getOxygenLevel!: (ppgIr: number[], ppgRed: number[], dataSize: number, samplingRate: number,
         callibCoef1: number, callibCoef2: number, callibCoef3: number,
         oxygenLevel: number[]) => BrainFlowExitCodes;

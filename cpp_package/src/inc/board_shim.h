@@ -39,18 +39,21 @@ public:
     /**
      * get board description as json
      * @param board_id board id of your device
+     * @param preset data preset from BrainFlowPresets
      * @throw BrainFlowException If board id is not valid exit code is UNSUPPORTED_BOARD_ERROR
      */
     static json get_board_descr (int board_id, int preset = (int)BrainFlowPresets::DEFAULT_PRESET);
     /**
      * get sampling rate for this board
      * @param board_id board id of your device
+     * @param preset data preset from BrainFlowPresets
      * @throw BrainFlowException If this board has no such data exit code is UNSUPPORTED_BOARD_ERROR
      */
     static int get_sampling_rate (int board_id, int preset = (int)BrainFlowPresets::DEFAULT_PRESET);
     /**
      * get row index which holds package nums
      * @param board_id board id of your device
+     * @param preset data preset from BrainFlowPresets
      * @throw BrainFlowException If this board has no such data exit code is UNSUPPORTED_BOARD_ERROR
      */
     static int get_package_num_channel (
@@ -58,6 +61,7 @@ public:
     /**
      * get row index which holds timestamps
      * @param board_id board id of your device
+     * @param preset data preset from BrainFlowPresets
      * @throw BrainFlowException If this board has no such data exit code is UNSUPPORTED_BOARD_ERROR
      */
     static int get_timestamp_channel (
@@ -65,6 +69,7 @@ public:
     /**
      * get row index which holds markers
      * @param board_id board id of your device
+     * @param preset data preset from BrainFlowPresets
      * @throw BrainFlowException If this board has no such data exit code is UNSUPPORTED_BOARD_ERROR
      */
     static int get_marker_channel (
@@ -72,6 +77,7 @@ public:
     /**
      * get row index which holds battery level info
      * @param board_id board id of your device
+     * @param preset data preset from BrainFlowPresets
      * @throw BrainFlowException If this board has no such data exit code is UNSUPPORTED_BOARD_ERROR
      */
     static int get_battery_channel (
@@ -79,12 +85,14 @@ public:
     /**
      * get number of rows in returned from @ref get_board_data() 2d array
      * @param board_id board id of your device
+     * @param preset data preset from BrainFlowPresets
      * @throw BrainFlowException If this board has no such data exit code is UNSUPPORTED_BOARD_ERROR
      */
     static int get_num_rows (int board_id, int preset = (int)BrainFlowPresets::DEFAULT_PRESET);
     /**
      * get device name
      * @param board_id board id of your device
+     * @param preset data preset from BrainFlowPresets
      * @throw BrainFlowException If this board has no such data exit code is UNSUPPORTED_BOARD_ERROR
      */
     static std::string get_device_name (
@@ -92,34 +100,39 @@ public:
     /**
      * get eeg channel names in 10-20 system for devices with fixed electrode locations
      * @param board_id board id of your device
+     * @param preset data preset from BrainFlowPresets
      * @throw BrainFlowException If this board has no such data exit code is UNSUPPORTED_BOARD_ERROR
      */
     static std::vector<std::string> get_eeg_names (
         int board_id, int preset = (int)BrainFlowPresets::DEFAULT_PRESET);
     /**
-     * get row indices which hold EEG data, for some board we can not split EEG\EMG\...
+     * get row indices which hold EEG data, for some board we can not split EEG, EMG, and other EXG signals
      * @param board_id board id of your device
+     * @param preset data preset from BrainFlowPresets
      * @throw BrainFlowException If this board has no such data exit code is UNSUPPORTED_BOARD_ERROR
      */
     static std::vector<int> get_eeg_channels (
         int board_id, int preset = (int)BrainFlowPresets::DEFAULT_PRESET);
     /**
-     * get row indices which hold EMG data, for some board we can not split EEG\EMG\...
+     * get row indices which hold EMG data, for some board we can not split EEG, EMG, and other EXG signals
      * @param board_id board id of your device
+     * @param preset data preset from BrainFlowPresets
      * @throw BrainFlowException If this board has no such data exit code is UNSUPPORTED_BOARD_ERROR
      */
     static std::vector<int> get_emg_channels (
         int board_id, int preset = (int)BrainFlowPresets::DEFAULT_PRESET);
     /**
-     * get row indices which hold ECG data, for some board we can not split EEG\EMG\...
+     * get row indices which hold ECG data, for some board we can not split EEG, EMG, and other EXG signals
      * @param board_id board id of your device
+     * @param preset data preset from BrainFlowPresets
      * @throw BrainFlowException If this board has no such data exit code is UNSUPPORTED_BOARD_ERROR
      */
     static std::vector<int> get_ecg_channels (
         int board_id, int preset = (int)BrainFlowPresets::DEFAULT_PRESET);
     /**
-     * get row indices which hold EOG data, for some board we can not split EEG\EMG\...
+     * get row indices which hold EOG data, for some board we can not split EEG, EMG, and other EXG signals
      * @param board_id board id of your device
+     * @param preset data preset from BrainFlowPresets
      * @throw BrainFlowException If this board has no such data exit code is UNSUPPORTED_BOARD_ERROR
      */
     static std::vector<int> get_eog_channels (
@@ -127,6 +140,7 @@ public:
     /**
      * get row indices which hold EXG data
      * @param board_id board id of your device
+     * @param preset data preset from BrainFlowPresets
      * @throw BrainFlowException If this board has no such data exit code is UNSUPPORTED_BOARD_ERROR
      */
     static std::vector<int> get_exg_channels (
@@ -134,6 +148,7 @@ public:
     /**
      * get row indices which hold PPG data
      * @param board_id board id of your device
+     * @param preset data preset from BrainFlowPresets
      * @throw BrainFlowException If this board has no such data exit code is UNSUPPORTED_BOARD_ERROR
      */
     static std::vector<int> get_ppg_channels (
@@ -141,6 +156,7 @@ public:
     /**
      * get row indices which hold optical data
      * @param board_id board id of your device
+     * @param preset data preset from BrainFlowPresets
      * @throw BrainFlowException If this board has no such data exit code is UNSUPPORTED_BOARD_ERROR
      */
     static std::vector<int> get_optical_channels (
@@ -148,6 +164,7 @@ public:
     /**
      * get row indices which hold EDA data
      * @param board_id board id of your device
+     * @param preset data preset from BrainFlowPresets
      * @throw BrainFlowException If this board has no such data exit code is UNSUPPORTED_BOARD_ERROR
      */
     static std::vector<int> get_eda_channels (
@@ -155,6 +172,7 @@ public:
     /**
      * get row indices which hold accel data
      * @param board_id board id of your device
+     * @param preset data preset from BrainFlowPresets
      * @throw BrainFlowException If this board has no such data exit code is UNSUPPORTED_BOARD_ERROR
      */
     static std::vector<int> get_accel_channels (
@@ -162,6 +180,7 @@ public:
     /**
      * get row indices which hold rotation data
      * @param board_id board id of your device
+     * @param preset data preset from BrainFlowPresets
      * @throw BrainFlowException If this board has no such data exit code is UNSUPPORTED_BOARD_ERROR
      */
     static std::vector<int> get_rotation_channels (
@@ -169,6 +188,7 @@ public:
     /**
      * get row indices which hold rotation calib data
      * @param board_id board id of your device
+     * @param preset data preset from BrainFlowPresets
      * @throw BrainFlowException If this board has no such data exit code is UNSUPPORTED_BOARD_ERROR
      */
     static std::vector<int> get_analog_channels (
@@ -176,6 +196,7 @@ public:
     /**
      * get row indices which hold gyro data
      * @param board_id board id of your device
+     * @param preset data preset from BrainFlowPresets
      * @throw BrainFlowException If this board has no such data exit code is UNSUPPORTED_BOARD_ERROR
      */
     static std::vector<int> get_gyro_channels (
@@ -183,6 +204,7 @@ public:
     /**
      * get row indices which hold other information
      * @param board_id board id of your device
+     * @param preset data preset from BrainFlowPresets
      * @throw BrainFlowException If this board has no such data exit code is UNSUPPORTED_BOARD_ERROR
      */
     static std::vector<int> get_other_channels (
@@ -190,6 +212,7 @@ public:
     /**
      * get row indices which hold temperature data
      * @param board_id board id of your device
+     * @param preset data preset from BrainFlowPresets
      * @throw BrainFlowException If this board has no such data exit code is UNSUPPORTED_BOARD_ERROR
      */
     static std::vector<int> get_temperature_channels (
@@ -197,6 +220,7 @@ public:
     /**
      * get row indices which hold resistance data
      * @param board_id board id of your device
+     * @param preset data preset from BrainFlowPresets
      * @throw BrainFlowException If this board has no such data exit code is UNSUPPORTED_BOARD_ERROR
      */
     static std::vector<int> get_resistance_channels (
@@ -204,6 +228,7 @@ public:
     /**
      * get row indices which hold magnetometer data
      * @param board_id board id of your device
+     * @param preset data preset from BrainFlowPresets
      * @throw BrainFlowException If this board has no such data exit code is UNSUPPORTED_BOARD_ERROR
      */
     static std::vector<int> get_magnetometer_channels (
@@ -231,6 +256,7 @@ public:
     /**
      * start streaming thread and store data in ringbuffer
      * @param buffer_size size of internal ring buffer
+     * @param streamer_params optional streamer configuration, as in add_streamer
      */
     void start_stream (int buffer_size = 450000, std::string streamer_params = "");
     /**
@@ -239,6 +265,7 @@ public:
      streaming, supported values: "file://%file_name%:w", "file://%file_name%:a",
      "streaming_board://%multicast_group_ip%:%port%"". Range for multicast addresses is from
      "224.0.0.0" to "239.255.255.255"
+     * @param preset data preset from BrainFlowPresets
      */
     void add_streamer (
         std::string streamer_params, int preset = (int)BrainFlowPresets::DEFAULT_PRESET);
@@ -248,6 +275,7 @@ public:
      streaming, supported values: "file://%file_name%:w", "file://%file_name%:a",
      "streaming_board://%multicast_group_ip%:%port%"". Range for multicast addresses is from
      "224.0.0.0" to "239.255.255.255"
+     * @param preset data preset from BrainFlowPresets
      */
     void delete_streamer (
         std::string streamer_params, int preset = (int)BrainFlowPresets::DEFAULT_PRESET);

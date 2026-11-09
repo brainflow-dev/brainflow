@@ -260,7 +260,7 @@ class MLModel(object):
 
         :return: version
         :rtype: str
-        :raises BrainFlowError
+        :raises BrainFlowError: If the version cannot be retrieved.
         """
         string = numpy.zeros(64).astype(numpy.ubyte)
         string_len = numpy.zeros(1).astype(numpy.int32)
@@ -287,7 +287,7 @@ class MLModel(object):
         """calculate metric from data
 
         :param data: finite one-dimensional input, converted to contiguous float64
-        :type data: NDArray[Shape["*"], Float64]
+        :type data: ``NDArray[Shape["*"], Float64]``
         :return: metric value
         :rtype: List
         """

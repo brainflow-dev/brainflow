@@ -2,6 +2,48 @@
 
 #![allow(non_camel_case_types)]
 
+use std::os::raw::c_int;
+
+extern "C" {
+    pub fn get_signal_quality_flat(
+        data: *const f64,
+        rows: c_int,
+        cols: c_int,
+        sampling_rate: c_int,
+        enable_clipping: c_int,
+        lower_bound: f64,
+        upper_bound: f64,
+        max_clipped_percentage: f64,
+        flatline_tolerance: f64,
+        max_flatline_seconds: f64,
+        min_channels: c_int,
+        flags: *mut c_int,
+        measurements: *mut f64,
+    ) -> c_int;
+
+    pub fn get_custom_band_powers_with_quality_flat(
+        data: *const f64,
+        rows: c_int,
+        cols: c_int,
+        start_freqs: *const f64,
+        stop_freqs: *const f64,
+        num_bands: c_int,
+        sampling_rate: c_int,
+        apply_filters: c_int,
+        enable_clipping: c_int,
+        lower_bound: f64,
+        upper_bound: f64,
+        max_clipped_percentage: f64,
+        flatline_tolerance: f64,
+        max_flatline_seconds: f64,
+        min_channels: c_int,
+        avg_band_powers: *mut f64,
+        stddev_band_powers: *mut f64,
+        flags: *mut c_int,
+        measurements: *mut f64,
+        valid: *mut c_int,
+    ) -> c_int;
+}
 
 extern "C" {
     pub fn perform_inverse_wavelet_transform_checked(

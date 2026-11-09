@@ -1346,7 +1346,7 @@ class BoardShim(object):
         :param preset: preset
         :type preset: int
         :return: latest data from a board
-        :rtype: NDArray[Shape["*, *"], Float64]
+        :rtype: ``NDArray[Shape["*, *"], Float64]``
         """
 
         package_length = BoardShim.get_num_rows(self._master_board_id, preset)
@@ -1441,7 +1441,7 @@ class BoardShim(object):
         :param preset: preset
         :type preset: int
         :return: all data from a board if num_samples is None, num_samples packages or less if not None
-        :rtype: NDArray[Shape["*, *"], Float64]
+        :rtype: ``NDArray[Shape["*, *"], Float64]``
         """
 
         data_size = self.get_board_data_count(preset)

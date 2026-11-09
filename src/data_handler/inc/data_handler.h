@@ -2,6 +2,39 @@
 
 #include "shared_export.h"
 
+// Version 1 quality policy. Bounds/tolerance use the input's units, not ADC counts.
+// Initialize struct_size=sizeof(BrainFlowSignalQualityParams), version=1.
+typedef struct BrainFlowSignalQualityParams
+{
+    int struct_size;
+    int version;
+    int enable_clipping;
+    double lower_bound;
+    double upper_bound;
+    double max_clipped_percentage; // Reject strictly above this percentage (0 rejects any).
+    double flatline_tolerance;
+    double max_flatline_seconds; // Reject a run >= this duration; 0 disables rejection.
+    int min_channels;            // Used by the band-power API only.
+} BrainFlowSignalQualityParams;
+
+enum BrainFlowSignalQualityFlags
+{
+    BRAINFLOW_QUALITY_GOOD = 0,
+    BRAINFLOW_QUALITY_NONFINITE = 1,
+    BRAINFLOW_QUALITY_CLIPPED = 2,
+    BRAINFLOW_QUALITY_FLATLINE = 4
+};
+
+// One report per input row, in the same order. Flags are a bit mask.
+typedef struct BrainFlowChannelQuality
+{
+    int flags;
+    double nonfinite_percentage;
+    double clipped_percentage;       // 0 when clipping is disabled, not a checked-clean assertion.
+    double flatline_percentage;      // Qualifying adjacent pairs / (cols - 1), including gaps.
+    double longest_flatline_seconds; // Qualifying consecutive intervals / sampling_rate.
+} BrainFlowChannelQuality;
+
 #ifdef __cplusplus
 extern "C"
 {
@@ -82,12 +115,53 @@ extern "C"
         int rows, int cols, double *start_freqs, double *stop_freqs, int num_bands,
         int sampling_rate, int apply_filters, int nfft, double low_cutoff, double high_cutoff,
         int mains, int detrend_operation, double *avg_band_powers, double *stddev_band_powers);
+    // Reusable, bounded batch workspace. workers=0 chooses up to four persistent workers;
+    // workers=1 is serial. Calls on the same handle serialize; separate handles are independent.
+    SHARED_EXPORT int CALLING_CONVENTION create_band_power_context (int max_channels,
+        int max_samples, const double *start_freqs, const double *stop_freqs, int num_bands,
+        int sampling_rate, int apply_filters, int nfft, double low_cutoff, double high_cutoff,
+        int mains, int detrend_operation, int workers, int *handle);
+    // Input is channel-major; stride and all capacities count doubles. channels select source rows.
+    // Outputs have num_bands entries and are unchanged on failure. Input is never modified.
+    SHARED_EXPORT int CALLING_CONVENTION process_band_power_context (int handle, const double *data,
+        int data_capacity, int rows, int samples, int stride, const int *channels, int num_channels,
+        double *averages, double *deviations, int output_capacity);
+    SHARED_EXPORT int CALLING_CONVENTION release_band_power_context (int handle);
+
     SHARED_EXPORT int CALLING_CONVENTION get_railed_percentage (
         double *raw_data, int data_len, int gain, double *output);
     SHARED_EXPORT int CALLING_CONVENTION get_clipping_percentage (
         const double *data, int data_len, double lower_bound, double upper_bound, double *output);
     SHARED_EXPORT int CALLING_CONVENTION get_flatline_percentage (
         const double *data, int data_len, double tolerance, double *output);
+    // Inspect raw row-major samples without modifying them. output has rows entries.
+    // Nonfinite values reject their channel but do not make the API call fail.
+    SHARED_EXPORT int CALLING_CONVENTION get_signal_quality (const double *data, int rows, int cols,
+        int sampling_rate, const BrainFlowSignalQualityParams *params,
+        BrainFlowChannelQuality *output);
+    // Same DSP as get_custom_band_powers, using only whole channels with flags==0.
+    // On STATUS_OK, valid=0 means too few accepted channels or zero total band power:
+    // powers/variation are NaN. Count flags==0 to distinguish these conditions.
+    // Reports are returned even in this case. Malformed API inputs still return errors.
+    SHARED_EXPORT int CALLING_CONVENTION get_custom_band_powers_with_quality (const double *data,
+        int rows, int cols, const double *start_freqs, const double *stop_freqs, int num_bands,
+        int sampling_rate, int apply_filters, const BrainFlowSignalQualityParams *params,
+        double *avg_band_powers, double *stddev_band_powers, BrainFlowChannelQuality *quality,
+        int *valid);
+    // Primitive-buffer variants for FFIs that cannot marshal arrays of C structs.
+    // flags has rows entries. measurements has four doubles per row, in this order:
+    // nonfinite percentage, clipped percentage, flatline percentage, longest flatline seconds.
+    SHARED_EXPORT int CALLING_CONVENTION get_signal_quality_flat (const double *data, int rows,
+        int cols, int sampling_rate, int enable_clipping, double lower_bound, double upper_bound,
+        double max_clipped_percentage, double flatline_tolerance, double max_flatline_seconds,
+        int min_channels, int *flags, double *measurements);
+    SHARED_EXPORT int CALLING_CONVENTION get_custom_band_powers_with_quality_flat (
+        const double *data, int rows, int cols, const double *start_freqs, const double *stop_freqs,
+        int num_bands, int sampling_rate, int apply_filters, int enable_clipping,
+        double lower_bound, double upper_bound, double max_clipped_percentage,
+        double flatline_tolerance, double max_flatline_seconds, int min_channels,
+        double *avg_band_powers, double *stddev_band_powers, int *flags, double *measurements,
+        int *valid);
     SHARED_EXPORT int CALLING_CONVENTION get_oxygen_level (double *ppg_ir, double *ppg_red,
         int data_size, int sampling_rate, double callib_coef1, double callib_coef2,
         double callib_coef3, double *oxygen_level);

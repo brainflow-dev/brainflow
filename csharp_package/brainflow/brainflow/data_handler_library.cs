@@ -117,6 +117,18 @@ namespace brainflow
 
     class DataHandlerLibrary64
     {
+        [DllImport ("DataHandler", CallingConvention = CallingConvention.Cdecl)]
+        internal static extern int get_signal_quality_flat (double[] data, int rows, int cols, int sampling_rate,
+            int enable_clipping, double lower_bound, double upper_bound, double max_clipped_percentage,
+            double flatline_tolerance, double max_flatline_seconds, int min_channels, [Out] int[] flags,
+            [Out] double[] measurements);
+        [DllImport ("DataHandler", CallingConvention = CallingConvention.Cdecl)]
+        internal static extern int get_custom_band_powers_with_quality_flat (double[] data, int rows, int cols,
+            double[] starts, double[] stops, int num_bands, int sampling_rate, int apply_filters,
+            int enable_clipping, double lower_bound, double upper_bound, double max_clipped_percentage,
+            double flatline_tolerance, double max_flatline_seconds, int min_channels, [Out] double[] avgs,
+            [Out] double[] stddevs, [Out] int[] flags, [Out] double[] measurements, out int valid);
+
         [DllImport ("DataHandler", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int set_log_file_data_handler (string log_file);
         [DllImport ("DataHandler", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
@@ -139,6 +151,12 @@ namespace brainflow
         public static extern int write_file (double[] data, int num_rows, int num_cols, string file_name, string file_mode);
         [DllImport ("DataHandler", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int read_file (double[] data, int[] num_rows, int[] num_cols, string file_name, int max_elements);
+        [DllImport ("DataHandler", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        public static extern int create_band_power_context (int max_channels, int max_samples, double[] starts, double[] stops, int bands, int fs, int apply, int nfft, double low, double high, int mains, int detrend, int workers, int[] handle);
+        [DllImport ("DataHandler", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        public static extern int process_band_power_context (int handle, double[,] data, int capacity, int rows, int samples, int stride, int[] channels, int count, double[] averages, double[] deviations, int output_capacity);
+        [DllImport ("DataHandler", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        public static extern int release_band_power_context (int handle);
         [DllImport ("DataHandler", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int get_num_elements_in_file (string file_name, int[] num_elements);
         [DllImport ("DataHandler", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
@@ -233,6 +251,18 @@ namespace brainflow
 
     class DataHandlerLibrary32
     {
+        [DllImport ("DataHandler32", CallingConvention = CallingConvention.Cdecl)]
+        internal static extern int get_signal_quality_flat (double[] data, int rows, int cols, int sampling_rate,
+            int enable_clipping, double lower_bound, double upper_bound, double max_clipped_percentage,
+            double flatline_tolerance, double max_flatline_seconds, int min_channels, [Out] int[] flags,
+            [Out] double[] measurements);
+        [DllImport ("DataHandler32", CallingConvention = CallingConvention.Cdecl)]
+        internal static extern int get_custom_band_powers_with_quality_flat (double[] data, int rows, int cols,
+            double[] starts, double[] stops, int num_bands, int sampling_rate, int apply_filters,
+            int enable_clipping, double lower_bound, double upper_bound, double max_clipped_percentage,
+            double flatline_tolerance, double max_flatline_seconds, int min_channels, [Out] double[] avgs,
+            [Out] double[] stddevs, [Out] int[] flags, [Out] double[] measurements, out int valid);
+
         [DllImport ("DataHandler32", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int set_log_file_data_handler (string log_file);
         [DllImport ("DataHandler32", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
@@ -255,6 +285,12 @@ namespace brainflow
         public static extern int write_file (double[] data, int num_rows, int num_cols, string file_name, string file_mode);
         [DllImport ("DataHandler32", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int read_file (double[] data, int[] num_rows, int[] num_cols, string file_name, int max_elements);
+        [DllImport ("DataHandler32", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        public static extern int create_band_power_context (int max_channels, int max_samples, double[] starts, double[] stops, int bands, int fs, int apply, int nfft, double low, double high, int mains, int detrend, int workers, int[] handle);
+        [DllImport ("DataHandler32", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        public static extern int process_band_power_context (int handle, double[,] data, int capacity, int rows, int samples, int stride, int[] channels, int count, double[] averages, double[] deviations, int output_capacity);
+        [DllImport ("DataHandler32", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        public static extern int release_band_power_context (int handle);
         [DllImport ("DataHandler32", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int get_num_elements_in_file (string file_name, int[] num_elements);
         [DllImport ("DataHandler32", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
@@ -349,6 +385,47 @@ namespace brainflow
 
     class DataHandlerLibrary
     {
+        internal static int get_signal_quality (double[] data, int rows, int cols, int sampling_rate,
+            SignalQualityOptions options, int[] flags, double[] measurements)
+        {
+            int clipping = options.enable_clipping ? 1 : 0;
+            switch (PlatformHelper.get_library_environment ())
+            {
+                case LibraryEnvironment.x64:
+                    return DataHandlerLibrary64.get_signal_quality_flat (data, rows, cols, sampling_rate,
+                        clipping, options.lower_bound, options.upper_bound, options.max_clipped_percentage,
+                        options.flatline_tolerance, options.max_flatline_seconds, options.min_channels, flags, measurements);
+                case LibraryEnvironment.x86:
+                    return DataHandlerLibrary32.get_signal_quality_flat (data, rows, cols, sampling_rate,
+                        clipping, options.lower_bound, options.upper_bound, options.max_clipped_percentage,
+                        options.flatline_tolerance, options.max_flatline_seconds, options.min_channels, flags, measurements);
+            }
+            return (int)BrainFlowExitCodes.GENERAL_ERROR;
+        }
+
+        internal static int get_custom_band_powers_with_quality (double[] data, int rows, int cols,
+            double[] starts, double[] stops, int sampling_rate, bool apply_filters, SignalQualityOptions options,
+            double[] avgs, double[] stddevs, int[] flags, double[] measurements, out int valid)
+        {
+            int filters = apply_filters ? 1 : 0;
+            int clipping = options.enable_clipping ? 1 : 0;
+            switch (PlatformHelper.get_library_environment ())
+            {
+                case LibraryEnvironment.x64:
+                    return DataHandlerLibrary64.get_custom_band_powers_with_quality_flat (data, rows, cols,
+                        starts, stops, starts.Length, sampling_rate, filters, clipping, options.lower_bound,
+                        options.upper_bound, options.max_clipped_percentage, options.flatline_tolerance,
+                        options.max_flatline_seconds, options.min_channels, avgs, stddevs, flags, measurements, out valid);
+                case LibraryEnvironment.x86:
+                    return DataHandlerLibrary32.get_custom_band_powers_with_quality_flat (data, rows, cols,
+                        starts, stops, starts.Length, sampling_rate, filters, clipping, options.lower_bound,
+                        options.upper_bound, options.max_clipped_percentage, options.flatline_tolerance,
+                        options.max_flatline_seconds, options.min_channels, avgs, stddevs, flags, measurements, out valid);
+            }
+            valid = 0;
+            return (int)BrainFlowExitCodes.GENERAL_ERROR;
+        }
+
         public static int set_log_level_data_handler (int log_level)
         {
             switch (PlatformHelper.get_library_environment ())
@@ -542,6 +619,42 @@ namespace brainflow
                     return DataHandlerLibrary32.perform_downsampling (data, len, period, operation, filtered_data);
             }
 
+            return (int)BrainFlowExitCodes.GENERAL_ERROR;
+        }
+
+        public static int create_band_power_context (int max_channels, int max_samples, double[] starts, double[] stops, int bands, int fs, int apply, int nfft, double low, double high, int mains, int detrend, int workers, int[] handle)
+        {
+            switch (PlatformHelper.get_library_environment ())
+            {
+                case LibraryEnvironment.x64:
+                    return DataHandlerLibrary64.create_band_power_context (max_channels, max_samples, starts, stops, bands, fs, apply, nfft, low, high, mains, detrend, workers, handle);
+                case LibraryEnvironment.x86:
+                    return DataHandlerLibrary32.create_band_power_context (max_channels, max_samples, starts, stops, bands, fs, apply, nfft, low, high, mains, detrend, workers, handle);
+            }
+            return (int)BrainFlowExitCodes.GENERAL_ERROR;
+        }
+
+        public static int process_band_power_context (int handle, double[,] data, int capacity, int rows, int samples, int stride, int[] channels, int count, double[] averages, double[] deviations, int output_capacity)
+        {
+            switch (PlatformHelper.get_library_environment ())
+            {
+                case LibraryEnvironment.x64:
+                    return DataHandlerLibrary64.process_band_power_context (handle, data, capacity, rows, samples, stride, channels, count, averages, deviations, output_capacity);
+                case LibraryEnvironment.x86:
+                    return DataHandlerLibrary32.process_band_power_context (handle, data, capacity, rows, samples, stride, channels, count, averages, deviations, output_capacity);
+            }
+            return (int)BrainFlowExitCodes.GENERAL_ERROR;
+        }
+
+        public static int release_band_power_context (int handle)
+        {
+            switch (PlatformHelper.get_library_environment ())
+            {
+                case LibraryEnvironment.x64:
+                    return DataHandlerLibrary64.release_band_power_context (handle);
+                case LibraryEnvironment.x86:
+                    return DataHandlerLibrary32.release_band_power_context (handle);
+            }
             return (int)BrainFlowExitCodes.GENERAL_ERROR;
         }
 

@@ -1,6 +1,7 @@
 #include <cstdarg>
 #include <limits>
 #include <memory>
+#include <set>
 #include <stdlib.h>
 #include <string.h>
 
@@ -245,11 +246,11 @@ std::vector<double> DataFilter::perform_inverse_wavelet_transform (
 }
 
 void DataFilter::perform_wavelet_denoising (double *data, int data_len, int wavelet,
-    int decomposition_level, int wavelet_denoising, int threshold, int extenstion_type,
+    int decomposition_level, int wavelet_denoising, int threshold, int extension_type,
     int noise_level)
 {
     int res = ::perform_wavelet_denoising (data, data_len, wavelet, decomposition_level,
-        wavelet_denoising, threshold, extenstion_type, noise_level);
+        wavelet_denoising, threshold, extension_type, noise_level);
     if (res != (int)BrainFlowExitCodes::STATUS_OK)
     {
         throw BrainFlowException ("failed to perform wavelet denoising", res);
@@ -426,6 +427,115 @@ std::pair<double *, double *> DataFilter::get_custom_band_powers (
         throw BrainFlowException ("failed to get custom band powers", res);
     }
     return std::make_pair (avg_bands.release (), stddev_bands.release ());
+}
+
+namespace
+{
+    BrainFlowSignalQualityParams quality_params (const SignalQualityOptions &options)
+    {
+        BrainFlowSignalQualityParams p = {};
+        p.struct_size = sizeof (p);
+        p.version = 1;
+        p.enable_clipping = options.enable_clipping ? 1 : 0;
+        p.lower_bound = options.lower_bound;
+        p.upper_bound = options.upper_bound;
+        p.max_clipped_percentage = options.max_clipped_percentage;
+        p.flatline_tolerance = options.flatline_tolerance;
+        p.max_flatline_seconds = options.max_flatline_seconds;
+        p.min_channels = options.min_channels;
+        return p;
+    }
+
+    std::vector<double> quality_input (
+        const BrainFlowArray<double, 2> &data, const std::vector<int> &channels)
+    {
+        validate_channels (data, channels);
+        if (std::set<int> (channels.begin (), channels.end ()).size () != channels.size ())
+            throw BrainFlowException (
+                "duplicate channels", (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR);
+        const int cols = data.get_size (1);
+        std::vector<double> input ((size_t)cols * channels.size ());
+        for (size_t i = 0; i < channels.size (); ++i)
+            std::copy (data.get_address (channels[i]), data.get_address (channels[i]) + cols,
+                input.begin () + i * cols);
+        return input;
+    }
+
+    void quality_channels (SignalQualityResult &result)
+    {
+        for (size_t i = 0; i < result.channels.size (); ++i)
+            (result.quality[i].flags ? result.rejected_channels : result.used_channels)
+                .push_back (result.channels[i]);
+    }
+}
+
+SignalQualityResult DataFilter::get_signal_quality (const BrainFlowArray<double, 2> &data,
+    std::vector<int> channels, int sampling_rate, const SignalQualityOptions &options)
+{
+    auto input = quality_input (data, channels);
+    auto params = quality_params (options);
+    SignalQualityResult result;
+    result.channels = channels;
+    result.quality.resize (channels.size ());
+    int ec = ::get_signal_quality (input.data (), (int)channels.size (), data.get_size (1),
+        sampling_rate, &params, result.quality.data ());
+    if (ec != (int)BrainFlowExitCodes::STATUS_OK)
+        throw BrainFlowException ("failed to calculate signal quality", ec);
+    quality_channels (result);
+    return result;
+}
+
+BandPowerQualityResult DataFilter::get_custom_band_powers_with_quality (
+    const BrainFlowArray<double, 2> &data, std::vector<std::pair<double, double>> bands,
+    std::vector<int> channels, int sampling_rate, bool apply_filters,
+    const SignalQualityOptions &options)
+{
+    auto input = quality_input (data, channels);
+    if (bands.empty () || bands.size () > (size_t)(std::numeric_limits<int>::max) ())
+        throw BrainFlowException (
+            "invalid bands", (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR);
+    auto params = quality_params (options);
+    BandPowerQualityResult result;
+    result.channels = channels;
+    result.quality.resize (channels.size ());
+    result.avg_band_powers.resize (bands.size ());
+    result.stddev_band_powers.resize (bands.size ());
+    std::vector<double> starts, stops;
+    for (const auto &band : bands)
+    {
+        starts.push_back (band.first);
+        stops.push_back (band.second);
+    }
+    int valid = 0;
+    int ec = ::get_custom_band_powers_with_quality (input.data (), (int)channels.size (),
+        data.get_size (1), starts.data (), stops.data (), (int)bands.size (), sampling_rate,
+        apply_filters ? 1 : 0, &params, result.avg_band_powers.data (),
+        result.stddev_band_powers.data (), result.quality.data (), &valid);
+    if (ec != (int)BrainFlowExitCodes::STATUS_OK)
+        throw BrainFlowException ("failed to calculate quality-aware band powers", ec);
+    result.valid = valid != 0;
+    if (!result.valid)
+    {
+        result.avg_band_powers.clear ();
+        result.stddev_band_powers.clear ();
+    }
+    quality_channels (result);
+    if (result.valid)
+        result.reason = "ok";
+    else if (result.used_channels.size () < (size_t)options.min_channels)
+        result.reason = "insufficient_channels";
+    else
+        result.reason = "no_band_power";
+    return result;
+}
+
+BandPowerQualityResult DataFilter::get_avg_band_powers_with_quality (
+    const BrainFlowArray<double, 2> &data, std::vector<int> channels, int sampling_rate,
+    bool apply_filters, const SignalQualityOptions &options)
+{
+    return get_custom_band_powers_with_quality (data,
+        {{2.0, 4.0}, {4.0, 8.0}, {8.0, 13.0}, {13.0, 30.0}, {30.0, 45.0}}, channels, sampling_rate,
+        apply_filters, options);
 }
 
 double DataFilter::get_band_power (

@@ -6,6 +6,8 @@ Swift API Parity
 Swift mirrors the public Python and Java API shape, with Swift-native signatures where required by
 the language.
 
+For native library setup and iOS/macOS app integration, see :ref:`swift-installation-label`.
+
 BoardShim
 ----------
 
@@ -31,6 +33,8 @@ Implemented:
   noise removal, rolling filter, and detrend.
 - Transforms and features: downsampling, wavelet transform/inverse/denoising, CSP, windowing,
   FFT/IFFT, PSD/Welch, band powers, and ICA.
+- Signal quality checks and band powers over accepted channels use :code:`SignalQualityOptions`.
+  See :ref:`quality-aware-band-powers-label` for the result and policy fields.
 - Helpers: standard deviation, railed percentage, oxygen level, heart rate, peak detection,
   nearest power of two, file I/O, reshape helpers, logging, and version.
 
@@ -48,11 +52,3 @@ Implemented:
 - Logger controls
 - :code:`release_all`
 - :code:`get_version`
-
-Packaging Notes
----------------
-
-- Runtime calls require native BrainFlow libraries to be available through
-  :code:`BRAINFLOW_LIB_DIR`, system loader paths, :code:`installed/lib`, or app bundle resources.
-- iOS execution depends on shipping BrainFlow native binaries compiled for iOS. The Swift API
-  compiles for iOS, but native libraries still determine runtime support.

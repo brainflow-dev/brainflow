@@ -59,14 +59,14 @@ namespace band_power_helpers
         return true;
     }
 
-    inline bool filter_with_padding (
-        std::vector<double> &data, const std::vector<Section> &sections, int guard)
+    inline bool filter_with_padding (std::vector<double> &data,
+        const std::vector<Section> &sections, int guard, std::vector<double> &padded)
     {
         if (data.empty () || guard < 0)
             return false;
         const size_t pad = std::min ((size_t)guard, data.size () - 1);
         const size_t size = data.size ();
-        std::vector<double> padded (size + 2 * pad);
+        padded.resize (size + 2 * pad);
         std::copy (data.begin (), data.end (), padded.begin () + pad);
         for (size_t i = 0; i < pad; i++)
         {
@@ -85,5 +85,12 @@ namespace band_power_helpers
         std::reverse (padded.begin (), padded.end ());
         std::copy (padded.begin () + pad, padded.begin () + pad + size, data.begin ());
         return true;
+    }
+
+    inline bool filter_with_padding (
+        std::vector<double> &data, const std::vector<Section> &sections, int guard)
+    {
+        std::vector<double> padded;
+        return filter_with_padding (data, sections, guard, padded);
     }
 }
