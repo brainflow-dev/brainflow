@@ -261,6 +261,9 @@ jobs:
     # start testing
     - name: Run unit tests
       run: $GITHUB_WORKSPACE/build/tests/brainflow_tests
+    - name: BrainVision RDA emulator
+      if: runner.os == 'Linux'
+      run: python3 $GITHUB_WORKSPACE/emulator/brainflow_emulator/brainvision_rda_test.py $GITHUB_WORKSPACE/installed/lib/libBoardController.so
     - name: Synthetic C# Test MacOS
       if: runner.os == 'macOS'
       run: |

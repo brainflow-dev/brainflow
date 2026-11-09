@@ -35,6 +35,8 @@ public:
     int connect ();
     int send (const char *data, int size);
     int recv (void *data, int size);
+    // Interrupt a blocked receive without closing/reusing its descriptor before the reader joins.
+    void shutdown ();
     void close ();
     int get_local_ip_addr (const char *local_ip);
     char *get_ip_addr ()

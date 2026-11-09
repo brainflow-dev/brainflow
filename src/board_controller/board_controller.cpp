@@ -26,6 +26,7 @@
 #include "brainflow_constants.h"
 #include "brainflow_input_params.h"
 #include "brainflow_version.h"
+#include "brainvision_rda.h"
 #include "callibri_ecg.h"
 #include "callibri_eeg.h"
 #include "callibri_emg.h"
@@ -314,6 +315,9 @@ int prepare_session (int board_id, const char *json_brainflow_input_params)
         case BoardIds::NEUROPAWN_KNIGHT_BOARD_IMU:
             board = std::shared_ptr<Board> (
                 new KnightIMU ((int)BoardIds::NEUROPAWN_KNIGHT_BOARD_IMU, params));
+            break;
+        case BoardIds::BRAINVISION_RDA_BOARD:
+            board = std::shared_ptr<Board> (new BrainVisionRDA (params));
             break;
         case BoardIds::SHIMMER3_BOARD:
             board = std::shared_ptr<Board> (new Shimmer3 (params));
