@@ -51,7 +51,7 @@ void KnightIMU::read_thread ()
         res = serial->read_from_serial_port (&start, 1);
         if (res != 1)
         {
-            safe_logger (spdlog::level::debug, "unable to read 1 byte, {}");
+            safe_logger (spdlog::level::debug, "unable to read 1 byte, {}", res);
             continue;
         }
         if (start != KnightBase::start_byte)

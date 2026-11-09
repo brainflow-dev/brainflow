@@ -296,7 +296,7 @@ void Emotibit::read_thread ()
                 // push default preset when magnetometer z is received
                 if (type_tag == MAGNETOMETER_Z)
                 {
-                    for (int i = 0; i < data_len; i++)
+                    for (int i = 0; i < std::min (data_len, max_datapoints_in_package); i++)
                     {
                         push_package (default_packages[i], (int)BrainFlowPresets::DEFAULT_PRESET);
                     }
@@ -339,7 +339,7 @@ void Emotibit::read_thread ()
                 // push aux preset when ppg green is received
                 if (type_tag == PPG_GREEN)
                 {
-                    for (int i = 0; i < data_len; i++)
+                    for (int i = 0; i < std::min (data_len, max_datapoints_in_package); i++)
                     {
                         push_package (aux_packages[i], (int)BrainFlowPresets::AUXILIARY_PRESET);
                     }
@@ -372,8 +372,9 @@ void Emotibit::read_thread ()
                         {
                             try
                             {
-                                anc_packages[i * 2][channel_index] = std::stod (payload[i]);
-                                anc_packages[i + 1][channel_index] = anc_packages[i][channel_index];
+                                double val = std::stod (payload[i]);
+                                anc_packages[i * 2][channel_index] = val;
+                                anc_packages[i * 2 + 1][channel_index] = val;
                             }
                             catch (...)
                             {
@@ -403,7 +404,8 @@ void Emotibit::read_thread ()
                 if (type_tag == EDA)
                 {
                     int eda_channel = board_descr["ancillary"]["eda_channels"][0];
-                    for (int i = 0; i < (int)payload.size (); i++)
+                    for (int i = 0; i < std::min ((int)payload.size (), max_datapoints_in_package);
+                         i++)
                     {
                         anc_packages[i][board_descr["ancillary"]["timestamp_channel"].get<int> ()] =
                             get_timestamp ();

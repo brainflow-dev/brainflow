@@ -365,7 +365,7 @@ void Explore::parse_orientation_data (
 
     if (payload_size % 2 != 0) // 2 is int16
     {
-        safe_logger (spdlog::level::warn, "Invalid payload size for Orn package: {}");
+        safe_logger (spdlog::level::warn, "Invalid payload size for Orn package: {}", payload_size);
         return;
     }
     int num_datapoints = payload_size / 2;
