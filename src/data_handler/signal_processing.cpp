@@ -607,8 +607,7 @@ int rereference_channels (double *data, int rows, int cols, int *channels, int c
 try
 {
     if (!data || !channels || !reference_channels || rows < 1 || cols < 1 || channels_len < 1 ||
-        reference_channels_len < 1 ||
-        (int64_t)rows * cols > std::numeric_limits<int>::max ())
+        reference_channels_len < 1 || (int64_t)rows * cols > std::numeric_limits<int>::max ())
         return invalid;
 
     std::set<int> seen_channels;
@@ -630,8 +629,7 @@ try
         if (!finite_signal (data + (size_t)channel * cols, cols))
             return invalid;
     for (int channel : seen_reference)
-        if (!seen_channels.count (channel) &&
-            !finite_signal (data + (size_t)channel * cols, cols))
+        if (!seen_channels.count (channel) && !finite_signal (data + (size_t)channel * cols, cols))
             return invalid;
 
     std::vector<double> reference ((size_t)cols, 0.0);
