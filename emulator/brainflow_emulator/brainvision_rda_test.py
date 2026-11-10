@@ -56,7 +56,8 @@ def main(library):
                     return
                 block = 0
                 while not stop.is_set():
-                    marker = struct.pack('<IIII', 30, 1, 1, 0xffffffff) + b'Stimulus\0S 12\0'
+                    label = b'S\xff12' if scenario == 'encoding' else b'S 12'
+                    marker = struct.pack('<IIII', 30, 1, 1, 0xffffffff) + b'Stimulus\0' + label + b'\0'
                     body = struct.pack('<III', block, 2, 2) + struct.pack('<64f', *([-3.5] * 64))
                     packet = message(4, body + marker * 2)
                     for offset in range(0, len(packet), 17):
@@ -102,11 +103,14 @@ def main(library):
             assert lib.config_board(b'get_channel_names', response, ctypes.byref(length), 8192, 71, params) == 0
             assert json.loads(response.value) == ['C%d' % i for i in range(32)]
             assert lib.stop_stream(71, params) == 0
-        for scenario, expected in [('profile', 5), ('oversized', 5), ('silent', 18), ('stop', 0)]:
+        for scenario, expected in [('encoding', 0), ('profile', 5), ('oversized', 5), ('silent', 18), ('stop', 0)]:
             mode[0] = scenario
             before = time.monotonic()
             assert lib.start_stream(1024, b'', 71, params) == expected, scenario
             assert time.monotonic() - before < 2.5, 'stop did not interrupt recv'
+            if scenario == 'encoding':
+                assert lib.config_board(b'get_marker', response, ctypes.byref(length), 8192, 71, params) == 0
+                assert json.loads(response.value)['description'] == 'S\ufffd12'
             if expected == 0:
                 assert lib.stop_stream(71, params) == 0
         assert lib.release_session(71, params) == 0

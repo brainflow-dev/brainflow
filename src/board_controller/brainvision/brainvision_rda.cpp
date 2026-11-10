@@ -108,7 +108,10 @@ void BrainVisionRDA::read_thread ()
             break;
         if (type == 1)
         {
-            if (!decoder.start (body))
+            if (!decoder.start (body) ||
+                (json (decoder.names)
+                        .dump (-1, ' ', false, json::error_handler_t::replace)
+                        .size () > 4000))
             {
                 safe_logger (spdlog::level::err,
                     "RDA requires 32 channels at 1000 Hz with valid resolutions");
@@ -188,7 +191,7 @@ int BrainVisionRDA::config_board (std::string config, std::string &response)
         return (int)BrainFlowExitCodes::BOARD_NOT_READY_ERROR;
     std::lock_guard<std::mutex> lock (mutex);
     if (config == "get_channel_names")
-        response = json (channel_names).dump ();
+        response = json (channel_names).dump (-1, ' ', false, json::error_handler_t::replace);
     else if (config == "get_marker")
     {
         if (markers.empty ())
@@ -199,7 +202,7 @@ int BrainVisionRDA::config_board (std::string config, std::string &response)
             response = json ({{"block", marker.block}, {"position", marker.position},
                                  {"points", marker.points}, {"channel", marker.channel},
                                  {"type", marker.type}, {"description", marker.description}})
-                           .dump ();
+                           .dump (-1, ' ', false, json::error_handler_t::replace);
             markers.pop_front ();
         }
     }

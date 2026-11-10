@@ -1605,7 +1605,9 @@ and the zero-based sample offset within its block. ``config_board("get_marker")`
 pops one marker as JSON (block, position, points, channel, type, description),
 or returns ``{}`` when empty. Channel -1 means all channels. The queue retains
 256 events; overflow drops the oldest event with a warning. Coincident markers
-remain separate. Names and marker strings are limited to 512 bytes each.
+remain separate. Each name is limited to 512 bytes and the complete JSON name list to 4000 bytes.
+The combined marker type/description is limited to 512 bytes so each event fits
+standard binding buffers. Invalid UTF-8 is replaced when serializing JSON.
 The normal BrainFlow marker row remains available for ``insert_marker``.
 
 Timestamps anchor the last sample of each block to host receipt and backdate

@@ -1,5 +1,7 @@
 #pragma once
 
+#include <stddef.h>
+
 #include <array>
 #include <cmath>
 #include <cstdint>
@@ -150,7 +152,8 @@ namespace rda
                     return false;
                 offset += 16;
                 if (!text (data, offset, end, marker.type) ||
-                    !text (data, offset, end, marker.description) || (offset != end))
+                    !text (data, offset, end, marker.description) || (offset != end) ||
+                    (marker.type.size () + marker.description.size () > 512))
                     return false;
                 pending.samples[marker.position][33] += 1;
                 pending.markers.push_back (marker);
