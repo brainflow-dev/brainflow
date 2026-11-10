@@ -1581,3 +1581,47 @@ Common sensor bits:
 - :code:`0x000008`, EXG2 24-bit
 - :code:`0x000004`, GSR, exposed as EDA
 - :code:`0x002000`, battery
+
+BITalino serial / Bluetooth Classic
+-----------------------------------
+
+``BoardIds.BITALINO_BOARD`` (70) acquires all six analog channels at 1000 Hz
+using the original BITalino / BITalino (r)evolution serial protocol. Set
+``serial_port`` to a USB or operating-system-paired Bluetooth Classic RFCOMM
+port (115200 baud). BLE-only models are not supported. ``timeout`` is the
+handshake and first-sample timeout in seconds (default 5).
+
+The six ``analog_channels`` contain **raw ADC counts**, not volts or microvolts:
+A1-A4 are 10-bit and A5-A6 are 6-bit. The attached sensor determines the physical
+quantity and transfer function; apply the appropriate sensor calibration before
+signal analysis. The four ``other_channels`` contain D1-D4 as 0/1. The package
+number is the device's four-bit sequence counter, wrapping every 16 samples.
+Timestamps use host receive time, not a synchronized device clock.
+
+Set ``other_info = "simulated"`` to request the device firmware's simulated
+signal mode. This still needs a connected BITalino. ``config_board("get_version")``
+returns the firmware identification cached during preparation. Other sampling
+rates, channel subsets, output control and battery configuration are not exposed
+by this initial fixed-profile driver.
+
+.. code-block:: python
+
+    from brainflow.board_shim import BoardShim, BrainFlowInputParams, BoardIds
+
+    params = BrainFlowInputParams()
+    params.serial_port = "/dev/rfcomm0"  # or a paired COM port on Windows
+    board = BoardShim(BoardIds.BITALINO_BOARD, params)
+    board.prepare_session()
+    try:
+        board.start_stream()
+        # Read raw samples with get_board_data().
+        board.stop_stream()
+    finally:
+        board.release_session()
+
+The parser checks CRC4 and requires two consecutive valid frames to acquire or
+recover alignment. CRC4 has limited error-detection strength. Tests use golden
+protocol vectors and a pseudo-terminal device emulator. Physical-device and
+Bluetooth serial validation remain outstanding.
+
+Protocol reference: https://github.com/BITalinoWorld/cpp-api
