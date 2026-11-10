@@ -1,5 +1,7 @@
 #pragma once
 
+#include <stddef.h>
+
 #include <array>
 #include <cctype>
 #include <cstdint>
