@@ -1217,6 +1217,19 @@ BrainFlowBoards::BrainFlowBoards()
         {"battery_channel", 16},
         {"other_channels", {17}}
     };
+    brainflow_boards_json["boards"]["69"]["default"] =
+    {
+        {"name", "NeuroSky"},
+        {"sampling_rate", 512},
+        {"package_num_channel", 0},
+        {"eeg_channels", {1}},
+        {"eeg_names", "Fp1"},
+        {"other_channels", {2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12}},
+        {"timestamp_channel", 13},
+        {"marker_channel", 14},
+        {"num_rows", 15}
+    };
+
 }
 
 BrainFlowBoards boards_struct;

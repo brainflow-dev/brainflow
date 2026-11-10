@@ -42,6 +42,7 @@ SET (TESTS_SRC
     ${CMAKE_CURRENT_SOURCE_DIR}/src/utils/multicast_server.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/utils/socket_client_udp.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/utils/timestamp.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/tests/board_controller/neurosky_unittest.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/tests/board_controller/brainalive_unittest.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/tests/utils/bluetooth/socket_bluetooth_test.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/tests/utils/bluetooth/bluetooth_functions_unittest.cpp
