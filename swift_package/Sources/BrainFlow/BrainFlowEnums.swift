@@ -66,6 +66,7 @@ public enum BoardIds: Int, CaseIterable, Sendable {
     case NEUROPAWN_KNIGHT_BOARD_IMU = 66
     case MUSE_S_ATHENA_BOARD = 67
     case SHIMMER3_BOARD = 68
+    case BRAINVISION_RDA_BOARD = 71
 
     public var code: Int { rawValue }
 }

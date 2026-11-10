@@ -68,5 +68,6 @@ classdef BoardIds < int32
         NEUROPAWN_KNIGHT_BOARD_IMU(66)
         MUSE_S_ATHENA_BOARD(67)
         SHIMMER3_BOARD(68)
+        BRAINVISION_RDA_BOARD(71)
     end
 end

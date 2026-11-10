@@ -1581,3 +1581,61 @@ Common sensor bits:
 - :code:`0x000008`, EXG2 24-bit
 - :code:`0x000004`, GSR, exposed as EDA
 - :code:`0x002000`, battery
+
+BrainVision RDA (32 channels, 1000 Hz)
+-------------------------------------
+
+``BoardIds.BRAINVISION_RDA_BOARD`` (71) receives the TCP DATA32 stream from
+BrainVision Recorder's Remote Data Access interface. This is a Recorder gateway,
+not a direct USB driver. Enable RDA, configure **exactly 32 channels at 1000 Hz**,
+and start Recorder acquisition before calling ``start_stream``. Other channel
+counts/rates and DATA16 are rejected. Set ``ip_address`` to the Recorder IPv4
+address; ``ip_port`` defaults to 51244. ``timeout`` is the first-sample timeout
+in seconds (default 5). Preparation checks connectivity; each start reconnects
+to obtain fresh metadata and discard samples queued before recording.
+
+Rows 1-32 follow Recorder channel order and use its per-channel resolution to
+convert to microvolts. Use ``config_board("get_channel_names")`` after starting
+to get the channel names as JSON. Configure EEG-only channels: this profile does
+not classify arbitrary auxiliary channels supplied by Recorder.
+
+``package_num_channel`` contains the RDA block number, repeated for each sample
+in that block. ``other_channels`` contains the RDA marker count at each sample
+and the zero-based sample offset within its block. ``config_board("get_marker")``
+pops one marker as JSON (block, position, points, channel, type, description),
+or returns ``{}`` when empty. Channel -1 means all channels. The queue retains
+256 events; overflow drops the oldest event with a warning. Coincident markers
+remain separate. Each name is limited to 512 bytes and the complete JSON name list to 4000 bytes.
+The combined marker type/description is limited to 512 bytes so each event fits
+standard binding buffers. Invalid UTF-8 is replaced when serializing JSON.
+The normal BrainFlow marker row remains available for ``insert_marker``.
+
+Timestamps anchor the last sample of each block to host receipt and backdate
+samples at 1000 Hz. They are not hardware timestamps or clock synchronization.
+A Recorder STOP, malformed message, unsupported profile or lost connection ends
+the reader. Call ``stop_stream`` and ``start_stream`` to reconnect after restoring
+Recorder acquisition; there is no silent automatic reconnect.
+
+.. code-block:: python
+
+    from brainflow.board_shim import BoardShim, BrainFlowInputParams, BoardIds
+
+    params = BrainFlowInputParams()
+    params.ip_address = "127.0.0.1"
+    board = BoardShim(BoardIds.BRAINVISION_RDA_BOARD, params)
+    board.prepare_session()
+    try:
+        board.start_stream()
+        print(board.config_board("get_channel_names"))
+        # Consume get_board_data() and drain get_marker while recording.
+        board.stop_stream()
+    finally:
+        board.release_session()
+
+Validation uses protocol fixtures and a loopback RDA server, including fragmented
+TCP reads, scaling, coincident markers, profile rejection, timeouts and restarting.
+Physical Recorder/amplifier validation remains outstanding.
+
+Protocol references:
+https://github.com/brain-products/LSL-BrainVisionRDA and
+https://github.com/fieldtrip/fieldtrip/blob/master/realtime/src/buffer/src/rdaserver.c

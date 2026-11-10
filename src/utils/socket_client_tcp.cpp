@@ -2,6 +2,15 @@
 
 #include "socket_client_tcp.h"
 
+void SocketClientTCP::shutdown ()
+{
+#ifdef _WIN32
+    ::shutdown (connect_socket, SD_BOTH);
+#else
+    ::shutdown (connect_socket, SHUT_RDWR);
+#endif
+}
+
 ///////////////////////////////
 /////////// WINDOWS ///////////
 //////////////////////////////
