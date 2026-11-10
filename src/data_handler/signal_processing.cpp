@@ -602,6 +602,57 @@ catch (...)
     return failure;
 }
 
+int rereference_channels (double *data, int rows, int cols, int *channels, int channels_len,
+    int *reference_channels, int reference_channels_len)
+try
+{
+    if (!data || !channels || !reference_channels || rows < 1 || cols < 1 || channels_len < 1 ||
+        reference_channels_len < 1 || (int64_t)rows * cols > std::numeric_limits<int>::max ())
+        return invalid;
+
+    std::set<int> seen_channels;
+    std::set<int> seen_reference;
+    for (int i = 0; i < channels_len; i++)
+    {
+        int channel = channels[i];
+        if (channel < 0 || channel >= rows || !seen_channels.insert (channel).second)
+            return invalid;
+    }
+    for (int i = 0; i < reference_channels_len; i++)
+    {
+        int channel = reference_channels[i];
+        if (channel < 0 || channel >= rows || !seen_reference.insert (channel).second)
+            return invalid;
+    }
+
+    for (int channel : seen_channels)
+        if (!finite_signal (data + (size_t)channel * cols, cols))
+            return invalid;
+    for (int channel : seen_reference)
+        if (!seen_channels.count (channel) && !finite_signal (data + (size_t)channel * cols, cols))
+            return invalid;
+
+    std::vector<double> reference ((size_t)cols, 0.0);
+    const double scale = 1.0 / reference_channels_len;
+    for (int i = 0; i < reference_channels_len; i++)
+    {
+        const double *row = data + (size_t)reference_channels[i] * cols;
+        for (int t = 0; t < cols; t++)
+            reference[(size_t)t] += row[t] * scale;
+    }
+    for (int i = 0; i < channels_len; i++)
+    {
+        double *row = data + (size_t)channels[i] * cols;
+        for (int t = 0; t < cols; t++)
+            row[t] -= reference[(size_t)t];
+    }
+    return ok;
+}
+catch (...)
+{
+    return failure;
+}
+
 int write_file (const double *data, int rows, int cols, const char *name, const char *mode)
 try
 {

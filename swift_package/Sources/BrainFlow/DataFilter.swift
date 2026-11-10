@@ -871,6 +871,47 @@ public enum DataFilter {
         return output
     }
 
+    public static func rereference_channels(
+        data: inout [[Double]],
+        channels: [Int],
+        reference_channels: [Int]
+    ) throws {
+        let (rows, cols) = try BrainFlowArray.validateRectangular(data)
+        guard !channels.isEmpty, !reference_channels.isEmpty else {
+            throw invalidArguments("channels and reference_channels must be non-empty")
+        }
+        guard channels.allSatisfy({ $0 >= 0 && $0 < rows }) else {
+            throw invalidArguments("Channel index is out of range")
+        }
+        guard reference_channels.allSatisfy({ $0 >= 0 && $0 < rows }) else {
+            throw invalidArguments("Reference channel index is out of range")
+        }
+        var linear = reshape_data_to_1d(num_rows: rows, num_cols: cols, buf: data)
+        var channelsNative = channels.map { CInt($0) }
+        var referenceNative = reference_channels.map { CInt($0) }
+        try linear.withUnsafeMutableBufferPointer { dataPtr in
+            try channelsNative.withUnsafeMutableBufferPointer { channelsPtr in
+                try referenceNative.withUnsafeMutableBufferPointer { referencePtr in
+                    try DataFilterNative.withData { native in
+                        try checkBrainFlowExitCode(
+                            native.rereference_channels(
+                                dataPtr.baseAddress,
+                                checkedCInt(rows),
+                                checkedCInt(cols),
+                                channelsPtr.baseAddress,
+                                checkedCInt(channels.count),
+                                referencePtr.baseAddress,
+                                checkedCInt(reference_channels.count)
+                            ),
+                            "Failed to rereference channels"
+                        )
+                    }
+                }
+            }
+        }
+        data = BrainFlowArray.reshape_data_to_2d(num_rows: rows, num_cols: cols, linear_buffer: linear)
+    }
+
     private static func checkedCInt(_ value: Int) throws -> CInt {
         guard let result = CInt(exactly: value) else {
             throw invalidArguments("Integer argument exceeds the native integer range")
@@ -955,6 +996,7 @@ final class DataFilterNative {
     let detect_peaks_z_score: @convention(c) (UnsafeMutablePointer<Double>?, CInt, CInt, Double, Double, UnsafeMutablePointer<Double>?) -> CInt
     let perform_ica: @convention(c) (UnsafeMutablePointer<Double>?, CInt, CInt, CInt, UnsafeMutablePointer<Double>?, UnsafeMutablePointer<Double>?, UnsafeMutablePointer<Double>?, UnsafeMutablePointer<Double>?) -> CInt
     let get_activity_index: @convention(c) (UnsafePointer<Double>?, UnsafePointer<Double>?, UnsafePointer<Double>?, CInt, CInt, CInt, Double, Double, Double, UnsafeMutablePointer<Double>?) -> CInt
+    let rereference_channels: @convention(c) (UnsafeMutablePointer<Double>?, CInt, CInt, UnsafeMutablePointer<CInt>?, CInt, UnsafeMutablePointer<CInt>?, CInt) -> CInt
     let set_log_level_data_handler: @convention(c) (CInt) -> CInt
     let set_log_file_data_handler: @convention(c) (UnsafePointer<CChar>?) -> CInt
     let log_message_data_handler: @convention(c) (CInt, UnsafeMutablePointer<CChar>?) -> CInt
@@ -1012,6 +1054,7 @@ final class DataFilterNative {
         detect_peaks_z_score = try library.symbol("detect_peaks_z_score", as: type(of: detect_peaks_z_score))
         perform_ica = try library.symbol("perform_ica", as: type(of: perform_ica))
         get_activity_index = try library.symbol("get_activity_index", as: type(of: get_activity_index))
+        rereference_channels = try library.symbol("rereference_channels", as: type(of: rereference_channels))
         set_log_level_data_handler = try library.symbol("set_log_level_data_handler", as: type(of: set_log_level_data_handler))
         set_log_file_data_handler = try library.symbol("set_log_file_data_handler", as: type(of: set_log_file_data_handler))
         log_message_data_handler = try library.symbol("log_message_data_handler", as: type(of: log_message_data_handler))

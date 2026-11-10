@@ -314,6 +314,16 @@ public:
         double noise_var_x = 0.0, double noise_var_y = 0.0, double noise_var_z = 0.0,
         int *output_len = NULL);
 
+    /**
+     * re-reference selected EEG/EXG channels in-place
+     * @param data 2d array with shape (channels, samples), modified in-place
+     * @param channels zero-based channel indices to update
+     * @param reference_channels zero-based channel indices used to compute the mean reference
+     * Overlap between channels and reference_channels is allowed (common average reference).
+     */
+    static void rereference_channels (BrainFlowArray<double, 2> &data,
+        const std::vector<int> &channels, const std::vector<int> &reference_channels);
+
     /// get brainflow version
     static std::string get_version ();
 };

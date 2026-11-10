@@ -491,6 +491,18 @@ class DataHandlerDLL(object):
         self.perform_ica_with_options.argtypes = self.perform_ica.argtypes + [
             ctypes.c_int, ctypes.c_double, ctypes.c_int]
 
+        self.rereference_channels = self.lib.rereference_channels
+        self.rereference_channels.restype = ctypes.c_int
+        self.rereference_channels.argtypes = [
+            ndpointer(ctypes.c_double, flags=('C_CONTIGUOUS', 'WRITEABLE')),
+            ctypes.c_int,
+            ctypes.c_int,
+            ndpointer(ctypes.c_int32, flags='C_CONTIGUOUS'),
+            ctypes.c_int,
+            ndpointer(ctypes.c_int32, flags='C_CONTIGUOUS'),
+            ctypes.c_int,
+        ]
+
         self.create_streaming_filter = self.lib.create_streaming_filter
         self.create_streaming_filter.restype = ctypes.c_int
         self.create_streaming_filter.argtypes = [
@@ -1788,6 +1800,44 @@ class DataFilter(object):
         s = s.reshape(num_components, data.shape[1])
 
         return w, k, a, s
+
+    @classmethod
+    def rereference_channels(cls, data, channels: List, reference_channels: List) -> None:
+        """re-reference selected EEG/EXG channels in-place
+
+        Computes an element-wise mean across ``reference_channels`` and subtracts that
+        reference from each channel listed in ``channels``. Overlap between the two lists
+        is allowed and is the usual pattern for common average referencing. Channel indices
+        are zero-based.
+
+        :param data: writable float64 2d array with shape (channels, samples)
+        :type data: NDArray[Shape["*, *"], Float64]
+        :param channels: zero-based indices of channels to update
+        :type channels: List
+        :param reference_channels: zero-based indices used to compute the mean reference
+        :type reference_channels: List
+        """
+        check_memory_layout_row_major(data, 2)
+        if data.dtype != numpy.float64 or not data.flags.writeable:
+            raise BrainFlowError('data must be a writable float64 array',
+                                 BrainFlowExitCodes.INVALID_ARGUMENTS_ERROR.value)
+        channels_arr = cls._validated_channel_indices(channels, data.shape[0], 'channels')
+        reference_arr = cls._validated_channel_indices(
+            reference_channels, data.shape[0], 'reference_channels')
+        res = DataHandlerDLL.get_instance().rereference_channels(
+            data, data.shape[0], data.shape[1], channels_arr, channels_arr.size,
+            reference_arr, reference_arr.size)
+        if res != BrainFlowExitCodes.STATUS_OK.value:
+            raise BrainFlowError('unable to rereference channels', res)
+
+    @staticmethod
+    def _validated_channel_indices(channels, num_channels: int, arg_name: str):
+        indices = numpy.asarray(channels)
+        if (indices.ndim != 1 or indices.size == 0 or indices.dtype.kind not in 'iu' or
+                numpy.any(indices < 0) or numpy.any(indices >= num_channels)):
+            raise BrainFlowError('invalid %s' % arg_name,
+                                 BrainFlowExitCodes.INVALID_ARGUMENTS_ERROR.value)
+        return numpy.ascontiguousarray(indices, dtype=numpy.int32)
 
     @classmethod
     def perform_ifft(cls, data):

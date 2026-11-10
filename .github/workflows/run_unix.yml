@@ -411,6 +411,7 @@ jobs:
         sudo -H python3 $GITHUB_WORKSPACE/python_package/examples/tests/decomposition_regression.py
         sudo -H python3 $GITHUB_WORKSPACE/python_package/examples/tests/signal_metrics_regression.py
         sudo -H python3 $GITHUB_WORKSPACE/python_package/examples/tests/binding_validation_regression.py
+        sudo -H python3 $GITHUB_WORKSPACE/python_package/examples/tests/rereference_channels.py
     - name: Signal Processing Regression Cpp
       run: $GITHUB_WORKSPACE/cpp_package/examples/signal_processing/build/signal_processing_regression
       env:

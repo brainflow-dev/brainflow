@@ -179,6 +179,10 @@ extern "C"
     SHARED_EXPORT int CALLING_CONVENTION get_activity_index (const double *accel_x,
         const double *accel_y, const double *accel_z, int data_len, int sampling_rate, int period,
         double noise_var_x, double noise_var_y, double noise_var_z, double *activity_index);
+    // Subtract mean of reference_channels from selected channels in-place.
+    // data is row-major (channels x samples). Overlap between lists is allowed (CAR).
+    SHARED_EXPORT int CALLING_CONVENTION rereference_channels (double *data, int rows, int cols,
+        int *channels, int channels_len, int *reference_channels, int reference_channels_len);
 
     // logging methods
     SHARED_EXPORT int CALLING_CONVENTION set_log_level_data_handler (int log_level);

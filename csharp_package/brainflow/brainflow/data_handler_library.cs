@@ -208,6 +208,8 @@ namespace brainflow
         [DllImport ("DataHandler", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int perform_ica (double[] data, int rows, int cols, int num_components, double[] w, double[] k, double[] a, double[] s);
         [DllImport ("DataHandler", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        public static extern int rereference_channels (double[] data, int rows, int cols, int[] channels, int channels_len, int[] reference_channels, int reference_channels_len);
+        [DllImport ("DataHandler", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int get_activity_index (double[] accel_x, double[] accel_y, double[] accel_z, int data_len, int sampling_rate, int period, double noise_var_x, double noise_var_y, double noise_var_z, double[] output);
         // unsafe methods working with pointers
         [DllImport ("DataHandler", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
@@ -340,6 +342,8 @@ namespace brainflow
         [DllImport ("DataHandler32", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int perform_ica (double[] data, int rows, int cols, int num_components, double[] w, double[] k, double[] a, double[] s);
         [DllImport ("DataHandler32", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        public static extern int rereference_channels (double[] data, int rows, int cols, int[] channels, int channels_len, int[] reference_channels, int reference_channels_len);
+        [DllImport ("DataHandler32", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int get_activity_index (double[] accel_x, double[] accel_y, double[] accel_z, int data_len, int sampling_rate, int period, double noise_var_x, double noise_var_y, double noise_var_z, double[] output);
         // unsafe methods working with pointers
         [DllImport ("DataHandler32", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
@@ -469,6 +473,19 @@ namespace brainflow
                     return DataHandlerLibrary64.perform_ica (data, rows, cols, num_components, w, k, a, s);
                 case LibraryEnvironment.x86:
                     return DataHandlerLibrary32.perform_ica (data, rows, cols, num_components, w, k, a, s);
+            }
+
+            return (int)BrainFlowExitCodes.GENERAL_ERROR;
+        }
+
+        public static int rereference_channels (double[] data, int rows, int cols, int[] channels, int channels_len, int[] reference_channels, int reference_channels_len)
+        {
+            switch (PlatformHelper.get_library_environment ())
+            {
+                case LibraryEnvironment.x64:
+                    return DataHandlerLibrary64.rereference_channels (data, rows, cols, channels, channels_len, reference_channels, reference_channels_len);
+                case LibraryEnvironment.x86:
+                    return DataHandlerLibrary32.rereference_channels (data, rows, cols, channels, channels_len, reference_channels, reference_channels_len);
             }
 
             return (int)BrainFlowExitCodes.GENERAL_ERROR;

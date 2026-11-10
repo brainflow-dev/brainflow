@@ -281,6 +281,14 @@ Data files accept rectangular tab- or comma-separated finite numeric values, inc
 a final line without a newline. Invalid tokens and insufficient destination capacity
 return errors. Writing uses enough decimal precision to round-trip doubles.
 
+``DataFilter.rereference_channels`` subtracts the element-wise mean of
+``reference_channels`` from the selected ``channels`` of a ``(channels, samples)``
+array in place. Channel indices are zero-based in most bindings; MATLAB and Julia
+use one-based indices and convert them before calling native code. Overlap between
+the two index lists is allowed and supports common average referencing. MATLAB
+returns the updated matrix, so callers must assign the result
+(``data = DataFilter.rereference_channels(data, channels, reference_channels)``).
+
 Python API Reference
 ----------------------
 

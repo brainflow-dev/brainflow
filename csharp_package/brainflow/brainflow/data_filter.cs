@@ -833,6 +833,34 @@ namespace brainflow
             return return_data;
         }
 
+        public static void rereference_channels (double[,] data, int[] channels, int[] reference_channels)
+        {
+            if (data == null || channels == null || reference_channels == null)
+            {
+                throw new BrainFlowError ((int)BrainFlowExitCodes.INVALID_ARGUMENTS_ERROR);
+            }
+            int rows = data.GetLength (0);
+            int cols = data.GetLength (1);
+            if (rows <= 0 || cols <= 0 || (long)rows * cols > int.MaxValue)
+            {
+                throw new BrainFlowError ((int)BrainFlowExitCodes.INVALID_ARGUMENTS_ERROR);
+            }
+            double[] data_1d = data.Flatten ();
+            int res = DataHandlerLibrary.rereference_channels (data_1d, rows, cols, channels, channels.Length,
+                    reference_channels, reference_channels.Length);
+            if (res != (int)BrainFlowExitCodes.STATUS_OK)
+            {
+                throw new BrainFlowError (res);
+            }
+            for (int i = 0; i < rows; i++)
+            {
+                for (int j = 0; j < cols; j++)
+                {
+                    data[i, j] = data_1d[i * cols + j];
+                }
+            }
+        }
+
         /// <summary>
         /// Calculate normalized mean powers for bands 2-4, 4-8, 8-13, 13-30, 30-45 Hz.
         /// Uses get_custom_band_powers preprocessing and minimum retained data length.
