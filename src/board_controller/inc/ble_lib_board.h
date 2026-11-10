@@ -58,6 +58,12 @@ protected:
             simpleble_uuid_t characteristic, const uint8_t *data, size_t data_length,
             void *userdata),
         void *userdata);
+    simpleble_err_t simpleble_peripheral_indicate (simpleble_peripheral_t handle,
+        simpleble_uuid_t service, simpleble_uuid_t characteristic,
+        void (*callback) (simpleble_peripheral_t handle, simpleble_uuid_t service,
+            simpleble_uuid_t characteristic, const uint8_t *data, size_t data_length,
+            void *userdata),
+        void *userdata);
     simpleble_err_t simpleble_peripheral_unsubscribe (
         simpleble_peripheral_t handle, simpleble_uuid_t service, simpleble_uuid_t characteristic);
     size_t simpleble_peripheral_manufacturer_data_count (simpleble_peripheral_t handle);

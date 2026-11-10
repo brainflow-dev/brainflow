@@ -83,6 +83,7 @@ class BoardIds(enum.IntEnum):
     NEUROPAWN_KNIGHT_BOARD_IMU = 66  #:
     MUSE_S_ATHENA_BOARD = 67  #:
     SHIMMER3_BOARD = 68  #:
+    POLAR_H10_BOARD = 73  #:
 
 
 class IpProtocolTypes(enum.IntEnum):
