@@ -261,6 +261,9 @@ jobs:
     # start testing
     - name: Run unit tests
       run: $GITHUB_WORKSPACE/build/tests/brainflow_tests
+    - name: EGI NA400 emulator
+      if: runner.os == 'Linux'
+      run: python3 $GITHUB_WORKSPACE/emulator/brainflow_emulator/egi_ampserver_test.py $GITHUB_WORKSPACE/installed/lib/libBoardController.so
     - name: Synthetic C# Test MacOS
       if: runner.os == 'macOS'
       run: |
