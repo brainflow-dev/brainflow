@@ -104,6 +104,8 @@ pub enum BoardIds {
     NeuropawnKnightBoardImu = 66,
     MuseSAthenaBoard = 67,
     Shimmer3Board = 68,
+    ExpandableEeg32WifiBoard = 69,
+    ExpandableEeg32Board = 70,
 }
 #[repr(i32)]
 #[derive(FromPrimitive, ToPrimitive, Debug, Copy, Clone, Hash, PartialEq, Eq)]

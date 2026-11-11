@@ -42,6 +42,8 @@ SET (BOARD_CONTROLLER_SRC
     ${CMAKE_CURRENT_SOURCE_DIR}/src/board_controller/openbci/openbci_wifi_shield_board.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/board_controller/openbci/ganglion_wifi.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/board_controller/openbci/cyton_wifi.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/board_controller/openbci/expandable_eeg32_wifi.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/board_controller/openbci/expandable_eeg32.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/board_controller/openbci/cyton_daisy_wifi.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/board_controller/openbci/ganglion.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/board_controller/openbci/ganglion_native.cpp
