@@ -73,9 +73,14 @@ int OpenBCISerialBoard::config_board (std::string config, std::string &response)
 
 int OpenBCISerialBoard::send_to_board (const char *msg)
 {
-    int length = (int)strlen (msg);
+    std::string command (msg);
+    if (board_id == (int)BoardIds::EXPANDABLE_EEG_32_BOARD)
+    {
+        command += '\n';
+    }
+    int length = (int)command.size ();
     safe_logger (spdlog::level::debug, "sending {} to the board", msg);
-    int res = serial->send_to_serial_port ((const void *)msg, length);
+    int res = serial->send_to_serial_port (command.data (), length);
     if (res != length)
     {
         return (int)BrainFlowExitCodes::BOARD_WRITE_ERROR;
@@ -86,9 +91,14 @@ int OpenBCISerialBoard::send_to_board (const char *msg)
 
 int OpenBCISerialBoard::send_to_board (const char *msg, std::string &response)
 {
-    int length = (int)strlen (msg);
+    std::string command (msg);
+    if (board_id == (int)BoardIds::EXPANDABLE_EEG_32_BOARD)
+    {
+        command += '\n';
+    }
+    int length = (int)command.size ();
     safe_logger (spdlog::level::debug, "sending {} to the board", msg);
-    int res = serial->send_to_serial_port ((const void *)msg, length);
+    int res = serial->send_to_serial_port (command.data (), length);
     if (res != length)
     {
         response = "";
@@ -262,6 +272,11 @@ int OpenBCISerialBoard::start_stream (int buffer_size, const char *streamer_para
     if (res != (int)BrainFlowExitCodes::STATUS_OK)
     {
         return res;
+    }
+
+    if (board_id == (int)BoardIds::EXPANDABLE_EEG_32_BOARD)
+    {
+        serial->flush_buffer ();
     }
 
     // start streaming
