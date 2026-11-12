@@ -32,6 +32,8 @@
 #include "cyton.h"
 #include "cyton_daisy.h"
 #include "cyton_daisy_wifi.h"
+#include "expandable_eeg32.h"
+#include "expandable_eeg32_wifi.h"
 #include "cyton_wifi.h"
 #include "emotibit.h"
 #include "enophone.h"
@@ -102,6 +104,12 @@ int prepare_session (int board_id, const char *json_brainflow_input_params)
     std::shared_ptr<Board> board = NULL;
     switch (static_cast<BoardIds> (board_id))
     {
+        case BoardIds::EXPANDABLE_EEG_32_WIFI_BOARD:
+            board = std::shared_ptr<Board> (new ExpandableEeg32Wifi (params));
+            break;
+        case BoardIds::EXPANDABLE_EEG_32_BOARD:
+            board = std::shared_ptr<Board> (new ExpandableEeg32 (params));
+            break;
         case BoardIds::PLAYBACK_FILE_BOARD:
             board = std::shared_ptr<Board> (new PlaybackFileBoard (params));
             break;
